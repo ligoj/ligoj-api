@@ -1,0 +1,4 @@
+receiver;name;canWrite;canAdmin;canSubscribe
+junit;service;true;true;true
+fdaugan;service;true;true;true
+user1;service:build:jenkins;true;true;true

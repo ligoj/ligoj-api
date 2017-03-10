@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.ligoj.api</groupId>
+		<artifactId>parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../parent/pom.xml</relativePath>
+	</parent>
+
+	<artifactId>plugin-parent</artifactId>
+	<packaging>pom</packaging>
+	<name>Ligo - Plugin Parent</name>
+	<description>Plugin parent pom the plugins should have.</description>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.ligoj.api</groupId>
+				<artifactId>plugin-core</artifactId>
+				<version>${api.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.ligoj.api</groupId>
+				<artifactId>plugin-api-test</artifactId>
+				<version>${api.version}</version>
+				<scope>test</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.ligoj.api</groupId>
+			<artifactId>plugin-core</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.ligoj.api</groupId>
+			<artifactId>plugin-api-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+</project>

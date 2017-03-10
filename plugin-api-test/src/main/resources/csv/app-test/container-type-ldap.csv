@@ -1,0 +1,7 @@
+name;dn;locked;type
+Project;ou=project,dc=sample,dc=com;true;GROUP
+Tool;ou=tools,dc=sample,dc=com;false;GROUP
+Hub;cn=Production,ou=branche,ou=groups,dc=sample,dc=com;false;GROUP
+Fonction;ou=fonction,ou=groups,dc=sample,dc=com;false;GROUP
+Root;ou=people,dc=sample,dc=com;true;COMPANY
+France;ou=france,ou=people,dc=sample,dc=com;false;COMPANY

@@ -1,0 +1,6 @@
+id;type;value;date;subscription.id!;node.id
+1;STATUS;UP;01/01/2013;;service:bt:jira:4
+1;STATUS;DOWN;01/01/2013;;service:bt:jira:6
+1;STATUS;UP;01/01/2013;;service:build:jenkins:bpr
+2;STATUS;UP;01/01/2013;1;
+2;STATUS;UP;01/01/2013;2;

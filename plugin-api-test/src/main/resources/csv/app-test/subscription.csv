@@ -1,0 +1,14 @@
+node.id;project.name
+service:bt:jira:4;MDA
+service:bt:jira:6;gStack
+service:build:jenkins:bpr;gStack
+service:kpi:sonar:bpr;gStack
+service:id:ldap:dig;gStack
+service:id:ldap:dig;gStack
+service:km:confluence:dig;gStack
+service:security:fortify:dig;gStack
+service:vm:vcloud:sample;gStack
+service:scm:svn:dig;gStack
+service:scm:git:dig;gStack
+service:req:squash:dig;gStack
+service:storage:owncloud:dig;gStack

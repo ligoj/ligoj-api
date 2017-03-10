@@ -1,0 +1,5 @@
+autoEnabled=true
+eclipse.preferences.version=1
+extraProperties=
+moduleKey=org.ligoj.app\:plugin-api
+serverId=delivery

@@ -1,0 +1,24 @@
+receiver;receiverType;type;name;canWrite;canAdmin;dn
+fdaugan;USER;GROUP;dig rha;true;true;cn=dig rha,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+fdaugan;USER;GROUP;any;true;true;cn=any,ou=groups,dc=sample,dc=com
+fdaugan;USER;COMPANY;ing;true;true;ou=ing,ou=external,ou=people,dc=sample,dc=com
+fdaugan;USER;COMPANY;any;true;true;cn=any,ou=groups,dc=sample,dc=com
+fdaugan;USER;TREE;-;true;true;ou=tools,dc=sample,dc=com
+someone;USER;COMPANY;ing;true;false;ou=ing,ou=external,ou=people,dc=sample,dc=com
+someone;USER;COMPANY;any;false;true;cn=any,ou=groups,dc=sample,dc=com
+someone;USER;GROUP;dig rha;false;false;cn=dig rha,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+junit;USER;TREE;-;true;true;dc=sample,dc=com
+assist;USER;COMPANY;socygan;true;true;ou=socygan,ou=external,ou=people,dc=sample,dc=com
+assist;USER;COMPANY;ing;true;true;ou=ing,ou=external,ou=people,dc=sample,dc=com
+mmartin;USER;GROUP;dig as;false;false;cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+mmartin;USER;GROUP;dig sud ouest;true;false;cn=dig sud ouest,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+mmartin;USER;GROUP;any;true;true;cn=any,ou=groups,dc=sample,dc=com
+mmartin;USER;COMPANY;socygan;true;true;ou=socygan,ou=external,ou=people,dc=sample,dc=com
+mmartin;USER;COMPANY;any;true;true;cn=any,ou=external,ou=people,dc=sample,dc=com
+mmartin;USER;COMPANY;ing;false;false;ou=ing,ou=external,ou=people,dc=sample,dc=com
+mtuyer;USER;TREE;-;true;true;ou=fonction,ou=groups,dc=sample,dc=com
+mtuyer;USER;COMPANY;ing;false;true;ou=ing,ou=external,ou=people,dc=sample,dc=com
+mlavoine;USER;TREE;-;false;false;cn=bpr affect,ou=tools,dc=sample,dc=com
+mlavoine;USER;COMPANY;ing;false;false;ou=ing,ou=external,ou=people,dc=sample,dc=com
+gfi-gstack;GROUP;COMPANY;ing;false;false;ou=ing,ou=external,ou=people,dc=sample,dc=com
+ing;COMPANY;GROUP;business solution;false;false;cn=business solution,ou=groups,dc=sample,dc=com
