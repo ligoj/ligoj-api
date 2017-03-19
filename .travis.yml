@@ -1,0 +1,34 @@
+addons: 
+  apt:
+    packages:
+      - graphviz
+  sonarqube: 
+    organization: ligoj-github
+    token: 
+      secure: "ZsINL3WaEhy5Cc78xghJPZdDLNYgVcM4kMhW+l551nKL1dhKnKpPNk8OyLyDB1r4DnIENF6a0MsBD0dzxg8kj+NhpGOa+oKI+7h6IaluVkWt+QMyOBkefjSvzLl1QKYy40IEdXIGJFvGUcaeBvZJ68T4ld0jZPHAQsvANlIatE+dZ7GPCKIsM4nUnUSWZm0JGEfyedhqKudg/6UquSVUsBd7xd2Ve0kna4HSyBzrZmDWffI7Wd/03VJuGp0tcI1BCVlgH6BxkhipxPj4eRWxBx5pKP6LXt5EYgLQVs3pwtyU792jGhcH6v6dTa7jc1MAwmzemsLI+M6PRGWNFa5NEpXRSQOh3WOAN7m/oYXxyNX91faeox6pt1rPUitbcUGa9779kIbQI+k2XeF7QRMhHdCVH3Wgpu1wGHcAY3dMVDeXggQ9n6ykR4IN0UVE6NBZOuy0MIE9Yplch3Nebvz9vTu5w1TJXhwOMzQ5HuF/kZ1Fs2nVDWxLRxSxMe7QgvhrHmtTYtds3TP0sKClBlDIKy6gKI5Op0LdGG3jYxXEAaj4ScnktTHectCLjGkK+HtXjXxySZcmtLDo98A5KkMVW/trJv4L0Y7hAXS3ucIF2Ze2o5L56GdIOkEnyFBBKIZPOhxtTNuXWM0IOPBdDPYbY7Txfqo1OG4Hy/MSc8Zn32s="
+before_cache: 
+  - "rm -rf $HOME/.m2/repository/org/ligoj/bootstrap"
+  - "find $HOME/.m2 -name resolver-status.properties -exec rm {} \\;"
+before_install: 
+  - "chmod +x ./travis.sh"
+cache: 
+  directories: 
+    - $HOME/.m2/repository
+    - $HOME/.sonar/cache
+    - $HOME/jvm
+    - $HOME/maven
+env: 
+  - TARGET=BUILD
+install: /bin/true 
+jdk: oraclejdk8
+language: java
+notifications: 
+  email: false
+  slack: 
+    on_start: always
+    on_failure: always
+    on_success: always
+    rooms:
+      secure: "SVcc/Fbcb0YrSW4j3o3p0urqgZ6cvvXubVWNKQMonfdmnkUOlBB6WAYpnnvFLQglZTslJ53l74BSlloG8tgl0ZZC7gagTpSJsQNUI2uGfCOw+URbfxtTVn3tASajyBQKmN7MVl4Z5a7MJI9qkwtdhfZacchtrirWEF8uaSq9+uSEU9Uoy/A4JOxoKUiRl3n38j2UziIDBPtQgcPKq1VGCvV9KLUw1mvhF/Rm89iGn4CZGZoQeXzjNoJ3gxpbURJEBKO+TjYhnKNouxyHxK21vQJg+XiHdtoqeNB6TGMu/EPIW+/MrHPgcDa9V/hjdwzbJvrvPZ1nBWkw8VehuJ8tOu+HVT9+yKD1gsVFf07zx13DUkFFqagwvlYIBRPwYW96unBS+IMbdHTdKzy7IfOggixEGbgNHUcR6NaLc1fMa+RiirPkbsKTwKcUkgJLqMZbhrJwuob5soVa/mFqLwqoKkGzG6+JaxLIXCCn3W9Lt9sNtE8W4Xqa8dV9hGMnEplkL0A/ayQ/u+TM1pD+0xWB9dHxxDvhsJhIggEabIJNfqzefjMEBDyCrwwVN4Jg5frtaMF8PN1dWxppkrCNtYdP2GGUUTVBYPs6H2yPqMElATI70zv9jUlLTrmOmsrG2kRERmQHD1sI9Q7LGyLovJC4/8NwPX6Ty3XZ1qtI0xb6LRM="
+script: "./travis.sh"
+sudo: false

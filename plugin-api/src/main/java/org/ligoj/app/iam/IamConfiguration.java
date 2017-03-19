@@ -18,17 +18,17 @@ public class IamConfiguration {
 	/**
 	 * User repository.
 	 */
-	private IUserRepository userLdapRepository;
+	private IUserRepository userRepository;
 
 	/**
 	 * Company repository.
 	 */
-	private ICompanyRepository companyLdapRepository;
+	private ICompanyRepository companyRepository;
 
 	/**
 	 * Group repository.
 	 */
-	private IGroupRepository groupLdapRepository;
+	private IGroupRepository groupRepository;
 
 	/**
 	 * Return the String converter to SimpleUser.

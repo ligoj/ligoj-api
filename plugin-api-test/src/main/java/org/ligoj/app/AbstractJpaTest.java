@@ -36,7 +36,7 @@ public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTes
 	 * @return User repository provider.
 	 */
 	protected IUserRepository getUser() {
-		return iamProvider.getConfiguration().getUserLdapRepository();
+		return iamProvider.getConfiguration().getUserRepository();
 	}
 
 	/**
@@ -45,7 +45,7 @@ public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTes
 	 * @return Company repository provider.
 	 */
 	protected ICompanyRepository getCompany() {
-		return iamProvider.getConfiguration().getCompanyLdapRepository();
+		return iamProvider.getConfiguration().getCompanyRepository();
 	}
 
 	/**
@@ -54,7 +54,7 @@ public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTes
 	 * @return Group repository provider.
 	 */
 	protected IGroupRepository getGroup() {
-		return iamProvider.getConfiguration().getGroupLdapRepository();
+		return iamProvider.getConfiguration().getGroupRepository();
 	}
 
 	/**

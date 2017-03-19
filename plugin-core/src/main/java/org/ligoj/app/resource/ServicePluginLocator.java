@@ -119,10 +119,10 @@ public class ServicePluginLocator {
 	 */
 	private List<String> getResources(final String[] registeredServices, final String service) {
 		final List<String> result = getExactResources(registeredServices, service);
-		if (!result.isEmpty()) {
-			return result;
+		if (result.isEmpty()) {
+			return getParentResources(registeredServices, service, result);
 		}
-		return getParentResources(registeredServices, service, result);
+		return result;
 	}
 
 	/**

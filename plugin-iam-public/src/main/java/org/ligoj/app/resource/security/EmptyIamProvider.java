@@ -24,9 +24,9 @@ public class EmptyIamProvider implements IamProvider {
 	@CacheResult(cacheName = "iam-node-configuration")
 	public IamConfiguration getConfiguration() {
 		final IamConfiguration configuration = new IamConfiguration();
-		configuration.setUserLdapRepository(new EmptyUserRepository());
-		configuration.setCompanyLdapRepository(new EmptyCompanyRepository());
-		configuration.setGroupLdapRepository(new EmptyGroupRepository());
+		configuration.setUserRepository(new EmptyUserRepository());
+		configuration.setCompanyRepository(new EmptyCompanyRepository());
+		configuration.setGroupRepository(new EmptyGroupRepository());
 		configuration.setToUser(login -> {
 			final SimpleUser user = new SimpleUser();
 			user.setId(login);

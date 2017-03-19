@@ -31,7 +31,7 @@ public class EmptyUserRepository implements IUserRepository {
 		userLdap.setId(login);
 		userLdap.setFirstName("First");
 		userLdap.setLastName("Last");
-		userLdap.setMails(Collections.singletonList(login + "@company.com"));
+		userLdap.setMails(Collections.singletonList(login + "@sample.com"));
 		userLdap.setDn("CN=" + login);
 		return userLdap;
 	}
@@ -64,5 +64,10 @@ public class EmptyUserRepository implements IUserRepository {
 	public boolean authenticate(final String name, final String password) {
 		// Always authenticated
 		return true;
+	}
+
+	@Override
+	public void setPassword(UserLdap userLdap, String password) {
+		// Nothing to do
 	}
 }

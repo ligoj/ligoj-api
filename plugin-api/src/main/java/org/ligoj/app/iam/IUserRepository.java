@@ -5,12 +5,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.app.model.ldap.GroupLdap;
 import org.ligoj.app.model.ldap.UserLdap;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * User repository
@@ -122,4 +121,15 @@ public interface IUserRepository {
 	 * @return User token based on salted password.
 	 */
 	String getToken(String login);
+
+	/**
+	 * Reset user password to the given value. The given password is not stored inside the given {@link UserLdap}
+	 * instance, but only in the remote storage, and in an hashed form.
+	 * 
+	 * @param userLdap
+	 *            The user to update.
+	 * @param password
+	 *            The raw new password. Will be hashed.
+	 */
+	void setPassword(UserLdap userLdap, String password);
 }

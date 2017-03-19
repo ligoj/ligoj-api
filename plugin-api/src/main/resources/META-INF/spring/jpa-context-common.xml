@@ -7,5 +7,4 @@
 			http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd">
 
 	<context:component-scan base-package="org.ligoj.app" />
-	<jpa:repositories base-package="org.ligoj.app.dao" factory-class="org.ligoj.bootstrap.core.dao.RestRepositoryFactoryBean" />
 </beans>

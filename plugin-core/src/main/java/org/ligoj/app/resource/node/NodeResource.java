@@ -236,8 +236,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return the parameters of given node. Not exposed as service since secured
-	 * data are decrypted. The result is cached.
+	 * Return the parameters of given node. Not exposed as web-service since secured
+	 * data are clearly exposed. The result is cached.
 	 * 
 	 * @param node
 	 *            the node identifier.
