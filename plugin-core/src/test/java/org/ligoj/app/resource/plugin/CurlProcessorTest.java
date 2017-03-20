@@ -13,11 +13,10 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
-
-import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 
 /**	
  * Test class of {@link CurlProcessor}
@@ -155,5 +154,16 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 		if (httpServer != null) {
 			httpServer.stop();
 		}
+	}
+
+
+	/**
+	 * Restore original Spring application context<br>
+	 * TODO Remove this with LB 1.6.1, see ligoj/bootstrap#4
+	 */
+	@Override
+	@After
+	public void restoreAppalicationContext() {
+		// Nothing to restore
 	}
 }

@@ -17,16 +17,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.ligoj.bootstrap.AbstractJpaTest;
-import org.ligoj.bootstrap.core.resource.TechnicalException;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.ligoj.bootstrap.model.system.SystemRole;
+import org.ligoj.app.AbstractJpaTest;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.model.Node;
@@ -37,6 +28,14 @@ import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.BuildResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
+import org.ligoj.bootstrap.core.resource.TechnicalException;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.ligoj.bootstrap.model.system.SystemRole;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * {@link ParameterValueResource} test cases.

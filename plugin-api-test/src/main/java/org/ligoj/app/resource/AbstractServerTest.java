@@ -2,13 +2,14 @@ package org.ligoj.app.resource;
 
 import org.junit.After;
 import org.junit.Before;
+import org.ligoj.app.AbstractJpaTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 
 /**
  * Test using mock http server.
  */
-public abstract class AbstractServerTest extends org.ligoj.app.AbstractJpaTest {
+public abstract class AbstractServerTest extends AbstractJpaTest {
 
 	protected WireMockServer httpServer;
 

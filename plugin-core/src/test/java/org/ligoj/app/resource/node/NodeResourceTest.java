@@ -10,26 +10,13 @@ import java.util.Map;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriInfo;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.ligoj.bootstrap.AbstractJpaTest;
-import org.ligoj.bootstrap.core.SpringUtils;
-import org.ligoj.bootstrap.core.json.TableItem;
-import org.ligoj.bootstrap.core.resource.TechnicalException;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.ligoj.app.AbstractJpaTest;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.api.SubscriptionMode;
@@ -57,6 +44,17 @@ import org.ligoj.app.resource.node.sample.KmResource;
 import org.ligoj.app.resource.node.sample.KpiResource;
 import org.ligoj.app.resource.node.sample.LdapPluginResource;
 import org.ligoj.app.resource.node.sample.SonarPluginResource;
+import org.ligoj.bootstrap.core.SpringUtils;
+import org.ligoj.bootstrap.core.json.TableItem;
+import org.ligoj.bootstrap.core.resource.TechnicalException;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * {@link NodeResource} test cases.
@@ -108,11 +106,6 @@ public class NodeResourceTest extends AbstractJpaTest {
 			return NodeResourceTest.super.applicationContext.getBean(requiredType);
 		});
 		this.resourceMock = resource;
-	}
-
-	@After
-	public void unmockApplicationContext() {
-		SpringUtils.setSharedApplicationContext(super.applicationContext);
 	}
 
 	@Test

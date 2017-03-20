@@ -1,17 +1,17 @@
 package org.ligoj.app;
 
-import org.junit.Before;
-import org.springframework.beans.factory.annotation.Autowired;
-
-import org.ligoj.bootstrap.model.system.SystemAuthorization;
-import org.ligoj.bootstrap.model.system.SystemRole;
-import org.ligoj.bootstrap.model.system.SystemRoleAssignment;
-import org.ligoj.bootstrap.model.system.SystemUser;
-import org.ligoj.bootstrap.model.system.SystemAuthorization.AuthorizationType;
+import org.junit.After;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.bootstrap.core.SpringUtils;
+import org.ligoj.bootstrap.model.system.SystemAuthorization;
+import org.ligoj.bootstrap.model.system.SystemAuthorization.AuthorizationType;
+import org.ligoj.bootstrap.model.system.SystemRole;
+import org.ligoj.bootstrap.model.system.SystemRoleAssignment;
+import org.ligoj.bootstrap.model.system.SystemUser;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Base test class for JPA tests.
@@ -20,15 +20,6 @@ public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTes
 
 	@Autowired
 	protected IamProvider iamProvider;
-
-	/**
-	 * Prepare the Spring Security in the context, not the REST one.
-	 */
-	@Override
-	@Before
-	public void setUp() {
-		initSpringSecurityContext(getAuthenticationName());
-	}
 
 	/**
 	 * User repository provider.
@@ -76,5 +67,17 @@ public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTes
 		assignment.setRole(role);
 		assignment.setUser(user);
 		em.persist(assignment);
+	}
+
+	/**
+	 * Restore original Spring application context.<br>
+	 * TODO Remove this with LB 1.6.1, see ligoj/bootstrap#4
+	 */
+	@Override
+	@After
+	public void restoreAppalicationContext() {
+		if (applicationContext != null) {
+			SpringUtils.setSharedApplicationContext(applicationContext);
+		}
 	}
 }

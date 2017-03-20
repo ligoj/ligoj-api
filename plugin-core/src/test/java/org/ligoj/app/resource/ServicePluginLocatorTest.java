@@ -5,18 +5,17 @@ import javax.transaction.Transactional;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.ligoj.bootstrap.AbstractJpaTest;
+import org.ligoj.app.AbstractJpaTest;
 import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.api.PluginNotFoundException;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.ConfluencePluginResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Test class of {@link ServicePluginLocator}
