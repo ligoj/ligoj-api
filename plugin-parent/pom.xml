@@ -11,7 +11,7 @@
 
 	<artifactId>plugin-parent</artifactId>
 	<packaging>pom</packaging>
-	<name>Ligo - Plugin Parent</name>
+	<name>Ligoj - Plugin Parent</name>
 	<description>Plugin parent pom the plugins should have.</description>
 
 	<dependencyManagement>
