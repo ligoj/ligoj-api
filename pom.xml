@@ -11,8 +11,8 @@
 	
 	<artifactId>root</artifactId>
 	<packaging>pom</packaging>
-	<name>Ligoj - API Root</name>
-	<description>API artifact aggregator</description>
+	<name>Ligoj - API</name>
+	<description>Ligoj - API components to test and build</description>
 
 	<modules>
 		<module>parent</module>
