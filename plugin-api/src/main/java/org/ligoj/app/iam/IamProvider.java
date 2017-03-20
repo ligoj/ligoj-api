@@ -15,7 +15,7 @@ public interface IamProvider {
 	 *            The current authentication to check.
 	 * @return The validated authentication. May not be the original parameter. Never <code>null</code>.
 	 */
-	Authentication authenticate(Authentication authentication) throws Exception;
+	Authentication authenticate(Authentication authentication);
 
 	/**
 	 * IAM global configuration.

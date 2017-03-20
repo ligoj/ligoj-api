@@ -1,6 +1,9 @@
 package org.ligoj.app.resource.plugin;
 
+import java.io.IOException;
+
 import org.apache.http.Header;
+import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 /**
@@ -24,7 +27,7 @@ public class HeaderHttpResponseCallback extends DefaultHttpResponseCallback {
 	}
 
 	@Override
-	public boolean onResponse(final CurlRequest request, final CloseableHttpResponse response) throws Exception {
+	public boolean onResponse(final CurlRequest request, final CloseableHttpResponse response) throws IOException, ParseException {
 		super.onResponse(request, response);
 		// Response is pre-checked
 		final Header value = response.getFirstHeader(header);

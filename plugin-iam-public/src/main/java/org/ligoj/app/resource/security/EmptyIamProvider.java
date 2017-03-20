@@ -16,7 +16,7 @@ import org.ligoj.app.iam.IamProvider;
 public class EmptyIamProvider implements IamProvider {
 
 	@Override
-	public Authentication authenticate(final Authentication authentication) throws Exception {
+	public Authentication authenticate(final Authentication authentication) {
 		return authentication;
 	}
 

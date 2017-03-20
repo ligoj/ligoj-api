@@ -30,7 +30,7 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 
 	@Test
 	public void testX509() {
-		final CurlProcessor.X509TrustManager x509TrustManager = new CurlProcessor.X509TrustManager();
+		final CurlProcessor.TrustedX509TrustManager x509TrustManager = new CurlProcessor.TrustedX509TrustManager();
 		x509TrustManager.checkClientTrusted(null, null);
 		x509TrustManager.checkServerTrusted(null, null);
 		Assert.assertEquals(0, x509TrustManager.getAcceptedIssuers().length);

@@ -72,6 +72,18 @@ public class CurlProcessor {
 	protected HttpResponseCallback callback;
 
 	/**
+	 * Support HTTP methods.
+	 */
+	private static final Map<String, Class<?>> SUPPORTED_METHOD = new HashMap<>();
+
+	static {
+		SUPPORTED_METHOD.put(HttpMethod.GET, HttpGet.class);
+		SUPPORTED_METHOD.put(HttpMethod.POST, HttpPost.class);
+		SUPPORTED_METHOD.put(HttpMethod.PUT, HttpPut.class);
+		SUPPORTED_METHOD.put(HttpMethod.DELETE, HttpDelete.class);
+	}
+
+	/**
 	 * Prepare a processor with callback.
 	 * 
 	 * @param callback
@@ -245,7 +257,7 @@ public class CurlProcessor {
 	 *            The URL to call.
 	 * @return <code>true</code> when the call succeed.
 	 */
-	protected boolean call(final CurlRequest request, final String url) throws Exception {
+	protected boolean call(final CurlRequest request, final String url) throws Exception { // NOSONAR - Many Exception
 		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod()).getConstructor(String.class).newInstance(url);
 		addHeaders(request, request.getContent(), httpRequest);
 
@@ -299,21 +311,9 @@ public class CurlProcessor {
 	}
 
 	/**
-	 * Support HTTP methods.
-	 */
-	private static final Map<String, Class<?>> SUPPORTED_METHOD = new HashMap<>();
-
-	static {
-		SUPPORTED_METHOD.put(HttpMethod.GET, HttpGet.class);
-		SUPPORTED_METHOD.put(HttpMethod.POST, HttpPost.class);
-		SUPPORTED_METHOD.put(HttpMethod.PUT, HttpPut.class);
-		SUPPORTED_METHOD.put(HttpMethod.DELETE, HttpDelete.class);
-	}
-
-	/**
 	 * Dummy SSL manager.
 	 */
-	public static class X509TrustManager implements javax.net.ssl.X509TrustManager {
+	public static class TrustedX509TrustManager implements javax.net.ssl.X509TrustManager {
 		@Override
 		public X509Certificate[] getAcceptedIssuers() {
 			return new X509Certificate[0];
@@ -344,7 +344,7 @@ public class CurlProcessor {
 	 */
 	protected static Registry<ConnectionSocketFactory> newSslContext(final String protocol) {
 		// Initialize HTTPS scheme
-		final TrustManager[] allCerts = new TrustManager[] { new X509TrustManager() };
+		final TrustManager[] allCerts = new TrustManager[] { new TrustedX509TrustManager() };
 		try {
 			final SSLContext sslContext = SSLContext.getInstance(protocol);
 			sslContext.init(null, allCerts, new SecureRandom());

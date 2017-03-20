@@ -1,5 +1,6 @@
 package org.ligoj.app.resource.plugin;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import javax.servlet.http.HttpServletResponse;
@@ -7,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 
 import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
 
@@ -18,7 +20,7 @@ import org.apache.http.util.EntityUtils;
 public class DefaultHttpResponseCallback implements HttpResponseCallback {
 
 	@Override
-	public boolean onResponse(final CurlRequest request, final CloseableHttpResponse response) throws Exception {
+	public boolean onResponse(final CurlRequest request, final CloseableHttpResponse response) throws IOException, ParseException {
 
 		// Read the response
 		final HttpEntity entity = response.getEntity();

@@ -61,7 +61,11 @@ public class VersionUtils {
 	 */
 	protected boolean isValidVersion(final AtlassianVersion lastVersion, final AtlassianVersion jiraVersion) {
 		return jiraVersion.isReleased() && jiraVersion.getReleaseDate() != null && !jiraVersion.isArchived()
-				&& VERSION_PATTERN.matcher(jiraVersion.getName()).matches()
+				&& isValidVersionName(lastVersion, jiraVersion);
+	}
+
+	private boolean isValidVersionName(final AtlassianVersion lastVersion, final AtlassianVersion jiraVersion) {
+		return VERSION_PATTERN.matcher(jiraVersion.getName()).matches()
 				&& (lastVersion == null || jiraVersion.getName().compareTo(lastVersion.getName()) > 0);
 	}
 

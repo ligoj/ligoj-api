@@ -27,7 +27,7 @@ public class MatcherUtil {
 	 *            the unique error message
 	 * @return the built matcher.
 	 */
-	public static Matcher<?> validationMatcher(final String field, final String message) {
+	public static Matcher<ValidationJsonException> validationMatcher(final String field, final String message) {
 		return new BaseMatcher<ValidationJsonException>() {
 
 			@Override
@@ -53,7 +53,7 @@ public class MatcherUtil {
 	 *            the unique error message
 	 * @return the built matcher.
 	 */
-	public static Matcher<?> constraintMatcher(final String field, final String message) {
+	public static Matcher<ConstraintViolationException> constraintMatcher(final String field, final String message) {
 		return new BaseMatcher<ConstraintViolationException>() {
 
 			@Override
