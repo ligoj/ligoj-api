@@ -1,4 +1,4 @@
-package org.ligoj.app.model.ldap;
+package org.ligoj.app.model;
 
 import java.util.HashSet;
 import java.util.Set;

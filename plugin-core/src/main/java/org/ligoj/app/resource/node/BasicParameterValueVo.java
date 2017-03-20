@@ -5,8 +5,9 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+
+import org.ligoj.app.model.SimpleUserLdap;
 import org.ligoj.bootstrap.core.AuditedBean;
-import org.ligoj.app.model.ldap.SimpleUserLdap;
 
 /**
  * A criteria value.

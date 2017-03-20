@@ -1,4 +1,4 @@
-package org.ligoj.app.model.ldap;
+package org.ligoj.app.model;
 
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;

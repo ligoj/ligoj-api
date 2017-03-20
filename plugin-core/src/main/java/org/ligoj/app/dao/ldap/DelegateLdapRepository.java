@@ -7,8 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
 import org.ligoj.bootstrap.core.dao.RestRepository;
-import org.ligoj.app.model.ldap.DelegateLdap;
-import org.ligoj.app.model.ldap.DelegateLdapType;
+import org.ligoj.app.model.DelegateLdap;
+import org.ligoj.app.model.DelegateLdapType;
 
 /**
  * {@link DelegateLdap} repository.

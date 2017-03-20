@@ -1,4 +1,4 @@
-package org.ligoj.app.model.ldap;
+package org.ligoj.app.model;
 
 /**
  * Any LDAP element with a DN and an unique identifier.

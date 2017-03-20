@@ -11,8 +11,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 import org.ligoj.app.iam.IUserRepository;
-import org.ligoj.app.model.ldap.GroupLdap;
-import org.ligoj.app.model.ldap.UserLdap;
+import org.ligoj.app.model.GroupLdap;
+import org.ligoj.app.model.UserLdap;
 
 /**
  * A mocked user repository. Details of a specific person always succeed but the search of people return an empty list.

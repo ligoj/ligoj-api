@@ -2,8 +2,7 @@ package org.ligoj.app.resource.security;
 
 import org.junit.Assert;
 import org.junit.Test;
-
-import org.ligoj.app.model.ldap.CompanyLdap;
+import org.ligoj.app.model.CompanyLdap;
 
 /**
  * Test class of {@link EmptyCompanyRepository}

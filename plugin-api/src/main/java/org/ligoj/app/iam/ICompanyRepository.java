@@ -1,6 +1,6 @@
 package org.ligoj.app.iam;
 
-import org.ligoj.app.model.ldap.CompanyLdap;
+import org.ligoj.app.model.CompanyLdap;
 
 /**
  * Company LDAP repository

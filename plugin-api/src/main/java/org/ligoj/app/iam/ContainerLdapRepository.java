@@ -2,7 +2,7 @@ package org.ligoj.app.iam;
 
 import java.util.Map;
 
-import org.ligoj.app.model.ldap.ContainerLdap;
+import org.ligoj.app.model.ContainerLdap;
 
 /**
  * Container LDAP contract.

@@ -49,7 +49,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.ldap.DelegateLdap}</li>
+	 * {@link org.ligoj.app.model.DelegateLdap}</li>
 	 * </ul>
 	 * 
 	 * @param user
@@ -72,7 +72,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.ldap.DelegateLdap}</li>
+	 * {@link org.ligoj.app.model.DelegateLdap}</li>
 	 * </ul>
 	 * 
 	 * @param user
@@ -88,7 +88,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.ldap.DelegateLdap}</li>
+	 * {@link org.ligoj.app.model.DelegateLdap}</li>
 	 * </ul>
 	 * 
 	 * @param id
@@ -106,7 +106,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.ldap.DelegateLdap}</li>
+	 * {@link org.ligoj.app.model.DelegateLdap}</li>
 	 * </ul>
 	 * 
 	 * @param pkey
@@ -125,10 +125,10 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Or, the current user is an administrator
 	 * <li>Or, the current user <strong>manage</strong> the group associated to this project via the
 	 * <code>service:id</code>
-	 * subscription and {@link org.ligoj.app.model.ldap.DelegateLdap}</li>
+	 * subscription and {@link org.ligoj.app.model.DelegateLdap}</li>
 	 * </ul>
 	 * 
-	 * @see org.ligoj.app.model.ldap.DelegateLdap#isCanAdmin()
+	 * @see org.ligoj.app.model.DelegateLdap#isCanAdmin()
 	 * @param user
 	 *            The current user name.
 	 * @param project
