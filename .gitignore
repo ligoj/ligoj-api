@@ -1,1 +1,4 @@
 /.DS_Store
+/target
+/parent/target
+/plugin-parent/target
