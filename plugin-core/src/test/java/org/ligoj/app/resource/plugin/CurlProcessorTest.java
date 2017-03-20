@@ -13,12 +13,15 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.ligoj.app.MatcherUtil;
 import org.ligoj.bootstrap.AbstractDataGeneratorTest;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 
-/**	
+/**
  * Test class of {@link CurlProcessor}
  */
 public class CurlProcessorTest extends AbstractDataGeneratorTest {
@@ -53,6 +56,25 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 	}
 
 	@Test
+	public void validate() {
+		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.start();
+
+		CurlProcessor.validateAndClose("http://localhost:" + MOCK_PORT, "any", "any");
+	}
+
+	@Test
+	public void validateFail() {
+		thrown.expect(ValidationJsonException.class);
+		thrown.expect(MatcherUtil.validationMatcher("parameter", "value"));
+
+		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_BAD_REQUEST)));
+		httpServer.start();
+
+		CurlProcessor.validateAndClose("http://localhost:" + MOCK_PORT, "parameter", "value");
+	}
+
+	@Test
 	public void testGetFailed() {
 		final CurlProcessor processor = new CurlProcessor();
 		final CurlRequest curlRequest = new CurlRequest(null, "http://localhost:" + MOCK_PORT, "CONTENT");
@@ -74,12 +96,48 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 	}
 
 	@Test
+	public void process() {
+		httpServer.stubFor(post(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.start();
+
+		final CurlProcessor processor = new CurlProcessor();
+
+		// WOuld succeed
+		final CurlRequest curlRequest1 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT, "CONTENT");
+		curlRequest1.setSaveResponse(true);
+
+		// Would fail
+		final CurlRequest curlRequest2 = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, "CONTENT");
+		curlRequest2.setSaveResponse(true);
+
+		// Never executed
+		final CurlRequest curlRequest3 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT, "CONTENT");
+		curlRequest3.setSaveResponse(true);
+
+		// Process
+		Assert.assertFalse(processor.process(curlRequest1, curlRequest2, curlRequest3));
+		Assert.assertEquals("CONTENT", curlRequest1.getResponse());
+		Assert.assertNull(curlRequest2.getResponse());
+		Assert.assertNull(curlRequest3.getResponse());
+	}
+
+	@Test
 	public void testHeaders() {
 		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
 		Assert.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "Content-Type:text/html"));
+	}
+
+	@Test
+	public void testHeadersOverrideDefault() {
+		httpServer.stubFor(get(urlPathEqualTo("/")).withHeader("ACCEPT-charset", new EqualToPattern("utf-8"))
+				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.start();
+
+		final CurlProcessor processor = new CurlProcessor();
+		Assert.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "ACCEPT-charset:utf-8"));
 	}
 
 	@Test
@@ -155,7 +213,6 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 			httpServer.stop();
 		}
 	}
-
 
 	/**
 	 * Restore original Spring application context<br>

@@ -197,9 +197,9 @@ public class CurlProcessor {
 	 * @param url
 	 *            The URL to check.
 	 * @param propertyName
-	 *            Name of the validation JSon property
+	 *            Name of the validation JSon property name for {@link ValidationJsonException} when the check fails.
 	 * @param errorText
-	 *            I18N key of the validation message.
+	 *            I18N key of the validation message when the check fails.
 	 */
 	public void validate(final String url, final String propertyName, final String errorText) {
 		validate(new CurlRequest(HttpMethod.GET, url, null), propertyName, errorText);
