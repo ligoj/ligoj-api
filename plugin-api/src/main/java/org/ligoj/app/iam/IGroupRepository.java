@@ -1,6 +1,6 @@
 package org.ligoj.app.iam;
 
-import org.ligoj.app.model.GroupLdap;
+import org.ligoj.app.api.GroupLdap;
 
 /**
  * Group repository

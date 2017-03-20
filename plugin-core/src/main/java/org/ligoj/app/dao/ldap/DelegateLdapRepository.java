@@ -36,14 +36,14 @@ public interface DelegateLdapRepository extends RestRepository<DelegateLdap, Int
 	 */
 	String VISIBLE_DELEGATE = "((" + ASSIGNED_DELEGATE + ")                                                             "
 			+ "  OR EXISTS (SELECT dz.id FROM DelegateLdap dz WHERE " + ASSIGNED_DELEGATE
-			+ "	   AND (dz.type=d.type OR dz.type=org.ligoj.app.model.ldap.DelegateLdapType.TREE)                         "
+			+ "	   AND (dz.type=d.type OR dz.type=org.ligoj.app.model.DelegateLdapType.TREE)                         "
 			+ "	   AND (dz.canAdmin=true AND (d.dn LIKE CONCAT('%,',dz.dn) OR dz.dn=d.dn))))                            ";
 	/**
 	 * ":type" : Type of LDAP resource <br>
 	 * <br>
 	 * Match Type
 	 */
-	String MATCH_TYPE = "(type=:type OR type=org.ligoj.app.model.ldap.DelegateLdapType.TREE)";
+	String MATCH_TYPE = "(type=:type OR type=org.ligoj.app.model.DelegateLdapType.TREE)";
 
 	/**
 	 * ":type" : Type of LDAP resource <br>
@@ -166,7 +166,7 @@ public interface DelegateLdapRepository extends RestRepository<DelegateLdap, Int
 			+ "	AND (:criteria IS NULL                                                                                   "
 			+ "  OR (UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))                                     "
 			+ "  OR UPPER(d.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "  OR (d.type=org.ligoj.app.model.ldap.DelegateLdapType.TREE AND UPPER(d.dn) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))))")
+			+ "  OR (d.type=org.ligoj.app.model.DelegateLdapType.TREE AND UPPER(d.dn) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))))")
 	Page<DelegateLdap> findAll(String user, String criteria, DelegateLdapType type, Pageable page);
 
 	/**
@@ -195,9 +195,9 @@ public interface DelegateLdapRepository extends RestRepository<DelegateLdap, Int
 	 * @return A positive number if the given user can be managed by the given (requesting) user.
 	 */
 	@Query("SELECT COUNT(id) FROM DelegateLdap d WHERE d.canWrite=true AND " + ASSIGNED_DELEGATE
-			+ " AND ((d.type=org.ligoj.app.model.ldap.DelegateLdapType.COMPANY"
+			+ " AND ((d.type=org.ligoj.app.model.DelegateLdapType.COMPANY"
 			+ "	       AND EXISTS(SELECT 1 FROM CacheUser u INNER JOIN u.company c WHERE u.id=:managedUser AND c.id = d.name))"
-			+ "  OR (d.type=org.ligoj.app.model.ldap.DelegateLdapType.TREE"
+			+ "  OR (d.type=org.ligoj.app.model.DelegateLdapType.TREE"
 			+ "        AND EXISTS(SELECT 1 FROM CacheUser u INNER JOIN u.company c WHERE u.id=:managedUser"
 			+ "          AND (c.description LIKE CONCAT('%,',d.dn) OR c.description=d.dn))))")
 	int manageUser(String user, String managedUser);

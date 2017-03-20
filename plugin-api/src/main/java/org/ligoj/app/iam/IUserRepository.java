@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ligoj.app.model.GroupLdap;
-import org.ligoj.app.model.UserLdap;
+import org.ligoj.app.api.GroupLdap;
+import org.ligoj.app.api.UserLdap;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

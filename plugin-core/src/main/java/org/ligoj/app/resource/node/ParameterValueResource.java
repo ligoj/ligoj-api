@@ -38,13 +38,13 @@ import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.ligoj.app.api.SimpleUserLdap;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.SimpleUserLdap;
 
 /**
  * Criteria values Business Layer for entity {@link ParameterValue}

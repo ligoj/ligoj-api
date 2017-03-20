@@ -1,11 +1,10 @@
-package org.ligoj.app.model;
+package org.ligoj.app.api;
 
 import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import org.ligoj.app.api.SimpleUser;
 import lombok.Getter;
 import lombok.Setter;
 

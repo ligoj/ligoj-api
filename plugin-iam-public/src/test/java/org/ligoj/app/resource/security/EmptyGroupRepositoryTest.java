@@ -2,7 +2,7 @@ package org.ligoj.app.resource.security;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.model.GroupLdap;
+import org.ligoj.app.api.GroupLdap;
 
 /**
  * Test class of {@link EmptyGroupRepository}

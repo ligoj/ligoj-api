@@ -3,8 +3,8 @@ package org.ligoj.app.resource.security;
 import java.util.Collections;
 import java.util.Map;
 
+import org.ligoj.app.api.GroupLdap;
 import org.ligoj.app.iam.IGroupRepository;
-import org.ligoj.app.model.GroupLdap;
 
 /**
  * A mocked group repository. Details of a specific group always succeed but the search of groups return an empty

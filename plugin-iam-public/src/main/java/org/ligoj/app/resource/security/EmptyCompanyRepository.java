@@ -3,8 +3,8 @@ package org.ligoj.app.resource.security;
 import java.util.Collections;
 import java.util.Map;
 
+import org.ligoj.app.api.CompanyLdap;
 import org.ligoj.app.iam.ICompanyRepository;
-import org.ligoj.app.model.CompanyLdap;
 
 /**
  * A mocked company repository. Details of a specific company always succeed but the search of companies return an empty

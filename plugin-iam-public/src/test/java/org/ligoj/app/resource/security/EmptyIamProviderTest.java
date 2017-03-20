@@ -2,6 +2,8 @@ package org.ligoj.app.resource.security;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ligoj.app.iam.IamConfiguration;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -20,6 +22,37 @@ public class EmptyIamProviderTest {
 
 	@Test
 	public void getConfiguration() throws Exception {
-		Assert.assertNotNull(new EmptyIamProvider().getConfiguration());
+		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		Assert.assertNotNull(configuration);
+		Assert.assertNotNull(configuration.getCompanyRepository());
+		Assert.assertNotNull(configuration.getUserRepository());
+		Assert.assertNotNull(configuration.getGroupRepository());
+		Assert.assertNotNull(configuration.getToUser());
+		Assert.assertEquals("login", configuration.getToUser().apply("login").getId());
+	}
+
+	@Test
+	public void getConfigurationFindById() throws Exception {
+		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		Assert.assertEquals("any", configuration.getUserRepository().findById("any").getId());
+		Assert.assertNull(configuration.getGroupRepository().findById("any"));
+		Assert.assertNull(configuration.getCompanyRepository().findById("any"));
+		Assert.assertNull(new MockUserRepository2().findById("any"));
+	}
+
+	@Test
+	public void getConfigurationFindByIdExpected() throws Exception {
+		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		Assert.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
+	}
+
+	@Test(expected = ValidationJsonException.class)
+	public void getConfigurationFindByIdDefault() throws Exception {
+		Assert.assertNotNull(new MockUserRepository().findByIdExpected("some"));
+	}
+
+	@Test
+	public void getConfigurationFindOneByDefault() throws Exception {
+		Assert.assertNotNull(new MockUserRepository().findOneBy("attribute1", "value1"));
 	}
 }

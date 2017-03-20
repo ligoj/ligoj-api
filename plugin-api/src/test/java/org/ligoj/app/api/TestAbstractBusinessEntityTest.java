@@ -1,4 +1,4 @@
-package org.ligoj.app.model;
+package org.ligoj.app.api;
 
 import org.junit.Test;
 

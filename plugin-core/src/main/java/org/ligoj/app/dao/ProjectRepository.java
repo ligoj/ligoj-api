@@ -40,8 +40,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 			+ " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data"
 			+ "     AND (EXISTS(SELECT 1 FROM CacheMembership AS cm WHERE cm.user.id = :user AND cm.group = g)"
 			+ "       OR EXISTS(SELECT 1 FROM DelegateLdap d WHERE " + DelegateLdapRepository.ASSIGNED_DELEGATE
-			+ " AND ((d.type = org.ligoj.app.model.ldap.DelegateLdapType.GROUP AND d.dn=g.description)"
-			+ "                   OR (d.type=org.ligoj.app.model.ldap.DelegateLdapType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))";
+			+ " AND ((d.type = org.ligoj.app.model.DelegateLdapType.GROUP AND d.dn=g.description)"
+			+ "                   OR (d.type=org.ligoj.app.model.DelegateLdapType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))";
 
 	/**
 	 * Return all {@link Project} objects with the given name.The other constraints are :
@@ -138,8 +138,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	@Query("SELECT p.id FROM Project AS p WHERE p.id = :project AND (p.teamLeader = :user OR " + IS_ADMIN + " OR "
 			+ " EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data AND "
 			+ " (EXISTS(SELECT 1 FROM DelegateLdap d WHERE " + DelegateLdapRepository.ASSIGNED_DELEGATE
-			+ " AND d.canAdmin=true AND ((d.type=org.ligoj.app.model.ldap.DelegateLdapType.GROUP AND d.dn=g.description) OR"
-			+ " (d.type=org.ligoj.app.model.ldap.DelegateLdapType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))")
+			+ " AND d.canAdmin=true AND ((d.type=org.ligoj.app.model.DelegateLdapType.GROUP AND d.dn=g.description) OR"
+			+ " (d.type=org.ligoj.app.model.DelegateLdapType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))")
 	Integer isManageSubscription(int project, String user);
 
 }
