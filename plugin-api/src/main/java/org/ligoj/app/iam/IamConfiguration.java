@@ -1,8 +1,5 @@
 package org.ligoj.app.iam;
 
-import java.util.function.Function;
-
-import org.ligoj.app.api.SimpleUser;
 import lombok.Getter;
 import lombok.Setter;
 import net.sf.ehcache.pool.sizeof.annotations.IgnoreSizeOf;
@@ -29,10 +26,5 @@ public class IamConfiguration {
 	 * Group repository.
 	 */
 	private IGroupRepository groupRepository;
-
-	/**
-	 * Return the String converter to SimpleUser.
-	 */
-	private Function<String, ? extends SimpleUser> toUser;
 
 }

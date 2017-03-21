@@ -27,8 +27,7 @@ public class EmptyIamProviderTest {
 		Assert.assertNotNull(configuration.getCompanyRepository());
 		Assert.assertNotNull(configuration.getUserRepository());
 		Assert.assertNotNull(configuration.getGroupRepository());
-		Assert.assertNotNull(configuration.getToUser());
-		Assert.assertEquals("login", configuration.getToUser().apply("login").getId());
+		Assert.assertEquals("login", configuration.getUserRepository().toUser("login").getId());
 	}
 
 	@Test

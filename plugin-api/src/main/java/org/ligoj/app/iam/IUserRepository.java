@@ -72,18 +72,35 @@ public interface IUserRepository {
 	/**
 	 * Return the {@link UserLdap} corresponding to the given login using the user cache.
 	 * 
-	 * @param login
+	 * @param id
 	 *            the user login.
 	 * @return the {@link UserLdap} corresponding to the given login. Never <code>null</code>.
 	 * @throws ValidationJsonException
 	 *             If no user is found.
 	 */
-	default UserLdap findByIdExpected(final String login) {
-		final UserLdap userLdap = findById(login);
+	default UserLdap findByIdExpected(final String id) {
+		final UserLdap userLdap = findById(id);
 		if (userLdap == null) {
-			throw new ValidationJsonException("id", "unknown-id", "0", "user", "1", login);
+			throw new ValidationJsonException("id", "unknown-id", "0", "user", "1", id);
 		}
 		return userLdap;
+	}
+
+	/**
+	 * Return the {@link UserLdap} corresponding to the given login using the user cache and the relevant security to
+	 * check the current user has the rights to perform this request.
+	 * 
+	 * @param user
+	 *            the user requesting this data.
+	 * @param id
+	 *            the user to find.
+	 * @return the {@link UserLdap} corresponding to the given login. Never <code>null</code>.
+	 * @throws ValidationJsonException
+	 *             If no user is found.
+	 */
+	default UserLdap findByIdExpected(final String user, final String id) {
+		// By default, no security applies
+		return findByIdExpected(id);
 	}
 
 	/**
@@ -132,4 +149,26 @@ public interface IUserRepository {
 	 *            The raw new password. Will be hashed.
 	 */
 	void setPassword(UserLdap userLdap, String password);
+
+	/**
+	 * Return a safe {@link UserLdap} instance, even if the user is not in LDAP directory.
+	 * 
+	 * @param login
+	 *            the user login. Must not be <code>null</code>.
+	 * @return a not <code>null</code> {@link UserLdap} instance with at least login attribute.
+	 */
+	default UserLdap toUser(final String login) {
+		if (login == null) {
+			return null;
+		}
+
+		// Non null user name
+		UserLdap result = findById(login);
+		if (result == null) {
+			result = new UserLdap();
+			result.setId(login);
+		}
+		return result;
+	}
+
 }

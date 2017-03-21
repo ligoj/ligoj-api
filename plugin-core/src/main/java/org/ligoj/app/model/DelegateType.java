@@ -3,7 +3,7 @@ package org.ligoj.app.model;
 /**
  * Delegate type.
  */
-public enum DelegateLdapType {
+public enum DelegateType {
 
 	/**
 	 * Membership delegate. Corresponds to "groupOfUniqueNames" LDAP type.

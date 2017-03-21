@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.dao.ldap.DelegateLdapRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
@@ -18,7 +17,7 @@ import org.ligoj.app.model.ParameterValue;
  */
 public interface NodeRepository extends RestRepository<Node, String> {
 
-	String MATCH_DELEGATE = DelegateLdapRepository.ASSIGNED_DELEGATE + " AND (n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id)";
+	String MATCH_DELEGATE = DelegateOrgRepository.ASSIGNED_DELEGATE + " AND (n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id)";
 
 	/**
 	 * Visible nodes condition.

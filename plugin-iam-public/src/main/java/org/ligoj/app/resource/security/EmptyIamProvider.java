@@ -2,12 +2,10 @@ package org.ligoj.app.resource.security;
 
 import javax.cache.annotation.CacheResult;
 
-import org.springframework.security.core.Authentication;
-import org.springframework.stereotype.Component;
-
-import org.ligoj.app.api.SimpleUser;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 
 /**
  * Default, and empty {@link IamProvider}.
@@ -27,11 +25,6 @@ public class EmptyIamProvider implements IamProvider {
 		configuration.setUserRepository(new EmptyUserRepository());
 		configuration.setCompanyRepository(new EmptyCompanyRepository());
 		configuration.setGroupRepository(new EmptyGroupRepository());
-		configuration.setToUser(login -> {
-			final SimpleUser user = new SimpleUser();
-			user.setId(login);
-			return user;
-		});
 		return configuration;
 	}
 

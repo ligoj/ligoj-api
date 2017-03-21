@@ -3,6 +3,7 @@ package org.ligoj.app.iam;
 import java.util.Map;
 
 import org.ligoj.app.api.ContainerLdap;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 /**
  * Container LDAP contract.
@@ -21,10 +22,39 @@ public interface ContainerLdapRepository<T extends ContainerLdap> {
 	}
 
 	/**
-	 * Return all normalized containers where key is the identifier. Note the result use cache, so does not reflect the current state of LDAP.
-	 * LDAP. Cache manager is involved.
+	 * Find a container from its identifier. Security is applied regarding the given user.
 	 * 
-	 * @return the whole set of containers. Key is the normalized identifier. Value is the corresponding LDAP container containing real CN, DN and
+	 * @param user
+	 *            The user requesting this container.
+	 * @param id
+	 *            The container's identifier. Will be normalized.
+	 * @return The container from its identifier. <code>null</code> if the container is not found or cannot be seen by
+	 *         the given user.
+	 */
+	default T findById(String user, String id) {
+		return findById(id);
+	}
+
+	/**
+	 * Find a container from its identifier. Security is applied regarding the given user.
+	 * 
+	 * @param user
+	 *            The user requesting this container.
+	 * @param id
+	 *            The container's identifier. Will be normalized.
+	 * @return The container from its identifier. Never <code>null</code>.
+	 * @throws ValidationJsonException
+	 *             If the container is not found or cannot be seen by the given user.
+	 */
+	T findByIdExpected(String user, String id);
+
+	/**
+	 * Return all normalized containers where key is the identifier. Note the result use cache, so does not reflect the
+	 * current state of internal representation.
+	 * Cache manager is involved.
+	 * 
+	 * @return the whole set of containers. Key is the normalized identifier. Value is the corresponding LDAP container
+	 *         containing real CN, DN and
 	 *         normalized UID members.
 	 */
 	Map<String, T> findAll();
@@ -48,5 +78,11 @@ public interface ContainerLdapRepository<T extends ContainerLdap> {
 	 *            The container to delete.
 	 */
 	void delete(T container);
+
+	/**
+	 * Return the human readable container type name.
+	 * @return the human readable container type name.
+	 */
+	String getTypeName();
 
 }

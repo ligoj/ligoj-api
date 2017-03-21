@@ -130,10 +130,9 @@ public class ParameterValueResource {
 	 *            The parameter value.
 	 * @return The parameter value with parameter definition.
 	 */
-	@SuppressWarnings("unchecked")
 	public ParameterValueVo toVo(final ParameterValue entity) {
 		final ParameterValueVo vo = new ParameterValueVo();
-		vo.copyAuditData(entity, (Function<String, SimpleUserLdap>) iamProvider.getConfiguration().getToUser());
+		vo.copyAuditData(entity, (Function<String, SimpleUserLdap>) iamProvider.getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
 		vo.setParameter(toVo(entity.getParameter()));
 

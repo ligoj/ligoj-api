@@ -27,4 +27,14 @@ public class EmptyCompanyRepository implements ICompanyRepository {
 		return new CompanyLdap(dn, name);
 	}
 
+	@Override
+	public CompanyLdap findByIdExpected(String user, String id) {
+		return findById(id);
+	}
+
+	@Override
+	public String getTypeName() {
+		return "company";
+	}
+
 }

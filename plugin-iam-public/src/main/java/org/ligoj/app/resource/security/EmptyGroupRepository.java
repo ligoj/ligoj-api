@@ -34,4 +34,14 @@ public class EmptyGroupRepository implements IGroupRepository {
 		return null;
 	}
 
+	@Override
+	public GroupLdap findByIdExpected(String user, String id) {
+		return findById(id);
+	}
+
+	@Override
+	public String getTypeName() {
+		return "group";
+	}
+
 }

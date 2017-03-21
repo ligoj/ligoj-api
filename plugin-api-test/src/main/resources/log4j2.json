@@ -6,7 +6,7 @@
 		"properties": {
 			"property": {
 				"name": "filename",
-				"value": "target/rolling-$${sd:type}.log"
+				"value": "target/rolling.log"
 			}
 		},
 		"ThresholdFilter": {
@@ -30,7 +30,7 @@
 					"type": "RollingFile",
 					"name": "RollingFile",
 					"fileName": "${filename}",
-					"filePattern": "target/rolling-${sd:type}.%i.log.gz",
+					"filePattern": "target/rolling.%i.log.gz",
 					"PatternLayout": {
 						"pattern": "%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"
 					},
