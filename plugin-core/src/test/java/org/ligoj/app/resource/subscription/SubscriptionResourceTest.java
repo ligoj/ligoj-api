@@ -12,18 +12,13 @@ import java.util.Objects;
 import javax.persistence.EntityNotFoundException;
 import javax.sql.DataSource;
 import javax.transaction.Transactional;
+import javax.ws.rs.ForbiddenException;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.app.MatcherUtil;
 import org.ligoj.app.api.ConfigurationVo;
 import org.ligoj.app.api.NodeStatus;
@@ -34,12 +29,10 @@ import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
-import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
-import org.ligoj.app.resource.AbstractServerTest;
+import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.ParameterValueEditionVo;
@@ -47,6 +40,11 @@ import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
 import org.ligoj.app.resource.node.sample.JiraPluginResource;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * Test class of {@link SubscriptionResource}
@@ -55,7 +53,7 @@ import org.ligoj.app.resource.node.sample.JiraPluginResource;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class SubscriptionResourceTest extends AbstractServerTest {
+public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Autowired
 	protected ProjectRepository projectRepository;
@@ -78,9 +76,7 @@ public class SubscriptionResourceTest extends AbstractServerTest {
 
 	@Before
 	public void prepareSubscription() throws IOException {
-		persistEntities("csv/app-test",
-				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, Event.class, DelegateNode.class },
-				StandardCharsets.UTF_8.name());
+		persistEntities("csv/app-test", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
 		this.subscription = getSubscription("MDA");
 	}
@@ -225,6 +221,7 @@ public class SubscriptionResourceTest extends AbstractServerTest {
 
 	@Test
 	public void delete() throws Exception {
+		initSpringSecurityContext("fdaugan");
 		final Subscription one = repository.findOne(subscription);
 		final int project = one.getProject().getId();
 		Assert.assertEquals(1, repository.findAllByProject(project).size());
@@ -292,6 +289,25 @@ public class SubscriptionResourceTest extends AbstractServerTest {
 
 		Assert.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
 		Assert.assertEquals("MDA", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
+	}
+
+	/**
+	 * The project is visible for user "alongchu" since he is in the main group "gfi-gstack" of the project
+	 * "gfi-gstack", however he is neither the team leader of this project, neither an administrator, neither a manger
+	 * of the group "gfi-gstack".
+	 */
+	@Test(expected=ForbiddenException.class)
+	public void createNotManagedProject() throws Exception {
+		initSpringSecurityContext("alongchu");
+		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		vo.setParameters(new ArrayList<>());
+		vo.setNode("service:bt:jira:4");
+		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
+
+		em.flush();
+		em.clear();
+
+		resource.create(vo);
 	}
 
 	@Test(expected = ValidationJsonException.class)

@@ -1,13 +1,19 @@
 package org.ligoj.app.resource.plugin;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 
+import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.ligoj.app.api.SubscriptionStatusWithData;
+import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.mockito.Mockito;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -16,39 +22,43 @@ import org.xml.sax.SAXException;
  */
 public class TestAbstractXmlApiToolPluginResource {
 
-	private AbstractXmlApiToolPluginResource resource = new AbstractXmlApiToolPluginResource() {
+	private AbstractXmlApiToolPluginResource resource;
 
-		@Override
-		public String getVersion(Map<String, String> parameters) throws Exception {
-			return null;
-		}
+	@Before
+	public void prepareMock() {
+		resource = new AbstractXmlApiToolPluginResource() {
 
-		@Override
-		public String getLastVersion() throws Exception {
-			return null;
-		}
+			@Override
+			public String getVersion(Map<String, String> parameters) throws Exception {
+				return "1.0.0";
+			}
 
-		@Override
-		public boolean checkStatus(String node, Map<String, String> parameters) throws Exception {
-			return false;
-		}
+			@Override
+			public String getLastVersion() throws Exception {
+				return null;
+			}
 
-		@Override
-		public SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception {
-			return null;
-		}
+			@Override
+			public boolean checkStatus(String node, Map<String, String> parameters) throws Exception {
+				return false;
+			}
 
-		@Override
-		public void link(int subscription) throws Exception {
-			// Nothing to do
-		}
+			@Override
+			public SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception {
+				return null;
+			}
 
-		@Override
-		public String getKey() {
-			return null;
-		}
-	};
+			@Override
+			public void link(int subscription) throws Exception {
+				// Nothing to do
+			}
 
+			@Override
+			public String getKey() {
+				return null;
+			}
+		};
+	}
 
 	@Test
 	public void getTags() throws SAXException, IOException, ParserConfigurationException {
@@ -64,6 +74,30 @@ public class TestAbstractXmlApiToolPluginResource {
 	public void getTagsLink() throws SAXException, IOException, ParserConfigurationException {
 		NodeList tags = resource.getTags(null, "tag1");
 		Assert.assertEquals(0, tags.getLength());
+	}
+
+	@Test(expected = NotImplementedException.class)
+	public void create() throws Exception {
+		resource.create(55);
+	}
+
+	@Test
+	public void delete() throws Exception {
+		// Nothing happens
+		resource.delete(55, false);
+	}
+
+	@Test
+	public void getVersion() throws Exception {
+		// Return the version from the subscription parameters
+		resource.subscriptionResource = Mockito.mock(SubscriptionResource.class);
+		Mockito.when(resource.subscriptionResource.getParameters(55)).thenReturn(new HashMap<>());
+		Assert.assertEquals("1.0.0", resource.getVersion(0));
+	}
+
+	@Test
+	public void download() throws Exception {
+		Assert.assertNotNull(AbstractToolPluginResource.download(Mockito.mock(StreamingOutput.class), "file"));
 	}
 
 }

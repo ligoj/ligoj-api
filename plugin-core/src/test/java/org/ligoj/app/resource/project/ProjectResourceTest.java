@@ -42,7 +42,6 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 	private Project testProject;
 
-
 	@Before
 	public void setUpEntities2() {
 		resource = new ProjectResource();
@@ -53,6 +52,9 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		// Ensure LDAP cache is loaded
 		em.flush();
 		em.clear();
+
+		// For coverage issue with JPA
+		new Project().setSubscriptions(null);
 	}
 
 	@Test
@@ -228,11 +230,20 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * test {@link ProjectResource#findById(int)}
+	 * test {@link ProjectResource#findByPKey(String)}
 	 */
 	@Test
 	public void findByPKey() {
 		initSpringSecurityContext("fdaugan");
+		checkProject(resource.findByPKey("mda"));
+	}
+
+	/**
+	 * test {@link ProjectResource#findByPKey(String)}
+	 */
+	@Test(expected = ValidationJsonException.class)
+	public void findByPKeyNotExists() {
+		initSpringSecurityContext("any");
 		checkProject(resource.findByPKey("mda"));
 	}
 
