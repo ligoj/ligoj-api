@@ -26,7 +26,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	/**
 	 * Subscriptions.
 	 */
-	private List<Object[]> subscriptions;
+	private List<Object[]> subscriptionsAndParam;
 
 	/**
 	 * Subscriptions status
@@ -51,7 +51,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	 */
 	protected ToVoConverter(final Function<String, ? extends UserOrg> userConverter, final List<Object[]> subscriptionsAndParam,
 			final Map<Integer, EventVo> subscriptionStatus) {
-		this.subscriptions = subscriptionsAndParam;
+		this.subscriptionsAndParam = subscriptionsAndParam;
 		this.subscriptionStatus = subscriptionStatus;
 		this.userConverter = userConverter;
 	}
@@ -66,7 +66,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 
 		// Build the subscriptions
 		final Map<Integer, SubscriptionVo> subscriptions = new LinkedHashMap<>();
-		for (final Object[] resultSet : this.subscriptions) {
+		for (final Object[] resultSet : this.subscriptionsAndParam) {
 			final Subscription subscriptionEntity = (Subscription) resultSet[0];
 			SubscriptionVo subscriptionVo = subscriptions.get(subscriptionEntity.getId());
 
