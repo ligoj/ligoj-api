@@ -1,18 +1,19 @@
 package org.ligoj.app.model;
 
-import java.util.Date;
+import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.Activity;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.model.CacheCompany;
 import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.app.iam.model.CacheUser;
 import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.iam.model.ReceiverType;
+import org.ligoj.app.resource.plugin.BitBucketTag;
+import org.ligoj.app.resource.plugin.BitBucketTags;
 
 /**
  * Simple test of API beans.
@@ -22,7 +23,7 @@ public class BeanTest {
 	@Test
 	public void testCacheCompany() {
 		Assert.assertTrue(new CacheCompany().isNew());
-		
+
 	}
 
 	@Test
@@ -31,11 +32,14 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testActivity() {
-		check(new Activity(), Activity::setLastConnection, Activity::getLastConnection, new Date());
+	public void testBitBucketTag() {
+		check(new BitBucketTag(), BitBucketTag::setName, BitBucketTag::getName, "v");
 	}
-	
-	
+
+	@Test
+	public void testBitBucketTags() {
+		check(new BitBucketTags(), BitBucketTags::setValues, BitBucketTags::getValues, Collections.emptyList());
+	}
 
 	@Test
 	public void testEnum() {
@@ -46,7 +50,6 @@ public class BeanTest {
 		EventType.valueOf(EventType.values()[0].name());
 		ContainerType.valueOf(ContainerType.values()[0].name()).getDelegateType();
 	}
-
 
 	@Test
 	public void testCacheUser() {

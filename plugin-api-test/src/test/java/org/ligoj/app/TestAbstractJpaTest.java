@@ -11,9 +11,9 @@ import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
 
 /**
- * Test class of {@link AbstractJpaTest}
+ * Test class of {@link AbstractAppTest}
  */
-public class TestAbstractJpaTest extends AbstractJpaTest {
+public class TestAbstractJpaTest extends AbstractAppTest {
 
 	/**
 	 * Only there fore coverage, no Spring involved.

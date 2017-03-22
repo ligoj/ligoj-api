@@ -17,7 +17,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.ligoj.app.AbstractJpaTest;
+import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.model.Node;
@@ -45,7 +45,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Rollback
 @Transactional
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class ParameterValueResourceTest extends AbstractJpaTest {
+public class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private ParameterValueRepository repository;

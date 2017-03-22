@@ -16,7 +16,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.ligoj.app.AbstractJpaTest;
+import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.api.SubscriptionMode;
@@ -65,7 +65,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Rollback
 @Transactional
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class NodeResourceTest extends AbstractJpaTest {
+public class NodeResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private NodeRepository repository;

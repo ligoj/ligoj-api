@@ -39,4 +39,9 @@ public class EmptyUserRepositoryTest {
 		Assert.assertEquals("some", new EmptyUserRepository().getToken("some"));
 	}
 
+	@Test
+	public void getCompanyRepository() {
+		Assert.assertNotNull(new EmptyIamProvider().getConfiguration().getUserRepository().getCompanyRepository());
+	}
+
 }

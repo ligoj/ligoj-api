@@ -7,7 +7,12 @@ import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ligoj.app.iam.ICompanyRepository;
+import org.ligoj.app.iam.IGroupRepository;
+import org.ligoj.app.iam.IUserRepository;
+import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.bootstrap.core.DateUtils;
+import org.mockito.Mockito;
 import org.springframework.ldap.support.LdapUtils;
 
 /**
@@ -19,6 +24,14 @@ public class BeanTest {
 	public void testActivity() {
 		check(new Activity(), Activity::setLastConnection, Activity::getLastConnection, DateUtils.newCalendar().getTime());
 	}
+
+	@Test
+	public void testIamConfiguration() {
+		check(new IamConfiguration(), IamConfiguration::setCompanyRepository, IamConfiguration::getCompanyRepository, Mockito.mock(ICompanyRepository.class));
+		check(new IamConfiguration(), IamConfiguration::setGroupRepository, IamConfiguration::getGroupRepository, Mockito.mock(IGroupRepository.class));
+		check(new IamConfiguration(), IamConfiguration::setUserRepository, IamConfiguration::getUserRepository, Mockito.mock(IUserRepository.class));
+	}
+
 
 	@Test
 	public void testCompanyLdap() {

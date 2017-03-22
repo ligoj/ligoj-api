@@ -1,13 +1,13 @@
-package org.ligoj.app.resource.security;
+package org.ligoj.app.iam;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.api.CompanyOrg;
 
 /**
- * Test class of {@link EmptyCompanyRepository}
+ * Test class of {@link ICompanyRepository}
  */
-public class EmptyCompanyRepositoryTest {
+public class CompanyRepositoryTest {
 
 	@Test
 	public void findAll() {
@@ -25,11 +25,6 @@ public class EmptyCompanyRepositoryTest {
 		Assert.assertEquals("Cn=Some", companyLdap.getDn());
 		Assert.assertEquals("Name", companyLdap.getName());
 		Assert.assertEquals("name", companyLdap.getId());
-	}
-
-	@Test
-	public void getTypeName() {
-		Assert.assertEquals("company", new EmptyCompanyRepository().getTypeName());
 	}
 
 }

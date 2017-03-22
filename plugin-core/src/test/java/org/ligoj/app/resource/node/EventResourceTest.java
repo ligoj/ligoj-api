@@ -13,7 +13,7 @@ import org.junit.FixMethodOrder;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.MethodSorters;
-import org.ligoj.app.AbstractJpaTest;
+import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.ProjectRepository;
@@ -37,7 +37,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Rollback
 @Transactional
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class EventResourceTest extends AbstractJpaTest {
+public class EventResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private EventResource resource;

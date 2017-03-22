@@ -1,13 +1,16 @@
-package org.ligoj.app.resource.security;
+package org.ligoj.app.iam;
+
+import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.api.GroupOrg;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 /**
- * Test class of {@link EmptyGroupRepository}
+ * Test class of {@link IGroupRepository}
  */
-public class EmptyGroupRepositoryTest {
+public class GroupRepositoryTest {
 
 	@Test
 	public void findAll() {
@@ -25,16 +28,26 @@ public class EmptyGroupRepositoryTest {
 	}
 
 	@Test
-	public void getTypeName() {
-		Assert.assertEquals("group", new EmptyGroupRepository().getTypeName());
-	}
-
-	@Test
 	public void create() {
 		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
 		Assert.assertEquals("Cn=Some", groupLdap.getDn());
 		Assert.assertEquals("Name", groupLdap.getName());
 		Assert.assertEquals("name", groupLdap.getId());
+	}
+
+	@Test(expected = ValidationJsonException.class)
+	public void findByIdExpectedNotExists() {
+		new EmptyGroupRepository().findByIdExpected("user1", "user2");
+	}
+
+	@Test
+	public void findByIdExpected() {
+		Assert.assertEquals("user2", new EmptyGroupRepository() {
+			@Override
+			public GroupOrg findById(String id) {
+				return new GroupOrg(id, id, Collections.emptySet());
+			}
+		}.findByIdExpected("user1", "user2").getId());
 	}
 
 }

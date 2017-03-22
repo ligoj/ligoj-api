@@ -5,7 +5,7 @@ import javax.transaction.Transactional;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.ligoj.app.AbstractJpaTest;
+import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.api.PluginNotFoundException;
 import org.ligoj.app.api.ServicePlugin;
@@ -24,7 +24,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class ServicePluginLocatorTest extends AbstractJpaTest {
+public class ServicePluginLocatorTest extends AbstractAppTest {
 
 	@Autowired
 	private ServicePluginLocator component;
