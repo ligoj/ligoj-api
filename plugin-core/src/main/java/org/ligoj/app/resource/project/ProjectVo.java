@@ -2,8 +2,8 @@ package org.ligoj.app.resource.project;
 
 import java.util.Collection;
 
-import org.ligoj.app.resource.project.BasicProjectVo;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
+
 import lombok.Getter;
 import lombok.Setter;
 
