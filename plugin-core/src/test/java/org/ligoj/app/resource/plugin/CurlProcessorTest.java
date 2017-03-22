@@ -119,6 +119,9 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 		Assert.assertEquals("CONTENT", curlRequest1.getResponse());
 		Assert.assertNull(curlRequest2.getResponse());
 		Assert.assertNull(curlRequest3.getResponse());
+		Assert.assertSame(processor, curlRequest1.getProcessor());
+		Assert.assertNull(curlRequest2.getProcessor());
+		Assert.assertNull(curlRequest3.getProcessor());
 	}
 
 	@Test
