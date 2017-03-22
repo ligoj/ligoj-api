@@ -2,7 +2,6 @@ package org.ligoj.app.resource.plugin;
 
 import java.io.IOException;
 
-import org.apache.http.ParseException;
 import org.apache.http.client.methods.CloseableHttpResponse;
 
 /**
@@ -20,5 +19,5 @@ public interface HttpResponseCallback {
 	 *            the received response.
 	 * @return <code>true</code> to proceed the next request. <code>false</code> otherwise.
 	 */
-	boolean onResponse(CurlRequest request, CloseableHttpResponse response) throws IOException, ParseException;
+	boolean onResponse(CurlRequest request, CloseableHttpResponse response) throws IOException;
 }

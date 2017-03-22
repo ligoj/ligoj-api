@@ -242,7 +242,7 @@ public class CurlProcessor {
 		request.processor = this;
 		try {
 			return call(request, url);
-		} catch (final Exception e) {
+		} catch (final Exception e) { // NOSONAR - This exception can be dropped
 			log.error("Request execution ' [" + request.getCounter() + "] " + request.getMethod() + " " + url + "' failed : {}", e.getMessage());
 		}
 		return false;
