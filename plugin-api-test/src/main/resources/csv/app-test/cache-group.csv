@@ -1,0 +1,17 @@
+id;name;description
+biz agency manager;Biz Agency Manager;cn=biz agency manager,cn=biz agency,ou=tools,dc=sample,dc=com
+dig;DIG;cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+production;Production;cn=production,ou=branche,ou=groups,dc=sample,dc=com
+business solution;Business Solution;cn=business solution,ou=groups,dc=sample,dc=com
+dig as;DIG AS;cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+sub business solution;Sub Business Solution;cn=sub business solution,cn=business solution,ou=groups,dc=sample,dc=com
+hub paris;Hub Paris;cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com
+gfi groupe;Gfi Groupe;cn=gfi groupe,ou=groups,dc=sample,dc=com
+sea-octopus;sea-octopus;cn=sea-octopus,ou=sea,ou=project,dc=sample,dc=com
+biz agency;Biz Agency;cn=biz agency,ou=tools,dc=sample,dc=com
+vigireport;VigiReport;cn=vigireport,ou=tools,dc=sample,dc=com
+gfi-gstack;gfi-gStack;cn=gfi-gstack,ou=gfi,ou=project,dc=sample,dc=com
+dig production;DIG Production;cn=dig production,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+dig rha;DIG RHA;cn=dig rha,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+hub france;Hub France;cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com
+jira;Jira;cn=jira,ou=tools,dc=sample,dc=com

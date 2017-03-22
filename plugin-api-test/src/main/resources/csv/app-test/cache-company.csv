@@ -1,0 +1,10 @@
+id;name;description
+socygan;socygan;ou=socygan,ou=external,ou=people,dc=sample,dc=com
+orange;orange;ou=orange,ou=external,ou=people,dc=sample,dc=com
+external;external;ou=external,ou=people,dc=sample,dc=com
+ing;ing;ou=ing,ou=external,ou=people,dc=sample,dc=com
+france;france;ou=france,ou=people,dc=sample,dc=com
+quarantine;quarantine;ou=quarantine,dc=sample,dc=com
+gfi;gfi;ou=gfi,ou=france,ou=people,dc=sample,dc=com
+people;people;ou=people,dc=sample,dc=com
+ing-internal;ing-internal;ou=ing-internal,ou=ing,ou=external,ou=people,dc=sample,dc=com
