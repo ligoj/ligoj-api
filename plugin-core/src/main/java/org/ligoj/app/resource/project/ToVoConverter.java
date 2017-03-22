@@ -15,7 +15,6 @@ import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
 import org.ligoj.app.resource.node.ParameterValueResource;
 import org.ligoj.app.resource.node.ParameterValueVo;
-import org.ligoj.app.resource.project.ProjectVo;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.ligoj.bootstrap.core.DescribedBean;
 
@@ -39,9 +38,20 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	 */
 	private Function<String, ? extends UserOrg> userConverter;
 
-	protected ToVoConverter(final Function<String, ? extends UserOrg> userConverter, final List<Object[]> subscriptions,
+	/**
+	 * Constructor holding the data used to convert a {@link Project} to {@link ProjectVo}.
+	 * 
+	 * @param userConverter
+	 *            The {@link Function} used to convert internal user identifier to described user.
+	 * @param subscriptionsAndParam
+	 *            The subscription (index 0, type {@link Subscription}) with parameter values (index 1, type
+	 *            {@link ParameterValue}).
+	 * @param subscriptionStatus
+	 *            The subscriptions statuses. Key is the subscription identifier.
+	 */
+	protected ToVoConverter(final Function<String, ? extends UserOrg> userConverter, final List<Object[]> subscriptionsAndParam,
 			final Map<Integer, EventVo> subscriptionStatus) {
-		this.subscriptions = subscriptions;
+		this.subscriptions = subscriptionsAndParam;
 		this.subscriptionStatus = subscriptionStatus;
 		this.userConverter = userConverter;
 	}
