@@ -184,7 +184,8 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Return a project with all subscription parameters and their status.
+	 * Return a project with all subscription parameters and their status. The security is checked regarding the current
+	 * user.
 	 * 
 	 * @param pkey
 	 *            Project pkey.
