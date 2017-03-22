@@ -1,7 +1,5 @@
 package org.ligoj.app.resource.project;
 
-import org.ligoj.app.resource.project.BasicProjectVo;
-
 import lombok.Getter;
 import lombok.Setter;
 
