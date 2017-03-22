@@ -5,7 +5,6 @@ import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamProvider;
-import org.ligoj.bootstrap.core.SpringUtils;
 import org.ligoj.bootstrap.model.system.SystemAuthorization;
 import org.ligoj.bootstrap.model.system.SystemAuthorization.AuthorizationType;
 import org.ligoj.bootstrap.model.system.SystemRole;
@@ -77,7 +76,7 @@ public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTes
 	@After
 	public void restoreAppalicationContext() {
 		if (applicationContext != null) {
-			SpringUtils.setSharedApplicationContext(applicationContext);
+			super.restoreAppalicationContext();
 		}
 	}
 }
