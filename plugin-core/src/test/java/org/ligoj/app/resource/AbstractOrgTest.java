@@ -16,10 +16,6 @@ import org.ligoj.app.api.CompanyOrg;
 import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.api.Normalizer;
 import org.ligoj.app.api.UserOrg;
-import org.ligoj.app.iam.EmptyCompanyRepository;
-import org.ligoj.app.iam.EmptyGroupRepository;
-import org.ligoj.app.iam.EmptyIamProvider;
-import org.ligoj.app.iam.EmptyUserRepository;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.dao.CacheCompanyRepository;
 import org.ligoj.app.iam.dao.CacheGroupRepository;
@@ -34,6 +30,10 @@ import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.security.EmptyCompanyRepository;
+import org.ligoj.app.resource.security.EmptyGroupRepository;
+import org.ligoj.app.resource.security.EmptyIamProvider;
+import org.ligoj.app.resource.security.EmptyUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
