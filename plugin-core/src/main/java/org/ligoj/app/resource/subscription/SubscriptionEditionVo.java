@@ -18,19 +18,20 @@ import org.ligoj.app.resource.node.ParameterValueEditionVo;
  * A subscription data edition.
  */
 @Getter
-@Setter
 public class SubscriptionEditionVo {
 
 	/**
 	 * Service (node, ...) identifier.
 	 */
 	@NotBlank
+	@Setter
 	private String node;
 
 	/**
 	 * Project identifier.
 	 */
 	@Min(1)
+	@Setter
 	private int project;
 
 	/**
@@ -42,8 +43,10 @@ public class SubscriptionEditionVo {
 	 * Defined parameters for this subscription.
 	 */
 	@Valid
+	@Setter
 	private List<ParameterValueEditionVo> parameters;
 	
 	@NotNull
+	@Setter
 	private SubscriptionMode mode = SubscriptionMode.LINK;
 }
