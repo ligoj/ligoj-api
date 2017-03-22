@@ -2,6 +2,12 @@ package org.ligoj.app.resource.delegate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.ForbiddenException;
@@ -14,11 +20,32 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ligoj.app.AbstractJpaTest;
 import org.ligoj.app.MatcherUtil;
+import org.ligoj.app.api.CompanyOrg;
+import org.ligoj.app.api.GroupOrg;
+import org.ligoj.app.api.Normalizer;
 import org.ligoj.app.api.SimpleUser;
-import org.ligoj.app.dao.DelegateOrgRepository;
-import org.ligoj.app.model.DelegateOrg;
-import org.ligoj.app.model.DelegateType;
-import org.ligoj.app.model.ReceiverType;
+import org.ligoj.app.api.UserOrg;
+import org.ligoj.app.iam.IamConfiguration;
+import org.ligoj.app.iam.dao.CacheCompanyRepository;
+import org.ligoj.app.iam.dao.CacheGroupRepository;
+import org.ligoj.app.iam.dao.DelegateOrgRepository;
+import org.ligoj.app.iam.model.CacheCompany;
+import org.ligoj.app.iam.model.CacheContainer;
+import org.ligoj.app.iam.model.CacheGroup;
+import org.ligoj.app.iam.model.CacheMembership;
+import org.ligoj.app.iam.model.CacheUser;
+import org.ligoj.app.iam.model.DelegateOrg;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.app.iam.model.ReceiverType;
+import org.ligoj.app.model.Node;
+import org.ligoj.app.model.Parameter;
+import org.ligoj.app.model.ParameterValue;
+import org.ligoj.app.model.Project;
+import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.security.EmptyCompanyRepository;
+import org.ligoj.app.resource.security.EmptyGroupRepository;
+import org.ligoj.app.resource.security.EmptyIamProvider;
+import org.ligoj.app.resource.security.EmptyUserRepository;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.mockito.Mockito;
@@ -38,17 +65,103 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @Transactional
 public class DelegateOrgResourceTest extends AbstractJpaTest {
 
-	@Autowired
 	private DelegateOrgResource resource;
 
 	@Autowired
 	private DelegateOrgRepository repository;
 
+	@Autowired
+	private CacheCompanyRepository cacheCompanyRepository;
+
+	@Autowired
+	private CacheGroupRepository cacheGroupRepository;
+
 	private DelegateOrg expected;
 
 	@Before
 	public void setUpEntities() throws IOException {
+
+		// Prepare the standard data
 		persistEntities("csv/app-test", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv/app-test", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
+				StandardCharsets.UTF_8.name());
+
+		// Add the IAM data
+		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class);
+		final Map<String, CompanyOrg> companies = csvForJpa.insert("csv/app-test", CacheCompany.class, StandardCharsets.UTF_8.name()).stream()
+				.map(c -> new CompanyOrg(c.getDescription(), c.getName())).collect(Collectors.toMap(CompanyOrg::getId, Function.identity()));
+		final Map<String, UserOrg> users = csvForJpa.insert("csv/app-test", CacheUser.class, StandardCharsets.UTF_8.name()).stream().map(c -> {
+			final UserOrg user = new UserOrg();
+			user.setId(c.getId());
+			user.setDn("uid=" + c.getId() + "," + companies.get(c.getCompany().getId()).getDn());
+			user.setCompany(c.getCompany().getId());
+			user.setFirstName(c.getFirstName());
+			user.setLastName(c.getLastName());
+			user.setMails(Arrays.asList(Optional.ofNullable(c.getMails()).orElse("").split(",")));
+			return user;
+		}).collect(Collectors.toMap(UserOrg::getId, Function.identity()));
+		final Map<String, GroupOrg> groups = csvForJpa.insert("csv/app-test", CacheGroup.class, StandardCharsets.UTF_8.name()).stream()
+				.map(c -> new GroupOrg(c.getDescription(), c.getName(), new HashSet<>()))
+				.collect(Collectors.toMap(GroupOrg::getId, Function.identity()));
+		csvForJpa.insert("csv/app-test", CacheMembership.class, StandardCharsets.UTF_8.name());
+
+		// Plug-in the IAMProvider to the database
+		resource = new DelegateOrgResource();
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
+
+		final IamConfiguration configuration = new IamConfiguration();
+		final EmptyUserRepository userRepository = new EmptyUserRepository() {
+			@Override
+			public Map<String, UserOrg> findAll() {
+				return users;
+			}
+
+			@Override
+			public UserOrg findById(final String login) {
+				return findAll().get(login);
+			}
+
+			@Override
+			public UserOrg findOneBy(final String attribute, final String value) {
+				return findAllBy(attribute, value).stream().findFirst().orElse(null);
+			}
+		};
+		configuration.setUserRepository(userRepository);
+		configuration.setCompanyRepository(new EmptyCompanyRepository() {
+			@Override
+			public Map<String, CompanyOrg> findAll() {
+				return companies;
+			}
+
+			@Override
+			public CompanyOrg findById(final String user, final String id) {
+				// Check the container exists and return the in memory object.
+				return Optional.ofNullable(cacheCompanyRepository.findById(user, Normalizer.normalize(id))).map(CacheContainer::getId)
+						.map(this::findById).orElse(null);
+			}
+		});
+		configuration.setGroupRepository(new EmptyGroupRepository() {
+			@Override
+			public Map<String, GroupOrg> findAll() {
+				return groups;
+			}
+
+			@Override
+			public GroupOrg findById(final String user, final String id) {
+				// Check the container exists and return the in memory object.
+				return Optional.ofNullable(cacheGroupRepository.findById(user, Normalizer.normalize(id))).map(CacheContainer::getId)
+						.map(this::findById).orElse(null);
+			}
+		});
+		userRepository.setCompanyRepository(configuration.getCompanyRepository());
+
+		resource.iamProvider = new EmptyIamProvider() {
+			@Override
+			public IamConfiguration getConfiguration() {
+				return configuration;
+			}
+		};
+
 		em.flush();
 		em.clear();
 		expected = repository.findByName("dig rha");
@@ -128,7 +241,6 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 		// mlavoine;tree;cn=biz agency,ou=tools,dc=sample,dc=com
 		Assert.assertEquals(DelegateType.TREE, result.getData().get(0).getType());
 		Assert.assertEquals("cn=biz agency,ou=tools,dc=sample,dc=com", result.getData().get(0).getName());
-		
 
 	}
 
@@ -136,25 +248,27 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 	public void findAll() {
 		// create a mock URI info with pagination informations
 		final UriInfo uriInfo = newFindAllParameters();
-		uriInfo.getQueryParameters().putSingle("length", "11");
+		uriInfo.getQueryParameters().putSingle("length", "12");
 
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
-		Assert.assertEquals(11, result.getData().size());
+		Assert.assertEquals(12, result.getData().size());
 		Assert.assertEquals(23, result.getRecordsTotal());
 
-		checkDelegateGroup2(result.getData().get(10));
+		checkDelegateGroup2(result.getData().get(11));
 		checkDelegateTree(result.getData().get(3));
 	}
 
+	/**
+	 * A delegate visible by user "alongchu". This delegate add visibility of company "ing" for all mambers of
+	 * "gfi-gstack". And user "alongchu" is member of group "gfi-gstack".
+	 */
 	@Test
 	public void findAllReceiverGroup() {
-		// create a mock URI info with pagination informations
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("alongchu");
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
 		Assert.assertEquals(1, result.getData().size());
 		Assert.assertEquals(1, result.getRecordsTotal());
-
 		final DelegateOrgLightVo entity = result.getData().get(0);
 		Assert.assertEquals("ing", entity.getName());
 		Assert.assertEquals(DelegateType.COMPANY, entity.getType());
@@ -185,7 +299,7 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
-		Assert.assertEquals(4, result.getData().size());
+		Assert.assertEquals(3, result.getData().size());
 
 		checkDelegateGroup(result.getData().get(1));
 	}
@@ -197,7 +311,7 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, DelegateType.GROUP);
-		Assert.assertEquals(4, result.getData().size());
+		Assert.assertEquals(3, result.getData().size());
 
 		checkDelegateGroup(result.getData().get(1));
 	}
@@ -271,7 +385,7 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 	@Test
 	public void createOnGroup() {
 		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
-		vo.setName("hUb Nord");
+		vo.setName("hUb Paris");
 		vo.setType(DelegateType.GROUP);
 		vo.setReceiver("fdaugan");
 		final int id = resource.create(vo);
@@ -281,8 +395,8 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 		final DelegateOrg entity = repository.findOneExpected(id);
 
 		// Check the stored name is normalized
-		Assert.assertEquals("hub nord", entity.getName());
-		Assert.assertEquals("cn=hub nord,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com", entity.getDn());
+		Assert.assertEquals("hub paris", entity.getName());
+		Assert.assertEquals("cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com", entity.getDn());
 		Assert.assertEquals(DelegateType.GROUP, entity.getType());
 		Assert.assertEquals(DEFAULT_USER, entity.getCreatedBy());
 		Assert.assertEquals("fdaugan", entity.getReceiver());
@@ -317,7 +431,7 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 	@Test
 	public void createDelegateCompanyReceiverCompany() {
 		initSpringSecurityContext("mtuyer");
-	
+
 		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
 		vo.setName("InG");
 		vo.setType(DelegateType.COMPANY);
@@ -341,11 +455,11 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 	@Test
 	public void createDelegateCompanyReceiverGroup() {
 		initSpringSecurityContext("mtuyer");
-	
+
 		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
 		vo.setName("ing");
 		vo.setType(DelegateType.COMPANY);
-		vo.setReceiver("dig");
+		vo.setReceiver("DIG");
 		vo.setReceiverType(ReceiverType.GROUP);
 		vo.setCanAdmin(true);
 		final int id = resource.create(vo);
@@ -652,8 +766,8 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 	@Test
 	public void deleteSubTreeGroup() {
 		initSpringSecurityContext("fdaugan");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class)
-				.setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class).setParameter("user", "someone")
+				.setParameter("name", "dig rha").getSingleResult();
 		final long initCount = repository.count();
 		em.clear();
 		resource.delete(id);
@@ -675,8 +789,8 @@ public class DelegateOrgResourceTest extends AbstractJpaTest {
 	@Test(expected = ForbiddenException.class)
 	public void deleteNotAdmin() {
 		initSpringSecurityContext("someone");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class)
-				.setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class).setParameter("user", "someone")
+				.setParameter("name", "dig rha").getSingleResult();
 		resource.delete(id);
 	}
 

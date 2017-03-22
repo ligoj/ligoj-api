@@ -1,17 +1,17 @@
-package org.ligoj.app.model;
+package org.ligoj.app.iam.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
 /**
- * Cache object of a group.<br>
+ * Cache object of a company.<br>
  * "id" corresponds to the normalized name.<br>
  * "name" corresponds to the real name, not normalized.<br>
  * "description" corresponds to the normalized "Distinguished Name".
  */
 @Entity
-@Table(name = "SAAS_CACHE_GROUP")
-public class CacheGroup extends CacheContainer {
+@Table(name = "SAAS_CACHE_COMPANY")
+public class CacheCompany extends CacheContainer {
 
 	/**
 	 * SID

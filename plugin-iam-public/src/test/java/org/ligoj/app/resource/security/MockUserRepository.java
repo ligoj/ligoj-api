@@ -6,36 +6,38 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ligoj.app.api.GroupLdap;
-import org.ligoj.app.api.UserLdap;
+import org.ligoj.app.api.GroupOrg;
+import org.ligoj.app.api.UserOrg;
+import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IUserRepository;
+import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 class MockUserRepository implements IUserRepository {
 
 	@Override
-	public UserLdap findByIdNoCache(String login) {
+	public UserOrg findByIdNoCache(String login) {
 		return null;
 	}
 
 	@Override
-	public List<UserLdap> findAllBy(String attribute, String value) {
-		return Collections.singletonList(new UserLdap());
+	public List<UserOrg> findAllBy(String attribute, String value) {
+		return Collections.singletonList(new UserOrg());
 	}
 
 	@Override
-	public Map<String, UserLdap> findAll() {
-		return Collections.singletonMap("some", new UserLdap());
+	public Map<String, UserOrg> findAll() {
+		return Collections.singletonMap("some", new UserOrg());
 	}
 
 	@Override
-	public Page<UserLdap> findAll(Collection<GroupLdap> requiredGroups, Set<String> companies, String criteria, Pageable pageable) {
+	public Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria, Pageable pageable) {
 		return null;
 	}
 
 	@Override
-	public UserLdap findById(final String login) {
+	public UserOrg findById(final String login) {
 		return null;
 	}
 
@@ -50,7 +52,12 @@ class MockUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void setPassword(UserLdap userLdap, String password) {
+	public ICompanyRepository getCompanyRepository() {
+		return Mockito.mock(ICompanyRepository.class);
+	}
+
+	@Override
+	public void setPassword(UserOrg userLdap, String password) {
 		// Nothing to do
 	}
 

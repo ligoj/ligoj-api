@@ -19,17 +19,17 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ligoj.app.api.CompanyLdap;
-import org.ligoj.app.api.GroupLdap;
+import org.ligoj.app.api.CompanyOrg;
+import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.api.Normalizer;
-import org.ligoj.app.dao.DelegateOrgRepository;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamProvider;
-import org.ligoj.app.model.DelegateOrg;
-import org.ligoj.app.model.DelegateType;
-import org.ligoj.app.model.ReceiverType;
+import org.ligoj.app.iam.dao.DelegateOrgRepository;
+import org.ligoj.app.iam.model.DelegateOrg;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.app.iam.model.ReceiverType;
 import org.ligoj.app.validation.DistinguishNameValidator;
 import org.ligoj.bootstrap.core.NamedBean;
 import org.ligoj.bootstrap.core.json.PaginationJson;
@@ -61,7 +61,7 @@ public class DelegateOrgResource {
 	private PaginationJson paginationJson;
 
 	@Autowired
-	private IamProvider iamProvider;
+	protected IamProvider iamProvider;
 
 	/**
 	 * Ordered columns.
@@ -99,7 +99,7 @@ public class DelegateOrgResource {
 		// Flag to indicate the current user can manage this entry
 		vo.setManaged(isManagedDelegate(entity));
 		if (entity.getType() == DelegateType.GROUP) {
-			final Map<String, GroupLdap> groups = getGroup().findAll();
+			final Map<String, GroupOrg> groups = getGroup().findAll();
 			if (groups.containsKey(entity.getReferenceID())) {
 				// Make nicer the display for group using the CN
 				vo.setName(groups.get(entity.getReferenceID()).getName());
@@ -177,8 +177,8 @@ public class DelegateOrgResource {
 	 * @return the created/update {@link DelegateOrg}
 	 */
 	private DelegateOrg validateSaveOrUpdate(final DelegateOrgEditionVo importEntry) {
-		final Map<String, CompanyLdap> allCompanies = getCompany().findAll();
-		final Map<String, GroupLdap> allGroups = getGroup().findAll();
+		final Map<String, CompanyOrg> allCompanies = getCompany().findAll();
+		final Map<String, GroupOrg> allGroups = getGroup().findAll();
 
 		// Save the delegate with normalized name
 		final DelegateOrg entity = new DelegateOrg();
@@ -260,9 +260,9 @@ public class DelegateOrgResource {
 	/**
 	 * Validate and clean the group name, and return the corresponding DN.
 	 */
-	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupLdap> allGroups, final String dn) {
+	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupOrg> allGroups, final String dn) {
 		final String normalizedCN = Normalizer.normalize(importEntry.getName());
-		final GroupLdap group = allGroups.get(normalizedCN);
+		final GroupOrg group = allGroups.get(normalizedCN);
 		if (group != null) {
 			importEntry.setName(normalizedCN);
 			return group.getDn();
@@ -273,7 +273,7 @@ public class DelegateOrgResource {
 	/**
 	 * Validate, clean the company name, and return the corresponding DN.
 	 */
-	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyLdap> allCompanies, final String dn) {
+	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyOrg> allCompanies, final String dn) {
 		final String normalizedCN = Normalizer.normalize(importEntry.getName());
 		if (allCompanies.containsKey(normalizedCN)) {
 			importEntry.setName(normalizedCN);
@@ -319,11 +319,11 @@ public class DelegateOrgResource {
 	private void validateWriteAccess(final int id) {
 
 		// Get the related delegate
-		final DelegateOrg delegateLdap = repository.findOneExpected(id);
+		final DelegateOrg delegate = repository.findOneExpected(id);
 
 		// Check the related DN
-		final String dn = delegateLdap.getDn();
-		final List<Integer> ids = repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn, delegateLdap.getType());
+		final String dn = delegate.getDn();
+		final List<Integer> ids = repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn, delegate.getType());
 		if (ids.isEmpty()) {
 			throw new ForbiddenException();
 		}

@@ -3,7 +3,7 @@ package org.ligoj.app.resource.security;
 import java.util.Collections;
 import java.util.Map;
 
-import org.ligoj.app.api.GroupLdap;
+import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.iam.IGroupRepository;
 
 /**
@@ -13,30 +13,25 @@ import org.ligoj.app.iam.IGroupRepository;
 public class EmptyGroupRepository implements IGroupRepository {
 
 	@Override
-	public Map<String, GroupLdap> findAll() {
+	public Map<String, GroupOrg> findAll() {
 		return Collections.emptyMap();
 	}
 
 	@Override
-	public void delete(final GroupLdap container) {
+	public void delete(final GroupOrg container) {
 		// Not supported
 	}
 
 	@Override
-	public GroupLdap create(final String dn, final String cn) {
+	public GroupOrg create(final String dn, final String cn) {
 		// Not supported
-		return new GroupLdap(dn, cn, Collections.emptySet());
+		return new GroupOrg(dn, cn, Collections.emptySet());
 	}
 
 	@Override
-	public GroupLdap findByDepartment(final String department) {
+	public GroupOrg findByDepartment(final String department) {
 		// Not supported
 		return null;
-	}
-
-	@Override
-	public GroupLdap findByIdExpected(String user, String id) {
-		return findById(id);
 	}
 
 	@Override

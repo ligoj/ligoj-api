@@ -1,4 +1,4 @@
-package org.ligoj.app.model;
+package org.ligoj.app.iam.model;
 
 /**
  * Delegate type.
@@ -16,7 +16,7 @@ public enum DelegateType {
 	COMPANY,
 
 	/**
-	 * LDAP tree delegate. Corresponds to any LDAP type.
+	 * Tree delegate. Corresponds to any object type. Useful for non homogeneous organization trees.
 	 */
 	TREE
 }

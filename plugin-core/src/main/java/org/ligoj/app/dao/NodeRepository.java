@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;

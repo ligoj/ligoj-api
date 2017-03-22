@@ -3,6 +3,8 @@ package org.ligoj.app.model;
 import javax.persistence.Entity;
 import javax.persistence.Table;
 
+import org.ligoj.app.iam.model.AbstractDelegate;
+
 import lombok.Getter;
 import lombok.Setter;
 

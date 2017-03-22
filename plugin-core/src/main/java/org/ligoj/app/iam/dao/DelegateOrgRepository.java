@@ -1,14 +1,13 @@
-package org.ligoj.app.dao;
+package org.ligoj.app.iam.dao;
 
 import java.util.List;
 
+import org.ligoj.app.iam.model.DelegateOrg;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-
-import org.ligoj.bootstrap.core.dao.RestRepository;
-import org.ligoj.app.model.DelegateOrg;
-import org.ligoj.app.model.DelegateType;
 
 /**
  * {@link DelegateOrg} repository.
@@ -20,11 +19,11 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * <br>
 	 * Delegates assigned to a receiver<br>
 	 */
-	String ASSIGNED_DELEGATE = "((receiverType=org.ligoj.app.model.ReceiverType.USER    AND receiver=:user)"
-			+ "               OR (receiverType=org.ligoj.app.model.ReceiverType.GROUP   AND EXISTS(SELECT 1 FROM CacheGroup cg   WHERE receiver = cg.id"
+	String ASSIGNED_DELEGATE = "((receiverType=org.ligoj.app.iam.model.ReceiverType.USER    AND receiver=:user)"
+			+ "               OR (receiverType=org.ligoj.app.iam.model.ReceiverType.GROUP   AND EXISTS(SELECT 1 FROM CacheGroup cg   WHERE receiver = cg.id"
 			+ "                              AND EXISTS(SELECT 1 FROM CacheMembership cm INNER JOIN cm.group g WHERE cm.user.id = :user"
 			+ "                                          AND (g.description = cg.description OR g.description LIKE CONCAT('%,',cg.description)))))"
-			+ "               OR (receiverType=org.ligoj.app.model.ReceiverType.COMPANY AND EXISTS(SELECT 1 FROM CacheCompany cc WHERE receiver = cc.id"
+			+ "               OR (receiverType=org.ligoj.app.iam.model.ReceiverType.COMPANY AND EXISTS(SELECT 1 FROM CacheCompany cc WHERE receiver = cc.id"
 			+ "                                AND EXISTS(SELECT 1 FROM CacheUser cu INNER JOIN cu.company c   WHERE cu.id = :user"
 			+ "                                          AND (c.description = cc.description OR c.description LIKE CONCAT('%,',cc.description))))))";
 
@@ -36,24 +35,24 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 */
 	String VISIBLE_DELEGATE = "((" + ASSIGNED_DELEGATE + ")                                                             "
 			+ "  OR EXISTS (SELECT dz.id FROM DelegateOrg dz WHERE " + ASSIGNED_DELEGATE
-			+ "	   AND (dz.type=d.type OR dz.type=org.ligoj.app.model.DelegateType.TREE)                         "
+			+ "	   AND (dz.type=d.type OR dz.type=org.ligoj.app.iam.model.DelegateType.TREE)                         "
 			+ "	   AND (dz.canAdmin=true AND (d.dn LIKE CONCAT('%,',dz.dn) OR dz.dn=d.dn))))                            ";
 	/**
-	 * ":type" : Type of LDAP resource <br>
+	 * ":type" : Type of resource <br>
 	 * <br>
 	 * Match Type
 	 */
-	String MATCH_TYPE = "(type=:type OR type=org.ligoj.app.model.DelegateType.TREE)";
+	String MATCH_TYPE = "(type=:type OR type=org.ligoj.app.iam.model.DelegateType.TREE)";
 
 	/**
-	 * ":type" : Type of LDAP resource <br>
+	 * ":type" : Type of resource <br>
 	 * ":user" : Context user login <br>
 	 * Match Type and user
 	 */
 	String MATCH_DELEGATE = "(" + MATCH_TYPE + " AND " + ASSIGNED_DELEGATE + ")";
 
 	/**
-	 * "l" : Current LDAP resource<br>
+	 * "l" : Current resource<br>
 	 * <br>
 	 * Match DN
 	 */
@@ -68,7 +67,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 
 	/**
 	 * ":dn" : Current DN<br>
-	 * ":type" : Type of LDAP resource <br>
+	 * ":type" : Type of resource <br>
 	 * ":user" : Context user login <br>
 	 * <br>
 	 * Match Type and user and DN
@@ -106,9 +105,9 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * @param user
 	 *            The target user name, receiving the delegation.
 	 * @param criteria
-	 *            Optional, use to match by LDAP object name or target user.
+	 *            Optional, use to filter by reveiver's name of delegate's name.
 	 * @param type
-	 *            Optional {@link DelegateType} to match..
+	 *            Optional {@link DelegateType} to match.
 	 * @param page
 	 *            the pagination.
 	 * @return all {@link DelegateOrg} objects with the given name. Insensitive case search is used.
@@ -118,7 +117,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 			+ "	AND (:criteria IS NULL                                                                                   "
 			+ "  OR (UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))                                     "
 			+ "  OR UPPER(d.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "  OR (d.type=org.ligoj.app.model.DelegateType.TREE AND UPPER(d.dn) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))))")
+			+ "  OR (d.type=org.ligoj.app.iam.model.DelegateType.TREE AND UPPER(d.dn) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))))")
 	Page<DelegateOrg> findAll(String user, String criteria, DelegateType type, Pageable page);
 
 	/**

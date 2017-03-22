@@ -5,15 +5,15 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.NotBlank;
 
 import org.ligoj.bootstrap.core.NamedBean;
-import org.ligoj.app.model.DelegateType;
-import org.ligoj.app.model.ReceiverType;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.app.iam.model.ReceiverType;
 
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * LDAP delegation business object for updates. The name corresponds to the CN of target. It will be normalized before
- * the match to a real LDAP CN.
+ * Delegation business object for updates. The name corresponds to the human readable name (CN for LDAP) of the target.
+ * It will be normalized to be used as identifier.
  */
 @Getter
 @Setter

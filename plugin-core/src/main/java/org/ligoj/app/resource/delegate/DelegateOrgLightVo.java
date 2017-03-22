@@ -4,16 +4,16 @@ import lombok.Getter;
 import lombok.Setter;
 import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.NamedAuditedBean;
-import org.ligoj.app.api.SimpleUserLdap;
-import org.ligoj.app.model.DelegateType;
-import org.ligoj.app.model.ReceiverType;
+import org.ligoj.app.api.SimpleUserOrg;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.app.iam.model.ReceiverType;
 
 /**
- * LDAP delegation business object for display.
+ * Delegation business object for display. The name corresponds to the human readable name (CN for LDAP) of the target.
  */
 @Getter
 @Setter
-public class DelegateOrgLightVo extends NamedAuditedBean<SimpleUserLdap, Integer> {
+public class DelegateOrgLightVo extends NamedAuditedBean<SimpleUserOrg, Integer> {
 
 	/**
 	 * The people receiving the delegate.

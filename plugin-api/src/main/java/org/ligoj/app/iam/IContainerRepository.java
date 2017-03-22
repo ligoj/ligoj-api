@@ -1,15 +1,17 @@
 package org.ligoj.app.iam;
 
 import java.util.Map;
+import java.util.Optional;
 
-import org.ligoj.app.api.ContainerLdap;
+import org.ligoj.app.api.ContainerOrg;
+import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 /**
- * Container LDAP contract.
+ * Container repository contract.
  */
-public interface ContainerLdapRepository<T extends ContainerLdap> {
 
+public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Return the container corresponding to the given identifier using the user cache.
 	 * 
@@ -46,7 +48,11 @@ public interface ContainerLdapRepository<T extends ContainerLdap> {
 	 * @throws ValidationJsonException
 	 *             If the container is not found or cannot be seen by the given user.
 	 */
-	T findByIdExpected(String user, String id);
+	default T findByIdExpected(String user, String id) {
+		// Check the container exists and return the in memory object.
+		return Optional.ofNullable(findById(user, id))
+				.orElseThrow(() -> new ValidationJsonException(getTypeName(), BusinessException.KEY_UNKNOW_ID, "0", "id", "1", id));
+	}
 
 	/**
 	 * Return all normalized containers where key is the identifier. Note the result use cache, so does not reflect the

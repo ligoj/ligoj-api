@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
 import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.model.Project;
 
 /**
@@ -39,8 +40,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 			+ " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data"
 			+ "     AND (EXISTS(SELECT 1 FROM CacheMembership AS cm WHERE cm.user.id = :user AND cm.group = g)"
 			+ "       OR EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ " AND ((d.type = org.ligoj.app.model.DelegateType.GROUP AND d.dn=g.description)"
-			+ "                   OR (d.type=org.ligoj.app.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))";
+			+ " AND ((d.type = org.ligoj.app.iam.model.DelegateType.GROUP AND d.dn=g.description)"
+			+ "                   OR (d.type=org.ligoj.app.iam.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))";
 
 	/**
 	 * Return all {@link Project} objects with the given name.The other constraints are :
@@ -48,7 +49,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.DelegateOrg}</li>
+	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
 	 * @param user
@@ -71,7 +72,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.DelegateOrg}</li>
+	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
 	 * @param user
@@ -87,7 +88,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.DelegateOrg}</li>
+	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
 	 * @param id
@@ -105,7 +106,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is member of the group associated to this project via the service:id subscription</li>
 	 * <li>Or, the current user is see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.model.DelegateOrg}</li>
+	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
 	 * @param pkey
@@ -124,10 +125,10 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Or, the current user is an administrator
 	 * <li>Or, the current user <strong>manage</strong> the group associated to this project via the
 	 * <code>service:id</code>
-	 * subscription and {@link org.ligoj.app.model.DelegateOrg}</li>
+	 * subscription and {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
-	 * @see org.ligoj.app.model.DelegateOrg#isCanAdmin()
+	 * @see org.ligoj.app.iam.model.DelegateOrg#isCanAdmin()
 	 * @param user
 	 *            The current user name.
 	 * @param project
@@ -137,8 +138,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	@Query("SELECT p.id FROM Project AS p WHERE p.id = :project AND (p.teamLeader = :user OR " + IS_ADMIN + " OR "
 			+ " EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data AND "
 			+ " (EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ " AND d.canAdmin=true AND ((d.type=org.ligoj.app.model.DelegateType.GROUP AND d.dn=g.description) OR"
-			+ " (d.type=org.ligoj.app.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))")
+			+ " AND d.canAdmin=true AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.dn=g.description) OR"
+			+ " (d.type=org.ligoj.app.iam.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))")
 	Integer isManageSubscription(int project, String user);
 
 }

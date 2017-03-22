@@ -17,7 +17,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * 
 	 * @param user
 	 *            the current user.
-	 * @return the subscriptions data (project identifier and node identifier) visible for current user..
+	 * @return the subscriptions data (project identifier and node identifier) visible for current user.
 	 */
 	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p WHERE "
 			+ ProjectRepository.VISIBLE_PROJECTS)

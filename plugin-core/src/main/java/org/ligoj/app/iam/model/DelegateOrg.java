@@ -1,4 +1,4 @@
-package org.ligoj.app.model;
+package org.ligoj.app.iam.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Table;
@@ -6,8 +6,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
-
 import org.ligoj.app.validation.DistinguishName;
+
 import lombok.Getter;
 import lombok.Setter;
 

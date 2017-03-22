@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.ligoj.app.api.SimpleUserLdap;
+import org.ligoj.app.api.SimpleUserOrg;
 import org.ligoj.bootstrap.core.AuditedBean;
 
 /**
@@ -14,7 +14,7 @@ import org.ligoj.bootstrap.core.AuditedBean;
  */
 @Getter
 @Setter
-public class BasicParameterValueVo extends AuditedBean<SimpleUserLdap, Integer> {
+public class BasicParameterValueVo extends AuditedBean<SimpleUserOrg, Integer> {
 
 	/**
 	 * Not null for {@value org.ligoj.app.model.ParameterType#TEXT}

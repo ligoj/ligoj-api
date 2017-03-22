@@ -6,11 +6,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * LDAP User
+ * Organization user with groups
  */
 @Getter
 @Setter
-public class UserLdap extends SimpleUserLdap implements LdapElement {
+public class UserOrg extends SimpleUserOrg implements ResourceOrg {
 
 	private static final long serialVersionUID = 1L;
 

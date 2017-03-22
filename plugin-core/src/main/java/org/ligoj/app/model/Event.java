@@ -31,13 +31,13 @@ public class Event extends AbstractPersistable<Integer> {
 	private static final long serialVersionUID = -5645832399885139130L;
 
 	/**
-	 * Type of event (status, ...).
+	 * Type of event : status, ...
 	 */
 	@Enumerated(EnumType.STRING)
 	private EventType type;
 
 	/**
-	 * Value of the event (up, down, ...).
+	 * Value of the event : up, down, ...
 	 */
 	@Length(max = 100)
 	private String value;

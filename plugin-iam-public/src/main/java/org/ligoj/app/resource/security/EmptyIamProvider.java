@@ -22,9 +22,14 @@ public class EmptyIamProvider implements IamProvider {
 	@CacheResult(cacheName = "iam-node-configuration")
 	public IamConfiguration getConfiguration() {
 		final IamConfiguration configuration = new IamConfiguration();
-		configuration.setUserRepository(new EmptyUserRepository());
-		configuration.setCompanyRepository(new EmptyCompanyRepository());
+		final EmptyCompanyRepository companyRepository = new EmptyCompanyRepository();
+		configuration.setCompanyRepository(companyRepository);
 		configuration.setGroupRepository(new EmptyGroupRepository());
+		final EmptyUserRepository userRepository = new EmptyUserRepository();
+		configuration.setUserRepository(userRepository);
+
+		// Also link user/company repositories
+		userRepository.setCompanyRepository(companyRepository);
 		return configuration;
 	}
 

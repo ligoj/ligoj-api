@@ -1,9 +1,10 @@
 package org.ligoj.app.api;
 
 /**
- * Any LDAP element with a DN and an unique identifier.
+ * An organizational resource : a DN and an unique identifier. This element is the base for all security management with
+ * delegates.
  */
-public interface LdapElement {
+public interface ResourceOrg {
 
 	/**
 	 * The distinguished name (DN) of this element.

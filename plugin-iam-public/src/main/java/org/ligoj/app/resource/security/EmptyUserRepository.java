@@ -6,27 +6,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ligoj.app.api.GroupOrg;
+import org.ligoj.app.api.UserOrg;
+import org.ligoj.app.iam.ICompanyRepository;
+import org.ligoj.app.iam.IUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.ligoj.app.api.GroupLdap;
-import org.ligoj.app.api.UserLdap;
-import org.ligoj.app.iam.IUserRepository;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A mocked user repository. Details of a specific person always succeed but the search of people return an empty list.
  */
 public class EmptyUserRepository implements IUserRepository {
 
+	@Getter
+	@Setter
+	private ICompanyRepository companyRepository;
+	
 	@Override
 	public String getToken(final String login) {
 		return login;
 	}
 
 	@Override
-	public UserLdap findById(final String login) {
+	public UserOrg findById(final String login) {
 		// Always found
-		final UserLdap userLdap = new UserLdap();
+		final UserOrg userLdap = new UserOrg();
 		userLdap.setId(login);
 		userLdap.setFirstName("First");
 		userLdap.setLastName("Last");
@@ -36,25 +44,25 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public UserLdap findByIdNoCache(final String login) {
+	public UserOrg findByIdNoCache(final String login) {
 		return findById(login);
 	}
 
 	@Override
-	public List<UserLdap> findAllBy(final String attribute, final String value) {
+	public List<UserOrg> findAllBy(final String attribute, final String value) {
 		// No people
 		return Collections.emptyList();
 	}
 
 	@Override
-	public Page<UserLdap> findAll(final Collection<GroupLdap> requiredGroups, final Set<String> companies, final String criteria,
+	public Page<UserOrg> findAll(final Collection<GroupOrg> requiredGroups, final Set<String> companies, final String criteria,
 			final Pageable pageable) {
 		// No people
 		return new PageImpl<>(Collections.emptyList());
 	}
 
 	@Override
-	public Map<String, UserLdap> findAll() {
+	public Map<String, UserOrg> findAll() {
 		// No people
 		return Collections.emptyMap();
 	}
@@ -66,7 +74,7 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void setPassword(UserLdap userLdap, String password) {
+	public void setPassword(UserOrg userLdap, String password) {
 		// Nothing to do
 	}
 }

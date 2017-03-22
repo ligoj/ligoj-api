@@ -1,4 +1,4 @@
-package org.ligoj.app.model;
+package org.ligoj.app.iam.model;
 
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;

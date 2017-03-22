@@ -9,16 +9,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * An LDAP company.
+ * An organizational company.
  */
 @Getter
 @Setter
-public class CompanyLdap extends ContainerLdap {
+public class CompanyOrg extends ContainerOrg {
 
 	/**
 	 * This company, and the parents.
 	 */
-	private List<CompanyLdap> companyTree = new ArrayList<>();
+	private List<CompanyOrg> companyTree = new ArrayList<>();
 
 	/**
 	 * LDAP Name. Is <code>null</code> while not computed.
@@ -34,14 +34,14 @@ public class CompanyLdap extends ContainerLdap {
 	 *            "name" corresponds to the "Organizational Unit". Will be saved in "name", and in "id" in is normalized
 	 *            form.
 	 */
-	public CompanyLdap(final String dn, final String name) {
+	public CompanyOrg(final String dn, final String name) {
 		super(dn, name);
 		companyTree.add(this);
 	}
 
 	@Override
 	public boolean equals(final Object other) {
-		return other instanceof CompanyLdap && getId().equals(((CompanyLdap) other).getId());
+		return other instanceof CompanyOrg && getId().equals(((CompanyOrg) other).getId());
 	}
 
 	@Override

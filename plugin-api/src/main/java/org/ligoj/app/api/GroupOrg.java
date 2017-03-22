@@ -9,13 +9,13 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * LDAP Group.<br>
+ * Organizational Group.<br>
  * "id" corresponds to the normalized "Distinguished Name".<br>
  * "name" corresponds to the real "Common Name", not normalized.
  */
 @Getter
 @Setter
-public class GroupLdap extends ContainerLdap {
+public class GroupOrg extends ContainerOrg {
 
 	/**
 	 * Unique user members. Identifier (UID) is used.
@@ -45,7 +45,7 @@ public class GroupLdap extends ContainerLdap {
 	 * @param members
 	 *            unique members. UID is used.
 	 */
-	public GroupLdap(final String dn, final String name, final Set<String> members) {
+	public GroupOrg(final String dn, final String name, final Set<String> members) {
 		super(dn, name);
 		setMembers(members);
 		setGroups(new HashSet<>());
@@ -54,7 +54,7 @@ public class GroupLdap extends ContainerLdap {
 
 	@Override
 	public boolean equals(final Object other) {
-		return other instanceof GroupLdap && getId().equals(((GroupLdap) other).getId());
+		return other instanceof GroupOrg && getId().equals(((GroupOrg) other).getId());
 	}
 
 	@Override

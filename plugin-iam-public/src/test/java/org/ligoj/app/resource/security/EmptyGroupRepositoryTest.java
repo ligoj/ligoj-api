@@ -2,7 +2,7 @@ package org.ligoj.app.resource.security;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.GroupLdap;
+import org.ligoj.app.api.GroupOrg;
 
 /**
  * Test class of {@link EmptyGroupRepository}
@@ -26,7 +26,7 @@ public class EmptyGroupRepositoryTest {
 
 	@Test
 	public void create() {
-		final GroupLdap groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
+		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
 		Assert.assertEquals("Cn=Some", groupLdap.getDn());
 		Assert.assertEquals("Name", groupLdap.getName());
 		Assert.assertEquals("name", groupLdap.getId());

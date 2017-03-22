@@ -3,10 +3,12 @@ package org.ligoj.app.iam;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
-import org.ligoj.app.api.GroupLdap;
-import org.ligoj.app.api.UserLdap;
+import org.ligoj.app.api.GroupOrg;
+import org.ligoj.app.api.UserOrg;
+import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,16 +19,16 @@ import org.springframework.data.domain.Pageable;
 public interface IUserRepository {
 
 	/**
-	 * Return the {@link UserLdap} corresponding to the given login without using cache.
+	 * Return the {@link UserOrg} corresponding to the given login without using cache.
 	 * 
 	 * @param login
 	 *            the user login.
 	 * @return the found user or <code>null</code> when not found. Groups are not fetched for this operation.
 	 */
-	UserLdap findByIdNoCache(String login);
+	UserOrg findByIdNoCache(String login);
 
 	/**
-	 * Return the {@link UserLdap} corresponding to the given attribute/value without using cache for the query, but
+	 * Return the {@link UserOrg} corresponding to the given attribute/value without using cache for the query, but
 	 * using it to resolve the user.
 	 * 
 	 * @param attribute
@@ -35,12 +37,12 @@ public interface IUserRepository {
 	 *            the attribute value to match.
 	 * @return the found user or <code>null</code> when not found. Groups are not fetched for this operation.
 	 */
-	default UserLdap findOneBy(final String attribute, final String value) {
+	default UserOrg findOneBy(final String attribute, final String value) {
 		return findAllBy(attribute, value).stream().findFirst().orElse(null);
 	}
 
 	/**
-	 * Return all {@link UserLdap} corresponding to the given attribute/value without using cache for the query, but
+	 * Return all {@link UserOrg} corresponding to the given attribute/value without using cache for the query, but
 	 * using it to resolve the user. If the user is not found in the cache, the fresh data is used.
 	 * 
 	 * @param attribute
@@ -49,58 +51,66 @@ public interface IUserRepository {
 	 *            the attribute value to match.
 	 * @return the found users or empty list.
 	 */
-	List<UserLdap> findAllBy(String attribute, String value);
+	List<UserOrg> findAllBy(String attribute, String value);
 
 	/**
 	 * Return all user entries. Cache manager is involved.
 	 * 
 	 * @return all user entries. Key is the user login.
 	 */
-	Map<String, UserLdap> findAll();
+	Map<String, UserOrg> findAll();
 
 	/**
-	 * Return the {@link UserLdap} corresponding to the given login using the user cache.
+	 * Return the {@link UserOrg} corresponding to the given login using the user cache.
 	 * 
 	 * @param login
 	 *            the user login.
-	 * @return the {@link UserLdap} corresponding to the given login. May be <code>null</code>.
+	 * @return the {@link UserOrg} corresponding to the given login. May be <code>null</code>.
 	 */
-	default UserLdap findById(final String login) {
+	default UserOrg findById(final String login) {
 		return findAll().get(login);
 	}
 
 	/**
-	 * Return the {@link UserLdap} corresponding to the given login using the user cache.
+	 * Return the {@link UserOrg} corresponding to the given login using the user cache.
 	 * 
 	 * @param id
 	 *            the user login.
-	 * @return the {@link UserLdap} corresponding to the given login. Never <code>null</code>.
+	 * @return the {@link UserOrg} corresponding to the given login. Never <code>null</code>.
 	 * @throws ValidationJsonException
 	 *             If no user is found.
 	 */
-	default UserLdap findByIdExpected(final String id) {
-		final UserLdap userLdap = findById(id);
-		if (userLdap == null) {
-			throw new ValidationJsonException("id", "unknown-id", "0", "user", "1", id);
-		}
-		return userLdap;
+	default UserOrg findByIdExpected(final String id) {
+		return Optional.ofNullable(findById(id)).orElseThrow(() -> new ValidationJsonException("id", "unknown-id", "0", "user", "1", id));
 	}
 
 	/**
-	 * Return the {@link UserLdap} corresponding to the given login using the user cache and the relevant security to
+	 * Return the {@link ICompanyRepository} to use to resolve the company of the managed users.
+	 * 
+	 * @return the {@link ICompanyRepository} to use to resolve the company of the managed users.
+	 */
+	ICompanyRepository getCompanyRepository();
+
+	/**
+	 * Return the {@link UserOrg} corresponding to the given login using the user cache and the relevant security to
 	 * check the current user has the rights to perform this request.
 	 * 
 	 * @param user
 	 *            the user requesting this data.
 	 * @param id
 	 *            the user to find.
-	 * @return the {@link UserLdap} corresponding to the given login. Never <code>null</code>.
+	 * @return the {@link UserOrg} corresponding to the given login. Never <code>null</code>.
 	 * @throws ValidationJsonException
 	 *             If no user is found.
 	 */
-	default UserLdap findByIdExpected(final String user, final String id) {
-		// By default, no security applies
-		return findByIdExpected(id);
+	default UserOrg findByIdExpected(final String user, final String id) {
+		// Check the user exists
+		final UserOrg rawUserLdap = findByIdExpected(id);
+		if (getCompanyRepository().findById(user, rawUserLdap.getCompany()) == null) {
+			// No available delegation -> no result
+			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "user", "1", user);
+		}
+		return rawUserLdap;
 	}
 
 	/**
@@ -117,7 +127,7 @@ public interface IUserRepository {
 	 *            the ordering and page data.
 	 * @return the UID of users matching all above criteria.
 	 */
-	Page<UserLdap> findAll(Collection<GroupLdap> requiredGroups, Set<String> companies, String criteria, Pageable pageable);
+	Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria, Pageable pageable);
 
 	/**
 	 * Check the user credentials.
@@ -140,7 +150,7 @@ public interface IUserRepository {
 	String getToken(String login);
 
 	/**
-	 * Reset user password to the given value. The given password is not stored inside the given {@link UserLdap}
+	 * Reset user password to the given value. The given password is not stored inside the given {@link UserOrg}
 	 * instance, but only in the remote storage, and in an hashed form.
 	 * 
 	 * @param userLdap
@@ -148,24 +158,24 @@ public interface IUserRepository {
 	 * @param password
 	 *            The raw new password. Will be hashed.
 	 */
-	void setPassword(UserLdap userLdap, String password);
+	void setPassword(UserOrg userLdap, String password);
 
 	/**
-	 * Return a safe {@link UserLdap} instance, even if the user is not in LDAP directory.
+	 * Return a safe {@link UserOrg} instance, even if the user is not in LDAP directory.
 	 * 
 	 * @param login
 	 *            the user login. Must not be <code>null</code>.
-	 * @return a not <code>null</code> {@link UserLdap} instance with at least login attribute.
+	 * @return a not <code>null</code> {@link UserOrg} instance with at least login attribute.
 	 */
-	default UserLdap toUser(final String login) {
+	default UserOrg toUser(final String login) {
 		if (login == null) {
 			return null;
 		}
 
 		// Non null user name
-		UserLdap result = findById(login);
+		UserOrg result = findById(login);
 		if (result == null) {
-			result = new UserLdap();
+			result = new UserOrg();
 			result.setId(login);
 		}
 		return result;

@@ -9,11 +9,11 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * LDAP User
+ * Organizational User
  */
 @Getter
 @Setter
-public class SimpleUserLdap extends SimpleUser {
+public class SimpleUserOrg extends SimpleUser {
 
 	/**
 	 * SID
@@ -54,7 +54,7 @@ public class SimpleUserLdap extends SimpleUser {
 	 * @param to
 	 *            the target object.
 	 */
-	public void copy(final SimpleUserLdap to) {
+	public void copy(final SimpleUserOrg to) {
 		super.copy(to);
 		to.setMails(getMails());
 		to.setLocked(getLocked());

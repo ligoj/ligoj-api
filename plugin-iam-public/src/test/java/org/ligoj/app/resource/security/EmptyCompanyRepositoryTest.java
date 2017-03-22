@@ -2,7 +2,7 @@ package org.ligoj.app.resource.security;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.CompanyLdap;
+import org.ligoj.app.api.CompanyOrg;
 
 /**
  * Test class of {@link EmptyCompanyRepository}
@@ -21,7 +21,7 @@ public class EmptyCompanyRepositoryTest {
 
 	@Test
 	public void create() {
-		final CompanyLdap companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
+		final CompanyOrg companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
 		Assert.assertEquals("Cn=Some", companyLdap.getDn());
 		Assert.assertEquals("Name", companyLdap.getName());
 		Assert.assertEquals("name", companyLdap.getId());

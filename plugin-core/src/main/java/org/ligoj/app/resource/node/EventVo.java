@@ -30,7 +30,7 @@ public class EventVo {
 	private String value;
 
 	/**
-	 * Type of event (status, ...).
+	 * Type of event : status, ...
 	 */
 	private EventType type;
 

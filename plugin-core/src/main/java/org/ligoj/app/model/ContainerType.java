@@ -1,5 +1,7 @@
 package org.ligoj.app.model;
 
+import org.ligoj.app.iam.model.DelegateType;
+
 import lombok.Getter;
 
 /**

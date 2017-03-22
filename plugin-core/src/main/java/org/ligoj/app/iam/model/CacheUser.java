@@ -1,4 +1,4 @@
-package org.ligoj.app.model;
+package org.ligoj.app.iam.model;
 
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -12,7 +12,7 @@ import org.hibernate.validator.constraints.Length;
 import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
 
 /**
- * LDAP user cache.
+ * IAM User cache.
  */
 @Entity
 @Table(name = "SAAS_CACHE_USER")

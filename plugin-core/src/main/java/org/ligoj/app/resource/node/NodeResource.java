@@ -187,7 +187,7 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return nodes having as parent the given node..
+	 * Return nodes having as parent the given node.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -393,7 +393,7 @@ public class NodeResource {
 
 		final NodeStatus newStatus;
 		if (status == null) {
-			// Node status is unknown for now...
+			// Node status is unknown for now ...
 			newStatus = NodeStatus.getValue(thisProxy.checkNodeStatus(node.getId(), nodeParameters).isUp());
 
 			// Update the node status

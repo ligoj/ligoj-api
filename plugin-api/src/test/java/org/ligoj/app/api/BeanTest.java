@@ -22,44 +22,44 @@ public class BeanTest {
 
 	@Test
 	public void testCompanyLdap() {
-		final CompanyLdap companyLdap = new CompanyLdap("dn", "name");
+		final CompanyOrg companyLdap = new CompanyOrg("dn", "name");
 		companyLdap.getCompanyTree().contains(companyLdap);
-		check(companyLdap, CompanyLdap::setLdapName, CompanyLdap::getLdapName, LdapUtils.emptyLdapName());
-		check(companyLdap, CompanyLdap::setCompanyTree, CompanyLdap::getCompanyTree, Collections.emptyList());
+		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, LdapUtils.emptyLdapName());
+		check(companyLdap, CompanyOrg::setCompanyTree, CompanyOrg::getCompanyTree, Collections.emptyList());
 		Assert.assertEquals("name".hashCode(), companyLdap.hashCode());
 		Assert.assertEquals(companyLdap, companyLdap);
 		Assert.assertFalse(companyLdap.equals(null));
-		Assert.assertFalse(companyLdap.equals(new CompanyLdap("dn", "name2")));
-		Assert.assertTrue(companyLdap.equals(new CompanyLdap("dn", "name")));
+		Assert.assertFalse(companyLdap.equals(new CompanyOrg("dn", "name2")));
+		Assert.assertTrue(companyLdap.equals(new CompanyOrg("dn", "name")));
 	}
 
 	@Test
 	public void testGroupLdap() {
-		final GroupLdap groupLdap = new GroupLdap("dn", "name", Collections.emptySet());
-		check(groupLdap, GroupLdap::setMembers, GroupLdap::getMembers, Collections.emptySet());
-		check(groupLdap, GroupLdap::setGroups, GroupLdap::getGroups, Collections.emptySet());
-		check(groupLdap, GroupLdap::setSubGroups, GroupLdap::getSubGroups, Collections.emptySet());
+		final GroupOrg groupLdap = new GroupOrg("dn", "name", Collections.emptySet());
+		check(groupLdap, GroupOrg::setMembers, GroupOrg::getMembers, Collections.emptySet());
+		check(groupLdap, GroupOrg::setGroups, GroupOrg::getGroups, Collections.emptySet());
+		check(groupLdap, GroupOrg::setSubGroups, GroupOrg::getSubGroups, Collections.emptySet());
 		Assert.assertEquals("name".hashCode(), groupLdap.hashCode());
 		Assert.assertEquals(groupLdap, groupLdap);
 		Assert.assertFalse(groupLdap.equals(null));
-		Assert.assertFalse(groupLdap.equals(new GroupLdap("dn", "name2", Collections.emptySet())));
-		Assert.assertTrue(groupLdap.equals(new GroupLdap("dn", "name", Collections.emptySet())));
+		Assert.assertFalse(groupLdap.equals(new GroupOrg("dn", "name2", Collections.emptySet())));
+		Assert.assertTrue(groupLdap.equals(new GroupOrg("dn", "name", Collections.emptySet())));
 	}
 
 	@Test
 	public void testContainerLdap() {
-		final ContainerLdap groupLdap = new ContainerLdap("dn", "name");
-		check(groupLdap, ContainerLdap::setLocked, ContainerLdap::isLocked, true);
-		check(groupLdap, ContainerLdap::setDescription, ContainerLdap::getDescription, "some");
+		final ContainerOrg groupLdap = new ContainerOrg("dn", "name");
+		check(groupLdap, ContainerOrg::setLocked, ContainerOrg::isLocked, true);
+		check(groupLdap, ContainerOrg::setDescription, ContainerOrg::getDescription, "some");
 		Assert.assertEquals("some", groupLdap.getDescription());
 		Assert.assertEquals("name", groupLdap.getName());
-		Assert.assertEquals("some", ContainerLdap.getSafeDn(groupLdap));
-		Assert.assertNull(ContainerLdap.getSafeDn(null));
+		Assert.assertEquals("some", ContainerOrg.getSafeDn(groupLdap));
+		Assert.assertNull(ContainerOrg.getSafeDn(null));
 	}
 
 	@Test
 	public void testSimpleUserLdap() {
-		final UserLdap user = new UserLdap();
+		final UserOrg user = new UserOrg();
 
 		// Simple user attributes
 		check(user, SimpleUser::setCompany, SimpleUser::getCompany, "company");
@@ -70,18 +70,18 @@ public class BeanTest {
 		check(user, SimpleUser::setName, SimpleUser::getName, "login");
 
 		// InetOrg Person attributes
-		check(user, SimpleUserLdap::setNoPassword, SimpleUserLdap::isNoPassword, true);
-		check(user, SimpleUserLdap::setIsolated, SimpleUserLdap::getIsolated, "quarantine");
-		check(user, SimpleUserLdap::setLocked, SimpleUserLdap::getLocked, new Date());
-		check(user, SimpleUserLdap::setMails, SimpleUserLdap::getMails, Collections.emptyList());
-		check(user, SimpleUserLdap::setLockedBy, SimpleUserLdap::getLockedBy, "some");
+		check(user, SimpleUserOrg::setNoPassword, SimpleUserOrg::isNoPassword, true);
+		check(user, SimpleUserOrg::setIsolated, SimpleUserOrg::getIsolated, "quarantine");
+		check(user, SimpleUserOrg::setLocked, SimpleUserOrg::getLocked, new Date());
+		check(user, SimpleUserOrg::setMails, SimpleUserOrg::getMails, Collections.emptyList());
+		check(user, SimpleUserOrg::setLockedBy, SimpleUserOrg::getLockedBy, "some");
 
 		// LDAP Person attributes
-		check(user, UserLdap::setDn, UserLdap::getDn, "dn");
-		check(user, UserLdap::setGroups, UserLdap::getGroups, Collections.emptyList());
+		check(user, UserOrg::setDn, UserOrg::getDn, "dn");
+		check(user, UserOrg::setGroups, UserOrg::getGroups, Collections.emptyList());
 
 		//
-		final SimpleUserLdap user2 = new SimpleUserLdap();
+		final SimpleUserOrg user2 = new SimpleUserOrg();
 		user.copy(user2);
 
 		// Simple user attributes
@@ -108,8 +108,8 @@ public class BeanTest {
 		Assert.assertEquals(user, user);
 		Assert.assertEquals(user, user2);
 		Assert.assertFalse(user.equals(null));
-		Assert.assertFalse(user.equals(new SimpleUserLdap()));
-		Assert.assertTrue(new SimpleUserLdap().equals(new SimpleUserLdap()));
+		Assert.assertFalse(user.equals(new SimpleUserOrg()));
+		Assert.assertTrue(new SimpleUserOrg().equals(new SimpleUserOrg()));
 
 	}
 

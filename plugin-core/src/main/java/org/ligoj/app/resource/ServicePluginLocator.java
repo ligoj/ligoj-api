@@ -64,7 +64,7 @@ public class ServicePluginLocator {
 	@SuppressWarnings("unchecked")
 	public <T> T getResource(final String service, final Class<T> requiredType) {
 		if (service == null) {
-			// No service, may be from the recursive call...
+			// No service, may be from the recursive call ...
 			return null;
 		}
 

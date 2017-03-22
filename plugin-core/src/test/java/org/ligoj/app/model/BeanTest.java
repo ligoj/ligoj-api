@@ -5,6 +5,9 @@ import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ligoj.app.iam.model.CacheCompany;
+import org.ligoj.app.iam.model.CacheGroup;
+import org.ligoj.app.iam.model.CacheUser;
 
 /**
  * Simple test of API beans.

@@ -38,7 +38,7 @@ import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.ligoj.app.api.SimpleUserLdap;
+import org.ligoj.app.api.SimpleUserOrg;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.iam.IamProvider;
@@ -132,7 +132,7 @@ public class ParameterValueResource {
 	 */
 	public ParameterValueVo toVo(final ParameterValue entity) {
 		final ParameterValueVo vo = new ParameterValueVo();
-		vo.copyAuditData(entity, (Function<String, SimpleUserLdap>) iamProvider.getConfiguration().getUserRepository()::toUser);
+		vo.copyAuditData(entity, (Function<String, SimpleUserOrg>) iamProvider.getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
 		vo.setParameter(toVo(entity.getParameter()));
 
@@ -372,7 +372,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Check transition and convert to entity..
+	 * Check transition and convert to entity.
 	 * 
 	 * @param vo
 	 *            new {@link ParameterValueEditionVo} to persist.
