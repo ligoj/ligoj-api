@@ -5,6 +5,7 @@ import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.bootstrap.AbstractJpaTest;
 import org.ligoj.bootstrap.model.system.SystemAuthorization;
 import org.ligoj.bootstrap.model.system.SystemAuthorization.AuthorizationType;
 import org.ligoj.bootstrap.model.system.SystemRole;
@@ -15,7 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 /**
  * Base test class for JPA tests.
  */
-public abstract class AbstractJpaTest extends org.ligoj.bootstrap.AbstractJpaTest {
+public abstract class AbstractAppTest extends AbstractJpaTest {
 
 	@Autowired
 	protected IamProvider iamProvider;
