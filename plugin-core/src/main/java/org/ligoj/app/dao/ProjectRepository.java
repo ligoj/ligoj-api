@@ -123,17 +123,16 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <ul>
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is an administrator
-	 * <li>Or, the current user <strong>manage</strong> the group associated to this project via the
-	 * <code>service:id</code>
-	 * subscription and {@link org.ligoj.app.iam.model.DelegateOrg}</li>
+	 * <li>Or, the current user <strong>manages</strong> the group associated to this project via the
+	 * <code>service:id</code> subscription and {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
 	 * @see org.ligoj.app.iam.model.DelegateOrg#isCanAdmin()
 	 * @param user
 	 *            The current user name.
 	 * @param project
-	 *            the project's identifier to match.
-	 * @return Non <code>null</code> project identifier if the user can manage the subscriptions of this project.
+	 *            The project's identifier to match.
+	 * @return Non <code>null</code> project's identifier if the user can manage the subscriptions of this project.
 	 */
 	@Query("SELECT p.id FROM Project AS p WHERE p.id = :project AND (p.teamLeader = :user OR " + IS_ADMIN + " OR "
 			+ " EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data AND "
