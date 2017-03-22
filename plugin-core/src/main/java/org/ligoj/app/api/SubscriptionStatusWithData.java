@@ -12,13 +12,13 @@ import lombok.Setter;
  * Subscription status containing status and also optional data remotely got.
  */
 @Getter
-@Setter
 public class SubscriptionStatusWithData {
 
 	/**
 	 * Subscription identifier. Not <code>null</code> only when the status is proceeded during a refresh on a persisted
 	 * subscription.
 	 */
+	@Setter
 	private Integer id;
 
 	/**
@@ -29,12 +29,14 @@ public class SubscriptionStatusWithData {
 	/**
 	 * Node's identifier of this subscription.
 	 */
+	@Setter
 	private String node;
 
 	/**
 	 * Project's identifier of this subscription. Not <code>null</code> only when the status is proceeded during a
 	 * refresh on a persisted subscription.
 	 */
+	@Setter
 	private Integer project;
 
 	/**
@@ -46,6 +48,7 @@ public class SubscriptionStatusWithData {
 	/**
 	 * Subscription parameter values. Only not secured parameters are there.
 	 */
+	@Setter
 	private Map<String, String> parameters;
 
 	/**

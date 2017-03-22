@@ -1,13 +1,18 @@
 package org.ligoj.app.model;
 
+import java.util.Date;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ligoj.app.api.Activity;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.model.CacheCompany;
 import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.app.iam.model.CacheUser;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.app.iam.model.ReceiverType;
 
 /**
  * Simple test of API beans.
@@ -24,6 +29,24 @@ public class BeanTest {
 	public void testCacheGroup() {
 		Assert.assertTrue(new CacheGroup().isNew());
 	}
+
+	@Test
+	public void testActivity() {
+		check(new Activity(), Activity::setLastConnection, Activity::getLastConnection, new Date());
+	}
+	
+	
+
+	@Test
+	public void testEnum() {
+		ParameterType.valueOf(ParameterType.values()[0].name());
+		ReceiverType.valueOf(ReceiverType.values()[0].name());
+		DelegateType.valueOf(DelegateType.values()[0].name());
+		SubscriptionMode.valueOf(SubscriptionMode.values()[0].name());
+		EventType.valueOf(EventType.values()[0].name());
+		ContainerType.valueOf(ContainerType.values()[0].name()).getDelegateType();
+	}
+
 
 	@Test
 	public void testCacheUser() {

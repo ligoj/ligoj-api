@@ -52,6 +52,7 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -174,7 +175,6 @@ public class NodeResourceTest extends AbstractJpaTest {
 		Assert.assertEquals(eventsCount, eventRepository.count());
 	}
 
-
 	/**
 	 * Mock the servers for event test
 	 */
@@ -184,19 +184,23 @@ public class NodeResourceTest extends AbstractJpaTest {
 		// 1 : service is down
 		final JiraPluginResource jira = Mockito.mock(JiraPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith(":jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith(":jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith(":jira"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jira);
 		Mockito.when(jira.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(false);
 
 		// 2 : service is up
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":sonar"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":sonar"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":sonar"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(sonar);
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
 		// 3 : service throw an exception (down)
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jenkins);
 		Mockito.when(jenkins.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenThrow(new TechnicalException("junit"));
 
 		final int nbNodes = repository.findAllInstance().size();
@@ -283,20 +287,26 @@ public class NodeResourceTest extends AbstractJpaTest {
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
-		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(new SubscriptionStatusWithData());
+		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenReturn(new SubscriptionStatusWithData());
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
 		// 1 : service is down --> all Jira instances
 		final JiraPluginResource jira = Mockito.mock(JiraPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(new SubscriptionStatusWithData(false));
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jira);
+		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenReturn(new SubscriptionStatusWithData(false));
 
 		// 2 : service throw an exception --> Jenkins
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenThrow(new TechnicalException("junit"));
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jenkins);
+		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenThrow(new TechnicalException("junit"));
 
 		// check status
 		final long eventsCount = eventRepository.count();
@@ -345,8 +355,10 @@ public class NodeResourceTest extends AbstractJpaTest {
 		// subscription throw an exception
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenThrow(new TechnicalException("junit"));
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
+				.thenReturn(jenkins);
+		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenThrow(new TechnicalException("junit"));
 
 		// check status
 		final long eventsCount = eventRepository.count();
@@ -666,5 +678,17 @@ public class NodeResourceTest extends AbstractJpaTest {
 		initSpringSecurityContext("user1");
 		Assert.assertEquals("service:build:jenkins:bpr", resource.findByIdExpected("service:build:jenkins:bpr").getId());
 		Assert.assertEquals("service:build:jenkins", resource.findByIdExpected("service:build:jenkins").getId());
+	}
+
+	@Test
+	public void findByIdInternal() {
+		initSpringSecurityContext("any");
+		Assert.assertEquals("service:build:jenkins:bpr", resource.findByIdInternal("service:build:jenkins:bpr").getId());
+		Assert.assertEquals("service:build:jenkins", resource.findByIdInternal("service:build:jenkins").getId());
+	}
+
+	@Test(expected = JpaObjectRetrievalFailureException.class)
+	public void findByIdInternalNotExists() {
+		resource.findByIdInternal("any");
 	}
 }

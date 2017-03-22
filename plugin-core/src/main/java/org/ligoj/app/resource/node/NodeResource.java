@@ -548,7 +548,7 @@ public class NodeResource {
 	 * @return The node. Cannot be <code>null</code>.
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
-	public NodeVo findById(final String id) {
+	public NodeVo findByIdInternal(final String id) {
 		return toVo(repository.findOneExpected(id));
 	}
 

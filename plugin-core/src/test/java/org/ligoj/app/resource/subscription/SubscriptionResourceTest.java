@@ -40,11 +40,13 @@ import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.AbstractServerTest;
+import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.ParameterValueEditionVo;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
+import org.ligoj.app.resource.node.sample.JiraPluginResource;
 
 /**
  * Test class of {@link SubscriptionResource}
@@ -70,6 +72,9 @@ public class SubscriptionResourceTest extends AbstractServerTest {
 
 	@Autowired
 	private ParameterValueRepository parameterValueRepository;
+
+	@Autowired
+	private ServicePluginLocator servicePluginLocator;
 
 	@Before
 	public void prepareSubscription() throws IOException {
@@ -536,12 +541,12 @@ public class SubscriptionResourceTest extends AbstractServerTest {
 		Assert.assertEquals(2, projects.size());
 
 		// Check subscription project
-		final SubscribingProjectVo projectVo = projects.stream().filter(p -> Objects.equals(p.getId(),subscription.getProject())).findFirst().get();
+		final SubscribingProjectVo projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), subscription.getProject())).findFirst().get();
 		Assert.assertEquals("MDA", projectVo.getName());
 		Assert.assertEquals("mda", projectVo.getPkey());
 
 		// Check subscription node
-		final SubscribedNodeVo nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(),subscription.getNode())).findFirst().get();
+		final SubscribedNodeVo nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), subscription.getNode())).findFirst().get();
 		Assert.assertEquals("JIRA 4", nodeVo.getName());
 		Assert.assertEquals("service:bt:jira:4", nodeVo.getId());
 
@@ -574,6 +579,22 @@ public class SubscriptionResourceTest extends AbstractServerTest {
 		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
 		Assert.assertEquals(1, subscriptionStatus.size());
 		Assert.assertEquals("JIRA 6", subscriptionStatus.values().iterator().next().getLabel());
+	}
+
+	@Test
+	public void checkSubscriptionStatus() throws Exception {
+		JiraPluginResource service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
+		final SubscriptionStatusWithData status = service.checkSubscriptionStatus(null);
+		Assert.assertNotNull(status);
+		Assert.assertEquals("value", status.getData().get("property"));
+		Assert.assertNull(service.getName());
+		Assert.assertNull(service.getVendor());
+		Assert.assertNull(service.getVersion());
+	}
+
+	@Test
+	public void checkStatus() throws Exception {
+		Assert.assertTrue(servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class).checkStatus(null));
 	}
 
 }

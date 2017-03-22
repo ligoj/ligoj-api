@@ -27,17 +27,13 @@ public abstract class AbstractToolPluginResource extends org.ligoj.app.resource.
 	@Override
 	public SubscriptionStatusWithData checkSubscriptionStatus(final String node, final Map<String, String> parameters)
 			throws Exception {
-		return new SubscriptionStatusWithData();
+		final SubscriptionStatusWithData status = new SubscriptionStatusWithData();
+		status.put("property", "value");
+		return status;
 	}
 
 	@Override
 	public void link(final int subscription) throws Exception {
 		// Validate the project key
 	}
-	
-	@Override
-	public String getVersion() {
-		return "1.0.0";
-	}
-
 }
