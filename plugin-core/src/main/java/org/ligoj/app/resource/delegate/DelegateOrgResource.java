@@ -3,6 +3,7 @@ package org.ligoj.app.resource.delegate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.DELETE;
@@ -22,6 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.CompanyOrg;
 import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.api.Normalizer;
+import org.ligoj.app.api.UserOrg;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
@@ -83,7 +85,7 @@ public class DelegateOrgResource {
 	public DelegateOrgLightVo toVo(final DelegateOrg entity) {
 		final DelegateOrgLightVo vo = new DelegateOrgLightVo();
 		NamedBean.copy(entity, vo);
-		vo.copyAuditData(entity, getUser()::toUser);
+		vo.copyAuditData(entity, (Function<String, UserOrg>) getUser()::toUser);
 
 		// Map the receiver
 		vo.setReceiverType(entity.getReceiverType());
