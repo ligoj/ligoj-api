@@ -76,12 +76,12 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllNotMemberButDelegateGroupVisible() {
-		final DelegateOrg delegateLdap = new DelegateOrg();
-		delegateLdap.setType(DelegateType.GROUP);
-		delegateLdap.setReceiver("user");
-		delegateLdap.setDn("cn=gfi-gstack,ou=gfi,ou=project,dc=sample,dc=com");
-		delegateLdap.setName("gfi-gStack");
-		em.persist(delegateLdap);
+		final DelegateOrg delegate = new DelegateOrg();
+		delegate.setType(DelegateType.GROUP);
+		delegate.setReceiver("user");
+		delegate.setDn("cn=gfi-gstack,ou=gfi,ou=project,dc=sample,dc=com");
+		delegate.setName("gfi-gStack");
+		em.persist(delegate);
 		em.flush();
 		em.clear();
 
