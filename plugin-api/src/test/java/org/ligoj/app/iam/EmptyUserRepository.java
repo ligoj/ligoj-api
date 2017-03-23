@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.ligoj.app.api.CompanyOrg;
 import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.api.UserOrg;
 import org.springframework.data.domain.Page;
@@ -75,5 +76,71 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public void setPassword(UserOrg userLdap, String password) {
 		// Nothing to do
+	}
+
+	@Override
+	public String getPeopleInternalBaseDn() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public void updateUser(UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void move(UserOrg user, CompanyOrg company) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void restore(UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void unlock(UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void isolate(String principal, UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void lock(String principal, UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void delete(UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void updateMembership(Collection<String> groups, UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public UserOrg create(UserOrg entry) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String toDn(UserOrg newUser) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

@@ -1,11 +1,15 @@
 package org.ligoj.app.iam;
 
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import org.ligoj.app.api.ContainerOrg;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Container repository contract.
@@ -87,8 +91,23 @@ public interface IContainerRepository<T extends ContainerOrg> {
 
 	/**
 	 * Return the human readable container type name.
+	 * 
 	 * @return the human readable container type name.
 	 */
 	String getTypeName();
 
+	/**
+	 * Return the groups matching to the given pattern.
+	 * 
+	 * @param groups
+	 *            the visible groups.
+	 * @param criteria
+	 *            the optional criteria used to check name (CN).
+	 * @param pageable
+	 *            the ordering and page data.
+	 * @param customComparators
+	 *            The custom comparators used to order the result. The key is the ordered property name.
+	 * @return the UID of users matching all above criteria.
+	 */
+	Page<T> findAll(final Set<T> groups, final String criteria, final Pageable pageable, final Map<String, Comparator<T>> customComparators);
 }

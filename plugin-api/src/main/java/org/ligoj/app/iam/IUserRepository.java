@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.ligoj.app.api.CompanyOrg;
 import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.api.UserOrg;
 import org.ligoj.bootstrap.core.resource.BusinessException;
@@ -145,7 +146,7 @@ public interface IUserRepository {
 	 * 
 	 * @param login
 	 *            The user login.
-	 * @return User token based on salted password.
+	 * @return User token based on salted password or <code>null</code>.
 	 */
 	String getToken(String login);
 
@@ -180,5 +181,120 @@ public interface IUserRepository {
 		}
 		return result;
 	}
+
+	/**
+	 * Base DN for internal people.
+	 * 
+	 * @return Base DN for internal people.
+	 */
+	String getPeopleInternalBaseDn();
+
+	/**
+	 * Execute LDAP modifications for each change between entries. Cache is also updated.
+	 * 
+	 * @param user
+	 *            The user to update. The properties will be copied, this instance will not be the one stored
+	 *            internally.
+	 */
+	void updateUser(UserOrg user);
+
+	/**
+	 * Move a user from his/her location to the target company. Cache is also updated, and the company of given user is
+	 * replaced by the given company.
+	 * 
+	 * @param user
+	 *            The LDAP user to disable.
+	 * @param company
+	 *            The target company.
+	 */
+	void move(UserOrg user, CompanyOrg company);
+
+	/**
+	 * Restore a user from the isolate to the previous company of this user and unlock this user.
+	 * 
+	 * @param user
+	 *            The LDAP user to disable.
+	 */
+	void restore(UserOrg user);
+
+	/**
+	 * Unlock an user :
+	 * <ul>
+	 * <li>Check the user is not isolated</li>
+	 * <li>Check the user is locked</li>
+	 * <li>Clear the locked flag</li>
+	 * </ul>
+	 * Note the password stills as is. If this user was previously locked, the password stills cleared.
+	 * 
+	 * @param user
+	 *            The LDAP user to disable.
+	 */
+	void unlock(UserOrg user);
+
+	/**
+	 * Isolate an user to the quarantine zone :
+	 * <ul>
+	 * <li>Clear the password to prevent new authentication</li>
+	 * <li>Set the disabled flag.</li>
+	 * <li>Move the user to the quarantine zone, DN is also update.</li>
+	 * <li>Set the previous company.</li>
+	 * </ul>
+	 * 
+	 * @param principal
+	 *            User requesting the lock.
+	 * @param user
+	 *            The LDAP user to disable.
+	 */
+	void isolate(String principal, UserOrg user);
+
+	/**
+	 * Lock an user :
+	 * <ul>
+	 * <li>Clear the password to prevent new authentication</li>
+	 * <li>Set the disabled flag.</li>
+	 * </ul>
+	 * 
+	 * @param principal
+	 *            User requesting the lock.
+	 * @param user
+	 *            The LDAP user to disable.
+	 */
+	void lock(String principal, UserOrg user);
+
+	/**
+	 * Delete the given user.
+	 * 
+	 * @param user
+	 *            the LDAP user.
+	 */
+	void delete(UserOrg user);
+
+	/**
+	 * Update membership of given user.
+	 * 
+	 * @param groups
+	 *            the target groups CN, not normalized.
+	 * @param user
+	 *            the target user.
+	 */
+	void updateMembership(Collection<String> groups, UserOrg user);
+
+	/**
+	 * Create an entry.
+	 * 
+	 * @param entry
+	 *            User to add to LDAP.
+	 * @return the formal parameter.
+	 */
+	UserOrg create(UserOrg entry);
+
+	/**
+	 * Rebuild the DN from the given user.
+	 * 
+	 * @param newUser
+	 *            The user source where the DN need to be computed.
+	 * @return the DN from the given user. May be different from the {@link UserOrg#getDn()}
+	 */
+	String toDn(UserOrg newUser);
 
 }
