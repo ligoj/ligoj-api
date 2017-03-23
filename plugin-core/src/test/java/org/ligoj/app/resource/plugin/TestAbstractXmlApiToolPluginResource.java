@@ -7,7 +7,7 @@ import java.util.Map;
 import javax.ws.rs.core.StreamingOutput;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
