@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Arrays;
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -33,6 +35,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.AllArgsConstructor;
 
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
@@ -79,6 +83,44 @@ public class ParameterValueResource {
 	private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE = new TypeReference<Map<String, String>>() {
 		// Nothing to do
 	};
+
+	@AllArgsConstructor
+	private static class ParameterValueMapper<X> {
+		private final BiConsumer<ParameterValueVo, X> setter;
+		private final Function<String, X> toValue;
+	}
+
+	/**
+	 * A mapper configuration to parse string to parameter value.
+	 */
+	private static final Map<ParameterType, ParameterValueMapper<?>> STRING_TO_VALUE = new EnumMap<>(ParameterType.class);
+	static {
+		STRING_TO_VALUE.put(ParameterType.BINARY, new ParameterValueMapper<>(ParameterValueVo::setBinary, Boolean::valueOf));
+		STRING_TO_VALUE.put(ParameterType.DATE, new ParameterValueMapper<>(ParameterValueVo::setDate, s -> new Date(Long.parseLong(s))));
+		STRING_TO_VALUE.put(ParameterType.INTEGER, new ParameterValueMapper<>(ParameterValueVo::setInteger, Integer::valueOf));
+		STRING_TO_VALUE.put(ParameterType.MULTIPLE,
+				new ParameterValueMapper<>(ParameterValueVo::setSelections, s -> toConfiguration(s, LIST_INTEGER_TYPE)));
+		STRING_TO_VALUE.put(ParameterType.SELECT, new ParameterValueMapper<>(ParameterValueVo::setIndex, Integer::valueOf));
+		STRING_TO_VALUE.put(ParameterType.TAGS, new ParameterValueMapper<>(ParameterValueVo::setTags, s -> toConfiguration(s, LIST_STRING_TYPE)));
+		STRING_TO_VALUE.put(ParameterType.TEXT, new ParameterValueMapper<>(ParameterValueVo::setText, Function.identity()));
+	}
+
+	/**
+	 * A checker configuration to check a value against the contract of the parameter.
+	 */
+	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
+	{
+		typeToChecker.put(ParameterType.BINARY, (b, p) -> ValidationJsonException.assertNotnull(b.getBinary(), p.getId()));
+		typeToChecker.put(ParameterType.DATE, (b, p) -> {
+			ValidationJsonException.assertNotnull(b.getDate(), p.getId());
+			ValidationJsonException.assertTrue(b.getDate().getTime() > 0, p.getId());
+		});
+		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
+		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
+		typeToChecker.put(ParameterType.MULTIPLE, this::checkMultiple);
+		typeToChecker.put(ParameterType.TAGS, (b, p) -> checkTags(b));
+		typeToChecker.put(ParameterType.TEXT, this::checkText);
+	}
 
 	/**
 	 * Standard mapper used to read parameter configurations.
@@ -154,39 +196,14 @@ public class ParameterValueResource {
 	 * @param vo
 	 *            Target object receiving the typed value.
 	 * @return the parsed and typed value.
+	 * @param <T>
+	 *            The object type resolved during the parsing.
 	 */
-	public static Object parseValue(final ParameterValue entity, final ParameterValueVo vo) {
-		final Object parsedValue;
-		switch (entity.getParameter().getType()) {
-		case BINARY:
-			vo.setBinary(Boolean.valueOf(entity.getData()));
-			parsedValue = vo.getBinary();
-			break;
-		case DATE:
-			vo.setDate(new Date(Long.parseLong(entity.getData())));
-			parsedValue = vo.getDate();
-			break;
-		case INTEGER:
-			vo.setInteger(Integer.valueOf(entity.getData()));
-			parsedValue = vo.getInteger();
-			break;
-		case MULTIPLE:
-			vo.setSelections(toConfiguration(entity.getData(), LIST_INTEGER_TYPE));
-			parsedValue = vo.getSelections();
-			break;
-		case SELECT:
-			vo.setIndex(Integer.valueOf(entity.getData()));
-			parsedValue = vo.getBinary();
-			break;
-		case TAGS:
-			vo.setTags(toConfiguration(entity.getData(), LIST_STRING_TYPE));
-			parsedValue = vo.getTags();
-			break;
-		case TEXT:
-		default:
-			vo.setText(entity.getData());
-			parsedValue = vo.getText();
-		}
+	public static <T> T parseValue(final ParameterValue entity, final ParameterValueVo vo) {
+		@SuppressWarnings("unchecked")
+		final ParameterValueMapper<T> valueMapper = (ParameterValueMapper<T>) STRING_TO_VALUE.get(entity.getParameter().getType());
+		final T parsedValue = valueMapper.toValue.apply(entity.getData());
+		valueMapper.setter.accept(vo, parsedValue);
 		return parsedValue;
 	}
 
@@ -247,41 +264,10 @@ public class ParameterValueResource {
 	 * Check the data constraints and return the associated parameter definition.
 	 */
 	private Parameter checkConstraints(final ParameterValueEditionVo bean) {
-		final Parameter criteria = parameterRepository.findOneExpected(bean.getParameter());
-		checkData(bean, criteria);
+		final Parameter parameter = parameterRepository.findOneExpected(bean.getParameter());
+		typeToChecker.get(parameter.getType()).accept(bean, parameter);
 		checkCompletude(bean);
-		return criteria;
-	}
-
-	/**
-	 * Check the data value
-	 */
-	private void checkData(final ParameterValueEditionVo bean, final Parameter parameter) {
-		switch (parameter.getType()) {
-		case BINARY:
-			ValidationJsonException.assertNotnull(bean.getBinary(), parameter.getId());
-			break;
-		case DATE:
-			ValidationJsonException.assertNotnull(bean.getDate(), parameter.getId());
-			ValidationJsonException.assertTrue(bean.getDate().getTime() > 0, parameter.getId());
-			break;
-		case INTEGER:
-			checkInteger(bean, parameter);
-			break;
-		case SELECT:
-			checkSelect(bean, parameter);
-			break;
-		case MULTIPLE:
-			checkMultiple(bean, parameter);
-			break;
-		case TAGS:
-			checkTags(bean);
-			break;
-		case TEXT:
-		default:
-			checkText(bean, parameter);
-			break;
-		}
+		return parameter;
 	}
 
 	/**
