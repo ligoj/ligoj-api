@@ -6,3 +6,4 @@
 /*/target
 **/.classpath
 /*.exec
+**/org.eclipse.wst.validation.prefs
