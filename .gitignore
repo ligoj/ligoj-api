@@ -1,5 +1,8 @@
-/.DS_Store
+**/.DS_Store
+.project
+.settings
+**/.project
 /target
-/parent/target
-/plugin-parent/target
+/*/target
+**/.classpath
 /*.exec
