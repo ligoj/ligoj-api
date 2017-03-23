@@ -17,37 +17,37 @@ import org.ligoj.bootstrap.core.AuditedBean;
 public class BasicParameterValueVo extends AuditedBean<SimpleUserOrg, Integer> {
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#TEXT}
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#TEXT}
 	 */
 	private String text;
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#TAGS}
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#TAGS}
 	 */
 	private List<String> tags;
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#MULTIPLE}
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#MULTIPLE}
 	 */
 	private List<Integer> selections;
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#INTEGER}
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#INTEGER}
 	 */
 	private Integer integer;
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#SELECT}. Represents index of selected item.
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#SELECT}. Represents index of selected item.
 	 */
 	private Integer index;
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#BINARY}.
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#BINARY}.
 	 */
 	private Boolean binary;
 
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#DATE}.
+	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#DATE}.
 	 */
 	private Date date;
 
