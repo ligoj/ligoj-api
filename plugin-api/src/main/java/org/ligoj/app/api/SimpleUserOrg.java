@@ -26,10 +26,10 @@ public class SimpleUserOrg extends SimpleUser {
 	private List<String> mails;
 
 	/**
-	 * This user has no password, or a default clear password.
+	 * This user is secured : has at least an attached credential and not a clear default password.
 	 */
 	@JsonIgnore
-	private boolean noPassword;
+	private boolean secured;
 
 	/**
 	 * When not <code>null</code> this user is locked and corresponds to the date since this account is this state.
@@ -60,6 +60,7 @@ public class SimpleUserOrg extends SimpleUser {
 		to.setLocked(getLocked());
 		to.setLockedBy(getLockedBy());
 		to.setIsolated(getIsolated());
+		to.setSecured(false);
 	}
 
 }

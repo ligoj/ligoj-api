@@ -83,7 +83,7 @@ public class BeanTest {
 		check(user, SimpleUser::setName, SimpleUser::getName, "login");
 
 		// InetOrg Person attributes
-		check(user, SimpleUserOrg::setNoPassword, SimpleUserOrg::isNoPassword, true);
+		check(user, SimpleUserOrg::setSecured, SimpleUserOrg::isSecured, true);
 		check(user, SimpleUserOrg::setIsolated, SimpleUserOrg::getIsolated, "quarantine");
 		check(user, SimpleUserOrg::setLocked, SimpleUserOrg::getLocked, new Date());
 		check(user, SimpleUserOrg::setMails, SimpleUserOrg::getMails, Collections.emptyList());
@@ -113,7 +113,7 @@ public class BeanTest {
 		Assert.assertNotNull(user2.getMails());
 
 		// Password status and groups are not replicated
-		Assert.assertFalse(user2.isNoPassword());
+		Assert.assertFalse(user2.isSecured());
 
 		Assert.assertEquals("SimpleUser(id=login)", user.toString());
 

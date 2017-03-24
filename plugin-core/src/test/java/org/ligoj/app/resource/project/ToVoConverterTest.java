@@ -54,11 +54,11 @@ public class ToVoConverterTest {
 
 		// Sub user repository
 		final IamProvider iamProvider = Mockito.mock(IamProvider.class);
-		final IUserRepository userLdapRepository = Mockito.mock(IUserRepository.class);
+		final IUserRepository userRepository = Mockito.mock(IUserRepository.class);
 		final IamConfiguration configuration = new IamConfiguration();
-		configuration.setUserRepository(userLdapRepository);
+		configuration.setUserRepository(userRepository);
 		Mockito.when(iamProvider.getConfiguration()).thenReturn(configuration);
-		Mockito.when(userLdapRepository.findById(ArgumentMatchers.anyString())).then(invocation -> toUser((String) invocation.getArguments()[0]));
+		Mockito.when(userRepository.findById(ArgumentMatchers.anyString())).then(invocation -> toUser((String) invocation.getArguments()[0]));
 
 		// Stub subscriptions
 		final List<Object[]> subscriptions = new ArrayList<>();
