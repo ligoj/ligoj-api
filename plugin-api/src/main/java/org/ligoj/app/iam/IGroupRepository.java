@@ -30,7 +30,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	 * @param values
 	 *            The values to add. My be empty.
 	 */
-	void addAttributes(String newDn, String string, Collection<String> assistants);
+	void addAttributes(String dn, String attribute, Collection<String> values);
 
 	/**
 	 * Add a group to another group. Cache is updated.
@@ -40,7 +40,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	 * @param toGroup
 	 *            CN of the parent group to update.
 	 */
-	void addGroup(GroupOrg groupLdap, String normalize);
+	void addGroup(GroupOrg subGroup, String toGroup);
 
 	/**
 	 * Empty the group. All users from the group will not be anymore associated to this group, and the members of the
@@ -51,7 +51,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	 * @param users
 	 *            All known users could be removed from this group.
 	 */
-	void empty(GroupOrg container, Map<String, UserOrg> findAll);
+	void empty(GroupOrg group, Map<String, UserOrg> users);
 
 	/**
 	 * Add a user to given group. Cache is updated.
@@ -61,7 +61,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	 * @param group
 	 *            CN of the group to update.
 	 */
-	void addUser(UserOrg userLdap, String id);
+	void addUser(UserOrg user, String group);
 
 	/**
 	 * Remove a user from a given group. Cache is updated.
@@ -71,5 +71,5 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	 * @param group
 	 *            CN of the group to update.
 	 */
-	void removeUser(UserOrg userLdap, String id);
+	void removeUser(UserOrg user, String group);
 }

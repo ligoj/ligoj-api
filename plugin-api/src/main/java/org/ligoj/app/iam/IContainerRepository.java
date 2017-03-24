@@ -13,8 +13,10 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * Container repository contract.
+ * 
+ * @param <T>
+ *            The container type.
  */
-
 public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Return the container corresponding to the given identifier using the user cache.
