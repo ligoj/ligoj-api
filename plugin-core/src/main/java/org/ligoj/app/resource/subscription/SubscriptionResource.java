@@ -335,7 +335,7 @@ public class SubscriptionResource {
 	private void checkManagedProject(final int project) {
 		if (null == projectRepository.isManageSubscription(project, securityHelper.getLogin())) {
 			// Not managed associated project
-			log.warn("Attempt to manage a project '" + project + "' out of scope");
+			log.warn("Attempt to manage a project '{}' out of scope", project);
 			throw new ForbiddenException();
 		}
 	}

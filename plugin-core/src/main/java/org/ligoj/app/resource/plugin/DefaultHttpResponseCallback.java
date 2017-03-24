@@ -28,8 +28,7 @@ public class DefaultHttpResponseCallback implements HttpResponseCallback {
 
 			// Check the status
 			if (!acceptResponse(response)) {
-				final String responseString = EntityUtils.toString(entity);
-				log.error(responseString);
+				log.error(EntityUtils.toString(entity));
 				return false;
 			}
 
