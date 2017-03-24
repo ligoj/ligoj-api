@@ -20,13 +20,13 @@ import org.springframework.data.domain.Pageable;
 public interface IUserRepository {
 
 	/**
-	 * Return the {@link UserOrg} corresponding to the given login without using cache.
+	 * Return the {@link UserOrg} corresponding to the given identifier without using cache.
 	 * 
-	 * @param login
-	 *            the user login.
+	 * @param id
+	 *            The user identifier.
 	 * @return the found user or <code>null</code> when not found. Groups are not fetched for this operation.
 	 */
-	UserOrg findByIdNoCache(String login);
+	UserOrg findByIdNoCache(String id);
 
 	/**
 	 * Return the {@link UserOrg} corresponding to the given attribute/value without using cache for the query, but
@@ -57,27 +57,27 @@ public interface IUserRepository {
 	/**
 	 * Return all user entries. Cache manager is involved.
 	 * 
-	 * @return all user entries. Key is the user login.
+	 * @return all user entries. Key is the user identifier.
 	 */
 	Map<String, UserOrg> findAll();
 
 	/**
-	 * Return the {@link UserOrg} corresponding to the given login using the user cache.
+	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache.
 	 * 
-	 * @param login
-	 *            the user login.
-	 * @return the {@link UserOrg} corresponding to the given login. May be <code>null</code>.
+	 * @param id
+	 *            the user identifier.
+	 * @return the {@link UserOrg} corresponding to the given identifier. May be <code>null</code>.
 	 */
-	default UserOrg findById(final String login) {
-		return findAll().get(login);
+	default UserOrg findById(final String id) {
+		return findAll().get(id);
 	}
 
 	/**
-	 * Return the {@link UserOrg} corresponding to the given login using the user cache.
+	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache.
 	 * 
 	 * @param id
-	 *            the user login.
-	 * @return the {@link UserOrg} corresponding to the given login. Never <code>null</code>.
+	 *            The user identifier.
+	 * @return the {@link UserOrg} corresponding to the given identifier. Never <code>null</code>.
 	 * @throws ValidationJsonException
 	 *             If no user is found.
 	 */
@@ -93,23 +93,24 @@ public interface IUserRepository {
 	ICompanyRepository getCompanyRepository();
 
 	/**
-	 * Return the {@link UserOrg} corresponding to the given login using the user cache and the relevant security to
+	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache and the relevant security
+	 * to
 	 * check the current user has the rights to perform this request.
 	 * 
-	 * @param user
-	 *            the user requesting this data.
+	 * @param principal
+	 *            The user requesting this data.
 	 * @param id
 	 *            the user to find.
-	 * @return the {@link UserOrg} corresponding to the given login. Never <code>null</code>.
+	 * @return the {@link UserOrg} corresponding to the given identifier. Never <code>null</code>.
 	 * @throws ValidationJsonException
 	 *             If no user is found.
 	 */
-	default UserOrg findByIdExpected(final String user, final String id) {
+	default UserOrg findByIdExpected(final String principal, final String id) {
 		// Check the user exists
 		final UserOrg rawUserLdap = findByIdExpected(id);
-		if (getCompanyRepository().findById(user, rawUserLdap.getCompany()) == null) {
+		if (getCompanyRepository().findById(principal, rawUserLdap.getCompany()) == null) {
 			// No available delegation -> no result
-			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "user", "1", user);
+			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "user", "1", principal);
 		}
 		return rawUserLdap;
 	}
@@ -123,7 +124,7 @@ public interface IUserRepository {
 	 * @param companies
 	 *            Filtered companies (DNs) to be member of returned users.
 	 * @param criteria
-	 *            the optional criteria used to check login (UID), first name and last name.
+	 *            the optional criteria used to check identifier (UID), first name and last name.
 	 * @param pageable
 	 *            the ordering and page data.
 	 * @return the UID of users matching all above criteria.
@@ -144,11 +145,11 @@ public interface IUserRepository {
 	/**
 	 * Return user token based on salted password.
 	 * 
-	 * @param login
-	 *            The user login.
+	 * @param id
+	 *            The user identifier.
 	 * @return User token based on salted password or <code>null</code>.
 	 */
-	String getToken(String login);
+	String getToken(String id);
 
 	/**
 	 * Reset user password to the given value. The given password is not stored inside the given {@link UserOrg}
@@ -164,20 +165,20 @@ public interface IUserRepository {
 	/**
 	 * Return a safe {@link UserOrg} instance, even if the user is not in LDAP directory.
 	 * 
-	 * @param login
-	 *            the user login. Must not be <code>null</code>.
-	 * @return a not <code>null</code> {@link UserOrg} instance with at least login attribute.
+	 * @param id
+	 *            The user identifier. Must not be <code>null</code>.
+	 * @return a not <code>null</code> {@link UserOrg} instance with at least identifier attribute.
 	 */
-	default UserOrg toUser(final String login) {
-		if (login == null) {
+	default UserOrg toUser(final String id) {
+		if (id == null) {
 			return null;
 		}
 
 		// Non null user name
-		UserOrg result = findById(login);
+		UserOrg result = findById(id);
 		if (result == null) {
 			result = new UserOrg();
-			result.setId(login);
+			result.setId(id);
 		}
 		return result;
 	}

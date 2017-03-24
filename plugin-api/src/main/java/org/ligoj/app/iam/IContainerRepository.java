@@ -32,21 +32,21 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Find a container from its identifier. Security is applied regarding the given user.
 	 * 
-	 * @param user
+	 * @param principal
 	 *            The user requesting this container.
 	 * @param id
 	 *            The container's identifier. Will be normalized.
 	 * @return The container from its identifier. <code>null</code> if the container is not found or cannot be seen by
 	 *         the given user.
 	 */
-	default T findById(String user, String id) {
+	default T findById(String principal, String id) {
 		return findById(id);
 	}
 
 	/**
 	 * Find a container from its identifier. Security is applied regarding the given user.
 	 * 
-	 * @param user
+	 * @param principal
 	 *            The user requesting this container.
 	 * @param id
 	 *            The container's identifier. Will be normalized.
@@ -54,9 +54,9 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * @throws ValidationJsonException
 	 *             If the container is not found or cannot be seen by the given user.
 	 */
-	default T findByIdExpected(String user, String id) {
+	default T findByIdExpected(String principal, String id) {
 		// Check the container exists and return the in memory object.
-		return Optional.ofNullable(findById(user, id))
+		return Optional.ofNullable(findById(principal, id))
 				.orElseThrow(() -> new ValidationJsonException(getTypeName(), BusinessException.KEY_UNKNOW_ID, "0", "id", "1", id));
 	}
 
