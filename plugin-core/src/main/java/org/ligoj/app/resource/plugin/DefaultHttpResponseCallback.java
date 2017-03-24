@@ -12,8 +12,8 @@ import org.apache.http.util.EntityUtils;
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * The default callback implementation. Stop the execution when a status above 302 is received. Store the last received
- * entity string.
+ * The default callback implementation. Stop the execution when a status above
+ * 302 is received. Store the last received entity string.
  */
 @Slf4j
 public class DefaultHttpResponseCallback implements HttpResponseCallback {
@@ -23,7 +23,7 @@ public class DefaultHttpResponseCallback implements HttpResponseCallback {
 
 		// Read the response
 		final HttpEntity entity = response.getEntity();
-		log.info(response.getStatusLine().getStatusCode() + " " + request.getUrl());
+		log.info("{} {}", response.getStatusLine().getStatusCode(), request.getUrl());
 		if (entity != null) {
 
 			// Check the status
