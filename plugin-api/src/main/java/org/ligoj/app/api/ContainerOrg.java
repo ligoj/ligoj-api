@@ -54,15 +54,4 @@ public class ContainerOrg extends NamedBean<String> implements ResourceOrg, IDes
 		return getDescription();
 	}
 
-	/**
-	 * Return DN of given container or <code>null</code>.
-	 * 
-	 * @param container
-	 *            The optional container.
-	 * @return DN of given container or <code>null</code>.
-	 */
-	public static String getSafeDn(final ContainerOrg container) {
-		return container == null ? null : container.getDn();
-	}
-
 }

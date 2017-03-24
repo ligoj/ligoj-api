@@ -66,8 +66,6 @@ public class BeanTest {
 		check(groupLdap, ContainerOrg::setDescription, ContainerOrg::getDescription, "some");
 		Assert.assertEquals("some", groupLdap.getDescription());
 		Assert.assertEquals("name", groupLdap.getName());
-		Assert.assertEquals("some", ContainerOrg.getSafeDn(groupLdap));
-		Assert.assertNull(ContainerOrg.getSafeDn(null));
 	}
 
 	@Test
