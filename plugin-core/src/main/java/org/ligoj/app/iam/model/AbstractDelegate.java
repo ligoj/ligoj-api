@@ -5,6 +5,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.bootstrap.core.model.AbstractNamedAuditedEntity;
 
@@ -36,6 +37,7 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
+	@ColumnDefault("USER")
 	private ReceiverType receiverType = ReceiverType.USER;
 
 	/**
