@@ -1,5 +1,6 @@
 package org.ligoj.app.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -36,6 +37,7 @@ public class Node extends AbstractDescribedBusinessEntity<String> {
 	 * The subscription mode. When <code>null</code>, the node cannot be used for any mode.
 	 */
 	@Enumerated(EnumType.STRING)
+	@Column(length = 10)
 	private SubscriptionMode mode;
 
 	/**

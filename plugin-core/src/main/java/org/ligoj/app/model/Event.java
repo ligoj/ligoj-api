@@ -2,6 +2,7 @@ package org.ligoj.app.model;
 
 import java.util.Date;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -34,6 +35,7 @@ public class Event extends AbstractPersistable<Integer> {
 	 * Type of event : status, ...
 	 */
 	@Enumerated(EnumType.STRING)
+	@Column(length = 10)
 	private EventType type;
 
 	/**

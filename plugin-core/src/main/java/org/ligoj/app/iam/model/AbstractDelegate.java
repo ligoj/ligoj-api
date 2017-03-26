@@ -1,5 +1,6 @@
 package org.ligoj.app.iam.model;
 
+import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
@@ -37,7 +38,8 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
-	@ColumnDefault("USER")
+	@ColumnDefault("'USER'")
+	@Column(length = 10)
 	private ReceiverType receiverType = ReceiverType.USER;
 
 	/**

@@ -16,7 +16,7 @@ import org.ligoj.bootstrap.core.model.AbstractPersistable;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_CACHE_MEMBERSHIP", uniqueConstraints = @UniqueConstraint(columnNames = { "name", "sub_group", "group" }))
+@Table(name = "LIGOJ_CACHE_MEMBERSHIP", uniqueConstraints = @UniqueConstraint(columnNames = { "user", "sub_group", "group" }))
 public class CacheMembership extends AbstractPersistable<Integer> {
 
 	/**

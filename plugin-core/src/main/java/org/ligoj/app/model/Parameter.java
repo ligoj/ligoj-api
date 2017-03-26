@@ -1,5 +1,6 @@
 package org.ligoj.app.model;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -66,6 +67,7 @@ public class Parameter extends AbstractDescribedBusinessEntity<String> {
 	 * Associated mode. When <code>null</code>, the parameter is applied to all modes.
 	 */
 	@Enumerated(EnumType.STRING)
+	@Column(length = 10)
 	private SubscriptionMode mode;
 
 	/**
