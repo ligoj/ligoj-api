@@ -16,7 +16,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "SAAS_SUBSCRIPTION")
+@Table(name = "LIGOJ_SUBSCRIPTION")
 @ToString(of = { "node", "project" }, callSuper = true)
 public class Subscription extends AbstractAudited<Integer> {
 

@@ -25,7 +25,7 @@ import org.ligoj.bootstrap.core.validation.LowerCase;
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name"), @UniqueConstraint(columnNames = "pkey") }, name = "SAAS_PROJECT")
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name"), @UniqueConstraint(columnNames = "pkey") }, name = "LIGOJ_PROJECT")
 public class Project extends AbstractDescribedAuditedEntity<Integer> {
 
 	/**

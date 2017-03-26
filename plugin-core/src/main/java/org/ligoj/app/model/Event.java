@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "SAAS_EVENT")
+@Table(name = "LIGOJ_EVENT")
 public class Event extends AbstractPersistable<Integer> {
 
 	/**

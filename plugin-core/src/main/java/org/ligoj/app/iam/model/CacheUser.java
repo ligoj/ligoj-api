@@ -15,7 +15,7 @@ import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
  * IAM User cache.
  */
 @Entity
-@Table(name = "SAAS_CACHE_USER")
+@Table(name = "LIGOJ_CACHE_USER")
 @Getter
 @Setter
 public class CacheUser extends AbstractBusinessEntity<String> {

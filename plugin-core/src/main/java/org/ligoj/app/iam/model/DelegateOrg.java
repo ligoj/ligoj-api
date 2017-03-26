@@ -20,7 +20,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "SAAS_DELEGATE_ORG")
+@Table(name = "LIGOJ_DELEGATE_ORG")
 public class DelegateOrg extends AbstractDelegate {
 
 	/**

@@ -19,7 +19,7 @@ import org.ligoj.bootstrap.core.model.AbstractAudited;
 @Getter
 @Setter
 @Entity
-@Table(name = "SAAS_PARAMETER_INSTANCE")
+@Table(name = "LIGOJ_PARAMETER_INSTANCE")
 @ToString(of = { "parameter", "data" })
 public class ParameterValue extends AbstractAudited<Integer> {
 

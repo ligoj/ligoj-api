@@ -17,7 +17,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "SAAS_DELEGATE_NODE")
+@Table(name = "LIGOJ_DELEGATE_NODE")
 public class DelegateNode extends AbstractDelegate {
 
 	/**

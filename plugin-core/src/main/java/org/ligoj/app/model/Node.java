@@ -18,7 +18,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "SAAS_NODE")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
 public class Node extends AbstractDescribedBusinessEntity<String> {
 
 	/**

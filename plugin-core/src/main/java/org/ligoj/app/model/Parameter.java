@@ -22,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "owner" }), name = "SAAS_PARAMETER")
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "owner" }), name = "LIGOJ_PARAMETER")
 public class Parameter extends AbstractDescribedBusinessEntity<String> {
 
 	private static final long serialVersionUID = 1L;
