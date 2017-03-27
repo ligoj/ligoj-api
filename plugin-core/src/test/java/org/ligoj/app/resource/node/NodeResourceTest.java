@@ -482,30 +482,30 @@ public class NodeResourceTest extends AbstractAppTest {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6", SubscriptionMode.LINK);
 		Assert.assertEquals(25, parameters.size());
 		final int nonDummyStartIndex = 23;
-		Assert.assertEquals("JIRA project", parameters.get(nonDummyStartIndex).getName());
-		Assert.assertEquals("JIRA project key value", parameters.get(nonDummyStartIndex + 1).getName());
+		Assert.assertEquals("service:bt:jira:project", parameters.get(nonDummyStartIndex).getId());
+		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex + 1).getId());
 	}
 
 	@Test
 	public void getNotProvidedParametersTool() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira", SubscriptionMode.LINK);
 		Assert.assertEquals(32, parameters.size());
-		Assert.assertEquals("c_10", parameters.get(0).getName());
+		Assert.assertEquals("c_10", parameters.get(0).getId());
 		final int nonDummyStartIndex = 23;
-		Assert.assertEquals("Database Driver", parameters.get(nonDummyStartIndex).getName());
-		Assert.assertEquals("Database password", parameters.get(nonDummyStartIndex + 1).getName());
-		Assert.assertEquals("Database URL", parameters.get(nonDummyStartIndex + 2).getName());
-		Assert.assertEquals("Database user", parameters.get(nonDummyStartIndex + 3).getName());
+		Assert.assertEquals("service:bt:jira:jdbc-driver", parameters.get(nonDummyStartIndex).getId());
+		Assert.assertEquals("service:bt:jira:jdbc-password", parameters.get(nonDummyStartIndex + 1).getId());
+		Assert.assertEquals("service:bt:jira:url", parameters.get(nonDummyStartIndex + 2).getId());
+		Assert.assertEquals("service:bt:jira:jdbc-user", parameters.get(nonDummyStartIndex + 3).getId());
 
 		final ParameterVo projectParameter = parameters.get(nonDummyStartIndex + 4);
-		Assert.assertEquals("JIRA project", projectParameter.getName());
+		Assert.assertEquals("service:bt:jira:project", projectParameter.getId());
 		Assert.assertEquals(1, projectParameter.getMin().intValue());
 		Assert.assertNull(projectParameter.getMax());
 		Assert.assertNull(projectParameter.getValues());
 		Assert.assertEquals(ParameterType.INTEGER, projectParameter.getType());
 		Assert.assertEquals("service:bt:jira", projectParameter.getOwner().getId());
-		Assert.assertEquals("JIRA project key value", parameters.get(nonDummyStartIndex + 5).getName());
-		Assert.assertEquals("Password", parameters.get(nonDummyStartIndex + 6).getName());
+		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex + 5).getId());
+		Assert.assertEquals("service:bt:jira:password", parameters.get(nonDummyStartIndex + 6).getId());
 	}
 
 	@Test
@@ -519,7 +519,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id", SubscriptionMode.LINK);
 		Assert.assertEquals(2, parameters.size());
 		Assert.assertEquals("service:id:group", parameters.get(0).getId());
-		Assert.assertEquals("UID Pattern", parameters.get(1).getName());
+		Assert.assertEquals("service:id:uid-pattern", parameters.get(1).getId());
 	}
 
 	@Test
