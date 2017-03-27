@@ -277,7 +277,6 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		Assert.assertNotNull(service);
 		Assert.assertEquals("JIRA 4", service.getName());
 		Assert.assertNotNull(service.getId());
-		Assert.assertEquals("Instance JIRA 4", service.getDescription());
 		Assert.assertEquals("service:bt:jira", service.getRefined().getId());
 		Assert.assertEquals("service:bt", service.getRefined().getRefined().getId());
 		Assert.assertNull(service.getRefined().getRefined().getRefined());

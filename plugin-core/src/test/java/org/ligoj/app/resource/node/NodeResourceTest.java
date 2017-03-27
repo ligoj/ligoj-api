@@ -375,7 +375,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals(BugTrackerResource.SERVICE_KEY, service.getId());
 		Assert.assertEquals("Bug Tracker", service.getName());
-		Assert.assertEquals("Bug/Request/... management", service.getDescription());
 		Assert.assertNull(service.getRefined());
 		Assert.assertEquals(SubscriptionMode.LINK, service.getMode());
 		Assert.assertEquals("fa fa-bug", service.getUiClasses());
@@ -383,14 +382,12 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service2 = resources.get(1);
 		Assert.assertEquals(BuildResource.SERVICE_KEY, service2.getId());
 		Assert.assertEquals("Build", service2.getName());
-		Assert.assertEquals("Build system", service2.getDescription());
 		Assert.assertNull(service2.getRefined());
 		Assert.assertEquals(SubscriptionMode.LINK, service2.getMode());
 
 		final NodeVo service3 = resources.get(2);
 		Assert.assertEquals(IdentityResource.SERVICE_KEY, service3.getId());
 		Assert.assertEquals("Identity management", service3.getName());
-		Assert.assertEquals("Username, first name, etc.", service3.getDescription());
 		Assert.assertEquals("fa fa-key", service3.getUiClasses());
 		Assert.assertNull(service3.getRefined());
 		Assert.assertEquals(SubscriptionMode.CREATE, service3.getMode());
@@ -403,7 +400,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service5 = resources.get(4);
 		Assert.assertEquals(KpiResource.SERVICE_KEY, service5.getId());
 		Assert.assertEquals("KPI Collection", service5.getName());
-		Assert.assertEquals("KPI Collection and daily dashboard", service5.getDescription());
 		Assert.assertNull(service5.getRefined());
 		Assert.assertEquals(SubscriptionMode.LINK, service5.getMode());
 	}
@@ -415,7 +411,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:bt:jira", service.getId());
 		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertEquals("Atlassian Issue tracking product", service.getDescription());
 		Assert.assertNull(service.getRefined());
 		Assert.assertNull(service.getUiClasses());
 	}
@@ -427,7 +422,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:id:ldap:dig", service.getId());
 		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertEquals("OpenLDAP of DIG", service.getDescription());
 		Assert.assertNull(service.getRefined());
 
 		// This node accept creation
@@ -447,7 +441,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:bt:jira", service.getId());
 		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertEquals("Atlassian Issue tracking product", service.getDescription());
 		Assert.assertNull(service.getRefined());
 		Assert.assertNull(service.getUiClasses());
 	}
@@ -459,7 +452,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:id:ldap:dig", service.getId());
 		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertEquals("OpenLDAP of DIG", service.getDescription());
 		Assert.assertNull(service.getRefined());
 		Assert.assertNull(service.getUiClasses());
 	}
@@ -471,7 +463,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:id:ldap:dig", service.getId());
 		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertEquals("OpenLDAP of DIG", service.getDescription());
 		Assert.assertNull(service.getRefined());
 
 		// This node accept creation
@@ -653,31 +644,31 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findByIdExpected() {
-		Assert.assertEquals("service:kpi:sonar", resource.findByIdExpected("service:kpi:sonar").getId());
+		Assert.assertEquals("service:kpi:sonar", resource.findById("service:kpi:sonar").getId());
 	}
 
 	@Test(expected = ValidationJsonException.class)
 	public void findByIdExpectedNotExists() {
-		resource.findByIdExpected("service:any");
+		resource.findById("service:any");
 	}
 
 	@Test(expected = ValidationJsonException.class)
 	public void findByIdExpectedNoDelegate() {
 		initSpringSecurityContext("any");
-		resource.findByIdExpected("service:kpi:sonar");
+		resource.findById("service:kpi:sonar");
 	}
 
 	@Test(expected = ValidationJsonException.class)
 	public void findByIdExpectedNoValidDelegate() {
 		initSpringSecurityContext("user1");
-		resource.findByIdExpected("service:kpi:sonar");
+		resource.findById("service:kpi:sonar");
 	}
 
 	@Test
 	public void findByIdExpectedSubNodes() {
 		initSpringSecurityContext("user1");
-		Assert.assertEquals("service:build:jenkins:bpr", resource.findByIdExpected("service:build:jenkins:bpr").getId());
-		Assert.assertEquals("service:build:jenkins", resource.findByIdExpected("service:build:jenkins").getId());
+		Assert.assertEquals("service:build:jenkins:bpr", resource.findById("service:build:jenkins:bpr").getId());
+		Assert.assertEquals("service:build:jenkins", resource.findById("service:build:jenkins").getId());
 	}
 
 	@Test
