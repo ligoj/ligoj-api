@@ -4,18 +4,23 @@ import java.util.List;
 
 import javax.validation.constraints.NotNull;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.model.ParameterType;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * A fully described parameter.
  */
 @Getter
 @Setter
-public class ParameterVo extends DescribedBean<String> {
+public class ParameterVo {
+
+	/**
+	 * Identifier of this parameter. 
+	 */
+	private String id;
 
 	/**
 	 * Type
