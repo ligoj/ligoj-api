@@ -11,9 +11,9 @@ import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
-
-import org.ligoj.bootstrap.core.model.AbstractDescribedBusinessEntity;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +24,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "owner" }), name = "LIGOJ_PARAMETER")
-public class Parameter extends AbstractDescribedBusinessEntity<String> {
+public class Parameter extends AbstractBusinessEntity<String> {
 
 	private static final long serialVersionUID = 1L;
 

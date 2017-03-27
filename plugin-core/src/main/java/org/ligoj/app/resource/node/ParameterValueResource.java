@@ -28,6 +28,16 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ligoj.app.api.SimpleUserOrg;
+import org.ligoj.app.dao.ParameterRepository;
+import org.ligoj.app.dao.ParameterValueRepository;
+import org.ligoj.app.iam.IamProvider;
+import org.ligoj.app.model.Parameter;
+import org.ligoj.app.model.ParameterType;
+import org.ligoj.app.model.ParameterValue;
+import org.ligoj.bootstrap.core.crypto.CryptoHelper;
+import org.ligoj.bootstrap.core.resource.TechnicalException;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
@@ -37,18 +47,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
-
-import org.ligoj.bootstrap.core.DescribedBean;
-import org.ligoj.bootstrap.core.crypto.CryptoHelper;
-import org.ligoj.bootstrap.core.resource.TechnicalException;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.ligoj.app.api.SimpleUserOrg;
-import org.ligoj.app.dao.ParameterRepository;
-import org.ligoj.app.dao.ParameterValueRepository;
-import org.ligoj.app.iam.IamProvider;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterType;
-import org.ligoj.app.model.ParameterValue;
 
 /**
  * Criteria values Business Layer for entity {@link ParameterValue}
@@ -147,7 +145,7 @@ public class ParameterValueResource {
 	 */
 	public static ParameterVo toVo(final Parameter entity) {
 		final ParameterVo vo = new ParameterVo();
-		DescribedBean.copy(entity, vo);
+		vo.setId(entity.getId());
 		vo.setType(entity.getType());
 		vo.setMandatory(entity.isMandatory());
 
