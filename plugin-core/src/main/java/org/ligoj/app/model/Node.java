@@ -8,8 +8,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 
-import org.ligoj.bootstrap.core.model.AbstractDescribedBusinessEntity;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.bootstrap.core.model.AbstractNamedBusinessEntity;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
-public class Node extends AbstractDescribedBusinessEntity<String> {
+public class Node extends AbstractNamedBusinessEntity<String> {
 
 	/**
 	 * SID

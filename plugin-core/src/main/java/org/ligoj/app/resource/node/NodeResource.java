@@ -23,19 +23,6 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Service;
-
-import org.ligoj.bootstrap.core.DescribedBean;
-import org.ligoj.bootstrap.core.SpringUtils;
-import org.ligoj.bootstrap.core.json.PaginationJson;
-import org.ligoj.bootstrap.core.json.TableItem;
-import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
-import org.ligoj.bootstrap.core.resource.BusinessException;
-import org.ligoj.bootstrap.core.security.SecurityHelper;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.api.SubscriptionMode;
@@ -50,6 +37,19 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
+import org.ligoj.bootstrap.core.NamedBean;
+import org.ligoj.bootstrap.core.SpringUtils;
+import org.ligoj.bootstrap.core.json.PaginationJson;
+import org.ligoj.bootstrap.core.json.TableItem;
+import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
+import org.ligoj.bootstrap.core.resource.BusinessException;
+import org.ligoj.bootstrap.core.security.SecurityHelper;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Service;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -120,7 +120,7 @@ public class NodeResource {
 	 */
 	public static NodeVo toVoLight(final Node entity) {
 		final NodeVo vo = new NodeVo();
-		DescribedBean.copy(entity, vo);
+		NamedBean.copy(entity, vo);
 		vo.setMode(entity.getMode());
 		vo.setUiClasses(entity.getUiClasses());
 		return vo;
@@ -146,7 +146,7 @@ public class NodeResource {
 			// Build the first encountered parameter for this node
 			if (vo == null) {
 				vo = new NodeVo();
-				DescribedBean.copy(node, vo);
+				NamedBean.copy(node, vo);
 				vo.setParameters(new HashMap<>());
 				vo.setTag(node.getTag());
 				vo.setTagUiClasses(node.getTagUiClasses());
@@ -512,8 +512,7 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return a specific node visible for current user. The visibility is
-	 * checked.
+	 * Return a specific node visible for current user. The visibility is checked.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -522,26 +521,13 @@ public class NodeResource {
 	@GET
 	@Path("{id:.+:.*}")
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
-	public NodeVo findByIdExpected(@PathParam("id") final String id) {
-		return Optional.ofNullable(findByIdVisible(id))
+	public NodeVo findById(@PathParam("id") final String id) {
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(NodeResource::toVoLight)
 				.orElseThrow(() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "node", "1", id));
 	}
 
 	/**
-	 * Return a specific node visible for current user. The visibility is
-	 * checked.
-	 * 
-	 * @param id
-	 *            The node identifier.
-	 * @return The visible node. May be <code>null</code>.
-	 */
-	@org.springframework.transaction.annotation.Transactional(readOnly = true)
-	public NodeVo findByIdVisible(final String id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(NodeResource::toVoLight).orElse(null);
-	}
-
-	/**
-	 * Return a specific node. The visibility is not checked.
+	 * Return a specific node details. The visibility is not checked, and the cache is not involved.
 	 * 
 	 * @param id
 	 *            The node identifier.

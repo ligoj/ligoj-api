@@ -1,6 +1,7 @@
 package org.ligoj.app.api;
 
-import org.ligoj.bootstrap.core.DescribedBean;
+import org.ligoj.bootstrap.core.NamedBean;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public abstract class AbstractNodeVo extends DescribedBean<String> {
+public abstract class AbstractNodeVo extends NamedBean<String> {
 	
 	/**
 	 * Optional tag name. May be <code>null</code>.

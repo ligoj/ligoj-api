@@ -26,14 +26,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Persistable;
-import org.springframework.stereotype.Service;
-
-import org.ligoj.bootstrap.core.DescribedBean;
-import org.ligoj.bootstrap.core.resource.BusinessException;
-import org.ligoj.bootstrap.core.security.SecurityHelper;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.api.ConfigurationVo;
 import org.ligoj.app.api.NodeVo;
@@ -56,6 +48,15 @@ import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
 import org.ligoj.app.resource.node.ParameterValueEditionVo;
 import org.ligoj.app.resource.node.ParameterValueResource;
+import org.ligoj.bootstrap.core.DescribedBean;
+import org.ligoj.bootstrap.core.NamedBean;
+import org.ligoj.bootstrap.core.resource.BusinessException;
+import org.ligoj.bootstrap.core.security.SecurityHelper;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Persistable;
+import org.springframework.stereotype.Service;
+
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -442,7 +443,7 @@ public class SubscriptionResource {
 
 			// Build the node wrapper
 			final SubscribedNodeVo subscribedNode = new SubscribedNodeVo();
-			DescribedBean.copy(node, subscribedNode);
+			NamedBean.copy(node, subscribedNode);
 			subscribedNode.setTag(node.getTag());
 			subscribedNode.setTagUiClasses(node.getTagUiClasses());
 			filteredNodes.put(node.getId(), subscribedNode);
