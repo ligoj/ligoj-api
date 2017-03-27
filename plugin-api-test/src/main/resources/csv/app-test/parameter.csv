@@ -1,96 +1,96 @@
-id;name;description;owner.id;data;mandatory;type;mode;secured
-service:bt:jira:jdbc-url;Database URL;JDBC URL, like jdbc:mysql://localhost:3306/jira6?useColumnNamesInFindColumn=true&useUnicode=yes&characterEncoding=UTF-8&autoReconnect=true&maxReconnects=10;service:bt:jira;;true;TEXT;;true
-service:bt:jira:jdbc-driver;Database Driver;JDBC Driver, like com.mysql.jdbc.Driver;service:bt:jira;;true;TEXT;;true
-service:bt:jira:jdbc-user;Database user;JIRA Database user name with SELECT grant. Must have INSERT/DELETE/DELETE grants for import tools;service:bt:jira;;true;TEXT;;true
-service:bt:jira:jdbc-password;Database password;JIRA Database password;service:bt:jira;;true;TEXT;;true
-service:bt:jira:url;URL;Server public location URL;service:bt:jira;;true;TEXT;;
-service:bt:jira:project;JIRA project;JIRA internal project identifier;service:bt:jira;"{""min"":1}";true;INTEGER;;
-service:bt:jira:pkey;JIRA project key value;JIRA internal project string identifier;service:bt:jira;;true;TEXT;;
-service:bt:jira:user;User name;JIRA user name able to perform index. Required only for import tools;service:bt:jira;;false;TEXT;;true
-service:bt:jira:password;Password;JIRA password of user able to perform index;service:bt:jira;;false;TEXT;;true
-service:build:jenkins:url;URL;Server public location URL;service:build:jenkins;;true;TEXT;;
-service:build:jenkins:user;User name;User name able to create, update and execute a job;service:build:jenkins;;true;TEXT;;true
-service:build:jenkins:api-token;API-Token;API token of user;service:build:jenkins;;true;TEXT;;true
-service:build:jenkins:job;Job;Job's name;service:build:jenkins;;true;TEXT;;
-service:build:jenkins:template-job;Template Job;Template Job's name;service:build:jenkins;;true;TEXT;CREATE;
-service:kpi:sonar:url;URL;Server public location URL;service:kpi:sonar;;true;TEXT;;
-service:kpi:sonar:user;User name;User name able to manage SonarQube;service:kpi:sonar;;true;TEXT;;true
-service:kpi:sonar:password;Password;User password able to manage SonarQube;service:kpi:sonar;;true;TEXT;;true
-service:kpi:sonar:project;Project;Project's identifier;service:kpi:sonar;"{""min"":1}";true;INTEGER;;
-service:id:group;Group;Group name;service:id;;true;TEXT;;
-service:id:ou;Organizational Unit;Usually, company identifier;service:id;;true;TEXT;CREATE;
-service:id:parent-group;Parent Group;Parent group name of this new group. Useful to create a sub group like 'customer', 'test',...;service:id;;false;TEXT;CREATE;
-service:id:uid-pattern;UID Pattern;Pattern determining the login can be processed by the node;service:id;;true;TEXT;;
-service:id:ldap:url;URL;Full URL like ldap/myhost:389/;service:id:ldap;;true;TEXT;;
-service:id:ldap:password;Password;Password of administrative user;service:id:ldap;;true;TEXT;;
-service:id:ldap:user-dn;User;DN of administrative user that can fetch the repository;service:id:ldap;;true;TEXT;;
-service:id:ldap:base-dn;Base DN;Base DN where people, groups and companies are located;service:id:ldap;;true;TEXT;;
-service:id:ldap:people-dn;People DN;DN of location of any user that can login;service:id:ldap;;true;TEXT;;
-service:id:ldap:people-internal-dn;People Internal DN;DN of location of people considered as internal. May be the same than people;service:id:ldap;;true;TEXT;;
-service:id:ldap:groups-dn;Groups DN;DN of location of any groups;service:id:ldap;;true;TEXT;;
-service:id:ldap:companies-dn;Companies DN;DN of location of companies;service:id:ldap;;true;TEXT;;
-service:id:ldap:quarantine-dn;Quarantine DN;DN of location where isolated users are moved to;service:id:ldap;;false;TEXT;;
-service:id:ldap:uid-attribute;UID attribute;LDAP schema attribute name of login;service:id:ldap;;true;TEXT;;
-service:id:ldap:local-id-attribute;Local identifier attribute;LDAP schema attribute name of internal id of login. May not be unique.;service:id:ldap;;false;TEXT;;
-service:id:ldap:locked-attribute;Locked Attribute;LDAP schema attribute holding the locked state of a user.;service:id:ldap;;false;TEXT;;
-service:id:ldap:locked-value;Locked value;Value used as flog for a locked user inside the locked attribute;service:id:ldap;;false;TEXT;;
-service:id:ldap:company-pattern;Company pattern;Pattern capturing the company from the DN of the user. May be a row string for constant.;service:id:ldap;;false;TEXT;;
-service:id:ldap:referral;Referral;Referral option as "follow";service:id:ldap;;false;TEXT;;
-service:id:ldap:people-class;People Object Class;Object Class of people : organizationalPerson, inetOrgPerson;service:id:ldap;;true;TEXT;;
-service:id:ldap:department-attribute;Department;Department attribute name;service:id:ldap;;false;TEXT;;
-
-service:km:confluence:url;URL;Server public location URL;service:km:confluence;;true;TEXT;;
-service:km:confluence:space;Confluence space name;Linked Confluence space name;service:km:confluence;;true;TEXT;;
-service:km:confluence:user;User name;Confluence user name able to perform index and create spaces;service:km:confluence;;false;TEXT;;true
-service:km:confluence:password;Password;Confluence password of user able to perform index and create spaces;service:km:confluence;;false;TEXT;;true
-service:security:fortify:pkey;Project key;Fortify internal project identifier;service:security:fortify;;true;INTEGER;;
-service:security:fortify:version;Project version;Fortify internal project version identifier;service:security:fortify;;true;INTEGER;;
-service:security:fortify:url;URL Server;Server public location URL;service:security:fortify;;true;TEXT;;
-service:security:fortify:user;User name;Fortify user name at least able to query the projects;service:security:fortify;;true;TEXT;;true
-service:security:fortify:password;Password;Fortify password of user able to perform index;service:security:fortify;;true;TEXT;;true
-service:vm:vcloud:url;API URL;vCloud API URL;service:vm:vcloud;;true;TEXT;;
-service:vm:vcloud:user;User name;vCloud user name, case is sensitive. Will encoded with the organization to build the authentication token;service:vm:vcloud;;true;TEXT;;true
-service:vm:vcloud:password;Password;vCloud password;service:vm:vcloud;;true;TEXT;;true
-service:vm:vcloud:organization;Organization;vCloud organization. It will encoded with the user to build the authentication token;service:vm:vcloud;;true;TEXT;;
-service:vm:vcloud:id;ID;Identifier of linked virtual machine;service:vm:vcloud;;true;TEXT;;
-service:scm:svn:url;URL;Base URL of Subversion server;service:scm:svn;;true;TEXT;;
-service:scm:svn:user;User name;User able to create and fetch repositories;service:scm:svn;;true;TEXT;;true
-service:scm:svn:password;Password;Subversion password;service:scm:svn;;true;TEXT;;true
-service:scm:svn:repository;Repository;Repository's path;service:scm:svn;;true;TEXT;;
-service:scm:svn:index;Has index;Node as an index listing repositories;service:scm:svn;;false;BINARY;;
-service:scm:git:url;URL;Base URL of Git server;service:scm:git;;true;TEXT;;
-service:scm:git:user;User name;User able to create and fetch repositories;service:scm:git;;true;TEXT;;true
-service:scm:git:password;Password;Git password;service:scm:git;;true;TEXT;;true
-service:scm:git:repository;Repository;Repository's path;service:scm:git;;true;TEXT;;
-service:scm:git:index;Has index;Node as an index listing repositories;service:scm:git;;false;BINARY;;
-service:req:squash:url;URL;Base URL of Squash TM;service:req:squash;;true;TEXT;;
-service:req:squash:user;User name;User able to create and fetch projects;service:req:squash;;true;TEXT;;true
-service:req:squash:password;Password;Squash password;service:req:squash;;true;TEXT;;true
-service:req:squash:project;Project;Squash project identifier;service:req:squash;;true;INTEGER;;
-service:storage:owncloud:url;URL;Base URL of ownCloud;service:storage:owncloud;;true;TEXT;;
-service:storage:owncloud:user;User name;User able to create and fetch shared directories;service:storage:owncloud;;true;TEXT;;true
-service:storage:owncloud:password;Password;ownCloud password;service:storage:owncloud;;true;TEXT;;true
-service:storage:owncloud:directory;Directory;Shared ownCloud directory identifier;service:storage:owncloud;;true;INTEGER;;
-c_2;c_2;Free form;service:bt:jira;;true;TEXT;;
-c_3;c_3;Choice;service:bt:jira;"[""A"",""B"",""C""]";false;SELECT;;
-c_4;c_4;Number;service:bt:jira;"{""min"":1,""max"":2}";true;INTEGER;;
-c_5;c_5;Yes/No;service:bt:jira;;false;BINARY;;
-c_6;c_6;Date;service:bt:jira;;true;DATE;;
-c_7;c_7;Free form;service:bt:jira;;false;TEXT;;
-c_8;c_8;Choice;service:bt:jira;"[""D"",""E""]";true;SELECT;;
-c_9;c_9;Number;service:bt:jira;"{""min"":3}";false;INTEGER;;
-c_10;c_10;Yes/No;service:bt:jira;;true;BINARY;;
-c_11;c_11;Date;service:bt:jira;;false;DATE;;
-c_12;c_12;Free form;service:bt:jira;;true;TEXT;;
-c_13;c_13;Choice;service:bt:jira;"[""F""]";false;SELECT;;
-c_14;c_14;Number;service:bt:jira;"{""max"":4}";true;INTEGER;;
-c_15;c_15;Yes/No;service:bt:jira;;false;BINARY;;
-c_16;c_16;Date;service:bt:jira;;true;DATE;;
-c_170;c_170;Pattern empty form;service:bt:jira;{};false;TEXT;;
-c_17;c_17;Pattern form;service:bt:jira;"{""pattern"":""[a-z][a-z0-9\\-]*[a-z0-9]+""}";false;TEXT;;
-c_18;c_18;Choice;service:bt:jira;[];true;SELECT;;
-c_19;c_19;Number;service:bt:jira;{};false;INTEGER;;
-c_20;c_20;Yes/No;service:bt:jira;;true;BINARY;;
-c_21;c_21;Date;service:bt:jira;;false;DATE;;
-c_22;c_22;Tags;service:bt:jira;;true;TAGS;;
-c_23;c_23;Multiple;service:bt:jira;"[""A"",""B"",""C""]";false;MULTIPLE;;
+id;owner.id;data;mandatory;type;mode;secured
+service:bt:jira:jdbc-url;service:bt:jira;;true;TEXT;;true
+service:bt:jira:jdbc-driver;service:bt:jira;;true;TEXT;;true
+service:bt:jira:jdbc-user;service:bt:jira;;true;TEXT;;true
+service:bt:jira:jdbc-password;service:bt:jira;;true;TEXT;;true
+service:bt:jira:url;service:bt:jira;;true;TEXT;;
+service:bt:jira:project;service:bt:jira;"{""min"":1}";true;INTEGER;;
+service:bt:jira:pkey;service:bt:jira;;true;TEXT;;
+service:bt:jira:user;service:bt:jira;;false;TEXT;;true
+service:bt:jira:password;service:bt:jira;;false;TEXT;;true
+service:build:jenkins:url;service:build:jenkins;;true;TEXT;;
+service:build:jenkins:user;service:build:jenkins;;true;TEXT;;true
+service:build:jenkins:api-token;service:build:jenkins;;true;TEXT;;true
+service:build:jenkins:job;service:build:jenkins;;true;TEXT;;
+service:build:jenkins:template-job;service:build:jenkins;;true;TEXT;CREATE;
+service:kpi:sonar:url;service:kpi:sonar;;true;TEXT;;
+service:kpi:sonar:user;service:kpi:sonar;;true;TEXT;;true
+service:kpi:sonar:password;service:kpi:sonar;;true;TEXT;;true
+service:kpi:sonar:project;service:kpi:sonar;"{""min"":1}";true;INTEGER;;
+service:id:group;service:id;;true;TEXT;;
+service:id:ou;service:id;;true;TEXT;CREATE;
+service:id:parent-group;service:id;;false;TEXT;CREATE;
+service:id:uid-pattern;service:id;;true;TEXT;;
+service:id:ldap:url;service:id:ldap;;true;TEXT;;
+service:id:ldap:password;service:id:ldap;;true;TEXT;;
+service:id:ldap:user-dn;service:id:ldap;;true;TEXT;;
+service:id:ldap:base-dn;service:id:ldap;;true;TEXT;;
+service:id:ldap:people-dn;service:id:ldap;;true;TEXT;;
+service:id:ldap:people-internal-dn;service:id:ldap;;true;TEXT;;
+service:id:ldap:groups-dn;service:id:ldap;;true;TEXT;;
+service:id:ldap:companies-dn;service:id:ldap;;true;TEXT;;
+service:id:ldap:quarantine-dn;service:id:ldap;;false;TEXT;;
+service:id:ldap:uid-attribute;service:id:ldap;;true;TEXT;;
+service:id:ldap:local-id-attribute;service:id:ldap;;false;TEXT;;
+service:id:ldap:locked-attribute;service:id:ldap;;false;TEXT;;
+service:id:ldap:locked-value;service:id:ldap;;false;TEXT;;
+service:id:ldap:company-pattern;service:id:ldap;;false;TEXT;;
+service:id:ldap:referral;service:id:ldap;;false;TEXT;;
+service:id:ldap:people-class;service:id:ldap;;true;TEXT;;
+service:id:ldap:department-attribute;service:id:ldap;;false;TEXT;;
+;;;;;;
+service:km:confluence:url;service:km:confluence;;true;TEXT;;
+service:km:confluence:space;service:km:confluence;;true;TEXT;;
+service:km:confluence:user;service:km:confluence;;false;TEXT;;true
+service:km:confluence:password;service:km:confluence;;false;TEXT;;true
+service:security:fortify:pkey;service:security:fortify;;true;INTEGER;;
+service:security:fortify:version;service:security:fortify;;true;INTEGER;;
+service:security:fortify:url;service:security:fortify;;true;TEXT;;
+service:security:fortify:user;service:security:fortify;;true;TEXT;;true
+service:security:fortify:password;service:security:fortify;;true;TEXT;;true
+service:vm:vcloud:url;service:vm:vcloud;;true;TEXT;;
+service:vm:vcloud:user;service:vm:vcloud;;true;TEXT;;true
+service:vm:vcloud:password;service:vm:vcloud;;true;TEXT;;true
+service:vm:vcloud:organization;service:vm:vcloud;;true;TEXT;;
+service:vm:vcloud:id;service:vm:vcloud;;true;TEXT;;
+service:scm:svn:url;service:scm:svn;;true;TEXT;;
+service:scm:svn:user;service:scm:svn;;true;TEXT;;true
+service:scm:svn:password;service:scm:svn;;true;TEXT;;true
+service:scm:svn:repository;service:scm:svn;;true;TEXT;;
+service:scm:svn:index;service:scm:svn;;false;BINARY;;
+service:scm:git:url;service:scm:git;;true;TEXT;;
+service:scm:git:user;service:scm:git;;true;TEXT;;true
+service:scm:git:password;service:scm:git;;true;TEXT;;true
+service:scm:git:repository;service:scm:git;;true;TEXT;;
+service:scm:git:index;service:scm:git;;false;BINARY;;
+service:req:squash:url;service:req:squash;;true;TEXT;;
+service:req:squash:user;service:req:squash;;true;TEXT;;true
+service:req:squash:password;service:req:squash;;true;TEXT;;true
+service:req:squash:project;service:req:squash;;true;INTEGER;;
+service:storage:owncloud:url;service:storage:owncloud;;true;TEXT;;
+service:storage:owncloud:user;service:storage:owncloud;;true;TEXT;;true
+service:storage:owncloud:password;service:storage:owncloud;;true;TEXT;;true
+service:storage:owncloud:directory;service:storage:owncloud;;true;INTEGER;;
+c_2;service:bt:jira;;true;TEXT;;
+c_3;service:bt:jira;"[""A"",""B"",""C""]";false;SELECT;;
+c_4;service:bt:jira;"{""min"":1,""max"":2}";true;INTEGER;;
+c_5;service:bt:jira;;false;BINARY;;
+c_6;service:bt:jira;;true;DATE;;
+c_7;service:bt:jira;;false;TEXT;;
+c_8;service:bt:jira;"[""D"",""E""]";true;SELECT;;
+c_9;service:bt:jira;"{""min"":3}";false;INTEGER;;
+c_10;service:bt:jira;;true;BINARY;;
+c_11;service:bt:jira;;false;DATE;;
+c_12;service:bt:jira;;true;TEXT;;
+c_13;service:bt:jira;"[""F""]";false;SELECT;;
+c_14;service:bt:jira;"{""max"":4}";true;INTEGER;;
+c_15;service:bt:jira;;false;BINARY;;
+c_16;service:bt:jira;;true;DATE;;
+c_170;service:bt:jira;{};false;TEXT;;
+c_17;service:bt:jira;"{""pattern"":""[a-z][a-z0-9\\-]*[a-z0-9]+""}";false;TEXT;;
+c_18;service:bt:jira;[];true;SELECT;;
+c_19;service:bt:jira;{};false;INTEGER;;
+c_20;service:bt:jira;;true;BINARY;;
+c_21;service:bt:jira;;false;DATE;;
+c_22;service:bt:jira;;true;TAGS;;
+c_23;service:bt:jira;"[""A"",""B"",""C""]";false;MULTIPLE;;
