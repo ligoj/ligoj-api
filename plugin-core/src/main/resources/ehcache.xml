@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
+	<cache name="nodes" maxEntriesLocalHeap="1" logging="true" statistics="true"></cache>
+	<cache name="node-parameters" maxEntriesLocalHeap="100"></cache>
+	<cache name="services" maxEntriesLocalHeap="1"></cache>
+	<cache name="curl-tokens" maxEntriesLocalHeap="100" timeToLiveSeconds="1200" eternal="false"></cache>
+	<cache name="subscription-parameters" maxEntriesLocalHeap="1000"></cache>
+	<cache name="plugin-data" maxEntriesLocalHeap="1000"></cache>
+</ehcache>

@@ -19,7 +19,7 @@ public class EmptyIamProvider implements IamProvider {
 	}
 
 	@Override
-	@CacheResult(cacheName = "iam-node-configuration")
+	@CacheResult(cacheName = "iam-public-configuration")
 	public IamConfiguration getConfiguration() {
 		final IamConfiguration configuration = new IamConfiguration();
 		final EmptyCompanyRepository companyRepository = new EmptyCompanyRepository();
