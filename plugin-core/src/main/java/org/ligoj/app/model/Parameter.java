@@ -7,7 +7,6 @@ import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -23,7 +22,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "name", "owner" }), name = "LIGOJ_PARAMETER")
+@Table(name = "LIGOJ_PARAMETER")
 public class Parameter extends AbstractBusinessEntity<String> {
 
 	private static final long serialVersionUID = 1L;
@@ -32,6 +31,7 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	 * Type
 	 */
 	@NotNull
+	@Enumerated(EnumType.STRING)
 	private ParameterType type;
 
 	/**
