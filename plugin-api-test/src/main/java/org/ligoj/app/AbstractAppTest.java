@@ -1,6 +1,7 @@
 package org.ligoj.app;
 
 import org.junit.After;
+import org.junit.Before;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
@@ -75,6 +76,7 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	 */
 	@Override
 	@After
+	@Before
 	public void restoreAppalicationContext() {
 		if (applicationContext != null) {
 			super.restoreAppalicationContext();
