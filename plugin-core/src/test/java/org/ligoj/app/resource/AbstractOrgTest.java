@@ -51,15 +51,15 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 	public void setUpEntities() throws IOException {
 
 		// Prepare the standard data
-		persistEntities("csv/app-test", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8.name());
-		persistEntities("csv/app-test", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
+		persistEntities("csv", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
 				StandardCharsets.UTF_8.name());
 
 		// Add the IAM data
 		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class);
-		final Map<String, CompanyOrg> companies = csvForJpa.insert("csv/app-test", CacheCompany.class, StandardCharsets.UTF_8.name()).stream()
+		final Map<String, CompanyOrg> companies = csvForJpa.insert("csv", CacheCompany.class, StandardCharsets.UTF_8.name()).stream()
 				.map(c -> new CompanyOrg(c.getDescription(), c.getName())).collect(Collectors.toMap(CompanyOrg::getId, Function.identity()));
-		final Map<String, UserOrg> users = csvForJpa.insert("csv/app-test", CacheUser.class, StandardCharsets.UTF_8.name()).stream().map(c -> {
+		final Map<String, UserOrg> users = csvForJpa.insert("csv", CacheUser.class, StandardCharsets.UTF_8.name()).stream().map(c -> {
 			final UserOrg user = new UserOrg();
 			user.setId(c.getId());
 			user.setDn("uid=" + c.getId() + "," + companies.get(c.getCompany().getId()).getDn());
@@ -69,10 +69,10 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 			user.setMails(Arrays.asList(Optional.ofNullable(c.getMails()).orElse("").split(",")));
 			return user;
 		}).collect(Collectors.toMap(UserOrg::getId, Function.identity()));
-		final Map<String, GroupOrg> groups = csvForJpa.insert("csv/app-test", CacheGroup.class, StandardCharsets.UTF_8.name()).stream()
+		final Map<String, GroupOrg> groups = csvForJpa.insert("csv", CacheGroup.class, StandardCharsets.UTF_8.name()).stream()
 				.map(c -> new GroupOrg(c.getDescription(), c.getName(), new HashSet<>()))
 				.collect(Collectors.toMap(GroupOrg::getId, Function.identity()));
-		CacheMembership cacheMembership = csvForJpa.insert("csv/app-test", CacheMembership.class, StandardCharsets.UTF_8.name()).get(0);
+		CacheMembership cacheMembership = csvForJpa.insert("csv", CacheMembership.class, StandardCharsets.UTF_8.name()).get(0);
 
 		// Coverage required here only there because of JPA bean
 		Assert.assertNotNull(cacheMembership.getGroup());

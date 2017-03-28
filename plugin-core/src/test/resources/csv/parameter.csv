@@ -38,7 +38,6 @@ service:id:ldap:company-pattern;service:id:ldap;;false;TEXT;;
 service:id:ldap:referral;service:id:ldap;;false;TEXT;;
 service:id:ldap:people-class;service:id:ldap;;true;TEXT;;
 service:id:ldap:department-attribute;service:id:ldap;;false;TEXT;;
-;;;;;;
 service:km:confluence:url;service:km:confluence;;true;TEXT;;
 service:km:confluence:space;service:km:confluence;;true;TEXT;;
 service:km:confluence:user;service:km:confluence;;false;TEXT;;true

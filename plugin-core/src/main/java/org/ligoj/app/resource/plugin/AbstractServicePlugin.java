@@ -23,19 +23,4 @@ public abstract class AbstractServicePlugin implements ServicePlugin {
 	 */
 	public static final String BASE_KEY = BASE_URL.replace('/', ':').substring(1);
 
-	@Override
-	public void delete(final int subscription, final boolean deleteRemoteData) throws Exception {
-		// No custom data with this service
-	}
-
-	@Override
-	public void create(final int subscription) {
-		// No custom data with this service
-	}
-
-	@Override
-	public void link(final int subscription) {
-		// No custom data with this service
-	}
-
 }

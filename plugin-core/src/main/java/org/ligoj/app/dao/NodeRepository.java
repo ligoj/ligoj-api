@@ -60,7 +60,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 */
 	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :id AND (o=n OR o=n1 OR o=n2)"
 			+ " AND (p.mode = NULL OR p.mode = :mode) AND " + VISIBLE_NODES
-			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue v WHERE v.parameter = p AND (v.node=n OR v.node=n1 OR v.node=n2)) ORDER BY UPPER(p.name)")
+			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue v WHERE v.parameter = p AND (v.node=n OR v.node=n1 OR v.node=n2)) ORDER BY UPPER(p.id)")
 	List<Parameter> getOrphanParameters(String id, SubscriptionMode mode, String user);
 
 	/**

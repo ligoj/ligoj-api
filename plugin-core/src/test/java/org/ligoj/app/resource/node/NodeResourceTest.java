@@ -80,7 +80,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Before
 	public void prepare() throws IOException {
-		persistEntities("csv/app-test",
+		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, Event.class, DelegateNode.class },
 				StandardCharsets.UTF_8.name());
 	}
@@ -482,8 +482,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6", SubscriptionMode.LINK);
 		Assert.assertEquals(25, parameters.size());
 		final int nonDummyStartIndex = 23;
-		Assert.assertEquals("service:bt:jira:project", parameters.get(nonDummyStartIndex).getId());
-		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex + 1).getId());
+		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex).getId());
+		Assert.assertEquals("service:bt:jira:project", parameters.get(nonDummyStartIndex + 1).getId());
 	}
 
 	@Test
@@ -494,18 +494,19 @@ public class NodeResourceTest extends AbstractAppTest {
 		final int nonDummyStartIndex = 23;
 		Assert.assertEquals("service:bt:jira:jdbc-driver", parameters.get(nonDummyStartIndex).getId());
 		Assert.assertEquals("service:bt:jira:jdbc-password", parameters.get(nonDummyStartIndex + 1).getId());
-		Assert.assertEquals("service:bt:jira:url", parameters.get(nonDummyStartIndex + 2).getId());
+		Assert.assertEquals("service:bt:jira:jdbc-url", parameters.get(nonDummyStartIndex + 2).getId());
 		Assert.assertEquals("service:bt:jira:jdbc-user", parameters.get(nonDummyStartIndex + 3).getId());
 
 		final ParameterVo projectParameter = parameters.get(nonDummyStartIndex + 4);
-		Assert.assertEquals("service:bt:jira:project", projectParameter.getId());
-		Assert.assertEquals(1, projectParameter.getMin().intValue());
-		Assert.assertNull(projectParameter.getMax());
-		Assert.assertNull(projectParameter.getValues());
-		Assert.assertEquals(ParameterType.INTEGER, projectParameter.getType());
-		Assert.assertEquals("service:bt:jira", projectParameter.getOwner().getId());
+		Assert.assertEquals("service:bt:jira:password", projectParameter.getId());
 		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex + 5).getId());
-		Assert.assertEquals("service:bt:jira:password", parameters.get(nonDummyStartIndex + 6).getId());
+		final ParameterVo projectParameter2 = parameters.get(nonDummyStartIndex + 6);
+		Assert.assertEquals(ParameterType.INTEGER, projectParameter2.getType());
+		Assert.assertEquals("service:bt:jira", projectParameter2.getOwner().getId());
+		Assert.assertEquals("service:bt:jira:project", projectParameter2.getId());
+		Assert.assertEquals(1, projectParameter2.getMin().intValue());
+		Assert.assertNull(projectParameter2.getMax());
+		Assert.assertNull(projectParameter2.getValues());
 	}
 
 	@Test

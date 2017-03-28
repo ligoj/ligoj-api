@@ -76,7 +76,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Before
 	public void prepareSubscription() throws IOException {
-		persistEntities("csv/app-test", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
 		this.subscription = getSubscription("MDA");
 	}
@@ -296,7 +296,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * "gfi-gstack", however he is neither the team leader of this project, neither an administrator, neither a manger
 	 * of the group "gfi-gstack".
 	 */
-	@Test(expected=ForbiddenException.class)
+	@Test(expected = ForbiddenException.class)
 	public void createNotManagedProject() throws Exception {
 		initSpringSecurityContext("alongchu");
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
@@ -570,7 +570,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void refreshStatuses() throws IOException {
-		persistEntities("csv/app-test", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
 		final int projectId = projectRepository.findByName("MDA").getId();
 		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
 		Assert.assertEquals(1, subscriptionStatus.size());
@@ -590,7 +590,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void getStatusByProject() throws IOException {
-		persistEntities("csv/app-test", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
 		final int projectId = projectRepository.findByName("gStack").getId();
 		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
 		Assert.assertEquals(1, subscriptionStatus.size());
@@ -603,9 +603,18 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final SubscriptionStatusWithData status = service.checkSubscriptionStatus(null);
 		Assert.assertNotNull(status);
 		Assert.assertEquals("value", status.getData().get("property"));
-		Assert.assertNull(service.getName());
+	}
+
+	@Test
+	public void servicePlugin() throws Exception {
+		JiraPluginResource service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
+		Assert.assertEquals("Jira", service.getName());
 		Assert.assertNull(service.getVendor());
 		Assert.assertNull(service.getVersion());
+		service.install(null);
+		service.uninstall(null);
+		Assert.assertTrue(service.getInstalledEntities().isEmpty());
+		Assert.assertEquals(0, service.compareTo(service));
 	}
 
 	@Test
