@@ -10,6 +10,7 @@ import org.ligoj.app.api.GroupOrg;
 import org.ligoj.app.api.UserOrg;
 import org.ligoj.app.iam.IGroupRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -47,38 +48,32 @@ public class EmptyGroupRepository implements IGroupRepository {
 
 	@Override
 	public Page<GroupOrg> findAll(Set<GroupOrg> groups, String criteria, Pageable pageable, Map<String, Comparator<GroupOrg>> customComparators) {
-		// TODO Auto-generated method stub
-		return null;
+		return new PageImpl<>(Collections.emptyList());
 	}
 
 	@Override
 	public void addAttributes(String newDn, String string, Collection<String> assistants) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void addGroup(GroupOrg groupLdap, String normalize) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void empty(GroupOrg container, Map<String, UserOrg> findAll) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void addUser(UserOrg userLdap, String id) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void removeUser(UserOrg userLdap, String id) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 }

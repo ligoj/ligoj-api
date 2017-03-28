@@ -26,7 +26,7 @@ public class EmptyUserRepository implements IUserRepository {
 	@Getter
 	@Setter
 	private ICompanyRepository companyRepository;
-	
+
 	@Override
 	public String getToken(final String login) {
 		return login;
@@ -81,67 +81,56 @@ public class EmptyUserRepository implements IUserRepository {
 
 	@Override
 	public String getPeopleInternalBaseDn() {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 
 	@Override
 	public void updateUser(UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void move(UserOrg user, CompanyOrg company) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void restore(UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void unlock(UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void isolate(String principal, UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void lock(String principal, UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void delete(UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public void updateMembership(Collection<String> groups, UserOrg user) {
-		// TODO Auto-generated method stub
-		
+		// Nothing managed here
 	}
 
 	@Override
 	public UserOrg create(UserOrg entry) {
-		// TODO Auto-generated method stub
-		return null;
+		return entry;
 	}
 
 	@Override
 	public String toDn(UserOrg newUser) {
-		// TODO Auto-generated method stub
-		return null;
+		return "";
 	}
 }

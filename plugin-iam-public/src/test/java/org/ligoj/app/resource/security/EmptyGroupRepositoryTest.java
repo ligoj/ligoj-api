@@ -1,5 +1,7 @@
 package org.ligoj.app.resource.security;
 
+import java.util.Collections;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.api.GroupOrg;
@@ -35,6 +37,36 @@ public class EmptyGroupRepositoryTest {
 		Assert.assertEquals("Cn=Some", groupLdap.getDn());
 		Assert.assertEquals("Name", groupLdap.getName());
 		Assert.assertEquals("name", groupLdap.getId());
+	}
+
+	@Test
+	public void findAllPage() {
+		Assert.assertEquals(0, new EmptyGroupRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
+	}
+
+	@Test
+	public void addAttributes() {
+		new EmptyGroupRepository().addAttributes(null, null, null);
+	}
+
+	@Test
+	public void addGroup() {
+		new EmptyGroupRepository().addGroup(null, null);
+	}
+
+	@Test
+	public void empty() {
+		new EmptyGroupRepository().empty(null, null);
+	}
+
+	@Test
+	public void addUser() {
+		new EmptyGroupRepository().addUser(null, null);
+	}
+
+	@Test
+	public void removeUser() {
+		new EmptyGroupRepository().removeUser(null, null);
 	}
 
 }

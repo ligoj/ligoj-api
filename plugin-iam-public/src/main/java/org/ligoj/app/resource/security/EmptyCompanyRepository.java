@@ -8,6 +8,7 @@ import java.util.Set;
 import org.ligoj.app.api.CompanyOrg;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 /**
@@ -37,10 +38,9 @@ public class EmptyCompanyRepository implements ICompanyRepository {
 	}
 
 	@Override
-	public Page<CompanyOrg> findAll(Set<CompanyOrg> groups, String criteria, Pageable pageable,
-			Map<String, Comparator<CompanyOrg>> customComparators) {
-		// TODO Auto-generated method stub
-		return null;
+	public Page<CompanyOrg> findAll(final Set<CompanyOrg> groups, final String criteria, final Pageable pageable,
+			final Map<String, Comparator<CompanyOrg>> customComparators) {
+		return new PageImpl<>(Collections.emptyList());
 	}
 
 }

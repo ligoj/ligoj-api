@@ -1,5 +1,7 @@
 package org.ligoj.app.resource.security;
 
+import java.util.Collections;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.api.CompanyOrg;
@@ -30,6 +32,11 @@ public class EmptyCompanyRepositoryTest {
 	@Test
 	public void getTypeName() {
 		Assert.assertEquals("company", new EmptyCompanyRepository().getTypeName());
+	}
+
+	@Test
+	public void findAllPage() {
+		Assert.assertEquals(0, new EmptyCompanyRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
 	}
 
 }
