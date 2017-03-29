@@ -6,7 +6,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.ligoj.app.api.SimpleUserOrg;
+import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.bootstrap.core.AuditedBean;
 
 /**

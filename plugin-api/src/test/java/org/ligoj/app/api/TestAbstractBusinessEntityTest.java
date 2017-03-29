@@ -1,9 +1,8 @@
 package org.ligoj.app.api;
 
 import org.junit.Test;
-
+import org.ligoj.app.iam.SimpleUser;
 import org.ligoj.bootstrap.model.AbstractBusinessEntityTest;
-import org.ligoj.app.api.SimpleUser;
 
 /**
  * Test business keyed entities basic ORM operations : hash code and equals.

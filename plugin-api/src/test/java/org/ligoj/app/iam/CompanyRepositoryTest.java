@@ -2,7 +2,6 @@ package org.ligoj.app.iam;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.CompanyOrg;
 
 /**
  * Test class of {@link ICompanyRepository}

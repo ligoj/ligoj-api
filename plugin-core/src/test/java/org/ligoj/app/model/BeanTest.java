@@ -6,7 +6,6 @@ import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.model.CacheCompany;
 import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.app.iam.model.CacheUser;
@@ -46,7 +45,6 @@ public class BeanTest {
 		ParameterType.valueOf(ParameterType.values()[0].name());
 		ReceiverType.valueOf(ReceiverType.values()[0].name());
 		DelegateType.valueOf(DelegateType.values()[0].name());
-		SubscriptionMode.valueOf(SubscriptionMode.values()[0].name());
 		EventType.valueOf(EventType.values()[0].name());
 		ContainerType.valueOf(ContainerType.values()[0].name()).getDelegateType();
 	}

@@ -28,10 +28,10 @@ import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ligoj.app.api.SimpleUserOrg;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;

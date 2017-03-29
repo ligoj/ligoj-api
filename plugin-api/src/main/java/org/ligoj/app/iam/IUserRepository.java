@@ -6,9 +6,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import org.ligoj.app.api.CompanyOrg;
-import org.ligoj.app.api.GroupOrg;
-import org.ligoj.app.api.UserOrg;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.data.domain.Page;

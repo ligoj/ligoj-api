@@ -3,9 +3,6 @@ package org.ligoj.app.iam;
 import java.util.Collection;
 import java.util.Map;
 
-import org.ligoj.app.api.GroupOrg;
-import org.ligoj.app.api.UserOrg;
-
 /**
  * Group repository
  */

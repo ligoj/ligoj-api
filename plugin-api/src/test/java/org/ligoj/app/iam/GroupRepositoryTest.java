@@ -4,7 +4,6 @@ import java.util.Collections;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.GroupOrg;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 /**

@@ -2,7 +2,7 @@ package org.ligoj.app.api;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.ContainerOrg;
+import org.ligoj.app.iam.ContainerOrg;
 
 /**
  * Test class of {@link ContainerOrg}

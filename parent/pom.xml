@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
@@ -17,12 +18,33 @@
 	<description>API Parent pom for all plugin components</description>
 
 	<properties>
-			<api.version>1.0.1-SNAPSHOT</api.version>
+		<api.version>1.0.1-SNAPSHOT</api.version>
 	</properties>
 
-	<scm> 
+	<scm>
 		<connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
 		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
 		<url>https://github.com/ligoj/ligoj-api.git</url>
 	</scm>
+
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>make-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<descriptorRef>jar-with-dependencies</descriptorRef>
+					<appendAssemblyId>false</appendAssemblyId>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
