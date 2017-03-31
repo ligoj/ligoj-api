@@ -73,7 +73,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Object[]> findAllWithValuesSecure();
 
 	/**
-	 * Return nodes with given refined node
+	 * Return visible nodes having given refined node.
 	 * 
 	 * @param parent
 	 *            Optional parent node identifier.
@@ -81,7 +81,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            Expected mode. When <code>null</code>, the node's mode is not checked.
 	 * @param user
 	 *            The user requesting the nodes.
-	 * @return Nodes with given refined node
+	 * @return Visible nodes with given refined node
 	 */
 	@Query("FROM Node n WHERE (n.refined.id = :parent OR (:parent IS NULL AND n.refined IS NULL))                                             "
 			+ " AND (:mode IS NULL OR (n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE))                                 "
