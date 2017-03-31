@@ -81,6 +81,8 @@ public class DelegateOrgResource {
 
 	/**
 	 * Converter from {@link DelegateOrg} to {@link DelegateOrgLightVo}
+	 * @param entity The entity to convert.
+	 * @return The initialized bean corresponding to the entity with fetched description for related user and group.
 	 */
 	public DelegateOrgLightVo toVo(final DelegateOrg entity) {
 		final DelegateOrgLightVo vo = new DelegateOrgLightVo();
