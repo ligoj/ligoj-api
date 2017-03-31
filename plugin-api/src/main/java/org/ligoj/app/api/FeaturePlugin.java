@@ -25,7 +25,7 @@ public interface FeaturePlugin extends Comparable<FeaturePlugin> {
 	/**
 	 * Return the plug-in version.
 	 * 
-	 * @return the plug-in version. Should follow the <a href="http://semver.org/">semantic versioning</a>
+	 * @return the plug-in version. Should follow the <a href="http://semver.org/">semantic version management</a>
 	 */
 	default String getVersion() {
 		return getClass().getPackage().getImplementationVersion();
@@ -82,5 +82,15 @@ public interface FeaturePlugin extends Comparable<FeaturePlugin> {
 	 */
 	default List<Class<?>> getInstalledEntities() {
 		return Collections.emptyList();
+	}
+
+	/**
+	 * Callback used to update some data when the plug-in is being updated from the given version.
+	 * 
+	 * @param odlVersion
+	 *            The previously installed version.
+	 */
+	default void update(final String odlVersion) {
+		// Nothing to do
 	}
 }

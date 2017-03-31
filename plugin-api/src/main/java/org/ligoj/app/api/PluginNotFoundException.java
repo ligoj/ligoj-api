@@ -3,20 +3,15 @@ package org.ligoj.app.api;
 import lombok.Getter;
 
 /**
- * An exception of plug-in management.
+ * An exception of a not found plug-in.
  */
 @Getter
-public class PluginNotFoundException extends RuntimeException {
+public class PluginNotFoundException extends PluginException {
 
 	/**
 	 * SID
 	 */
 	private static final long serialVersionUID = 1L;
-
-	/**
-	 * The requested plug-in of node identifier.
-	 */
-	private final String plugin;
 
 	/**
 	 * All arguments constructor.
@@ -25,7 +20,6 @@ public class PluginNotFoundException extends RuntimeException {
 	 *            The requested plug-in of node identifier.
 	 */
 	public PluginNotFoundException(final String plugin) {
-		super("No plugin found for " + plugin);
-		this.plugin = plugin;
+		super(plugin, "No plugin found for " + plugin);
 	}
 }
