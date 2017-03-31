@@ -18,7 +18,7 @@
 		<dependencies>
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
-				<artifactId>plugin-iam-public</artifactId>
+				<artifactId>plugin-iam-empty</artifactId>
 				<version>${api.version}</version>
 			</dependency>
 		</dependencies>
@@ -39,7 +39,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ligoj.api</groupId>
-			<artifactId>plugin-iam-public</artifactId>
+			<artifactId>plugin-iam-empty</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.github.tomakehurst</groupId>

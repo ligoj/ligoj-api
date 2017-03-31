@@ -73,7 +73,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Object[]> findAllWithValuesSecure();
 
 	/**
-	 * Return nodes with given refined node
+	 * Return visible nodes having given refined node.
 	 * 
 	 * @param parent
 	 *            Optional parent node identifier.
@@ -81,7 +81,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            Expected mode. When <code>null</code>, the node's mode is not checked.
 	 * @param user
 	 *            The user requesting the nodes.
-	 * @return Nodes with given refined node
+	 * @return Visible nodes with given refined node
 	 */
 	@Query("FROM Node n WHERE (n.refined.id = :parent OR (:parent IS NULL AND n.refined IS NULL))                                             "
 			+ " AND (:mode IS NULL OR (n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE))                                 "
@@ -89,7 +89,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Node> findAllByParent(String parent, SubscriptionMode mode, String user);
 
 	/**
-	 * Return final nodes : associated to a tool
+	 * Return final nodes, so representing a node (running instance) of a tool.
 	 * 
 	 * @return instance nodes considered as final .
 	 */
@@ -97,7 +97,17 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Node> findAllInstance();
 
 	/**
-	 * Return final nodes associated to a tool and visible for a given user.
+	 * Return final nodes, so representing a node (running instance) of a tool implementing the given service.
+	 * 
+	 * @param service
+	 *            The expected service.
+	 * @return Instance nodes considered as final implementing a given service.
+	 */
+	@Query("FROM Node WHERE refined.refined.id = :service")
+	List<Node> findAllInstanceByService(String service);
+
+	/**
+	 * Return final nodes, so representing a node (running instance) of a tool and visible for a given user.
 	 * 
 	 * @param user
 	 *            The user requesting the nodes.

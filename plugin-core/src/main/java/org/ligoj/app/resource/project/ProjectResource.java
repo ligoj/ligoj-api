@@ -20,10 +20,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.StringUtils;
-import org.ligoj.app.api.UserOrg;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.node.EventVo;

@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.ligoj.app.api.NodeStatus;
-import org.ligoj.app.api.UserOrg;
+import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;

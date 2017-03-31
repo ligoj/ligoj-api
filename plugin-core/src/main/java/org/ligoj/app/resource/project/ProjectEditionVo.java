@@ -5,11 +5,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-
+import org.ligoj.app.iam.SimpleUser;
+import org.ligoj.app.iam.UserOrg;
 import org.ligoj.bootstrap.core.DescribedAuditedBean;
 import org.ligoj.bootstrap.core.validation.LowerCase;
-import org.ligoj.app.api.SimpleUser;
-import org.ligoj.app.api.UserOrg;
 
 import lombok.Getter;
 import lombok.Setter;

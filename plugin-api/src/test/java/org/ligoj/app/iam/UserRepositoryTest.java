@@ -2,7 +2,6 @@ package org.ligoj.app.iam;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.api.CompanyOrg;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 

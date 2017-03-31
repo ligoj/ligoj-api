@@ -19,7 +19,7 @@
 		<module>plugin-api</module>
 		<module>plugin-core</module>
 		<module>plugin-api-test</module>
-		<module>plugin-iam-public</module>
+		<module>plugin-iam-empty</module>
 		<module>plugin-parent</module>
 	</modules>
 </project>

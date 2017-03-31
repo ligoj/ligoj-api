@@ -5,7 +5,8 @@ import java.util.Map;
 import org.ligoj.bootstrap.core.AuditedBean;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
-import org.ligoj.app.api.SimpleUser;
+import org.ligoj.app.iam.SimpleUser;
+
 import lombok.Getter;
 import lombok.Setter;
 

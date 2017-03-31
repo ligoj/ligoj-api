@@ -6,9 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ligoj.app.api.CompanyOrg;
-import org.ligoj.app.api.GroupOrg;
-import org.ligoj.app.api.UserOrg;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;

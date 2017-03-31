@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.NamedAuditedBean;
-import org.ligoj.app.api.SimpleUserOrg;
+import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.iam.model.ReceiverType;
 
