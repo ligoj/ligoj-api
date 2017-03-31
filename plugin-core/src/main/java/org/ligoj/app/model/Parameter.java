@@ -32,6 +32,7 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	 */
 	@NotNull
 	@Enumerated(EnumType.STRING)
+	@Column(length = 10)
 	private ParameterType type;
 
 	/**
