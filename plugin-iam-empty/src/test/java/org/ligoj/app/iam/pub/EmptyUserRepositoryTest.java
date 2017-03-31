@@ -3,8 +3,8 @@ package org.ligoj.app.iam.pub;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.iam.UserOrg;
-import org.ligoj.app.iam.pub.EmptyIamProvider;
-import org.ligoj.app.iam.pub.EmptyUserRepository;
+import org.ligoj.app.iam.empty.EmptyIamProvider;
+import org.ligoj.app.iam.empty.EmptyUserRepository;
 
 /**
  * Test class of {@link EmptyUserRepository}

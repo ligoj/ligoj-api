@@ -3,7 +3,7 @@ package org.ligoj.app.iam.pub;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.iam.IamConfiguration;
-import org.ligoj.app.iam.pub.EmptyIamProvider;
+import org.ligoj.app.iam.empty.EmptyIamProvider;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 import org.springframework.security.core.Authentication;

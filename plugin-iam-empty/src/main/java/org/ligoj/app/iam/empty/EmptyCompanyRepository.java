@@ -1,4 +1,4 @@
-package org.ligoj.app.iam.pub;
+package org.ligoj.app.iam.empty;
 
 import java.util.Collections;
 import java.util.Comparator;

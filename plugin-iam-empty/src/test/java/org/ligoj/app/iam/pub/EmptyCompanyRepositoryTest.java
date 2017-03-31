@@ -5,7 +5,7 @@ import java.util.Collections;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.iam.CompanyOrg;
-import org.ligoj.app.iam.pub.EmptyCompanyRepository;
+import org.ligoj.app.iam.empty.EmptyCompanyRepository;
 
 /**
  * Test class of {@link EmptyCompanyRepository}
