@@ -104,23 +104,6 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * A checker configuration to check a value against the contract of the parameter.
-	 */
-	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
-	{
-		typeToChecker.put(ParameterType.BINARY, (b, p) -> ValidationJsonException.assertNotnull(b.getBinary(), p.getId()));
-		typeToChecker.put(ParameterType.DATE, (b, p) -> {
-			ValidationJsonException.assertNotnull(b.getDate(), p.getId());
-			ValidationJsonException.assertTrue(b.getDate().getTime() > 0, p.getId());
-		});
-		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
-		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
-		typeToChecker.put(ParameterType.MULTIPLE, this::checkMultiple);
-		typeToChecker.put(ParameterType.TAGS, (b, p) -> checkTags(b));
-		typeToChecker.put(ParameterType.TEXT, this::checkText);
-	}
-
-	/**
 	 * Standard mapper used to read parameter configurations.
 	 */
 	private static final ObjectMapper MAPPER = new ObjectMapper();
@@ -161,6 +144,23 @@ public class ParameterValueResource {
 		// Copy related beans
 		vo.setOwner(NodeResource.toVo(entity.getOwner()));
 		return vo;
+	}
+
+	/**
+	 * A checker configuration to check a value against the contract of the parameter.
+	 */
+	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
+	{
+		typeToChecker.put(ParameterType.BINARY, (b, p) -> ValidationJsonException.assertNotnull(b.getBinary(), p.getId()));
+		typeToChecker.put(ParameterType.DATE, (b, p) -> {
+			ValidationJsonException.assertNotnull(b.getDate(), p.getId());
+			ValidationJsonException.assertTrue(b.getDate().getTime() > 0, p.getId());
+		});
+		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
+		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
+		typeToChecker.put(ParameterType.MULTIPLE, this::checkMultiple);
+		typeToChecker.put(ParameterType.TAGS, (b, p) -> checkTags(b));
+		typeToChecker.put(ParameterType.TEXT, this::checkText);
 	}
 
 	/**
