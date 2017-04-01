@@ -59,13 +59,6 @@ public interface FeaturePlugin extends Comparable<FeaturePlugin> {
 		// Nothing to do
 	}
 
-	/**
-	 * Callback used to persist some additional when the plug-in is being installed.
-	 */
-	default void uninstall() {
-		// Nothing to do
-	}
-
 	@Override
 	default int compareTo(final FeaturePlugin o) {
 		// Compare the plug-in by their key
