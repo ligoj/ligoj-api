@@ -71,6 +71,21 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	}
 
 	/**
+	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
+	 * 
+	 * @param project
+	 *            The project name of the subscription to return.
+	 * @param The
+	 *            subscribed service of the project. May be a service or a tool or an instance. <code>LIKE</code> is
+	 *            used.
+	 * @return The subscription identifier.
+	 */
+	protected int getSubscription(final String project, final String service) {
+		return em.createQuery("SELECT id FROM Subscription WHERE project.name = ?1 AND node.id LIKE CONCAT(?2,'%')", Integer.class)
+				.setParameter(1, project).setParameter(2, service).getSingleResult();
+	}
+
+	/**
 	 * Restore original Spring application context.<br>
 	 * TODO Remove this with LB 1.6.1, see ligoj/bootstrap#4
 	 */

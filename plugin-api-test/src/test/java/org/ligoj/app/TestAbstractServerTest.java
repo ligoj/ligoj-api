@@ -11,8 +11,6 @@ import org.junit.Test;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 
-import org.ligoj.app.resource.AbstractServerTest;
-
 /**
  * Test class of {@link AbstractServerTest}
  */

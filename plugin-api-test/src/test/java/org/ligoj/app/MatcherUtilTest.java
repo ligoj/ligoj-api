@@ -16,10 +16,9 @@ import org.hamcrest.Description;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
-
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 /**
  * Test class of {@link MatcherUtil}

@@ -1,8 +1,7 @@
-package org.ligoj.app.resource;
+package org.ligoj.app;
 
 import org.junit.After;
 import org.junit.Before;
-import org.ligoj.app.AbstractAppTest;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 
