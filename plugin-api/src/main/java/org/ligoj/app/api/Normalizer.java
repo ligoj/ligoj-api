@@ -1,5 +1,6 @@
 package org.ligoj.app.api;
 
+import java.text.Normalizer.Form;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Locale;
@@ -45,14 +46,15 @@ public final class Normalizer {
 	}
 
 	/**
-	 * Normalize and trim a string.
+	 * Normalize and trim a string. Lower case, and without diacritical marks.
 	 * 
 	 * @param item
 	 *            The human readable string. A DN or any LDAP attribute.
 	 * @return the normalized and trimmed item.
 	 */
 	public static String normalize(@NotNull final String item) {
-		return StringUtils.trimToEmpty(item).toLowerCase(Locale.ENGLISH);
+		return java.text.Normalizer.normalize(StringUtils.trimToEmpty(item), Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
+				.toLowerCase(Locale.ENGLISH);
 	}
 
 }

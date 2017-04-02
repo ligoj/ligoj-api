@@ -2,13 +2,11 @@ package org.ligoj.app.resource;
 
 import java.text.FieldPosition;
 import java.text.Format;
-import java.text.Normalizer;
-import java.text.Normalizer.Form;
 import java.text.ParsePosition;
 import java.util.Locale;
 
 /**
- * Normalizer format
+ * Normalizer format to upper case and without diacritical marks.
  */
 public class NormalizeFormat extends Format {
 
@@ -19,8 +17,7 @@ public class NormalizeFormat extends Format {
 
 	@Override
 	public StringBuffer format(final Object obj, final StringBuffer toAppendTo, final FieldPosition pos) {
-		toAppendTo.append(Normalizer.normalize(obj.toString(), Form.NFD).replaceAll("\\p{InCombiningDiacriticalMarks}+", "")
-				.toUpperCase(Locale.ENGLISH));
+		toAppendTo.append(org.ligoj.app.api.Normalizer.normalize(obj.toString()).toUpperCase(Locale.ENGLISH));
 		return toAppendTo;
 	}
 

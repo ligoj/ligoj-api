@@ -40,6 +40,12 @@ public class NormalizerTest {
 	}
 
 	@Test
+	public void normalizDiacritic() {
+		Assert.assertEquals("c", Normalizer.normalize("ç"));
+		Assert.assertEquals("aaiconeeeuuaaiconeeeuu", Normalizer.normalize("àâîçôñéêèûùÂÀÎÇÔÑÊÉÈÛÙ"));
+	}
+
+	@Test
 	public void testCoverage()
 			throws SecurityException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		coverageSingleton(Normalizer.class);
