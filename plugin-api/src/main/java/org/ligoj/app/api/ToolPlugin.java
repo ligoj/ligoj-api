@@ -14,7 +14,10 @@ public interface ToolPlugin extends ServicePlugin {
 	 *            the associated parameter values
 	 * @return the String value of the detected version of the tool or <code>null</code> if not available/found.
 	 */
-	String getVersion(Map<String, String> parameters) throws Exception;  // NOSONAR
+	default String getVersion(Map<String, String> parameters) throws Exception { // NOSONAR
+		// Not implemented, offline, or private tool
+		return null;
+	}
 
 	/**
 	 * Return the last available version of this tool.
@@ -23,7 +26,10 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @throws Exception
 	 *             When the version failed to be read, will also be considered as a <code>null</code> version.
 	 */
-	String getLastVersion() throws Exception; // NOSONAR
+	default String getLastVersion() throws Exception { // NOSONAR
+		// Not implemented, offline, or private tool
+		return null;
+	}
 
 	/**
 	 * Check the status of given node.
@@ -34,7 +40,7 @@ public interface ToolPlugin extends ServicePlugin {
 	 *            the parameter values of the node.
 	 * @return <code>true</code> when the status is UP.
 	 */
-	boolean checkStatus(String node, Map<String, String> parameters) throws Exception;  // NOSONAR
+	boolean checkStatus(String node, Map<String, String> parameters) throws Exception; // NOSONAR
 
 	/**
 	 * Check the status of node having the given configuration. In these case, the node is anonymous.
