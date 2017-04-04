@@ -17,6 +17,8 @@ public class BeanTest {
 		SubscriptionMode.valueOf(SubscriptionMode.values()[0].name());
 		Assert.assertTrue(NodeStatus.valueOf(NodeStatus.values()[0].name()).isUp());
 		Assert.assertFalse(NodeStatus.valueOf(NodeStatus.values()[1].name()).isUp());
+		Assert.assertFalse(NodeStatus.getValue(false).isUp());
+		Assert.assertTrue(NodeStatus.getValue(true).isUp());
 	}
 
 	@Test
