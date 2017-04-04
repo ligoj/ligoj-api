@@ -15,7 +15,8 @@ public class BeanTest {
 	@Test
 	public void testEnum() {
 		SubscriptionMode.valueOf(SubscriptionMode.values()[0].name());
-		NodeStatus.valueOf(NodeStatus.values()[0].name());
+		Assert.assertTrue(NodeStatus.valueOf(NodeStatus.values()[0].name()).isUp());
+		Assert.assertFalse(NodeStatus.valueOf(NodeStatus.values()[1].name()).isUp());
 	}
 
 	@Test
