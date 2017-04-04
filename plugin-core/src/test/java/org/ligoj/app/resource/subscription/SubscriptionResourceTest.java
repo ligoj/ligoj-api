@@ -603,7 +603,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		Assert.assertEquals("Jira", service.getName());
 		Assert.assertNull(service.getVendor());
 		Assert.assertNull(service.getVersion());
-		Assert.assertTrue(service.getInstalledEntities().isEmpty());
 		Assert.assertEquals(0, service.compareTo(service));
 	}
 

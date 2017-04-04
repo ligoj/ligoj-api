@@ -1,5 +1,8 @@
 package org.ligoj.app.resource.plugin;
 
+import java.util.Arrays;
+import java.util.List;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -8,12 +11,13 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 import javax.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.beans.factory.annotation.Autowired;
-
 import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.SubscriptionRepository;
+import org.ligoj.app.model.Node;
+import org.ligoj.app.model.Parameter;
 import org.ligoj.app.resource.node.NodeResource;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * Basic implementation of a tool plug-in.
@@ -28,11 +32,6 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 
 	@Autowired
 	protected SubscriptionRepository subscriptionRepository;
-
-	@Override
-	public void delete(final int subscription, final boolean deleteRemoteData) throws Exception {
-		// Nothing to do
-	}
 
 	/**
 	 * Return the version of tool or <code>null</code> if not available/found.
@@ -64,6 +63,11 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 	 */
 	public static ResponseBuilder download(final StreamingOutput output, final String file) {
 		return Response.ok().header("Content-Disposition", "attachment; filename=" + file + ";").entity(output);
+	}
+
+	@Override
+	public List<Class<?>> getInstalledEntities() {
+		return Arrays.asList(Node.class, Parameter.class);
 	}
 
 }

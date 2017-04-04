@@ -11,7 +11,10 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionStatusWithData;
+import org.ligoj.app.model.Node;
+import org.ligoj.app.model.Parameter;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.mockito.Mockito;
 import org.w3c.dom.NodeList;
@@ -34,11 +37,6 @@ public class TestAbstractXmlApiToolPluginResource {
 			}
 
 			@Override
-			public String getLastVersion() throws Exception {
-				return null;
-			}
-
-			@Override
 			public boolean checkStatus(String node, Map<String, String> parameters) throws Exception {
 				return false;
 			}
@@ -46,11 +44,6 @@ public class TestAbstractXmlApiToolPluginResource {
 			@Override
 			public SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception {
 				return null;
-			}
-
-			@Override
-			public void link(int subscription) throws Exception {
-				// Nothing to do
 			}
 
 			@Override
@@ -98,6 +91,34 @@ public class TestAbstractXmlApiToolPluginResource {
 	@Test
 	public void download() throws Exception {
 		Assert.assertNotNull(AbstractToolPluginResource.download(Mockito.mock(StreamingOutput.class), "file"));
+	}
+
+	@Test
+	public void getInstalledEntities() {
+		Assert.assertTrue(resource.getInstalledEntities().contains(Node.class));
+		Assert.assertTrue(resource.getInstalledEntities().contains(Parameter.class));
+	}
+
+	@Test
+	public void getInstalledEntitiesDefaultService() {
+		Assert.assertTrue(new AbstractServicePlugin() {
+
+			@Override
+			public String getKey() {
+				return "key";
+			}
+		}.getInstalledEntities().contains(Node.class));
+	}
+
+	@Test
+	public void getInstalledEntitiesService() {
+		Assert.assertTrue(new ServicePlugin() {
+
+			@Override
+			public String getKey() {
+				return "key";
+			}
+		}.getInstalledEntities().isEmpty());
 	}
 
 }
