@@ -20,6 +20,6 @@ public class PluginNotFoundException extends PluginException {
 	 *            The requested plug-in of node identifier.
 	 */
 	public PluginNotFoundException(final String plugin) {
-		super(plugin, "No plugin found for " + plugin);
+		super(plugin, "Not found");
 	}
 }

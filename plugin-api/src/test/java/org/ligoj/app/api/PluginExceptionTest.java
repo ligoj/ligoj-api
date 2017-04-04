@@ -12,14 +12,14 @@ public class PluginExceptionTest {
 	public void getPlugin() {
 		PluginException exception = new PluginException("some", "message");
 		Assert.assertEquals("some", exception.getPlugin());
-		Assert.assertEquals("message", exception.getMessage());
+		Assert.assertEquals("Plugin issue for some:message", exception.getMessage());
 	}
 
 	@Test
 	public void getPluginNotFound() {
 		PluginException exception = new PluginNotFoundException("some");
 		Assert.assertEquals("some", exception.getPlugin());
-		Assert.assertEquals("No plugin found for some", exception.getMessage());
+		Assert.assertEquals("Plugin issue for some:Not found", exception.getMessage());
 	}
 	
 }
