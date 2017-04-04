@@ -15,15 +15,17 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmptyIamProviderTest {
 
+	private EmptyIamProvider provider = new EmptyIamProvider();
+
 	@Test
-	public void authenticate() throws Exception {
+	public void authenticate() {
 		final Authentication mock = Mockito.mock(Authentication.class);
-		Assert.assertSame(mock, new EmptyIamProvider().authenticate(mock));
+		Assert.assertSame(mock, provider.authenticate(mock));
 	}
 
 	@Test
-	public void getConfiguration() throws Exception {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+	public void getConfiguration() {
+		final IamConfiguration configuration = provider.getConfiguration();
 		Assert.assertNotNull(configuration);
 		Assert.assertNotNull(configuration.getCompanyRepository());
 		Assert.assertNotNull(configuration.getUserRepository());
@@ -32,8 +34,8 @@ public class EmptyIamProviderTest {
 	}
 
 	@Test
-	public void getConfigurationFindById() throws Exception {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+	public void getConfigurationFindById() {
+		final IamConfiguration configuration = provider.getConfiguration();
 		Assert.assertEquals("any", configuration.getUserRepository().findById("any").getId());
 		Assert.assertNull(configuration.getGroupRepository().findById("any"));
 		Assert.assertNull(configuration.getCompanyRepository().findById("any"));
@@ -41,18 +43,23 @@ public class EmptyIamProviderTest {
 	}
 
 	@Test
-	public void getConfigurationFindByIdExpected() throws Exception {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+	public void getConfigurationFindByIdExpected() {
+		final IamConfiguration configuration = provider.getConfiguration();
 		Assert.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
 	}
 
 	@Test(expected = ValidationJsonException.class)
-	public void getConfigurationFindByIdDefault() throws Exception {
+	public void getConfigurationFindByIdDefault() {
 		Assert.assertNotNull(new MockUserRepository().findByIdExpected("some"));
 	}
 
 	@Test
-	public void getConfigurationFindOneByDefault() throws Exception {
+	public void getConfigurationFindOneByDefault() {
 		Assert.assertNotNull(new MockUserRepository().findOneBy("attribute1", "value1"));
+	}
+
+	@Test
+	public void getKey() {
+		Assert.assertEquals("feature:iam:empty", provider.getKey());
 	}
 }

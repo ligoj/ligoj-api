@@ -18,28 +18,42 @@ public class ToolPluginTest {
 		}
 
 		@Override
-		public String getVersion(Map<String, String> parameters) throws Exception {
-			return "2.0.0";
-		}
-
-		@Override
-		public String getLastVersion() throws Exception {
-			return "1.0.0";
-		}
-
-		@Override
 		public boolean checkStatus(String node, Map<String, String> parameters) throws Exception {
 			return true;
 		}
 
 		@Override
 		public SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception {
-			return new SubscriptionStatusWithData();
+			final SubscriptionStatusWithData data = new SubscriptionStatusWithData(true);
+			data.put("some", "value");
+			return data;
 		}
 	};
-	
+
 	@Test
-	public void testCheckStatus() throws Exception {
-		Assert.assertTrue(plugin.checkStatus(null,null));
+	public void checkStatus() throws Exception {
+		Assert.assertTrue(plugin.checkStatus(null));
+	}
+
+	@Test
+	public void checkStatusNode() throws Exception {
+		Assert.assertTrue(plugin.checkStatus(null, null));
+	}
+
+	@Test
+	public void checkSubscriptionStatus() throws Exception {
+		final SubscriptionStatusWithData data = plugin.checkSubscriptionStatus(null);
+		Assert.assertNotNull(data.getStatus().isUp());
+		Assert.assertEquals("value", data.getData().get("some"));
+	}
+
+	@Test
+	public void getLastVersion() throws Exception {
+		Assert.assertNull(plugin.getLastVersion());
+	}
+
+	@Test
+	public void getVersion() throws Exception {
+		Assert.assertNull(plugin.getVersion(null));
 	}
 }

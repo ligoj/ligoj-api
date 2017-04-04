@@ -32,8 +32,20 @@ public class FeaturePluginTest {
 	}
 
 	@Test
-	public void getInstalledEntities() throws Exception {
+	public void getInstalledEntities() {
 		Assert.assertTrue(plugin.getInstalledEntities().isEmpty());
+	}
+
+	@Test
+	public void install() throws Exception {
+		// Nothing done there
+		plugin.install();
+	}
+
+	@Test
+	public void update() {
+		// Nothing done there
+		plugin.update("any");
 	}
 
 	@Test
