@@ -109,6 +109,27 @@ public class ParameterValueResource {
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
+	 * A checker configuration to check a value against the contract of the parameter.
+	 */
+	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
+
+	/**
+	 * Default constructor initializing the type mappings.
+	 */
+	public ParameterValueResource() {
+		typeToChecker.put(ParameterType.BINARY, (b, p) -> ValidationJsonException.assertNotnull(b.getBinary(), p.getId()));
+		typeToChecker.put(ParameterType.DATE, (b, p) -> {
+			ValidationJsonException.assertNotnull(b.getDate(), p.getId());
+			ValidationJsonException.assertTrue(b.getDate().getTime() > 0, p.getId());
+		});
+		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
+		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
+		typeToChecker.put(ParameterType.MULTIPLE, this::checkMultiple);
+		typeToChecker.put(ParameterType.TAGS, (b, p) -> checkTags(b));
+		typeToChecker.put(ParameterType.TEXT, this::checkText);
+	}
+
+	/**
 	 * Build parameter configuration from the string definition.
 	 */
 	private static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
@@ -144,23 +165,6 @@ public class ParameterValueResource {
 		// Copy related beans
 		vo.setOwner(NodeResource.toVo(entity.getOwner()));
 		return vo;
-	}
-
-	/**
-	 * A checker configuration to check a value against the contract of the parameter.
-	 */
-	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
-	{
-		typeToChecker.put(ParameterType.BINARY, (b, p) -> ValidationJsonException.assertNotnull(b.getBinary(), p.getId()));
-		typeToChecker.put(ParameterType.DATE, (b, p) -> {
-			ValidationJsonException.assertNotnull(b.getDate(), p.getId());
-			ValidationJsonException.assertTrue(b.getDate().getTime() > 0, p.getId());
-		});
-		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
-		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
-		typeToChecker.put(ParameterType.MULTIPLE, this::checkMultiple);
-		typeToChecker.put(ParameterType.TAGS, (b, p) -> checkTags(b));
-		typeToChecker.put(ParameterType.TEXT, this::checkText);
 	}
 
 	/**
