@@ -26,25 +26,4 @@
 		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
 		<url>https://github.com/ligoj/ligoj-api.git</url>
 	</scm>
-
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>make-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-					</execution>
-				</executions>
-				<configuration>
-					<descriptorRef>jar-with-dependencies</descriptorRef>
-					<appendAssemblyId>false</appendAssemblyId>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 </project>
