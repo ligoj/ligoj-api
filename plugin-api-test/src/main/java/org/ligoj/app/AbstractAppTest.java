@@ -82,7 +82,7 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	 */
 	protected int getSubscription(final String project, final String service) {
 		return em.createQuery("SELECT id FROM Subscription WHERE project.name = ?1 AND node.id LIKE CONCAT(?2,'%')", Integer.class)
-				.setParameter(1, project).setParameter(2, service).getSingleResult();
+				.setParameter(1, project).setParameter(2, service).setMaxResults(1).getSingleResult();
 	}
 
 	/**
