@@ -11,7 +11,7 @@
 
 	<artifactId>plugin-iam-empty</artifactId>
 	<packaging>jar</packaging>
-	<name>Ligoj - Plugin IAM Void</name>
+	<name>Ligoj - Plugin IAM Empty</name>
 	<description>Basic plugin for IAM for test usage only, read only empty IAM repository. No persistent data.</description>
 
 	<dependencies>
