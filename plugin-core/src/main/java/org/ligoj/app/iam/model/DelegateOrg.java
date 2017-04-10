@@ -1,6 +1,8 @@
 package org.ligoj.app.iam.model;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -41,6 +43,7 @@ public class DelegateOrg extends AbstractDelegate {
 	 * The delegate type.
 	 */
 	@NotNull
+	@Enumerated(EnumType.STRING)
 	private DelegateType type;
 
 }
