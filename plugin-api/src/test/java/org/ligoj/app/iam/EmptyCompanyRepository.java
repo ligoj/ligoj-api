@@ -37,7 +37,6 @@ public class EmptyCompanyRepository implements ICompanyRepository {
 	@Override
 	public Page<CompanyOrg> findAll(Set<CompanyOrg> groups, String criteria, Pageable pageable,
 			Map<String, Comparator<CompanyOrg>> customComparators) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 

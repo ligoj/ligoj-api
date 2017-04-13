@@ -44,38 +44,32 @@ public class EmptyGroupRepository implements IGroupRepository {
 
 	@Override
 	public Page<GroupOrg> findAll(Set<GroupOrg> groups, String criteria, Pageable pageable, Map<String, Comparator<GroupOrg>> customComparators) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void addAttributes(String newDn, String string, Collection<String> assistants) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void addGroup(GroupOrg groupLdap, String normalize) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void empty(GroupOrg container, Map<String, UserOrg> findAll) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void addUser(UserOrg userLdap, String id) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 	@Override
 	public void removeUser(UserOrg userLdap, String id) {
-		// TODO Auto-generated method stub
-		
+		// Nothing to do
 	}
 
 }
