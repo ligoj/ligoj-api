@@ -410,7 +410,7 @@ public class NodeResource {
 				final Map<String, String> parameters = new HashMap<>(nodeParameters);
 				parameters.putAll(subscription.getValue());
 				eventResource.registerEvent(subscription.getKey(), EventType.STATUS,
-						thisProxy.checkSubscriptionStatus(node.getId(), parameters).getStatus().name());
+						thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus().name());
 			} else {
 				// node is down -> subscription is down too
 				eventResource.registerEvent(subscription.getKey(), EventType.STATUS, NodeStatus.DOWN.name());
@@ -424,13 +424,14 @@ public class NodeResource {
 	/**
 	 * Check status for a subscription.
 	 * 
-	 * @param node
-	 *            Node identifier.
+	 * @param subscription
+	 *            Subscription entity.
 	 * @param parameters
 	 *            Parameters of a subscription.
 	 * @return status of given subscription.
 	 */
-	public SubscriptionStatusWithData checkSubscriptionStatus(final String node, final Map<String, String> parameters) {
+	public SubscriptionStatusWithData checkSubscriptionStatus(final Subscription subscription, final Map<String, String> parameters) {
+		final String node = subscription.getNode().getId();
 		try {
 			log.info("Check status of a subscription attached to {}...", node);
 
@@ -438,7 +439,7 @@ public class NodeResource {
 			final ToolPlugin toolPlugin = servicePluginLocator.getResourceExpected(node, ToolPlugin.class);
 
 			// Call service which check status
-			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(parameters);
+			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(node, parameters);
 			status.setNode(node);
 			log.info("Check status of a subscription attached to {} succeed", node);
 			return status;

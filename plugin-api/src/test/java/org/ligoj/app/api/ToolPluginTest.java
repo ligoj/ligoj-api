@@ -1,7 +1,5 @@
 package org.ligoj.app.api;
 
-import java.util.Map;
-
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -17,17 +15,6 @@ public class ToolPluginTest {
 			return "service:s1:t2";
 		}
 
-		@Override
-		public boolean checkStatus(String node, Map<String, String> parameters) throws Exception {
-			return true;
-		}
-
-		@Override
-		public SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception {
-			final SubscriptionStatusWithData data = new SubscriptionStatusWithData(true);
-			data.put("some", "value");
-			return data;
-		}
 	};
 
 	@Test
@@ -42,9 +29,9 @@ public class ToolPluginTest {
 
 	@Test
 	public void checkSubscriptionStatus() throws Exception {
-		final SubscriptionStatusWithData data = plugin.checkSubscriptionStatus(null);
+		final SubscriptionStatusWithData data = plugin.checkSubscriptionStatus(0, null, null);
 		Assert.assertNotNull(data.getStatus().isUp());
-		Assert.assertEquals("value", data.getData().get("some"));
+		Assert.assertTrue(data.getData().isEmpty());
 	}
 
 	@Test

@@ -64,7 +64,7 @@ public class ProjectResource {
 	private SubscriptionResource subscriptionResource;
 
 	@Autowired
-	protected IamProvider iamProvider;
+	protected IamProvider[] iamProvider;
 
 	/**
 	 * Ordered columns.
@@ -104,7 +104,7 @@ public class ProjectResource {
 	}
 
 	private Function<String, ? extends UserOrg> toUser() {
-		return iamProvider.getConfiguration().getUserRepository()::toUser;
+		return iamProvider[0].getConfiguration().getUserRepository()::toUser;
 	}
 
 	/**

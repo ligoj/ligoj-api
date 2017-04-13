@@ -32,6 +32,17 @@ public interface ToolPlugin extends ServicePlugin {
 	}
 
 	/**
+	 * Check the status of node having the given configuration. In these case, the node is anonymous.
+	 * 
+	 * @param parameters
+	 *            the parameter values of the node.
+	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
+	 */
+	default boolean checkStatus(final Map<String, String> parameters) throws Exception { // NOSONAR
+		return true;
+	}
+
+	/**
 	 * Check the status of given node.
 	 * 
 	 * @param node
@@ -39,18 +50,10 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param parameters
 	 *            the parameter values of the node.
 	 * @return <code>true</code> when the status is UP.
+	 * @see #checkStatus(Map)
 	 */
-	boolean checkStatus(String node, Map<String, String> parameters) throws Exception; // NOSONAR
-
-	/**
-	 * Check the status of node having the given configuration. In these case, the node is anonymous.
-	 * 
-	 * @param parameters
-	 *            the parameter values of the node.
-	 * @return <code>true</code> when the status is UP.
-	 */
-	default boolean checkStatus(final Map<String, String> parameters) throws Exception {
-		return checkStatus(null, parameters);
+	default boolean checkStatus(String node, Map<String, String> parameters) throws Exception { // NOSONAR
+		return checkStatus(parameters);
 	}
 
 	/**
@@ -58,20 +61,41 @@ public interface ToolPlugin extends ServicePlugin {
 	 * 
 	 * @param parameters
 	 *            the parameter values of the subscription.
-	 * @return <code>true</code> when the status is UP.
+	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
 	 */
-	default SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters) throws Exception {
-		return checkSubscriptionStatus(null, parameters);
+	default SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters) throws Exception { // NOSONAR
+		return new SubscriptionStatusWithData();
 	}
 
 	/**
-	 * Check the status of given subscription
+	 * Check the status of given configuration. Note the subscription may not exist yet, but all required parameters are
+	 * given.
 	 * 
 	 * @param node
-	 *            The node identifier.
+	 *            The related node identifier.
 	 * @param parameters
 	 *            the parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP.
+	 * @see #checkSubscriptionStatus(Map)
 	 */
-	SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception; // NOSONAR
+	default SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception { // NOSONAR
+		return checkSubscriptionStatus(parameters);
+	}
+
+	/**
+	 * Check the status of given subscription. Note this subscription is existing and persisted in database, and not
+	 * being created.
+	 * 
+	 * @param subscription
+	 *            Current subscription.
+	 * @param node
+	 *            The related node identifier.
+	 * @param parameters
+	 *            the parameter values of the subscription.
+	 * @return <code>true</code> when the status is UP.
+	 * @see #checkSubscriptionStatus(String, Map)
+	 */
+	default SubscriptionStatusWithData checkSubscriptionStatus(int subscription, String node, Map<String, String> parameters) throws Exception { // NOSONAR
+		return checkSubscriptionStatus(null, parameters);
+	}
 }

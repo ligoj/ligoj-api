@@ -13,6 +13,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.dao.ProjectRepository;
+import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.model.DelegateOrg;
 import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.model.Event;
@@ -46,7 +47,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void setUpEntities2() {
 		resource = new ProjectResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
-		resource.iamProvider = iamProvider;
+		resource.iamProvider = new IamProvider[] { iamProvider };
 		testProject = repository.findByName("MDA");
 
 		// Ensure LDAP cache is loaded

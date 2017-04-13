@@ -66,7 +66,7 @@ public class ParameterValueResource {
 	private CryptoHelper cryptoHelper;
 
 	@Autowired
-	private IamProvider iamProvider;
+	private IamProvider[] iamProvider;
 
 	private static final TypeReference<List<Integer>> LIST_INTEGER_TYPE = new TypeReference<List<Integer>>() {
 		// Nothing to do
@@ -176,7 +176,7 @@ public class ParameterValueResource {
 	 */
 	public ParameterValueVo toVo(final ParameterValue entity) {
 		final ParameterValueVo vo = new ParameterValueVo();
-		vo.copyAuditData(entity, (Function<String, SimpleUserOrg>) iamProvider.getConfiguration().getUserRepository()::toUser);
+		vo.copyAuditData(entity, (Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
 		vo.setParameter(toVo(entity.getParameter()));
 

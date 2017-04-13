@@ -287,7 +287,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
-		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenReturn(new SubscriptionStatusWithData());
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
@@ -296,7 +296,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jira);
-		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenReturn(new SubscriptionStatusWithData(false));
 
 		// 2 : service throw an exception --> Jenkins
@@ -305,7 +305,7 @@ public class NodeResourceTest extends AbstractAppTest {
 				.thenReturn(jenkins);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jenkins);
-		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenThrow(new TechnicalException("junit"));
 
 		// check status

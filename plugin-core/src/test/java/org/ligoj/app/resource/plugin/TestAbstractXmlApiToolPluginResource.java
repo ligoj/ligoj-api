@@ -37,12 +37,12 @@ public class TestAbstractXmlApiToolPluginResource {
 			}
 
 			@Override
-			public boolean checkStatus(String node, Map<String, String> parameters) throws Exception {
+			public boolean checkStatus(Map<String, String> parameters) throws Exception {
 				return false;
 			}
 
 			@Override
-			public SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception {
+			public SubscriptionStatusWithData checkSubscriptionStatus(Map<String, String> parameters) throws Exception {
 				return null;
 			}
 

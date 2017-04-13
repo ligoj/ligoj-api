@@ -10,6 +10,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ligoj.app.MatcherUtil;
+import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.SimpleUser;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.iam.model.DelegateOrg;
@@ -48,7 +49,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		// Plug-in the IAMProvider to the database
 		resource = new DelegateOrgResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
-		resource.iamProvider = iamProvider;
+		resource.iamProvider = new IamProvider[] { iamProvider };
 		expected = repository.findByName("dig rha");
 		em.clear();
 	}

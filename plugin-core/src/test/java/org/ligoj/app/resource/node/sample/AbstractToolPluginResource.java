@@ -20,12 +20,12 @@ public abstract class AbstractToolPluginResource extends org.ligoj.app.resource.
 	}
 
 	@Override
-	public boolean checkStatus(final String node, final Map<String, String> parameters) throws Exception {
+	public boolean checkStatus(final Map<String, String> parameters) throws Exception {
 		return true;
 	}
 
 	@Override
-	public SubscriptionStatusWithData checkSubscriptionStatus(final String node, final Map<String, String> parameters)
+	public SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters)
 			throws Exception {
 		final SubscriptionStatusWithData status = new SubscriptionStatusWithData();
 		status.put("property", "value");

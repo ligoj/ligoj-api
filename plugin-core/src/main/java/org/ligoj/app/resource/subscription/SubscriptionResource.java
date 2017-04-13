@@ -507,9 +507,8 @@ public class SubscriptionResource {
 	 * Refresh given subscriptions and return their status.
 	 */
 	private SubscriptionStatusWithData refreshSubscription(final Subscription subscription) {
-		final String toolKey = subscription.getNode().getId();
 		final Map<String, String> parameters = getParameters(subscription.getId());
-		final SubscriptionStatusWithData statusWithData = nodeResource.checkSubscriptionStatus(toolKey, parameters);
+		final SubscriptionStatusWithData statusWithData = nodeResource.checkSubscriptionStatus(subscription, parameters);
 		statusWithData.setId(subscription.getId());
 		statusWithData.setProject(subscription.getProject().getId());
 		statusWithData.setParameters(parameterValueResource.getNonSecuredSubscriptionParameters(subscription.getId()));

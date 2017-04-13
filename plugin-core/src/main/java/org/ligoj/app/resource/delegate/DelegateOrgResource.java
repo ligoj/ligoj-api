@@ -63,7 +63,7 @@ public class DelegateOrgResource {
 	private PaginationJson paginationJson;
 
 	@Autowired
-	protected IamProvider iamProvider;
+	protected IamProvider[] iamProvider;
 
 	/**
 	 * Ordered columns.
@@ -340,7 +340,7 @@ public class DelegateOrgResource {
 	 * @return Company repository provider.
 	 */
 	private ICompanyRepository getCompany() {
-		return iamProvider.getConfiguration().getCompanyRepository();
+		return iamProvider[0].getConfiguration().getCompanyRepository();
 	}
 
 	/**
@@ -349,7 +349,7 @@ public class DelegateOrgResource {
 	 * @return User repository provider.
 	 */
 	private IUserRepository getUser() {
-		return iamProvider.getConfiguration().getUserRepository();
+		return iamProvider[0].getConfiguration().getUserRepository();
 	}
 
 	/**
@@ -358,6 +358,6 @@ public class DelegateOrgResource {
 	 * @return Group repository provider.
 	 */
 	private IGroupRepository getGroup() {
-		return iamProvider.getConfiguration().getGroupRepository();
+		return iamProvider[0].getConfiguration().getGroupRepository();
 	}
 }
