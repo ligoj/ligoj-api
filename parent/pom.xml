@@ -19,6 +19,8 @@
 
 	<properties>
 		<api.version>1.0.3-SNAPSHOT</api.version>
+		<sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e1.ruleKey>Web:BoldAndItalicTagsCheck</sonar.issue.ignore.multicriteria.e1.ruleKey>
 	</properties>
 
 	<scm>
