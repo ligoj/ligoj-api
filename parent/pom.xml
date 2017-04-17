@@ -12,13 +12,13 @@
 
 	<groupId>org.ligoj.api</groupId>
 	<artifactId>parent</artifactId>
-	<version>1.0.3-SNAPSHOT</version>
+	<version>1.0.3</version>
 	<packaging>pom</packaging>
 	<name>Ligoj - API Parent</name>
 	<description>API Parent pom for all plugin components</description>
 
 	<properties>
-		<api.version>1.0.3-SNAPSHOT</api.version>
+		<api.version>1.0.3</api.version>
 	</properties>
 
 	<scm>
