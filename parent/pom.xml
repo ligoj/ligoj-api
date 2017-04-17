@@ -26,9 +26,8 @@
 			<id>bintray</id>
 			<distributionManagement>
 				<repository>
-					<id>bintray-ligoj-ligoj</id>
-					<name>ligoj-ligoj</name>
-					<url>https://api.bintray.com/maven/ligoj/ligoj/ligoj-api/;publish=1</url>
+					<id>bintray-ligoj-maven-repo</id>
+					<url>https://api.bintray.com/maven/ligoj/maven-repo/ligoj-api/;publish=1</url>
 				</repository>
 			</distributionManagement>
 		</profile>
