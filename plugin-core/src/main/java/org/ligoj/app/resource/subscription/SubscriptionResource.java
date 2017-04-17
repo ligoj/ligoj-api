@@ -366,7 +366,10 @@ public class SubscriptionResource {
 	 */
 	public Subscription checkVisibleSubscription(final int id) {
 		final Subscription entity = repository.findOneExpected(id);
-		checkVisibleProject(entity.getProject().getId());
+		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
+			// Associated project is not visible, reject the subscription access
+			throw new EntityNotFoundException(String.valueOf(id));
+		}
 		return entity;
 	}
 
