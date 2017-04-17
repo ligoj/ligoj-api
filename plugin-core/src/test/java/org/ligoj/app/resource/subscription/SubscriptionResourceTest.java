@@ -255,27 +255,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void create() throws Exception {
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
-
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValueEditionVo = new ParameterValueEditionVo();
-		parameterValueEditionVo.setParameter(JiraBaseResource.PARAMETER_PROJECT);
-		parameterValueEditionVo.setInteger(10074);
-		parameters.add(parameterValueEditionVo);
-		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
-		parameterValueEditionVo2.setParameter(JiraBaseResource.PARAMETER_PKEY);
-		parameterValueEditionVo2.setText("MDA");
-		parameters.add(parameterValueEditionVo2);
-
-		vo.setParameters(parameters);
-		vo.setNode("service:bt:jira:4");
-		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
-
-		em.flush();
-		em.clear();
-
-		final int subscription = resource.create(vo);
+		final int subscription = resource.create(newCreateVo());
 		em.flush();
 		em.clear();
 
@@ -327,6 +307,12 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test(expected = NotImplementedException.class)
 	public void createCreateModeNotSupported() throws Exception {
+		final SubscriptionEditionVo vo = newCreateVo();
+		vo.setMode(SubscriptionMode.CREATE);
+		resource.create(vo);
+	}
+
+	private SubscriptionEditionVo newCreateVo() {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
@@ -339,8 +325,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		parameterValueEditionVo2.setParameter(JiraBaseResource.PARAMETER_PKEY);
 		parameterValueEditionVo2.setText("MDA");
 		parameters.add(parameterValueEditionVo2);
-
-		vo.setMode(SubscriptionMode.CREATE);
 		vo.setParameters(parameters);
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
@@ -348,13 +332,18 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		// Ensure LDAP cache is loaded
 		em.flush();
 		em.clear();
-
-		resource.create(vo);
+		return vo;
 	}
 
 	@Test
 	public void createCreateMode() throws Exception {
 		// Prepare data
+		final int subscription = createCreateBase("gfi-gstack", "gfi-gstack-client");
+		Assert.assertEquals("gfi-gstack",
+				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_PARENT_GROUP));
+	}
+
+	private int createCreateBase(final String parent, final String group) throws Exception {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
 		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
@@ -364,11 +353,11 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		parameters.add(parameterValueEditionVo);
 		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
 		parameterValueEditionVo2.setParameter(IdentityResource.PARAMETER_PARENT_GROUP);
-		parameterValueEditionVo2.setText("gfi-gstack");
+		parameterValueEditionVo2.setText(parent);
 		parameters.add(parameterValueEditionVo2);
 		final ParameterValueEditionVo parameterValueEditionVo3 = new ParameterValueEditionVo();
 		parameterValueEditionVo3.setParameter(IdentityResource.PARAMETER_GROUP);
-		parameterValueEditionVo3.setText("gfi-gstack-client");
+		parameterValueEditionVo3.setText(group);
 		parameters.add(parameterValueEditionVo3);
 
 		vo.setMode(SubscriptionMode.CREATE);
@@ -383,11 +372,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		Assert.assertEquals("gfi-gstack-client",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
+		Assert.assertEquals(group, parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
 		Assert.assertEquals("gfi", parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_OU));
-		Assert.assertEquals("gfi-gstack",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_PARENT_GROUP));
+		return subscription;
 	}
 
 	/**
@@ -395,40 +382,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	public void createCreateModeBlank() throws Exception {
-		// Prepare data
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
-
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValueEditionVo = new ParameterValueEditionVo();
-		parameterValueEditionVo.setParameter(IdentityResource.PARAMETER_OU);
-		parameterValueEditionVo.setText("gfi");
-		parameters.add(parameterValueEditionVo);
-		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
-		parameterValueEditionVo2.setParameter(IdentityResource.PARAMETER_PARENT_GROUP);
-		parameterValueEditionVo2.setText("");
-		parameters.add(parameterValueEditionVo2);
-		final ParameterValueEditionVo parameterValueEditionVo3 = new ParameterValueEditionVo();
-		parameterValueEditionVo3.setParameter(IdentityResource.PARAMETER_GROUP);
-		parameterValueEditionVo3.setText("gfi-gstack-client2");
-		parameters.add(parameterValueEditionVo3);
-
-		vo.setMode(SubscriptionMode.CREATE);
-		vo.setParameters(parameters);
-		vo.setNode("service:id:ldap:dig");
-		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
-
-		em.flush();
-		em.clear();
-
-		initSpringSecurityContext(DEFAULT_USER);
-		final int subscription = resource.create(vo);
-		em.flush();
-		em.clear();
-
-		Assert.assertEquals("gfi-gstack-client2",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
-		Assert.assertEquals("gfi", parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_OU));
+		final int subscription = createCreateBase("", "gfi-gstack-client2");
 		Assert.assertNull(parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
@@ -437,49 +391,28 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		thrown.expect(ValidationJsonException.class);
 		thrown.expect(MatcherUtil.validationMatcher(JiraBaseResource.PARAMETER_JDBC_PASSSWORD, "not-accepted-parameter"));
 
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
-
-		final Project project = new Project();
-		project.setName("TEST");
-		project.setPkey("test");
-		project.setTeamLeader(getAuthenticationName());
-		em.persist(project);
-		em.flush();
-		em.clear();
-
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValueEditionVo = new ParameterValueEditionVo();
-		parameterValueEditionVo.setParameter("service:bt:jira:project");
-		parameterValueEditionVo.setInteger(1007400);
-		parameters.add(parameterValueEditionVo);
-
+		final SubscriptionEditionVo vo = newCreateVoBadParameters();
 		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
 		parameterValueEditionVo2.setParameter("service:bt:jira:pkey");
 		parameterValueEditionVo2.setText("MYPROJECT");
-		parameters.add(parameterValueEditionVo2);
+		vo.getParameters().add(parameterValueEditionVo2);
 
 		final ParameterValueEditionVo parameterValueEditionVo3 = new ParameterValueEditionVo();
 		parameterValueEditionVo3.setParameter("service:bt:jira:jdbc-password");
 		parameterValueEditionVo3.setInteger(1007400);
-		parameters.add(parameterValueEditionVo3);
+		vo.getParameters().add(parameterValueEditionVo3);
 
-		vo.setParameters(parameters);
-		vo.setNode("service:bt:jira:4");
-		vo.setProject(project.getId());
-		final int subscription = resource.create(vo);
-		em.flush();
-		em.clear();
-
-		Assert.assertEquals("1007400", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
-		Assert.assertEquals("MYPROJECT", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
+		resource.create(vo);
 	}
 
 	@Test
 	public void createMissingParameter() throws Exception {
 		thrown.expect(ValidationJsonException.class);
 		thrown.expect(MatcherUtil.validationMatcher("service:bt:jira:pkey", "NotNull"));
+		resource.create(newCreateVoBadParameters());
+	}
 
+	private SubscriptionEditionVo newCreateVoBadParameters() {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final Project project = new Project();
@@ -500,7 +433,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setParameters(parameters);
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(project.getId());
-		resource.create(vo);
+		return vo;
 	}
 
 	@Test

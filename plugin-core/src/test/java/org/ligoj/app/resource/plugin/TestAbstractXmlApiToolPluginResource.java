@@ -12,7 +12,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.ligoj.app.api.ServicePlugin;
-import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
@@ -34,16 +33,6 @@ public class TestAbstractXmlApiToolPluginResource {
 			@Override
 			public String getVersion(Map<String, String> parameters) throws Exception {
 				return "1.0.0";
-			}
-
-			@Override
-			public boolean checkStatus(Map<String, String> parameters) throws Exception {
-				return false;
-			}
-
-			@Override
-			public SubscriptionStatusWithData checkSubscriptionStatus(Map<String, String> parameters) throws Exception {
-				return null;
 			}
 
 			@Override

@@ -34,12 +34,12 @@ public class TestAbstractConfiguredServicePlugin {
 
 			@Override
 			public String getKey() {
-				return null;
+				return "key";
 			}
 
 			@Override
 			public Object getConfiguration(int subscription) throws Exception {
-				return null;
+				return configuration;
 			}
 		};
 		resource.subscriptionRepository = Mockito.mock(SubscriptionRepository.class);
@@ -64,8 +64,13 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void deletedConfigured() {
+	public void deletedConfigured() throws Exception {
 		resource.deletedConfigured(repository, 1);
+
+		
+		// Coverage
+		Assert.assertSame(configuration, resource.getConfiguration(1));
+		Assert.assertEquals("key", resource.getKey());
 	}
 
 	@Test(expected = EntityNotFoundException.class)

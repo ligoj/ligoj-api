@@ -97,14 +97,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Replace the plugin locator
 		resource.servicePluginLocator = servicePluginLocator;
 		Mockito.when(applicationContext.getBean(ArgumentMatchers.any(Class.class))).thenAnswer(invocation -> {
-			final Class<?> requiredType = (Class<Object>) invocation.getArguments()[0];
-			if (requiredType == NodeResource.class) {
-				return resource;
-			}
-			if (requiredType == ServicePluginLocator.class) {
-				return servicePluginLocator;
-			}
-			return NodeResourceTest.super.applicationContext.getBean(requiredType);
+			return resource;
 		});
 		this.resourceMock = resource;
 	}

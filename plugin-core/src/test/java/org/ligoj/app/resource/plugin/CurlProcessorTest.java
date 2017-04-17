@@ -11,10 +11,9 @@ import java.util.List;
 import org.apache.http.HttpStatus;
 import org.junit.After;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
+import org.ligoj.app.AbstractServerTest;
 import org.ligoj.app.MatcherUtil;
-import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -24,7 +23,7 @@ import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 /**
  * Test class of {@link CurlProcessor}
  */
-public class CurlProcessorTest extends AbstractDataGeneratorTest {
+public class CurlProcessorTest extends AbstractServerTest {
 
 	/**
 	 * port used for proxy
@@ -196,25 +195,6 @@ public class CurlProcessorTest extends AbstractDataGeneratorTest {
 		System.clearProperty("https.proxyHost");
 		System.clearProperty("https.proxyPort");
 		proxyServer.stop();
-	}
-
-	protected WireMockServer httpServer;
-
-	@Before
-	public void prepareMockServer() {
-		if (httpServer != null) {
-			throw new IllegalStateException("A previous HTTP server was already created");
-		}
-		httpServer = new WireMockServer(MOCK_PORT);
-		System.setProperty("http.keepAlive", "false");
-	}
-
-	@After
-	public void shutDownMockServer() {
-		System.clearProperty("http.keepAlive");
-		if (httpServer != null) {
-			httpServer.stop();
-		}
 	}
 
 	/**

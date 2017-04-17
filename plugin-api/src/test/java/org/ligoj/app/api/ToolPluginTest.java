@@ -30,8 +30,10 @@ public class ToolPluginTest {
 	@Test
 	public void checkSubscriptionStatus() throws Exception {
 		final SubscriptionStatusWithData data = plugin.checkSubscriptionStatus(0, null, null);
+		data.put("some", "value");
 		Assert.assertNotNull(data.getStatus().isUp());
-		Assert.assertTrue(data.getData().isEmpty());
+		Assert.assertEquals(1, data.getData().size());
+		Assert.assertEquals("value", data.getData().get("some"));
 	}
 
 	@Test
