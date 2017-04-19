@@ -1,4 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ehcache xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://ehcache.org/ehcache.xsd">
-	<cache name="iam-ldap-configuration" maxEntriesLocalHeap="1"></cache>
+	<cache name="iam-empty-configuration" maxEntriesLocalHeap="1"></cache>
 </ehcache>
