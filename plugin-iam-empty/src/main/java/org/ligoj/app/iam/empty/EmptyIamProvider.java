@@ -5,6 +5,7 @@ import javax.cache.annotation.CacheResult;
 import org.ligoj.app.api.FeaturePlugin;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Component;
  * Default, and empty {@link IamProvider}.
  */
 @Component
+@Order(100)
 public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
 	@Override
