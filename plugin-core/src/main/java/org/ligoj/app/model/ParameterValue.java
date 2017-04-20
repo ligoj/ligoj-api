@@ -5,13 +5,13 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.validator.constraints.Length;
+import org.ligoj.app.api.NodeScoped;
+import org.ligoj.bootstrap.core.model.AbstractAudited;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import org.hibernate.validator.constraints.Length;
-
-import org.ligoj.bootstrap.core.model.AbstractAudited;
 
 /**
  * Parameter instance.
@@ -21,7 +21,7 @@ import org.ligoj.bootstrap.core.model.AbstractAudited;
 @Entity
 @Table(name = "LIGOJ_PARAMETER_INSTANCE")
 @ToString(of = { "parameter", "data" })
-public class ParameterValue extends AbstractAudited<Integer> {
+public class ParameterValue extends AbstractAudited<Integer> implements NodeScoped {
 
 	/**
 	 * SID

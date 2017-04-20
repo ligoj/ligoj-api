@@ -5,7 +5,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.ligoj.app.api.NodeScoped;
 import org.ligoj.bootstrap.core.model.AbstractAudited;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -18,7 +20,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "LIGOJ_SUBSCRIPTION")
 @ToString(of = { "node", "project" }, callSuper = true)
-public class Subscription extends AbstractAudited<Integer> {
+public class Subscription extends AbstractAudited<Integer> implements NodeScoped {
 
 	/**
 	 * SID

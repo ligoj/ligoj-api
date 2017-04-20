@@ -12,8 +12,9 @@ import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
 import org.hibernate.validator.constraints.Length;
-
+import org.ligoj.app.api.NodeScoped;
 import org.ligoj.bootstrap.core.model.AbstractPersistable;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,7 +25,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "LIGOJ_EVENT")
-public class Event extends AbstractPersistable<Integer> {
+public class Event extends AbstractPersistable<Integer> implements NodeScoped {
 
 	/**
 	 * SID
