@@ -1,4 +1,4 @@
-## :link: Ligoj API plugin [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.ligoj.api/root/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.ligoj.api/root) [![Download](https://api.bintray.com/packages/ligoj/maven-repo/bootstrap/images/download.svg) ](https://bintray.com/ligoj/maven-repo/bootstrap/_latestVersion)
+## :link: Ligoj API plugin [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.ligoj.api/root/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.ligoj.api/root) [![Download](https://api.bintray.com/packages/ligoj/maven-repo/ligoj-api/images/download.svg) ](https://bintray.com/ligoj/maven-repo/ligoj-api/_latestVersion)
 API plugin used for compatibility check
 
 [![Build Status](https://travis-ci.org/ligoj/ligoj-api.svg?branch=master)](https://travis-ci.org/ligoj/ligoj-api)
