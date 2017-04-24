@@ -552,9 +552,9 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void getNodeStatus() throws Exception {
 		final List<EventVo> nodes = resource.getNodeStatus();
 		Assert.assertEquals(2, nodes.size());
-		Assert.assertTrue(nodes.get(0).getNode().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
+		Assert.assertTrue(nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
 				|| NodeStatus.DOWN.name().equals(nodes.get(0).getValue()));
-		Assert.assertTrue(nodes.get(1).getNode().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
+		Assert.assertTrue(nodes.get(1).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
 				|| NodeStatus.DOWN.name().equals(nodes.get(1).getValue()));
 		Assert.assertEquals(EventType.STATUS, nodes.get(0).getType());
 	}

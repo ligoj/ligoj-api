@@ -10,6 +10,7 @@ import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.api.NodeStatus;
+import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
@@ -103,7 +104,7 @@ public class ToVoConverterTest {
 		final Map<Integer, EventVo> events = new HashMap<>();
 		final EventVo event = new EventVo();
 		event.setSubscription(1);
-		event.setLabel("UP");
+		event.setNode(new NodeVo());
 		event.setValue("UP");
 		events.put(1, event);
 

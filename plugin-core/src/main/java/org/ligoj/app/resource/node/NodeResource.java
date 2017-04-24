@@ -463,7 +463,7 @@ public class NodeResource {
 		final Map<String, EventVo> tools = new HashMap<>();
 		for (final Event event : events) {
 			final Node parent = event.getNode().getRefined();
-			fillParentEvents(tools, parent, EventResource.toVo(event), event.getValue());
+			fillParentEvents(tools, parent, toVo(event), event.getValue());
 			fillParentEvents(services, parent.getRefined(), tools.get(parent.getId()), event.getValue());
 		}
 		return new ArrayList<>(services.values());
@@ -500,8 +500,7 @@ public class NodeResource {
 	private void fillParentEvents(final Map<String, EventVo> parents, final Node parent, final EventVo eventVo, final String eventValue) {
 		final EventVo service = parents.computeIfAbsent(parent.getId(), key -> {
 			final EventVo result = new EventVo();
-			result.setNode(parent.getId());
-			result.setLabel(parent.getName());
+			result.setNode(toVoLight(parent));
 			result.setValue(eventValue);
 			result.setType(eventVo.getType());
 			return result;
@@ -567,5 +566,25 @@ public class NodeResource {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, NodeVo> findAll() {
 		return toVoParameters(repository.findAllWithValuesSecure());
+	}
+
+	/**
+	 * {@link Event} JPA to VO object transformer without refined informations.
+	 * 
+	 * @param entity
+	 *            Source entity.
+	 * @return The corresponding VO object with node/subscription reference.
+	 */
+	public static EventVo toVo(final Event entity) {
+		final EventVo vo = new EventVo();
+		vo.setValue(entity.getValue());
+		vo.setType(entity.getType());
+		if (entity.getNode() == null) {
+			vo.setSubscription(entity.getSubscription().getId());
+			vo.setNode(toVoLight(entity.getSubscription().getNode()));
+		} else {
+			vo.setNode(toVoLight(entity.getNode()));
+		}
+		return vo;
 	}
 }
