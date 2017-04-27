@@ -97,7 +97,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
-	@Query("SELECT p FROM Project AS p WHERE p.id = :id AND " + VISIBLE_PROJECTS)
+	@Query("SELECT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s WHERE p.id = :id AND " + VISIBLE_PROJECTS)
 	Project findOneVisible(int id, String user);
 
 	/**

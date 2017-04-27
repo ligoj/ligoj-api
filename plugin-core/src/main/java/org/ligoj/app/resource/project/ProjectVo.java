@@ -1,6 +1,6 @@
 package org.ligoj.app.resource.project;
 
-import java.util.Collection;
+import java.util.List;
 
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 
@@ -14,7 +14,7 @@ import lombok.Setter;
 @Setter
 public class ProjectVo extends BasicProjectVo {
 
-	private Collection<SubscriptionVo> subscriptions;
+	private List<SubscriptionVo> subscriptions;
 
 	/**
 	 * Indicates the current user can manage the subscriptions of this project.
