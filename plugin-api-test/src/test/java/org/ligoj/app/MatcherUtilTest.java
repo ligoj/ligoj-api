@@ -37,7 +37,6 @@ public class MatcherUtilTest {
 		Assert.assertFalse(MatcherUtil.constraintMatcher("firstName", "message").matches(violationException));
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void expectValidationException() {
 		new MatcherUtil();

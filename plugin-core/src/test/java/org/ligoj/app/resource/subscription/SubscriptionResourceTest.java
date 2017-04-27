@@ -519,7 +519,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final int projectId = projectRepository.findByName("gStack").getId();
 		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
 		Assert.assertEquals(1, subscriptionStatus.size());
-		Assert.assertEquals("JIRA 6", subscriptionStatus.values().iterator().next().getLabel());
+		Assert.assertEquals("JIRA 6", subscriptionStatus.values().iterator().next().getNode().getName());
 	}
 
 	@Test

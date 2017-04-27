@@ -3,7 +3,9 @@ package org.ligoj.app.resource.node;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.model.EventType;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,11 +22,6 @@ public class EventVo {
 	private final Set<EventVo> specifics = new LinkedHashSet<>();
 
 	/**
-	 * Name of this event
-	 */
-	private String label;
-
-	/**
 	 * Value
 	 */
 	private String value;
@@ -38,7 +35,7 @@ public class EventVo {
 	 * Optional linked node providing this value. Either this attribute, either {@link #subscription} is not
 	 * <code>null</code>.
 	 */
-	private String node;
+	private NodeVo node;
 
 	/**
 	 * Optional linked subscription providing this value. Either this attribute, either {@link #node} is not

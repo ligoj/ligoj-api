@@ -88,25 +88,4 @@ public class EventResource {
 		repository.save(event);
 	}
 
-	/**
-	 * {@link Event} JPA to VO object transformer without refined informations.
-	 * 
-	 * @param entity
-	 *            Source entity.
-	 * @return The corresponding VO object with node/subscription reference.
-	 */
-	public static EventVo toVo(final Event entity) {
-		final EventVo vo = new EventVo();
-		vo.setValue(entity.getValue());
-		vo.setType(entity.getType());
-		if (entity.getNode() == null) {
-			vo.setSubscription(entity.getSubscription().getId());
-			vo.setLabel(entity.getSubscription().getNode().getName());
-		} else {
-			vo.setNode(entity.getNode().getId());
-			vo.setLabel(entity.getNode().getName());
-		}
-		return vo;
-	}
-
 }
