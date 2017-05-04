@@ -110,5 +110,5 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 *            The custom comparators used to order the result. The key is the ordered property name.
 	 * @return the UID of users matching all above criteria.
 	 */
-	Page<T> findAll(final Set<T> groups, final String criteria, final Pageable pageable, final Map<String, Comparator<T>> customComparators);
+	Page<T> findAll(Set<T> groups, String criteria, Pageable pageable, Map<String, Comparator<T>> customComparators);
 }

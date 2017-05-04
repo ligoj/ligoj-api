@@ -274,9 +274,13 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	private long prepareSubscriptionsEvent() throws Exception {
+		// Check previous status
+		final long eventsCount = eventRepository.count();
+		Assert.assertEquals(5, eventsCount);
+
 		final ServicePluginLocator servicePluginLocator = resourceMock.servicePluginLocator;
 
-		// 3 : service is up --> all services and all subscriptions
+		// Service is up --> SONAR
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
@@ -284,26 +288,22 @@ public class NodeResourceTest extends AbstractAppTest {
 				.thenReturn(new SubscriptionStatusWithData());
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
-		// 1 : service is down --> all Jira instances
+		// Service is down --> JIRA
 		final JiraPluginResource jira = Mockito.mock(JiraPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith("jira"), ArgumentMatchers.eq(ToolPlugin.class)))
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jira"), ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jira"), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jira);
 		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenReturn(new SubscriptionStatusWithData(false));
 
-		// 2 : service throw an exception --> Jenkins
+		// Service throw an exception --> JENKINS
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains("jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jenkins);
 		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenThrow(new TechnicalException("junit"));
-
-		// check status
-		final long eventsCount = eventRepository.count();
-		Assert.assertEquals(5, eventsCount);
 
 		return eventsCount;
 	}
