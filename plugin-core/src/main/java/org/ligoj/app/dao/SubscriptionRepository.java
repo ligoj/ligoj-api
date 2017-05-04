@@ -76,8 +76,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 */
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
 			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.project.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service) AND param.secured != TRUE"
-			+ " ORDER BY service.id")
+			+ " WHERE s.project.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service) AND param.secured != TRUE")
 	List<Object[]> findAllWithValuesSecureByProject(int project);
 
 	/**

@@ -53,12 +53,12 @@ public class EventResource {
 	 * register an event on a subscription. The event will be registered only if the value is new.
 	 * 
 	 * @param subscription
-	 *            subscription
+	 *            The related subscription.
 	 * @param eventType
-	 *            event type
+	 *            The new event type.
 	 * @param value
-	 *            new value
-	 * @return true if an event has been saved in database
+	 *            The new event value.
+	 * @return <code>true</code> if an event has been saved in database.
 	 */
 	public boolean registerEvent(final Subscription subscription, final EventType eventType, final String value) {
 		final Event lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, eventType);

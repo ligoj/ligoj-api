@@ -1,10 +1,12 @@
 package org.ligoj.app.resource.project;
 
+import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.iam.UserOrg;
@@ -65,34 +67,50 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 		vo.setTeamLeader(userConverter.apply(entity.getTeamLeader()));
 
 		// Build the subscriptions
-		final Map<Integer, SubscriptionVo> subscriptions = new LinkedHashMap<>();
+		final Map<Integer, SubscriptionVo> subscriptions = new TreeMap<>();
 		for (final Object[] resultSet : this.subscriptionsAndParam) {
-			final Subscription subscriptionEntity = (Subscription) resultSet[0];
-			SubscriptionVo subscriptionVo = subscriptions.get(subscriptionEntity.getId());
-
-			// Build the subscription root instance
-			if (subscriptionVo == null) {
-				subscriptionVo = new SubscriptionVo();
-				subscriptionVo.copyAuditData(subscriptionEntity, userConverter);
-				subscriptionVo.setId(subscriptionEntity.getId());
-				subscriptionVo.setNode(NodeResource.toVo(subscriptionEntity.getNode()));
-				subscriptionVo.setParameters(new HashMap<>());
-				subscriptions.put(subscriptionEntity.getId(), subscriptionVo);
-
-				// Add subscription status
-				final EventVo lastEvent = subscriptionStatus.get(subscriptionEntity.getId());
-				if (lastEvent != null) {
-					subscriptionVo.setStatus(NodeStatus.valueOf(lastEvent.getValue()));
-				}
-			}
-
 			// Add subscription value
 			final ParameterValue parameterValue = (ParameterValue) resultSet[1];
-			subscriptionVo.getParameters().put(parameterValue.getParameter().getId(),
+			addVo(subscriptions, (Subscription) resultSet[0]).getParameters().put(parameterValue.getParameter().getId(),
 					ParameterValueResource.parseValue(parameterValue, new ParameterValueVo()));
-
 		}
-		vo.setSubscriptions(subscriptions.values());
+
+		// Merge with subscription without parameters
+		entity.getSubscriptions().forEach(s -> addVo(subscriptions, s));
+
+		// Return the subscription to order by the related node
+		vo.setSubscriptions(subscriptions.values().stream().sorted(Comparator.comparing(s -> s.getNode().getId(), String::compareTo))
+				.collect(Collectors.toList()));
 		return vo;
 	}
+
+	/**
+	 * Convert a {@link Subscription} to a {@link SubscriptionVo} with status, and put it in the target map if not
+	 * existing.
+	 * 
+	 * @param subscriptions
+	 *            The map of already converted entities.
+	 * @param entity
+	 *            The {@link Subscription}
+	 * @return The related converted {@link SubscriptionVo} newly created or existing one.
+	 */
+	private SubscriptionVo addVo(final Map<Integer, SubscriptionVo> subscriptions, final Subscription entity) {
+		return subscriptions.computeIfAbsent(entity.getId(), id -> {
+			// Build the subscription root instance
+			final SubscriptionVo vo = new SubscriptionVo();
+			vo.copyAuditData(entity, userConverter);
+			vo.setId(entity.getId());
+			vo.setNode(NodeResource.toVo(entity.getNode()));
+			vo.setParameters(new HashMap<>());
+			subscriptions.put(entity.getId(), vo);
+
+			// Add subscription status
+			final EventVo lastEvent = subscriptionStatus.get(entity.getId());
+			if (lastEvent != null) {
+				vo.setStatus(NodeStatus.valueOf(lastEvent.getValue()));
+			}
+			return vo;
+		});
+	}
+
 }

@@ -306,16 +306,17 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check status of a node.
+	 * Check the status of a node.
 	 * 
 	 * @param node
 	 *            The node identifier.
 	 * @param parameters
-	 *            Node parameters.
-	 * @return status
+	 *            Node parameters used to check the status.
+	 * @return The node status.
 	 */
 	public NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
-		boolean isUp;
+		boolean isUp = false;
+		log.info("Check status of node {}", node);
 		try {
 			// Find the plug-in associated to the requested node
 			final ToolPlugin plugin = servicePluginLocator.getResourceExpected(node, ToolPlugin.class);
@@ -323,8 +324,8 @@ public class NodeResource {
 			// Call service which check status
 			isUp = plugin.checkStatus(node, parameters);
 		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this failures
-			log.warn("Node {} is down : {}: {}", node, e.getClass(), e.getMessage());
-			isUp = false; // service is down when an exception is thrown.
+			// Service is down when an exception is thrown.
+			log.warn("Check status of node {} failed with {}: {}", node, e.getClass(), e.getMessage());
 		}
 		return NodeStatus.getValue(isUp);
 	}
@@ -347,14 +348,19 @@ public class NodeResource {
 		checkSubscriptionsStatus(repository.findAllInstance(securityHelper.getLogin()));
 	}
 
-	private int checkSubscriptionsStatus(final List<Node> instances) {
+	/**
+	 * Check the subscriptions of given nodes. The node my be checked if unknown.
+	 * @param instances The nodes to check.
+	 */
+	private void checkSubscriptionsStatus(final List<Node> instances) {
 		int counter = 0;
+		log.info("Check all subscriptions of {} nodes : Started", instances.size());
 		for (final Node node : instances) {
 			checkSubscriptionStatus(node, null);
 			counter++;
-			log.info("Check all statuses : {}/{}", counter, instances.size());
+			log.info("Check all subscriptions {}/{} processed nodes", counter, instances.size());
 		}
-		return counter;
+		log.info("Check all subscriptions of {} nodes : Done", instances.size());
 	}
 
 	/**
@@ -384,40 +390,38 @@ public class NodeResource {
 	public void checkSubscriptionStatus(final Node node, final NodeStatus status) {
 		final Map<String, String> nodeParameters = getParametersAsMap(node.getId());
 
-		// retrieve subscriptions where parameters are redefined. Other
-		// subscriptions have node status.
+		// Retrieve subscriptions where parameters are redefined. Other subscriptions have node status.
 		final Map<Subscription, Map<String, String>> subscriptionsToCheck = findSubscriptionsWithParams(node.getId());
 
 		// Same instance, but with proxy to resolve inner transaction issue
 		final NodeResource thisProxy = SpringUtils.getBean(NodeResource.class);
 
-		final NodeStatus newStatus;
+		NodeStatus newStatus = status;
 		if (status == null) {
-			// Node status is unknown for now ...
+			// Node status is unknown for now, need a check
 			newStatus = NodeStatus.getValue(thisProxy.checkNodeStatus(node.getId(), nodeParameters).isUp());
 
 			// Update the node status
 			eventResource.registerEvent(node, EventType.STATUS, newStatus.name());
-		} else {
-			newStatus = status;
 		}
 
 		// Check the subscriptions
-		int counter = 0;
-		for (final Entry<Subscription, Map<String, String>> subscription : subscriptionsToCheck.entrySet()) {
-			if (newStatus.isUp()) {
-				// for each subscription, check status
+		if (newStatus.isUp()) {
+			// Check only the subscription in UP nodes
+			int counter = 0;
+			for (final Entry<Subscription, Map<String, String>> subscription : subscriptionsToCheck.entrySet()) {
+				// For each subscription, check status
+				log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptionsToCheck.size());
 				final Map<String, String> parameters = new HashMap<>(nodeParameters);
 				parameters.putAll(subscription.getValue());
-				eventResource.registerEvent(subscription.getKey(), EventType.STATUS,
-						thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus().name());
-			} else {
-				// node is down -> subscription is down too
-				eventResource.registerEvent(subscription.getKey(), EventType.STATUS, NodeStatus.DOWN.name());
+				final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
+				eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
+				counter++;
 			}
-			counter++;
-			log.info("Check all statuses of node {} : {}/{}", node.getId(), counter, subscriptionsToCheck.size());
-
+		} else {
+			// All subscription of this are marked as DOWN
+			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptionsToCheck.size());
+			subscriptionsToCheck.entrySet().forEach(s->eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
 		}
 	}
 
@@ -439,7 +443,7 @@ public class NodeResource {
 			final ToolPlugin toolPlugin = servicePluginLocator.getResourceExpected(node, ToolPlugin.class);
 
 			// Call service which check status
-			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(node, parameters);
+			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node, parameters);
 			status.setNode(node);
 			log.info("Check status of a subscription attached to {} succeed", node);
 			return status;

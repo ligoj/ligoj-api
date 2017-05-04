@@ -2,6 +2,7 @@ package org.ligoj.app.resource.project;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
@@ -12,12 +13,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.ligoj.app.api.NodeVo;
+import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ProjectRepository;
+import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.model.DelegateOrg;
 import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.Project;
+import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.ligoj.bootstrap.core.json.TableItem;
@@ -40,6 +44,12 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 	@Autowired
 	private ProjectRepository repository;
+
+	@Autowired
+	private SubscriptionRepository subscriptionRepository;
+
+	@Autowired
+	private NodeRepository nodeRepository;
 
 	private Project testProject;
 
@@ -228,6 +238,32 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void findById() {
 		initSpringSecurityContext("fdaugan");
 		checkProject(resource.findById(testProject.getId()));
+	}
+
+	/**
+	 * Test {@link ProjectResource#findById(int)} when a subscription has no parameter.
+	 */
+	@Test
+	public void findByIdNoParameter() {
+		// Pre check
+		initSpringSecurityContext("fdaugan");
+		Assert.assertEquals(1, resource.findById(testProject.getId()).getSubscriptions().size());
+		em.flush();
+		em.clear();
+
+		final Subscription subscription = new Subscription();
+		subscription.setProject(testProject);
+		subscription.setNode(nodeRepository.findOneExpected("service:build:jenkins"));
+		subscriptionRepository.saveAndFlush(subscription);
+		em.flush();
+		em.clear();
+
+		// Post check
+		final List<SubscriptionVo> subscriptions = resource.findById(testProject.getId()).getSubscriptions();
+		Assert.assertEquals(2, subscriptions.size());
+		Assert.assertEquals("service:bt:jira:4", subscriptions.get(0).getNode().getId());
+		Assert.assertEquals("service:build:jenkins", subscriptions.get(1).getNode().getId());
+		Assert.assertEquals(0, subscriptions.get(1).getParameters().size());
 	}
 
 	/**

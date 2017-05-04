@@ -1,8 +1,9 @@
 package org.ligoj.app.resource.project;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,6 @@ import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.sample.IdentityResource;
-import org.ligoj.app.resource.project.ProjectVo;
-import org.ligoj.app.resource.project.ToVoConverter;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
@@ -38,6 +37,7 @@ public class ToVoConverterTest {
 	public void applyEmpty() {
 		final ToVoConverter converter = new ToVoConverter(s -> null, new ArrayList<>(), new HashMap<>());
 		final Project entity = new Project();
+		entity.setSubscriptions(Collections.emptyList());
 		final ProjectVo vo = converter.apply(entity);
 		Assert.assertNull(vo.getName());
 		Assert.assertNull(vo.getPkey());
@@ -59,7 +59,8 @@ public class ToVoConverterTest {
 		final IamConfiguration configuration = new IamConfiguration();
 		configuration.setUserRepository(userRepository);
 		Mockito.when(iamProvider.getConfiguration()).thenReturn(configuration);
-		Mockito.when(userRepository.findById(ArgumentMatchers.anyString())).then(invocation -> toUser((String) invocation.getArguments()[0]));
+		Mockito.when(userRepository.findById(ArgumentMatchers.anyString()))
+				.then(invocation -> toUser((String) invocation.getArguments()[0]));
 
 		// Stub subscriptions
 		final List<Object[]> subscriptions = new ArrayList<>();
@@ -89,7 +90,9 @@ public class ToVoConverterTest {
 		value3.setData("any");
 		final Subscription subscription = new Subscription();
 		subscription.setId(1);
-		subscription.setNode(new Node());
+		final Node node = new Node();
+		node.setId("service:n2");
+		subscription.setNode(node);
 		subscriptions.add(new Object[] { subscription, value1 });
 		subscriptions.add(new Object[] { subscription, value2 });
 		subscriptions.add(new Object[] { subscription, value3 });
@@ -97,7 +100,9 @@ public class ToVoConverterTest {
 		// Subscription without status
 		final Subscription subscription2 = new Subscription();
 		subscription2.setId(-1);
-		subscription2.setNode(new Node());
+		final Node node2 = new Node();
+		node2.setId("service:n1");
+		subscription2.setNode(node2);
 		subscriptions.add(new Object[] { subscription2, value3 });
 
 		// Stub events
@@ -120,6 +125,7 @@ public class ToVoConverterTest {
 		entity.setCreatedDate(new DateTime());
 		entity.setPkey("PK");
 		entity.setTeamLeader("U3");
+		entity.setSubscriptions(Arrays.asList(new Subscription[] { subscription, subscription2 }));
 		final ProjectVo vo = converter.apply(entity);
 
 		// Check
@@ -133,10 +139,13 @@ public class ToVoConverterTest {
 		Assert.assertEquals("U3", vo.getTeamLeader().getId());
 		Assert.assertEquals(1, vo.getId().intValue());
 		Assert.assertEquals(2, vo.getSubscriptions().size());
-		
-		final Iterator<SubscriptionVo> iterator = vo.getSubscriptions().iterator();
-		Assert.assertEquals(NodeStatus.UP, iterator.next().getStatus());
-		Assert.assertNull(iterator.next().getStatus());
+
+		// Check the statuses and their order by node
+		final List<SubscriptionVo> subscriptionsVo = vo.getSubscriptions();
+		Assert.assertNull(subscriptionsVo.get(0).getStatus());
+		Assert.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
+		Assert.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
+		Assert.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
 	}
 
 	private UserOrg toUser(final String login) {
