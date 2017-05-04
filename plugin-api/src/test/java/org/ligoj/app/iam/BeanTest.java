@@ -5,22 +5,13 @@ import java.util.Date;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.ligoj.app.iam.Activity;
-import org.ligoj.app.iam.CompanyOrg;
-import org.ligoj.app.iam.ContainerOrg;
-import org.ligoj.app.iam.GroupOrg;
-import org.ligoj.app.iam.ICompanyRepository;
-import org.ligoj.app.iam.IGroupRepository;
-import org.ligoj.app.iam.IUserRepository;
-import org.ligoj.app.iam.IamConfiguration;
-import org.ligoj.app.iam.SimpleUser;
-import org.ligoj.app.iam.SimpleUserOrg;
-import org.ligoj.app.iam.UserOrg;
 import org.ligoj.bootstrap.core.DateUtils;
 import org.mockito.Mockito;
-import org.springframework.ldap.support.LdapUtils;
 
 /**
  * Simple test of API beans.
@@ -41,10 +32,10 @@ public class BeanTest {
 
 
 	@Test
-	public void testCompanyLdap() {
+	public void testCompanyLdap() throws InvalidNameException {
 		final CompanyOrg companyLdap = new CompanyOrg("dn", "name");
 		companyLdap.getCompanyTree().contains(companyLdap);
-		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, LdapUtils.emptyLdapName());
+		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, new LdapName(""));
 		check(companyLdap, CompanyOrg::setCompanyTree, CompanyOrg::getCompanyTree, Collections.emptyList());
 		Assert.assertEquals("name".hashCode(), companyLdap.hashCode());
 		Assert.assertEquals(companyLdap, companyLdap);

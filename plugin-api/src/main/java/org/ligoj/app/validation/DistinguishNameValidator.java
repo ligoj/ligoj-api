@@ -2,11 +2,12 @@ package org.ligoj.app.validation;
 
 import java.util.regex.Pattern;
 
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.ldap.NamingException;
 
 /**
  * Distinguish Name (DN) validator
@@ -30,11 +31,11 @@ public class DistinguishNameValidator implements ConstraintValidator<Distinguish
 		try {
 			final String dn = StringUtils.trimToEmpty(value);
 			// Check against Rfc2253
-			org.springframework.ldap.support.LdapUtils.newLdapName(dn);
+			new LdapName(dn);
 			
 			// Check against our rules
 			return DN_PATTERN.matcher(dn).matches();
-		} catch (final NamingException ne) { // NOSONAR
+		} catch (final InvalidNameException ne) { // NOSONAR
 			// Ignore this error, this is a validation error
 			return false;
 		}

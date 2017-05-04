@@ -1,8 +1,6 @@
 package org.ligoj.app.api;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -10,11 +8,12 @@ import java.util.Set;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 
 /**
  * Test class of {@link Normalizer}
  */
-public class NormalizerTest {
+public class NormalizerTest extends AbstractDataGeneratorTest {
 
 	@Test
 	public void normalizeSet() {
@@ -46,20 +45,9 @@ public class NormalizerTest {
 	}
 
 	@Test
-	public void testCoverage()
-			throws SecurityException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+	public void testCoverage() throws SecurityException, NoSuchMethodException, InstantiationException,
+			IllegalAccessException, InvocationTargetException {
 		coverageSingleton(Normalizer.class);
-	}
-
-	/**
-	 * TODO Removes whe utility checker ligoj/bootstrap#5 is ready
-	 */
-	private <S> void coverageSingleton(Class<S> singletonClass)
-			throws SecurityException, NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
-		final Constructor<S> constructor = singletonClass.getDeclaredConstructor();
-		Assert.assertTrue(Modifier.isPrivate(constructor.getModifiers()));
-		constructor.setAccessible(true);
-		constructor.newInstance();
 	}
 
 }

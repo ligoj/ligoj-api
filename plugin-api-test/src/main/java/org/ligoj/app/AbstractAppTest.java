@@ -1,7 +1,5 @@
 package org.ligoj.app;
 
-import org.junit.After;
-import org.junit.Before;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
@@ -82,19 +80,6 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	 */
 	protected int getSubscription(final String project, final String service) {
 		return em.createQuery("SELECT id FROM Subscription WHERE project.name = ?1 AND node.id LIKE CONCAT(?2,'%')", Integer.class)
-				.setParameter(1, project).setParameter(2, service).setMaxResults(1).getSingleResult();
-	}
-
-	/**
-	 * Restore original Spring application context.<br>
-	 * TODO Remove this with LB 1.6.1, see ligoj/bootstrap#4
-	 */
-	@Override
-	@After
-	@Before
-	public void restoreAppalicationContext() {
-		if (applicationContext != null) {
-			super.restoreAppalicationContext();
-		}
+				.setParameter(1, project).setParameter(2, service).setMaxResults(1).getResultList().get(0);
 	}
 }

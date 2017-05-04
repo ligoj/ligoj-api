@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.AbstractServerTest;
@@ -195,15 +194,5 @@ public class CurlProcessorTest extends AbstractServerTest {
 		System.clearProperty("https.proxyHost");
 		System.clearProperty("https.proxyPort");
 		proxyServer.stop();
-	}
-
-	/**
-	 * Restore original Spring application context<br>
-	 * TODO Remove this with LB 1.6.1, see ligoj/bootstrap#4
-	 */
-	@Override
-	@After
-	public void restoreAppalicationContext() {
-		// Nothing to restore
 	}
 }
