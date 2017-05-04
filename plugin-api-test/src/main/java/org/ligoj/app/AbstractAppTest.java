@@ -73,9 +73,9 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	 * 
 	 * @param project
 	 *            The project name of the subscription to return.
-	 * @param The
-	 *            subscribed service of the project. May be a service or a tool or an instance. <code>LIKE</code> is
-	 *            used.
+	 * @param service
+	 *            The subscribed service of the project. May be a service or a tool or an instance. <code>LIKE</code>
+	 *            is used.
 	 * @return The subscription identifier.
 	 */
 	protected int getSubscription(final String project, final String service) {
