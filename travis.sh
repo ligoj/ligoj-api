@@ -66,7 +66,9 @@ function installMaven {
 # PROJECT_VERSION=6.3
 #
 function fixBuildVersion {
-  export INITIAL_VERSION=$(maven_expression "project.version")
+  echo "Create a clean build version ..."
+  export INITIAL_VERSION=$(maven_expression "project.version -Dskip-sonarsource-repo=true")
+  echo "INITIAL_VERSION : $INITIAL_VERSION"
 
   # remove suffix -SNAPSHOT or -RC
   without_suffix=$(echo $INITIAL_VERSION | sed "s/-.*//g")
@@ -83,6 +85,7 @@ function fixBuildVersion {
   if [[ "${INITIAL_VERSION}" == *"-SNAPSHOT" ]]; then
     # SNAPSHOT
     export PROJECT_VERSION=$BUILD_VERSION
+    echo "Replacing Initial version '$INITIAL_VERSION' by '$PROJECT_VERSION'"
     grep --include={*.properties,pom.xml} -rnl './' -e "$INITIAL_VERSION" | xargs -i@ sed -i "s/$INITIAL_VERSION/$PROJECT_VERSION/g" @
   else
     # not a SNAPSHOT: milestone, RC or GA
@@ -113,7 +116,7 @@ BUILD)
 
   # Minimal Maven settings
   export MAVEN_OPTS="-Xmx1G -Xms128m"
-  MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Djava.net.preferIPv4Stack=true -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION"
+  MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Djava.net.preferIPv4Stack=true -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION -Dskip-sonarsource-repo=true"
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     echo 'Build and analyze master'
