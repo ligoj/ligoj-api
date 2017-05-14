@@ -43,7 +43,7 @@ public class FeaturePluginTest {
 	}
 
 	@Test
-	public void update() {
+	public void update() throws Exception {
 		// Nothing done there
 		plugin.update("any");
 	}

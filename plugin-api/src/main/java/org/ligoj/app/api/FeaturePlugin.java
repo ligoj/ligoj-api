@@ -6,8 +6,8 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * A plug-in. The plug-in behavior is massively based on naming convention. The key of the plug-in must be unique and
- * following the bellow rules :
+ * A plug-in. The plug-in behavior is massively based on naming convention. The
+ * key of the plug-in must be unique and following the bellow rules :
  * <ul>
  * <li>Must follows this pattern <code>[a-z\d]+(:[a-z\d]+)*</code></li>
  * <li>Must be unique</li>
@@ -25,16 +25,18 @@ public interface FeaturePlugin extends Comparable<FeaturePlugin> {
 	/**
 	 * Return the plug-in version.
 	 * 
-	 * @return the plug-in version. Should follow the <a href="http://semver.org/">semantic version management</a>
+	 * @return the plug-in version. Should follow the
+	 *         <a href="http://semver.org/">semantic version management</a>
 	 */
 	default String getVersion() {
 		return getClass().getPackage().getImplementationVersion();
 	}
 
 	/**
-	 * Return the plug-in name. By default the name is computed from the <code>MANIFEST.MF#Implementation-Title</code>
-	 * attribute. When not available, the last capitalized part (after the last <code>:</code> separator) of plug-in's
-	 * key is used.
+	 * Return the plug-in name. By default the name is computed from the
+	 * <code>MANIFEST.MF#Implementation-Title</code> attribute. When not
+	 * available, the last capitalized part (after the last <code>:</code>
+	 * separator) of plug-in's key is used.
 	 * 
 	 * @return the plug-in name. Never <code>null</code>.
 	 */
@@ -53,9 +55,14 @@ public interface FeaturePlugin extends Comparable<FeaturePlugin> {
 	}
 
 	/**
-	 * Callback used to persist some additional when the plug-in is being installed.
+	 * Callback used to persist some additional when the plug-in is being
+	 * installed.
+	 * 
+	 * @throws Exception
+	 *             Everything could happen, the exception are handle by the
+	 *             manager.
 	 */
-	default void install() {
+	default void install() throws Exception {
 		// Nothing to do
 	}
 
@@ -66,24 +73,31 @@ public interface FeaturePlugin extends Comparable<FeaturePlugin> {
 	}
 
 	/**
-	 * Return entities class to be persisted during the installation from CSV files located in the "csv" folder of this
-	 * plug-in. CsvForJpa component will be used. Order is important. First {@link Class} will be associated to the
-	 * right CSV file and persisted in the database, then the next one. When empty, or not containing the "Node.class"
-	 * value, a default Node will be inserted by default.
+	 * Return entities class to be persisted during the installation from CSV
+	 * files located in the "csv" folder of this plug-in. CsvForJpa component
+	 * will be used. Order is important. First {@link Class} will be associated
+	 * to the right CSV file and persisted in the database, then the next one.
+	 * When empty, or not containing the "Node.class" value, a default Node will
+	 * be inserted by default.
 	 * 
-	 * @return Entities class to be persisted during the installation from CSV files
+	 * @return Entities class to be persisted during the installation from CSV
+	 *         files
 	 */
 	default List<Class<?>> getInstalledEntities() {
 		return Collections.emptyList();
 	}
 
 	/**
-	 * Callback used to update some data when the plug-in is being updated from the given version.
+	 * Callback used to update some data when the plug-in is being updated from
+	 * the given version.
 	 * 
 	 * @param odlVersion
 	 *            The previously installed version.
+	 * @throws Exception
+	 *             Everything could happen, the exception are handle by the
+	 *             manager.
 	 */
-	default void update(final String odlVersion) {
+	default void update(final String odlVersion) throws Exception {
 		// Nothing to do
 	}
 }
