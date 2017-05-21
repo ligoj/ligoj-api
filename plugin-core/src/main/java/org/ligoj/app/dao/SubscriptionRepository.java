@@ -13,15 +13,12 @@ import org.ligoj.app.model.Subscription;
 public interface SubscriptionRepository extends RestRepository<Subscription, Integer> {
 
 	/**
-	 * Return all visible subscriptions visible for current user.
+	 * Return all subscriptions with only few information.
 	 * 
-	 * @param user
-	 *            the current user.
-	 * @return the subscriptions data (project identifier and node identifier) visible for current user.
+	 * @return the subscriptions data  :project identifier and node identifier.
 	 */
-	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p WHERE "
-			+ ProjectRepository.VISIBLE_PROJECTS)
-	List<Object[]> findAllLight(String user);
+	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p")
+	List<Object[]> findAllLight();
 
 	/**
 	 * Return the subscriptions of given project.

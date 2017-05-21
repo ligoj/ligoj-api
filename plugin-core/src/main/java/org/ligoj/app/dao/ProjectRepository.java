@@ -34,11 +34,10 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
 	String VISIBLE_PROJECTS = "(p.teamLeader = :user OR " + IS_ADMIN
-			+ " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data"
-			+ "     AND (EXISTS(SELECT 1 FROM CacheMembership AS cm WHERE cm.user.id = :user AND cm.group = g)"
+			+ " OR EXISTS(SELECT 1 FROM ParameterValue AS pv WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p"
+			+ "     AND (EXISTS(SELECT 1 FROM CacheMembership AS cm INNER JOIN cm.group AS g WHERE cm.user.id = :user AND g.id = pv.data)"
 			+ "       OR EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ " AND ((d.type = org.ligoj.app.iam.model.DelegateType.GROUP AND d.dn=g.description)"
-			+ "                   OR (d.type=org.ligoj.app.iam.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))";
+			+ "         AND EXISTS(SELECT 1 FROM CacheGroup g WHERE g.id = pv.data AND (g.description LIKE CONCAT('%,',d.dn) OR g.description=d.dn))))))";
 
 	/**
 	 * Return all {@link Project} objects with the given name.The other constraints are :
@@ -76,7 +75,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name
 	 * @return all visible {@link Project} objects for the given user.
 	 */
-	@Query("SELECT id, name, pkey FROM Project AS p WHERE EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project=p AND" + VISIBLE_PROJECTS + ")")
+	@Query("SELECT id, name, pkey FROM Project AS p WHERE " + VISIBLE_PROJECTS  + " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project=p)")
 	List<Object[]> findAllHavingSubscription(String user);
 
 	/**

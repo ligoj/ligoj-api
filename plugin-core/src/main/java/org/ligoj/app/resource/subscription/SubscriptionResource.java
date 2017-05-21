@@ -387,10 +387,10 @@ public class SubscriptionResource {
 		final List<Object[]> projects = projectRepository.findAllHavingSubscription(securityHelper.getLogin());
 
 		/*
-		 * Then, return involved subscriptions relating theses projects. SQL "IN" is not used, because of size
-		 * limitations. Structure : project.id, service.id
+		 * list visible projects having at least one subscription, return involved subscriptions relating theses projects. SQL "IN" is not used, because of size
+		 * limitations. Structure : id, project.id, service.id
 		 */
-		final List<Object[]> subscriptions = repository.findAllLight(securityHelper.getLogin());
+		final List<Object[]> subscriptions = repository.findAllLight();
 
 		/*
 		 * Then, fetch all nodes. SQL "IN" is not used, because of size limitations. They will be filtered against
@@ -422,7 +422,7 @@ public class SubscriptionResource {
 
 		// Fill the node with associated projects
 		final Map<String, SubscribedNodeVo> filteredNodes = new TreeMap<>();
-		subscriptions.forEach(rs -> {
+		subscriptions.stream().filter(rs -> projectsMap.containsKey(rs[1])).forEach(rs -> {
 			// Build the subscription data
 			final SubscriptionLightVo vo = new SubscriptionLightVo();
 			vo.setId((Integer) rs[0]);
