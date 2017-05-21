@@ -34,9 +34,6 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
 	String VISIBLE_PROJECTS = "(p.teamLeader = :user OR " + IS_ADMIN
-			+ " OR EXISTS(SELECT 1 FROM SystemRoleAssignment ra INNER JOIN ra.role r WHERE ra.user = :user"
-			+ "     AND EXISTS(SELECT 1 FROM SystemAuthorization a WHERE a.role = r AND a.pattern = '.*'"
-			+ "          AND a.type = org.ligoj.bootstrap.model.system.SystemAuthorization$AuthorizationType.BUSINESS))"
 			+ " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data"
 			+ "     AND (EXISTS(SELECT 1 FROM CacheMembership AS cm WHERE cm.user.id = :user AND cm.group = g)"
 			+ "       OR EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
