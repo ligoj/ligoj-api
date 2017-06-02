@@ -18,7 +18,8 @@ import org.ligoj.app.model.ParameterValue;
  */
 public interface NodeRepository extends RestRepository<Node, String> {
 
-	String MATCH_DELEGATE = DelegateOrgRepository.ASSIGNED_DELEGATE + " AND (n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id)";
+	String MATCH_DELEGATE = DelegateOrgRepository.ASSIGNED_DELEGATE
+			+ " AND (n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id)";
 
 	/**
 	 * Visible nodes condition.
@@ -33,7 +34,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Visible nodes condition to subscribe projects : either administrator, either can edit it, either administer it.
 	 */
-	String SUBSCRIBE_NODES = VISIBLE_NODES_PART + " AND (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true))";
+	String SUBSCRIBE_NODES = VISIBLE_NODES_PART
+			+ " AND (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true))";
 
 	/**
 	 * Return all parameter values associated to a node, or a refined one.
@@ -113,7 +115,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            The user requesting the nodes.
 	 * @return instance nodes considered as final .
 	 */
-	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL AND " + VISIBLE_NODES + " ORDER BY UPPER(n.name)")
+	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL AND " + VISIBLE_NODES
+			+ " ORDER BY UPPER(n.name)")
 	List<Node> findAllInstance(String user);
 
 	/**
@@ -123,7 +126,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            The user requesting the nodes.
 	 * @return node subscriptions count
 	 */
-	@Query("SELECT n.id, count(sub) FROM Subscription sub INNER JOIN sub.node n WHERE " + VISIBLE_NODES + " GROUP BY n.id")
+	@Query("SELECT n.id, count(sub) FROM Subscription sub INNER JOIN sub.node n WHERE " + VISIBLE_NODES
+			+ " GROUP BY n.id")
 	List<Object[]> countNodeSubscriptions(String user);
 
 	/**
@@ -147,9 +151,10 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            the optional criteria to match.
 	 * @param page
 	 *            the pagination.
-	 * @return The visible nodes.
+	 * @return The visible nodes. Ordered by their identifier.
 	 */
-	@Query("FROM Node n WHERE (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_NODES)
+	@Query("FROM Node n WHERE (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
+			+ VISIBLE_NODES + " ORDER BY n.id")
 	Page<Node> findAllVisible(String user, String criteria, Pageable page);
 
 	/**
