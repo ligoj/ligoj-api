@@ -452,7 +452,7 @@ public class SubscriptionResource {
 			filteredNodes.put(node.getId(), subscribedNode);
 
 			// Now check the parent exists or not and add it to the target filtered nodes
-			if (node.getRefined() != null) {
+			if (node.isRefining()) {
 
 				// Completed the previous link
 				subscribedNode.setRefined(node.getRefined().getId());

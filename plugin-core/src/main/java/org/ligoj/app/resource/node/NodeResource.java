@@ -104,7 +104,7 @@ public class NodeResource {
 	 */
 	public static NodeVo toVo(final Node entity) {
 		final NodeVo vo = toVoLight(entity);
-		if (entity.getRefined() != null) {
+		if (entity.isRefining()) {
 			vo.setRefined(toVo(entity.getRefined()));
 		}
 		return vo;
@@ -165,7 +165,7 @@ public class NodeResource {
 		}
 
 		// Complete the hierarchy
-		entities.entrySet().stream().filter(entry -> entry.getValue().getRefined() != null).forEach(entry -> {
+		entities.entrySet().stream().filter(entry -> entry.getValue().isRefining()).forEach(entry -> {
 			// Complete the hierarchy for this node
 			final NodeVo node = nodes.get(entry.getKey());
 			final NodeVo parent = nodes.get(entry.getValue().getRefined().getId());
@@ -187,11 +187,11 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return nodes having as parent the given node.
+	 * Return nodes having as direct parent the given node.
 	 * 
 	 * @param id
-	 *            The node identifier.
-	 * @return tools implementing the given service.
+	 *            The required direct parent node identifier.
+	 * @return Nodes having the required parent.
 	 */
 	@GET
 	@Path("{id}/children")
@@ -213,7 +213,8 @@ public class NodeResource {
 	@GET
 	@Path("{id}/children/{mode}")
 	public List<NodeVo> findAllByParent(@PathParam("id") final String id, @PathParam("mode") final SubscriptionMode mode) {
-		return repository.findAllByParent(id, mode, securityHelper.getLogin()).stream().map(NodeResource::toVoLight).collect(Collectors.toList());
+		return repository.findAllByParent(id, mode, securityHelper.getLogin()).stream().map(NodeResource::toVoLight)
+				.collect(Collectors.toList());
 	}
 
 	/**
@@ -225,7 +226,7 @@ public class NodeResource {
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return all parameters definition where a value is expected to be
+	 * @return All parameter definitions where a value is expected to be
 	 *         attached to the final subscription in given mode.
 	 */
 	@GET
@@ -236,8 +237,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return the parameters of given node. Not exposed as web-service since secured
-	 * data are clearly exposed. The result is cached.
+	 * Return the parameters of given node. Not exposed as web-service since
+	 * secured data are clearly exposed. The result is cached.
 	 * 
 	 * @param node
 	 *            the node identifier.
@@ -323,7 +324,8 @@ public class NodeResource {
 
 			// Call service which check status
 			isUp = plugin.checkStatus(node, parameters);
-		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this failures
+		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this
+										// failures
 			// Service is down when an exception is thrown.
 			log.warn("Check status of node {} failed with {}: {}", node, e.getClass(), e.getMessage());
 		}
@@ -349,8 +351,11 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check the subscriptions of given nodes. The node my be checked if unknown.
-	 * @param instances The nodes to check.
+	 * Check the subscriptions of given nodes. The node my be checked if
+	 * unknown.
+	 * 
+	 * @param instances
+	 *            The nodes to check.
 	 */
 	private void checkSubscriptionsStatus(final List<Node> instances) {
 		int counter = 0;
@@ -390,7 +395,9 @@ public class NodeResource {
 	public void checkSubscriptionStatus(final Node node, final NodeStatus status) {
 		final Map<String, String> nodeParameters = getParametersAsMap(node.getId());
 
-		// Retrieve subscriptions where parameters are redefined. Other subscriptions have node status.
+		// Retrieve subscriptions where parameters are redefined. Other
+		// subscriptions have node
+		// status.
 		final Map<Subscription, Map<String, String>> subscriptionsToCheck = findSubscriptionsWithParams(node.getId());
 
 		// Same instance, but with proxy to resolve inner transaction issue
@@ -421,7 +428,7 @@ public class NodeResource {
 		} else {
 			// All subscription of this are marked as DOWN
 			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptionsToCheck.size());
-			subscriptionsToCheck.entrySet().forEach(s->eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
+			subscriptionsToCheck.entrySet().forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
 		}
 	}
 
@@ -447,8 +454,10 @@ public class NodeResource {
 			status.setNode(node);
 			log.info("Check status of a subscription attached to {} succeed", node);
 			return status;
-		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this failures
-			// Service is down when an exception is thrown, log the error without trace
+		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this
+										// failures
+			// Service is down when an exception is thrown, log the error
+			// without trace
 			log.warn("Check status of a subscription attached to {} failed : {}", node, e.getMessage());
 		}
 		return new SubscriptionStatusWithData(false);
@@ -516,7 +525,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return a specific node visible for current user. The visibility is checked.
+	 * Return a specific node visible for current user. The visibility is
+	 * checked.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -531,7 +541,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return a specific node details. The visibility is not checked, and the cache is not involved.
+	 * Return a specific node details. The visibility is not checked, and the
+	 * cache is not involved.
 	 * 
 	 * @param id
 	 *            The node identifier.
