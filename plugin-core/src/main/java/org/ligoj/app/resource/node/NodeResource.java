@@ -35,6 +35,7 @@ import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.ParameterValue;
+import org.ligoj.app.model.Refining;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.bootstrap.core.NamedBean;
@@ -184,6 +185,19 @@ public class NodeResource {
 	@Path("children")
 	public List<NodeVo> findAllNoParent() {
 		return findAllByParent(null);
+	}
+
+	/**
+	 * Return all tools, so only nodes having a "service" as a parent. Note the
+	 * parent is also fetched but not considered as an item of the array.
+	 * 
+	 * @return Tool nodes ordered by their identifier.
+	 */
+	@GET
+	@Path("tools")
+	public List<NodeVo> findAllTools() {
+		return SpringUtils.getBean(NodeResource.class).findAll().values().stream().filter(Refining::isRefining)
+				.filter(n -> !n.getRefined().isRefining()).sorted().collect(Collectors.toList());
 	}
 
 	/**

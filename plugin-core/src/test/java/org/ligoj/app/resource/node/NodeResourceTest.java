@@ -396,6 +396,19 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertNull(service5.getRefined());
 		Assert.assertEquals(SubscriptionMode.LINK, service5.getMode());
 	}
+	
+	@Test
+	public void findAllTools() {
+		final List<NodeVo> tools = resource.findAllTools();
+		Assert.assertEquals(11, tools.size());
+		final NodeVo service = tools.get(0);
+		Assert.assertEquals("service:bt:jira", service.getId());
+		Assert.assertEquals("JIRA", service.getName());
+		Assert.assertNull(service.getUiClasses());
+		
+		// Check the parent is there
+		Assert.assertEquals("service:bt", service.getRefined().getId());
+	}
 
 	@Test
 	public void findAllByParent() {
