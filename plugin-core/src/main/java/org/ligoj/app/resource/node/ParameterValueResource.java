@@ -442,7 +442,7 @@ public class ParameterValueResource {
 	 * 
 	 * @param values
 	 *            The parameters list.
-	 * @return the corresponding key/values
+	 * @return the corresponding key/values. Never <code>null</code>.
 	 */
 	public Map<String, String> toMapValues(final List<ParameterValue> values) {
 		final Map<String, String> result = new HashMap<>();
