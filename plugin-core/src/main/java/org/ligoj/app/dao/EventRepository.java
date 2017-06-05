@@ -2,6 +2,7 @@ package org.ligoj.app.dao;
 
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import org.ligoj.bootstrap.core.dao.RestRepository;
@@ -70,4 +71,15 @@ public interface EventRepository extends RestRepository<Event, String> {
 			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub) AND "
 			+ NodeRepository.VISIBLE_NODES + " GROUP BY event.value, n.id")
 	List<Object[]> countSubscriptionsEvents(String user);
+
+
+	/**
+	 * Delete all events related to the given node.
+	 * 
+	 * @param node
+	 *            The node identifier.
+	 */
+	@Modifying
+	@Query("DELETE Event WHERE node.id = :node OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node)")
+	void deleteByNode(String node);
 }

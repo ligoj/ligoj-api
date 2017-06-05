@@ -1,17 +1,20 @@
 package org.ligoj.app.resource.node;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import javax.transaction.Transactional;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  * {@link Event} resource.
@@ -88,4 +91,55 @@ public class EventResource {
 		repository.save(event);
 	}
 
+
+	/**
+	 * {@link Event} JPA to VO object transformer without refined informations.
+	 * 
+	 * @param entity
+	 *            Source entity.
+	 * @return The corresponding VO object with node/subscription reference.
+	 */
+	public static EventVo toVo(final Event entity) {
+		final EventVo vo = new EventVo();
+		vo.setValue(entity.getValue());
+		vo.setType(entity.getType());
+		if (entity.getNode() == null) {
+			vo.setSubscription(entity.getSubscription().getId());
+			vo.setNode(NodeResource.toVoLight(entity.getSubscription().getNode()));
+		} else {
+			vo.setNode(NodeResource.toVoLight(entity.getNode()));
+		}
+		return vo;
+	}
+
+	/**
+	 * Return all events related to a visible node of given user.
+	 * @param user The user requesting these events.
+	 * @return Events related to a visible {@link Node}.
+	 */
+	public List<EventVo> findAll(final String user) {
+		final List<Event> events = repository.findLastEvents(user);
+		final Map<String, EventVo> services = new HashMap<>();
+		final Map<String, EventVo> tools = new HashMap<>();
+		for (final Event event : events) {
+			final Node parent = event.getNode().getRefined();
+			fillParentEvents(tools, parent, EventResource.toVo(event), event.getValue());
+			fillParentEvents(services, parent.getRefined(), tools.get(parent.getId()), event.getValue());
+		}
+		return new ArrayList<>(services.values());
+	}
+
+	private void fillParentEvents(final Map<String, EventVo> parents, final Node parent, final EventVo eventVo, final String eventValue) {
+		final EventVo service = parents.computeIfAbsent(parent.getId(), key -> {
+			final EventVo result = new EventVo();
+			result.setNode(NodeResource.toVoLight(parent));
+			result.setValue(eventValue);
+			result.setType(eventVo.getType());
+			return result;
+		});
+		service.getSpecifics().add(eventVo);
+		if ("DOWN".equals(eventValue)) {
+			service.setValue(eventValue);
+		}
+	}
 }

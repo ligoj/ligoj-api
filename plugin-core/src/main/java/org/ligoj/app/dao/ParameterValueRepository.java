@@ -2,10 +2,10 @@ package org.ligoj.app.dao;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.Query;
-
-import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.app.model.ParameterValue;
+import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * {@link ParameterValue} repository
@@ -13,7 +13,8 @@ import org.ligoj.app.model.ParameterValue;
 public interface ParameterValueRepository extends RestRepository<ParameterValue, Integer> {
 
 	/**
-	 * Return a parameter value related to the subscription to the given service for a project.
+	 * Return a parameter value related to the subscription to the given service
+	 * for a project.
 	 * 
 	 * @param subscription
 	 *            the subscription identifier.
@@ -26,7 +27,8 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	String getSubscriptionParameterValue(int subscription, String parameter);
 
 	/**
-	 * Return all parameters (name and raw value) associated to a subscription. Sensitive parameters are returned.
+	 * Return all parameters (name and raw value) associated to a subscription.
+	 * Sensitive parameters are returned.
 	 * 
 	 * @param subscription
 	 *            the subscription identifier.
@@ -38,8 +40,8 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	List<ParameterValue> findAllBySubscription(int subscription);
 
 	/**
-	 * Return all non secured parameters (name and raw value) associated to a subscription. Sensitive parameters are not
-	 * returned.
+	 * Return all non secured parameters (name and raw value) associated to a
+	 * subscription. Sensitive parameters are not returned.
 	 * 
 	 * @param subscription
 	 *            the subscription identifier.
@@ -50,4 +52,15 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 			+ " WHERE s.id = ?1 AND param.secured != TRUE"
 			+ " AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service)")
 	List<ParameterValue> findAllSecureBySubscription(int subscription);
+
+	/**
+	 * Delete all parameter values related to the given node.
+	 * 
+	 * @param node
+	 *            The node identifier.
+	 */
+	@Modifying
+	@Query("DELETE ParameterValue WHERE parameter.id IN (SELECT id FROM Parameter WHERE owner.id = :node)"
+			+ " OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node) OR node.id = :node")
+	void deleteByNode(String node);
 }

@@ -10,10 +10,13 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.cache.annotation.CacheKey;
+import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
 import javax.transaction.Transactional;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -30,8 +33,9 @@ import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
+import org.ligoj.app.dao.ParameterRepository;
+import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
-import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.ParameterValue;
@@ -52,6 +56,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
+import net.sf.ehcache.CacheManager;
 
 /**
  * {@link Node} resource.
@@ -74,6 +79,10 @@ public class NodeResource {
 
 	@Autowired
 	private SubscriptionRepository subscriptionRepository;
+	@Autowired
+	private ParameterValueRepository parameterValueRepository;
+	@Autowired
+	private ParameterRepository parameterRepository;
 
 	@Autowired
 	protected ServicePluginLocator servicePluginLocator;
@@ -148,6 +157,7 @@ public class NodeResource {
 			if (vo == null) {
 				vo = new NodeVo();
 				NamedBean.copy(node, vo);
+				vo.setMode(node.getMode());
 				vo.setParameters(new HashMap<>());
 				vo.setTag(node.getTag());
 				vo.setTagUiClasses(node.getTagUiClasses());
@@ -208,7 +218,7 @@ public class NodeResource {
 	 * @return Nodes having the required parent.
 	 */
 	@GET
-	@Path("{id}/children")
+	@Path("{id:.+:.*}/children")
 	public List<NodeVo> findAllByParent(@PathParam("id") final String id) {
 		return findAllByParent(id, null);
 	}
@@ -225,7 +235,7 @@ public class NodeResource {
 	 *         of the node, without recursive redefinition.
 	 */
 	@GET
-	@Path("{id}/children/{mode}")
+	@Path("{id:.+:.*}/children/{mode}")
 	public List<NodeVo> findAllByParent(@PathParam("id") final String id, @PathParam("mode") final SubscriptionMode mode) {
 		return repository.findAllByParent(id, mode, securityHelper.getLogin()).stream().map(NodeResource::toVoLight)
 				.collect(Collectors.toList());
@@ -244,7 +254,7 @@ public class NodeResource {
 	 *         attached to the final subscription in given mode.
 	 */
 	@GET
-	@Path("{id}/parameter/{mode}")
+	@Path("{id:.+:.*}/parameter/{mode}")
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("id") final String id, @PathParam("mode") final SubscriptionMode mode) {
 		return repository.getOrphanParameters(id, mode, securityHelper.getLogin()).stream().map(ParameterValueResource::toVo)
 				.collect(Collectors.toList());
@@ -274,6 +284,81 @@ public class NodeResource {
 	}
 
 	/**
+	 * Create a new {@link Node}.
+	 * 
+	 * @param node
+	 *            The new node definition.
+	 */
+	@POST
+	@CacheRemoveAll(cacheName = "nodes")
+	public void create(final NodeEditionVo node) {
+		saveOrUpdate(node, new Node());
+	}
+
+	/**
+	 * Update an existing {@link Node}.
+	 * 
+	 * @param node
+	 *            The new node definition to replace.
+	 */
+	@PUT
+	@CacheRemoveAll(cacheName = "nodes")
+	public void update(final NodeEditionVo node) {
+		saveOrUpdate(node, repository.findOneExpected(node.getId()));
+	}
+
+	private void saveOrUpdate(final NodeEditionVo node, final Node entity) {
+		NamedBean.copy(node, entity);
+		if (node.isRefining()) {
+			final String parent = node.getRefined();
+			// Check this parent is the direct ancestor
+			if (!node.getId().matches(parent + ":\\w+")) {
+				// Parent is in a different branch, or invalid depth
+				throw new ValidationJsonException("refined", "invalid-parent", "id", node.getId(), "refined", parent);
+			}
+			// Check the refined node is existing
+			entity.setRefined(repository.findOneExpected(parent));
+		} else {
+			// Check the current node can be a root node, AKA a service.
+			if (!node.getId().matches("service:\\w+")) {
+				// Identifier does not match to a root
+				throw new ValidationJsonException("refined", "invalid-parent", node.getId());
+			}
+			entity.setRefined(null);
+		}
+		entity.setMode(node.getMode());
+		repository.saveAndFlush(entity);
+	}
+
+	/**
+	 * Delete an existing tool {@link Node} from its identifier. The whole cache
+	 * of nodes is invalidated. All related subscriptions are also deleted.
+	 * 
+	 * @param id
+	 *            The tool node identifier.
+	 */
+	@DELETE
+	@Path("{id:.+:.+:.*}")
+	@CacheRemoveAll(cacheName = "nodes")
+	public void delete(@PathParam("id") final String id) {
+		// Check there is no node depending to the one we are deleting
+		if (!findAllByParent(id).isEmpty()) {
+			// At lest one sub-node
+			throw new ValidationJsonException("refined", "not-empty", id);
+		}
+		parameterValueRepository.deleteByNode(id);
+		parameterRepository.deleteAllBy("owner.id", id);
+		eventRepository.deleteByNode(id);
+		subscriptionRepository.deleteAllBy("node.id", id);
+		repository.delete(id);
+
+		// Also invalidates the node parameters cache
+		// Note "subscription-parameters" cache is not invalidated. A process
+		// could be added there to invalidate each related subscription.
+		CacheManager.getInstance().removeCache("node-parameters");
+	}
+
+	/**
 	 * Check status of each node instance. Only visible nodes from the current
 	 * user are checked.
 	 */
@@ -291,7 +376,7 @@ public class NodeResource {
 	 *            The node identifier to check.
 	 */
 	@POST
-	@Path("status/refresh/{id}")
+	@Path("status/refresh/{id:.+:.*}")
 	public void checkNodeStatus(@PathParam("id") final String id) {
 		Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).ifPresent(this::checkNodeStatus);
 	}
@@ -485,15 +570,7 @@ public class NodeResource {
 	@GET
 	@Path("status")
 	public List<EventVo> getNodeStatus() {
-		final List<Event> events = eventRepository.findLastEvents(securityHelper.getLogin());
-		final Map<String, EventVo> services = new HashMap<>();
-		final Map<String, EventVo> tools = new HashMap<>();
-		for (final Event event : events) {
-			final Node parent = event.getNode().getRefined();
-			fillParentEvents(tools, parent, toVo(event), event.getValue());
-			fillParentEvents(services, parent.getRefined(), tools.get(parent.getId()), event.getValue());
-		}
-		return new ArrayList<>(services.values());
+		return eventResource.findAll(securityHelper.getLogin());
 	}
 
 	/**
@@ -522,20 +599,6 @@ public class NodeResource {
 		}
 
 		return new ArrayList<>(results.values());
-	}
-
-	private void fillParentEvents(final Map<String, EventVo> parents, final Node parent, final EventVo eventVo, final String eventValue) {
-		final EventVo service = parents.computeIfAbsent(parent.getId(), key -> {
-			final EventVo result = new EventVo();
-			result.setNode(toVoLight(parent));
-			result.setValue(eventValue);
-			result.setType(eventVo.getType());
-			return result;
-		});
-		service.getSpecifics().add(eventVo);
-		if ("DOWN".equals(eventValue)) {
-			service.setValue(eventValue);
-		}
 	}
 
 	/**
@@ -595,25 +658,5 @@ public class NodeResource {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, NodeVo> findAll() {
 		return toVoParameters(repository.findAllWithValuesSecure());
-	}
-
-	/**
-	 * {@link Event} JPA to VO object transformer without refined informations.
-	 * 
-	 * @param entity
-	 *            Source entity.
-	 * @return The corresponding VO object with node/subscription reference.
-	 */
-	public static EventVo toVo(final Event entity) {
-		final EventVo vo = new EventVo();
-		vo.setValue(entity.getValue());
-		vo.setType(entity.getType());
-		if (entity.getNode() == null) {
-			vo.setSubscription(entity.getSubscription().getId());
-			vo.setNode(toVoLight(entity.getSubscription().getNode()));
-		} else {
-			vo.setNode(toVoLight(entity.getNode()));
-		}
-		return vo;
 	}
 }

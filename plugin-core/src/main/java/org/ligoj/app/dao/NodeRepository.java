@@ -38,11 +38,11 @@ public interface NodeRepository extends RestRepository<Node, String> {
 			+ " AND (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true))";
 
 	/**
-	 * Return all parameter values associated to a node, or a refined one.
+	 * Return all parameter values associated to a node, including the ones from the parent.
 	 * 
 	 * @param id
-	 *            the node identifier.
-	 * @return all parameter values associated to a node.
+	 *            The node identifier.
+	 * @return All parameter values associated to a node.
 	 */
 	@Query("SELECT p FROM ParameterValue p LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE n0.id = :id OR n1.refined.id = :id OR n2.refined.id = :id")

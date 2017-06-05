@@ -474,7 +474,7 @@ public class SubscriptionResource {
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<Integer, EventVo> getStatusByProject(@PathParam("project") final int project) {
-		return eventRepository.findLastEvents(project).stream().map(NodeResource::toVo)
+		return eventRepository.findLastEvents(project).stream().map(EventResource::toVo)
 				.collect(Collectors.toMap(EventVo::getSubscription, Function.identity()));
 	}
 
