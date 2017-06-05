@@ -19,7 +19,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_PARAMETER_INSTANCE")
+@Table(name = "LIGOJ_PARAMETER_VALUE")
 @ToString(of = { "parameter", "data" })
 public class ParameterValue extends AbstractAudited<Integer> implements NodeScoped {
 
