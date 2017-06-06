@@ -261,7 +261,7 @@ public class NodeResource {
 	@GET
 	@Path("{id:.+:.*}/parameter/{mode}")
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("id") final String id, @PathParam("mode") final SubscriptionMode mode) {
-		return repository.getOrphanParameters(id, mode, securityHelper.getLogin()).stream().map(ParameterValueResource::toVo)
+		return repository.getOrphanParameters(id, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
 				.collect(Collectors.toList());
 	}
 

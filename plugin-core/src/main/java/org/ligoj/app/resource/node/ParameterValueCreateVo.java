@@ -10,13 +10,13 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Parameter value for edition.
+ * Parameter value for create.
  */
 @Getter
 @Setter
 @ToString(of = "parameter")
-public class ParameterValueEditionVo {
-
+public class ParameterValueCreateVo {
+	
 	/**
 	 * Parameter's identifier.
 	 */

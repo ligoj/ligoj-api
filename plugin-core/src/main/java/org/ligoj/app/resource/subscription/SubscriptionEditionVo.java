@@ -12,7 +12,7 @@ import lombok.Setter;
 import org.hibernate.validator.constraints.NotBlank;
 
 import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.resource.node.ParameterValueEditionVo;
+import org.ligoj.app.resource.node.ParameterValueCreateVo;
 
 /**
  * A subscription data edition.
@@ -44,7 +44,7 @@ public class SubscriptionEditionVo {
 	 */
 	@Valid
 	@Setter
-	private List<ParameterValueEditionVo> parameters;
+	private List<ParameterValueCreateVo> parameters;
 	
 	@NotNull
 	@Setter

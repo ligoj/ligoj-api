@@ -45,7 +45,7 @@ import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventResource;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
-import org.ligoj.app.resource.node.ParameterValueEditionVo;
+import org.ligoj.app.resource.node.ParameterValueCreateVo;
 import org.ligoj.app.resource.node.ParameterValueResource;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.NamedBean;
@@ -261,7 +261,7 @@ public class SubscriptionResource {
 
 		// Check there is no override
 		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),
-				vo.getParameters().stream().map(ParameterValueEditionVo::getParameter).collect(Collectors.toList()));
+				vo.getParameters().stream().map(ParameterValueCreateVo::getParameter).collect(Collectors.toList()));
 		return acceptedParameters;
 	}
 
@@ -291,7 +291,7 @@ public class SubscriptionResource {
 	/**
 	 * Check mandatory parameters are provided.
 	 */
-	protected void checkMandatoryParameters(final List<ParameterValueEditionVo> parameters, final List<Parameter> acceptedParameters,
+	protected void checkMandatoryParameters(final List<ParameterValueCreateVo> parameters, final List<Parameter> acceptedParameters,
 			final SubscriptionMode mode) {
 		// Check each mandatory parameter for the current mode
 		acceptedParameters.stream()
@@ -302,7 +302,7 @@ public class SubscriptionResource {
 	/**
 	 * Check mandatory parameter is provided.
 	 */
-	private void checkMandatoryParameter(final Collection<ParameterValueEditionVo> parameters, final Persistable<String> parameter) {
+	private void checkMandatoryParameter(final Collection<ParameterValueCreateVo> parameters, final Persistable<String> parameter) {
 		// Have to find this parameter
 		if (parameters.stream().noneMatch(value -> value.getParameter().equals(parameter.getId()))) {
 			// Missing mandatory parameter

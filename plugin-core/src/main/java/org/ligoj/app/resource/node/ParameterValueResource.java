@@ -1,9 +1,8 @@
 package org.ligoj.app.resource.node;
 
-import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Date;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -20,31 +20,35 @@ import java.util.regex.Pattern;
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheResult;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
+import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.SimpleUserOrg;
+import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
-import org.ligoj.bootstrap.core.resource.TechnicalException;
+import org.ligoj.bootstrap.core.resource.BusinessException;
+import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 import lombok.AllArgsConstructor;
 
@@ -54,33 +58,32 @@ import lombok.AllArgsConstructor;
 @Service
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
+@Path("/node/parameter-value")
 public class ParameterValueResource {
+
+	@Autowired
+	private ParameterValueRepository repository;
 
 	@Autowired
 	private ParameterRepository parameterRepository;
 
 	@Autowired
-	private ParameterValueRepository repository;
+	private SubscriptionRepository susbcriptionRepository;
+
+	@Autowired
+	private NodeRepository nodeRepository;
+
+	@Autowired
+	private ParameterResource parameterResource;
+
+	@Autowired
+	private SecurityHelper securityHelper;
 
 	@Autowired
 	private CryptoHelper cryptoHelper;
 
 	@Autowired
 	private IamProvider[] iamProvider;
-
-	private static final TypeReference<List<Integer>> LIST_INTEGER_TYPE = new TypeReference<List<Integer>>() {
-		// Nothing to do
-	};
-
-	private static final TypeReference<List<String>> LIST_STRING_TYPE = new TypeReference<List<String>>() {
-		// Nothing to do
-	};
-	private static final TypeReference<Map<String, Integer>> MAP_STRING_TYPE = new TypeReference<Map<String, Integer>>() {
-		// Nothing to do
-	};
-	private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE = new TypeReference<Map<String, String>>() {
-		// Nothing to do
-	};
 
 	@AllArgsConstructor
 	private static class ParameterValueMapper<X> {
@@ -89,14 +92,9 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Standard mapper used to read parameter configurations.
-	 */
-	private static final ObjectMapper MAPPER = new ObjectMapper();
-
-	/**
 	 * A mapper configuration to parse parameter value to string.
 	 */
-	private static final Map<Function<ParameterValueEditionVo, Object>, Function<Object, String>> TO_STRING = new HashMap<>();
+	private static final Map<Function<ParameterValueCreateVo, Object>, Function<Object, String>> TO_STRING = new HashMap<>();
 
 	/**
 	 * A mapper configuration to parse string to parameter value.
@@ -108,26 +106,25 @@ public class ParameterValueResource {
 		TO_VALUE.put(ParameterType.BINARY, new ParameterValueMapper<>(ParameterValueVo::setBinary, Boolean::valueOf));
 		TO_VALUE.put(ParameterType.DATE, new ParameterValueMapper<>(ParameterValueVo::setDate, s -> new Date(Long.parseLong(s))));
 		TO_VALUE.put(ParameterType.INTEGER, new ParameterValueMapper<>(ParameterValueVo::setInteger, Integer::valueOf));
-		TO_VALUE.put(ParameterType.MULTIPLE,
-				new ParameterValueMapper<>(ParameterValueVo::setSelections, s -> toConfiguration(s, LIST_INTEGER_TYPE)));
+		TO_VALUE.put(ParameterType.MULTIPLE, new ParameterValueMapper<>(ParameterValueVo::setSelections, ParameterResource::toListInteger));
 		TO_VALUE.put(ParameterType.SELECT, new ParameterValueMapper<>(ParameterValueVo::setIndex, Integer::valueOf));
-		TO_VALUE.put(ParameterType.TAGS, new ParameterValueMapper<>(ParameterValueVo::setTags, s -> toConfiguration(s, LIST_STRING_TYPE)));
+		TO_VALUE.put(ParameterType.TAGS, new ParameterValueMapper<>(ParameterValueVo::setTags, ParameterResource::toListString));
 		TO_VALUE.put(ParameterType.TEXT, new ParameterValueMapper<>(ParameterValueVo::setText, Function.identity()));
 
 		// To String mapping
-		TO_STRING.put(ParameterValueEditionVo::getBinary, Object::toString);
-		TO_STRING.put(ParameterValueEditionVo::getDate, o -> String.valueOf(((Date) o).getTime()));
-		TO_STRING.put(ParameterValueEditionVo::getIndex, Object::toString);
-		TO_STRING.put(ParameterValueEditionVo::getInteger, Object::toString);
-		TO_STRING.put(ParameterValueEditionVo::getTags, o -> toJSonString(o).toUpperCase(Locale.ENGLISH));
-		TO_STRING.put(ParameterValueEditionVo::getSelections, o -> toJSonString(o));
+		TO_STRING.put(ParameterValueCreateVo::getBinary, Object::toString);
+		TO_STRING.put(ParameterValueCreateVo::getDate, o -> String.valueOf(((Date) o).getTime()));
+		TO_STRING.put(ParameterValueCreateVo::getIndex, Object::toString);
+		TO_STRING.put(ParameterValueCreateVo::getInteger, Object::toString);
+		TO_STRING.put(ParameterValueCreateVo::getTags, o -> ParameterResource.toJSon(o).toUpperCase(Locale.ENGLISH));
+		TO_STRING.put(ParameterValueCreateVo::getSelections, ParameterResource::toJSon);
 	}
 
 	/**
 	 * A checker configuration to check a value against the contract of the
 	 * parameter.
 	 */
-	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
+	private final Map<ParameterType, BiConsumer<ParameterValueCreateVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
 
 	/**
 	 * Default constructor initializing the type mappings.
@@ -146,43 +143,6 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Build parameter configuration from the string definition.
-	 */
-	private static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
-		try {
-			return MAPPER.readValue(ObjectUtils.defaultIfNull(content, "{}"), valueTypeRef);
-		} catch (final IOException e) {
-			throw new TechnicalException("Unable to build configuration from " + content, e);
-		}
-	}
-
-	/**
-	 * {@link Parameter} JPA to {@link ParameterVo} transformer.
-	 * 
-	 * @param entity
-	 *            The source JPA entity to convert.
-	 * @return The VO with all attributes : full node reference, and definition.
-	 */
-	public static ParameterVo toVo(final Parameter entity) {
-		final ParameterVo vo = new ParameterVo();
-		// Copy basic data
-		vo.setId(entity.getId());
-		vo.setType(entity.getType());
-		vo.setMandatory(entity.isMandatory());
-		vo.setOwner(NodeResource.toVo(entity.getOwner()));
-
-		// Map constraint data
-		if (entity.getType().isArray()) {
-			vo.setValues(toConfiguration(entity.getData(), LIST_STRING_TYPE));
-		} else if (entity.getType() == ParameterType.INTEGER) {
-			final Map<String, Integer> minMax = toConfiguration(entity.getData(), MAP_STRING_TYPE);
-			vo.setMax(minMax.get("max"));
-			vo.setMin(minMax.get("min"));
-		}
-		return vo;
-	}
-
-	/**
 	 * {@link ParameterValue} JPA to business object transformer.
 	 * 
 	 * @param entity
@@ -193,7 +153,7 @@ public class ParameterValueResource {
 		final ParameterValueVo vo = new ParameterValueVo();
 		vo.copyAuditData(entity, (Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
-		vo.setParameter(toVo(entity.getParameter()));
+		vo.setParameter(ParameterResource.toVo(entity.getParameter()));
 
 		// Map node
 		if (entity.getNode() != null) {
@@ -225,39 +185,21 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * {@link ParameterValueEditionVo} to JPA entity transformer.
+	 * Return the data String from the true data value.
 	 * 
 	 * @param vo
 	 *            The object to convert.
-	 * @return The mapped entity.
+	 * @return The String data to persist.
 	 */
-	public static ParameterValue toEntity(final ParameterValueEditionVo vo) {
-		final ParameterValue entity = new ParameterValue();
-		final Parameter parameter = new Parameter();
-		parameter.setId(vo.getParameter());
-		entity.setParameter(parameter);
-
-		// Map constraint data
-		entity.setData(TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null).findFirst()
-				.map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText()));
-		return entity;
-	}
-
-	/**
-	 * Managed JSON writer
-	 */
-	private static String toJSonString(final Object any) {
-		try {
-			return MAPPER.writeValueAsString(any);
-		} catch (final JsonProcessingException e) {
-			throw new TechnicalException("Unable to build JSon data from bean " + any, e);
-		}
+	public static String toData(final ParameterValueCreateVo vo) {
+		return TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null).findFirst()
+				.map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText());
 	}
 
 	/**
 	 * Check optional but secure assertions.
 	 */
-	private void checkCompletude(final ParameterValueEditionVo vo) {
+	private void checkCompletude(final ParameterValueCreateVo vo) {
 		Arrays.stream(
 				new Supplier<?>[] { vo::getText, vo::getBinary, vo::getDate, vo::getIndex, vo::getInteger, vo::getTags, vo::getSelections })
 				.map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst().ifPresent(e -> {
@@ -271,42 +213,39 @@ public class ParameterValueResource {
 	 * Check the data constraints and return the associated parameter
 	 * definition.
 	 */
-	private Parameter checkConstraints(final ParameterValueEditionVo bean) {
-		final Parameter parameter = parameterRepository.findOneExpected(bean.getParameter());
-		typeToChecker.get(parameter.getType()).accept(bean, parameter);
-		checkCompletude(bean);
-		return parameter;
+	private void checkConstraints(final ParameterValueCreateVo vo, final Parameter parameter) {
+		typeToChecker.get(parameter.getType()).accept(vo, parameter);
+		checkCompletude(vo);
 	}
 
 	/**
 	 * Check tags
 	 */
-	private void checkTags(final ParameterValueEditionVo bean) {
-		ValidationJsonException.assertNotnull(bean.getTags(), bean.getParameter());
-		bean.getTags().forEach(tag -> ValidationJsonException.assertTrue(StringUtils.isNotBlank(tag), "NotBlank", bean.getParameter()));
+	private void checkTags(final ParameterValueCreateVo vo) {
+		ValidationJsonException.assertNotnull(vo.getTags(), vo.getParameter());
+		vo.getTags().forEach(tag -> ValidationJsonException.assertTrue(StringUtils.isNotBlank(tag), "NotBlank", vo.getParameter()));
 	}
 
 	/**
 	 * Check multiple selection
 	 */
-	private void checkMultiple(final ParameterValueEditionVo bean, final Parameter parameter) {
-		ValidationJsonException.assertNotnull(bean.getSelections(), parameter.getId());
-		final List<String> multiple = toConfiguration(parameter.getData(), LIST_STRING_TYPE);
+	private void checkMultiple(final ParameterValueCreateVo vo, final Parameter parameter) {
+		ValidationJsonException.assertNotnull(vo.getSelections(), parameter.getId());
+		final List<String> multiple = ParameterResource.toListString(parameter.getData());
+
 		// Check each index
-		for (final int index : bean.getSelections()) {
-			checkArrayBound(index, multiple.size(), parameter);
-		}
+		vo.getSelections().forEach(i -> checkArrayBound(i, multiple.size(), parameter));
 	}
 
 	/**
 	 * Check simple selection
 	 */
-	private void checkSelect(final ParameterValueEditionVo bean, final Parameter parameter) {
-		ValidationJsonException.assertNotnull(bean.getIndex(), bean.getParameter());
-		final List<String> single = toConfiguration(parameter.getData(), LIST_STRING_TYPE);
+	private void checkSelect(final ParameterValueCreateVo vo, final Parameter parameter) {
+		ValidationJsonException.assertNotnull(vo.getIndex(), vo.getParameter());
+		final List<String> single = ParameterResource.toListString(parameter.getData());
 
 		// Check the index
-		checkArrayBound(bean.getIndex(), single.size(), parameter);
+		checkArrayBound(vo.getIndex(), single.size(), parameter);
 	}
 
 	/**
@@ -334,51 +273,169 @@ public class ParameterValueResource {
 	/**
 	 * Check integer
 	 */
-	private void checkInteger(final ParameterValueEditionVo bean, final Parameter parameter) {
-		ValidationJsonException.assertNotnull(bean.getInteger(), parameter.getId());
-		final Map<String, Integer> minMax = toConfiguration(parameter.getData(), MAP_STRING_TYPE);
+	private void checkInteger(final ParameterValueCreateVo vo, final Parameter parameter) {
+		ValidationJsonException.assertNotnull(vo.getInteger(), parameter.getId());
+		final Map<String, Integer> minMax = ParameterResource.toMapInteger(parameter.getData());
 		// Check minimal value
 		if (minMax.get("max") != null) {
-			checkMax(bean.getInteger(), minMax.get("max"), parameter);
+			checkMax(vo.getInteger(), minMax.get("max"), parameter);
 		}
 		// Check maximal value
 		if (minMax.get("min") != null) {
-			checkMin(bean.getInteger(), minMax.get("min"), parameter);
+			checkMin(vo.getInteger(), minMax.get("min"), parameter);
 		}
 	}
 
 	/**
 	 * Check text
 	 */
-	private void checkText(final ParameterValueEditionVo bean, final Parameter parameter) {
+	private void checkText(final ParameterValueCreateVo vo, final Parameter parameter) {
 		// Check the value if not empty
-		if (StringUtils.isNotBlank(bean.getText()) && StringUtils.isNotBlank(parameter.getData())) {
+		if (StringUtils.isNotBlank(vo.getText()) && StringUtils.isNotBlank(parameter.getData())) {
 			// Check the pattern if present
-			final Map<String, String> stringProperties = toConfiguration(parameter.getData(), MAP_STRING_STRING_TYPE);
+			final Map<String, String> stringProperties = ParameterResource.toMapString(parameter.getData());
 			final String patternString = stringProperties.get("pattern");
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
 				final Pattern pattern = Pattern.compile(patternString);
-				ValidationJsonException.assertTrue(pattern.matcher(bean.getText()).matches(),
+				ValidationJsonException.assertTrue(pattern.matcher(vo.getText()).matches(),
 						javax.validation.constraints.Pattern.class.getName(), parameter.getId(), pattern.pattern());
 			}
 		}
 	}
 
 	/**
+	 * Delete a {@link ParameterValue}. A value can be deleted only where there
+	 * is no subscription on the related node, or the related parameter is not
+	 * mandatory.
+	 * 
+	 * @param id
+	 *            The entity's identifier.
+	 */
+	@DELETE
+	public void delete(final int id) {
+		// Check the value exist and related to a visible writable node
+		final ParameterValue value = findOneExpected(id);
+
+		// Check the visible node can also be edited
+		checkWritableNode(value.getNode().getId());
+
+		// A mandatory parameter can be deleted only when there is no
+		// subscription to the same node
+		if (value.getParameter().isMandatory()) {
+			checkUnusedValue(value.getId());
+		}
+
+		// Deletion can be performed
+		repository.delete(id);
+	}
+
+	/**
+	 * Update a {@link ParameterValue}. Visibility of value and related
+	 * parameter is checked. Only value attached to a {@link Node} can be
+	 * updated. The related node cannot be updated. A parameter used in a
+	 * subscription cannot be updated.
+	 * 
+	 * @param vo
+	 *            {@link ParameterValueCreateVo} to update. Identifier is
+	 *            required.
+	 */
+	@PUT
+	public void update(final ParameterValueNodeUpdateVo vo) {
+		final ParameterValue value = findOneExpected(vo.getId());
+		checkWritableNode(value.getNode().getId());
+		checkUnusedValue(value.getId());
+		saveOrUpdateInternal(vo, parameterResource.findByIdInternal(vo.getParameter()), value);
+		repository.saveAndFlush(value);
+	}
+
+	/**
+	 * Create a new {@link ParameterValue} to a node. The related node must be
+	 * visible and writable for the current user.
+	 * 
+	 * @param vo
+	 *            new {@link ParameterValueCreateVo} to persist.
+	 * @return The new identifier.
+	 */
+	@POST
+	public int create(final ParameterValueNodeVo vo) {
+		final ParameterValue value = createInternal(vo, parameterResource.findByIdInternal(vo.getParameter()));
+		value.setNode(checkWritableNode(vo.getNode()));
+		repository.saveAndFlush(value);
+		return value.getId();
+	}
+
+	/**
+	 * Return a visible {@link ParameterValue} for the current user. Only values
+	 * associated to a node are considered as valid values.
+	 * 
+	 * @param id
+	 *            The entity's identifier.
+	 * @return The visible {@link ParameterValue}.
+	 */
+	private ParameterValue findOneExpected(final int id) {
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).orElseThrow(EntityNotFoundException::new);
+	}
+
+	/**
+	 * Check the parameter value is not used in a subscription.
+	 */
+	private void checkUnusedValue(final int value) {
+		if (susbcriptionRepository.countByParameterValue(value) > 0) {
+			throw new BusinessException("used-parameter-value", "parameter-value", value);
+		}
+	}
+
+	/**
+	 * Check the related node can be updated by the current user.
+	 */
+	private Node checkWritableNode(final String id) {
+		final Node node = nodeRepository.findOneWritable(id, securityHelper.getLogin());
+		if (node == null) {
+			// Node is not readable
+			throw new BusinessException("read-only-node", "node", id);
+		}
+		return node;
+	}
+
+	/**
+	 * Check transition and convert to ParameterValue.
+	 * 
+	 * @param vo
+	 *            new {@link ParameterValueCreateVo} to persist.
+	 * @return corresponding entity.
+	 */
+	protected ParameterValue createInternal(final ParameterValueCreateVo vo) {
+		return createInternal(vo, parameterRepository.findOneExpected(vo.getParameter()));
+	}
+
+	/**
 	 * Check transition and convert to entity.
 	 * 
 	 * @param vo
-	 *            new {@link ParameterValueEditionVo} to persist.
+	 *            new {@link ParameterValueCreateVo} to persist.
+	 * @param parameter
+	 *            The resolved parameter related to the {@link ParameterValue}
 	 * @return corresponding entity.
 	 */
-	public ParameterValue create(final ParameterValueEditionVo vo) {
-		final Parameter parameter = checkConstraints(vo);
+	private ParameterValue createInternal(final ParameterValueCreateVo vo, final Parameter parameter) {
+		return saveOrUpdateInternal(vo, parameter, new ParameterValue());
+	}
+
+	/**
+	 * Check transition and convert to entity.
+	 * 
+	 * @param vo
+	 *            new {@link ParameterValueCreateVo} to persist.
+	 * @param parameter
+	 *            The resolved parameter related to the {@link ParameterValue}
+	 * @return corresponding entity.
+	 */
+	private ParameterValue saveOrUpdateInternal(final ParameterValueCreateVo vo, final Parameter parameter, final ParameterValue value) {
+		checkConstraints(vo, parameter);
 		checkCompletude(vo);
 
-		final ParameterValue value = toEntity(vo);
-
-		// Override the parameter with the loaded one
+		value.setData(toData(vo));
 		value.setParameter(parameter);
 
 		// Encrypt the data as needed
@@ -417,16 +474,16 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Create given values.
+	 * Create given parameter values.
 	 * 
-	 * @param parameters
+	 * @param values
 	 *            the parameter values to persist.
 	 * @param presave
 	 *            The operation to perform before persisting.
 	 */
-	public void create(final List<ParameterValueEditionVo> parameters, final Consumer<ParameterValue> presave) {
+	public void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {
 		// Persist each not null parameter
-		parameters.stream().map(this::create).filter(v -> StringUtils.isNotBlank(v.getData())).forEach(v -> {
+		values.stream().map(this::createInternal).filter(v -> StringUtils.isNotBlank(v.getData())).forEach(v -> {
 			// Link this value to the subscription
 			presave.accept(v);
 			repository.saveAndFlush(v);

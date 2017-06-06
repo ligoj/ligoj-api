@@ -63,4 +63,18 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@Query("DELETE ParameterValue WHERE parameter.id IN (SELECT id FROM Parameter WHERE owner.id = :node)"
 			+ " OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node) OR node.id = :node")
 	void deleteByNode(String node);
+
+	/**
+	 * Return the parameter with the given identifier and associated to a
+	 * visible and also writable node by the given user. Only entities linked to
+	 * a node can be deleted this way.
+	 * 
+	 * @param id
+	 *            The parameter identifier.
+	 * @param user
+	 *            The user principal requesting this parameter.
+	 * @return The visible parameter or <code>null</code> when not found.
+	 */
+	@Query("FROM ParameterValue v INNER JOIN FETCH v.node n WHERE v.id=:id AND n IS NOT NULL AND " + NodeRepository.WRITE_NODES)
+	ParameterValue findOneVisible(int id, String user);
 }
