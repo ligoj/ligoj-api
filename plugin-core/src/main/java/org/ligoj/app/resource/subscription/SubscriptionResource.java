@@ -2,7 +2,6 @@ package org.ligoj.app.resource.subscription;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -209,17 +208,7 @@ public class SubscriptionResource {
 		final Project project = checkVisibleProject(vo.getProject());
 		checkManagedProject(vo.getProject());
 		checkManagedNodeForSubscription(vo.getNode());
-
-		final List<Parameter> acceptedParameters = nodeRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
-				securityHelper.getLogin());
-
-		// Check all mandatory parameters for the current subscription mode
-		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
-		checkMandatoryParameters(vo.getParameters(), acceptedParameters, vo.getMode());
-
-		// Check there is no override
-		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),
-				vo.getParameters().stream().map(ParameterValueEditionVo::getParameter).collect(Collectors.toList()));
+		final List<Parameter> acceptedParameters = checkInputParameters(vo);
 
 		// Create subscription and parameters that would be removed in case of
 		// roll-back because of invalid parameters
@@ -232,8 +221,22 @@ public class SubscriptionResource {
 		repository.saveAndFlush(entity);
 		parameterValueResource.create(vo.getParameters(), (ParameterValue value) -> value.setSubscription(entity));
 
-		// Delegate the creation --> exception can appear there, causing to
-		// roll-back the previous persists
+		// Delegate to the related plug-in the next process
+		delegateToPLugin(vo, entity);
+
+		// Check again the parameters in the final state
+		checkMandatoryParameters(vo.getParameters(), acceptedParameters, SubscriptionMode.CREATE);
+		log.info("Subscription of project {} to service {}", vo.getProject(), vo.getNode());
+
+		return entity.getId();
+	}
+
+	/**
+	 * Delegates the creation to the hierarchy of the related plug-in, and
+	 * starting from the related plug-in. <br>
+	 * Exception appearing there causes to roll-back the previous persists.
+	 */
+	private void delegateToPLugin(final SubscriptionEditionVo vo, final Subscription entity) throws Exception {
 		for (ServicePlugin p = locator.getResource(vo.getNode()); p != null; p = locator.getResource(locator.getParent(p.getKey()))) {
 			if (vo.getMode() == SubscriptionMode.CREATE) {
 				// Create mode
@@ -243,12 +246,23 @@ public class SubscriptionResource {
 				p.link(entity.getId());
 			}
 		}
+	}
 
-		// Check again the parameters in the final state
-		checkMandatoryParameters(vo.getParameters(), acceptedParameters, SubscriptionMode.CREATE);
-		log.info("Subscription of project {} to service {}", vo.getProject(), vo.getNode());
+	/**
+	 * Check the parameters that are being attached to this subscription
+	 */
+	private List<Parameter> checkInputParameters(final SubscriptionEditionVo vo) {
+		final List<Parameter> acceptedParameters = nodeRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
+				securityHelper.getLogin());
 
-		return entity.getId();
+		// Check all mandatory parameters for the current subscription mode
+		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
+		checkMandatoryParameters(vo.getParameters(), acceptedParameters, vo.getMode());
+
+		// Check there is no override
+		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),
+				vo.getParameters().stream().map(ParameterValueEditionVo::getParameter).collect(Collectors.toList()));
+		return acceptedParameters;
 	}
 
 	/**
@@ -385,40 +399,72 @@ public class SubscriptionResource {
 
 	/**
 	 * Return all subscriptions and related nodes. Very light data are returned
-	 * there since a lot of subscriptions be there. Parameters values are not
+	 * there since a lot of subscriptions there. Parameters values are not
 	 * fetch.
 	 * 
-	 * @return Status of each subscription of given project.
+	 * @return Status of each subscription of each project and each node.
 	 */
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public SubscriptionListVo findAll() {
+		final SubscriptionListVo result = new SubscriptionListVo();
 
 		// First, list visible projects having at least one subscription
 		final List<Object[]> projects = projectRepository.findAllHavingSubscription(securityHelper.getLogin());
 
+		// Fill the projects
+		final Map<Integer, SubscribingProjectVo> projectsMap = toProjects(projects);
+		result.setProjects(projectsMap.values());
+
 		/*
-		 * list visible projects having at least one subscription, return
+		 * List visible projects having at least one subscription, return
 		 * involved subscriptions relating theses projects. SQL "IN" is not
 		 * used, because of size limitations. Structure : id, project.id,
 		 * service.id
 		 */
-		final List<Object[]> subscriptions = repository.findAllLight();
+		result.setSubscriptions(toSubscriptions(repository.findAllLight(), projectsMap));
 
 		/*
 		 * Then, fetch all nodes. SQL "IN" is not used, because of size
 		 * limitations. They will be filtered against subscriptions associated
 		 * to a visible project.
 		 */
-		final Map<String, NodeVo> nodes = nodeResource.findAll();
+		result.setNodes(toNodes(nodeResource.findAll(), result.getSubscriptions()).values());
+		return result;
+	}
 
-		// Fill the target structure
-		final SubscriptionListVo result = new SubscriptionListVo();
+	/**
+	 * Extract the distinct nodes from the subscriptions.
+	 */
+	private Map<String, SubscribedNodeVo> toNodes(final Map<String, NodeVo> nodes, final Collection<SubscriptionLightVo> subscriptions) {
+		final Map<String, SubscribedNodeVo> filteredNodes = new TreeMap<>();
+		// Add the related node of each subscription
+		subscriptions.stream().map(SubscriptionLightVo::getNode).map(nodes::get).forEach(n -> addNodeAsNeeded(filteredNodes, nodes, n));
+		return filteredNodes;
+	}
 
-		// Fill the projects
-		final Map<Integer, SubscribingProjectVo> projectsMap = new HashMap<>();
-		result.setProjects(projects.stream().map(rs -> {
+	/**
+	 * Convert the subscriptions result set to {@link SubscriptionLightVo}
+	 */
+	private Collection<SubscriptionLightVo> toSubscriptions(final List<Object[]> subscriptions,
+			final Map<Integer, SubscribingProjectVo> projects) {
+		// Prepare the subscriptions container with project name ordering
+		return subscriptions.stream().filter(rs -> projects.containsKey(rs[1])).map(rs -> {
+			// Build the subscription data
+			final SubscriptionLightVo vo = new SubscriptionLightVo();
+			vo.setId((Integer) rs[0]);
+			vo.setProject((Integer) rs[1]);
+			vo.setNode((String) rs[2]);
+			return vo;
+		}).collect(() -> new TreeSet<>((o1, o2) -> (projects.get(o1.getProject()).getName() + "," + o1.getId())
+				.compareToIgnoreCase(projects.get(o2.getProject()).getName() + "," + o2.getId())), TreeSet::add, TreeSet::addAll);
+	}
 
+	/**
+	 * Convert the project result set to {@link SubscribingProjectVo}
+	 */
+	private Map<Integer, SubscribingProjectVo> toProjects(final List<Object[]> projects) {
+		return projects.stream().map(rs -> {
 			// Build the project
 			final SubscribingProjectVo project = new SubscribingProjectVo();
 			project.setId((Integer) rs[0]);
@@ -426,30 +472,8 @@ public class SubscriptionResource {
 			project.setPkey((String) rs[2]);
 
 			// Also save it for indexed search
-			projectsMap.put(project.getId(), project);
 			return project;
-		}).collect(Collectors.toList()));
-
-		// Prepare the subscriptions container with project name ordering
-		result.setSubscriptions(new TreeSet<>((o1, o2) -> (projectsMap.get(o1.getProject()).getName() + "," + o1.getId())
-				.compareToIgnoreCase(projectsMap.get(o2.getProject()).getName() + "," + o2.getId())));
-
-		// Fill the node with associated projects
-		final Map<String, SubscribedNodeVo> filteredNodes = new TreeMap<>();
-		subscriptions.stream().filter(rs -> projectsMap.containsKey(rs[1])).forEach(rs -> {
-			// Build the subscription data
-			final SubscriptionLightVo vo = new SubscriptionLightVo();
-			vo.setId((Integer) rs[0]);
-			vo.setProject((Integer) rs[1]);
-			vo.setNode((String) rs[2]);
-			result.getSubscriptions().add(vo);
-
-			// Add the related node
-			final NodeVo node = nodes.get(vo.getNode());
-			addNodeAsNeeded(filteredNodes, nodes, node);
-		});
-		result.setNodes(filteredNodes.values());
-		return result;
+		}).collect(Collectors.toMap(SubscribingProjectVo::getId, Function.identity()));
 	}
 
 	/**
