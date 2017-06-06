@@ -79,8 +79,10 @@ public class NodeResource {
 
 	@Autowired
 	private SubscriptionRepository subscriptionRepository;
+
 	@Autowired
 	private ParameterValueRepository parameterValueRepository;
+
 	@Autowired
 	private ParameterRepository parameterRepository;
 
@@ -121,6 +123,22 @@ public class NodeResource {
 	}
 
 	/**
+	 * {@link Node} JPA to business object transformer with parameters.
+	 * 
+	 * @param entity
+	 *            Source entity.
+	 * @return The corresponding VO object with resources and without recursive
+	 *         parent reference.
+	 */
+	private static NodeVo toVoParameter(final Node entity) {
+		final NodeVo vo = toVoLight(entity);
+		vo.setParameters(new HashMap<>());
+		vo.setTag(entity.getTag());
+		vo.setTagUiClasses(entity.getTagUiClasses());
+		return vo;
+	}
+
+	/**
 	 * {@link Node} JPA to VO object transformer without refined informations.
 	 * 
 	 * @param entity
@@ -151,28 +169,15 @@ public class NodeResource {
 		final Map<String, Node> entities = new HashMap<>();
 		for (final Object[] resultSet : nodesAndValues) {
 			final Node node = (Node) resultSet[0];
-			NodeVo vo = nodes.get(node.getId());
+			final NodeVo vo = nodes.computeIfAbsent(node.getId(), id -> {
+				// Build the first encountered parameter for this node
+				entities.put(id, node);
+				return toVoParameter(node);
+			});
 
-			// Build the first encountered parameter for this node
-			if (vo == null) {
-				vo = new NodeVo();
-				NamedBean.copy(node, vo);
-				vo.setMode(node.getMode());
-				vo.setParameters(new HashMap<>());
-				vo.setTag(node.getTag());
-				vo.setTagUiClasses(node.getTagUiClasses());
-				vo.setUiClasses(node.getUiClasses());
-				nodes.put(node.getId(), vo);
-				entities.put(node.getId(), node);
-			}
-
-			// Add node value
-			final ParameterValue parameterValue = (ParameterValue) resultSet[1];
-			if (parameterValue != null) {
-				// Copy the parameter value
-				vo.getParameters().put(parameterValue.getParameter().getId(),
-						ParameterValueResource.parseValue(parameterValue, new ParameterValueVo()));
-			}
+			// Copy the parameter value if present
+			Optional.ofNullable((ParameterValue) resultSet[1]).ifPresent(
+					v -> vo.getParameters().put(v.getParameter().getId(), ParameterValueResource.parseValue(v, new ParameterValueVo())));
 		}
 
 		// Complete the hierarchy

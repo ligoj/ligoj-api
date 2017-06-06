@@ -1,5 +1,6 @@
 package org.ligoj.app.resource.delegate;
 
+import java.util.EnumMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,6 +67,11 @@ public class DelegateOrgResource {
 	protected IamProvider[] iamProvider;
 
 	/**
+	 * Receiver function from the receiver type.
+	 */
+	private final Map<ReceiverType, Function<String, String>> toReceiver = new EnumMap<>(ReceiverType.class);
+
+	/**
 	 * Ordered columns.
 	 */
 	private static final Map<String, String> ORDERED_COLUMNS = new HashMap<>();
@@ -80,9 +86,23 @@ public class DelegateOrgResource {
 	}
 
 	/**
+	 * Default constructor initializing the validators.
+	 */
+	public DelegateOrgResource() {
+		// Check the user/company/group is visible
+		toReceiver.put(ReceiverType.USER, r -> getUser().findByIdExpected(securityHelper.getLogin(), r).getId());
+		toReceiver.put(ReceiverType.COMPANY, r -> getCompany().findByIdExpected(securityHelper.getLogin(), r).getId());
+		toReceiver.put(ReceiverType.COMPANY, r -> getCompany().findByIdExpected(securityHelper.getLogin(), r).getId());
+		toReceiver.put(ReceiverType.COMPANY, r -> getGroup().findByIdExpected(securityHelper.getLogin(), r).getId());
+	}
+
+	/**
 	 * Converter from {@link DelegateOrg} to {@link DelegateOrgLightVo}
-	 * @param entity The entity to convert.
-	 * @return The initialized bean corresponding to the entity with fetched description for related user and group.
+	 * 
+	 * @param entity
+	 *            The entity to convert.
+	 * @return The initialized bean corresponding to the entity with fetched
+	 *         description for related user and group.
 	 */
 	public DelegateOrgLightVo toVo(final DelegateOrg entity) {
 		final DelegateOrgLightVo vo = new DelegateOrgLightVo();
@@ -116,11 +136,13 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Indicate this delegate is managed : so can be updated by the current user.
+	 * Indicate this delegate is managed : so can be updated by the current
+	 * user.
 	 */
 	private boolean isManagedDelegate(final DelegateOrg entity) {
 		// Managed if : is administrator, or
-		return entity.isCanAdmin() || entity.getReceiverType() != ReceiverType.USER || !securityHelper.getLogin().equals(entity.getReceiver());
+		return entity.isCanAdmin() || entity.getReceiverType() != ReceiverType.USER
+				|| !securityHelper.getLogin().equals(entity.getReceiver());
 	}
 
 	/**
@@ -148,10 +170,12 @@ public class DelegateOrgResource {
 	/**
 	 * Create a delegate. Rules are :
 	 * <ul>
-	 * <li>Related company, group or tree must be managed by the current user, directly or via a another parent
-	 * delegate.</li>
-	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
+	 * <li>Related company, group or tree must be managed by the current user,
+	 * directly or via a another parent delegate.</li>
+	 * <li>'write' flag cannot be <code>true</code> without already owning an
+	 * applicable delegate with this flag.</li>
+	 * <li>'admin' flag cannot be <code>true</code> without already owning an
+	 * applicable delegate with this flag.</li>
 	 * </ul>
 	 * 
 	 * @param vo
@@ -164,17 +188,22 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Validate the user changes regarding the current user's right. The associated DN and the real CN will stored in
-	 * database.<br>
+	 * Validate the user changes regarding the current user's right. The
+	 * associated DN and the real CN will stored in database.<br>
 	 * Rules, order is important :
 	 * <ul>
-	 * <li>Related company must be managed by the current user, directly or via a another parent delegate tree/company,
-	 * or act as if the company does not exist.</li>
-	 * <li>Related group must be managed by the current user, directly or via a another parent delegate group/tree, or
-	 * act as if the group does not exist.</li>
-	 * <li>Related tree must be managed by the current user, directly or via a another parent delegate tree.</li>
-	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
+	 * <li>Related company must be managed by the current user, directly or via
+	 * a another parent delegate tree/company, or act as if the company does not
+	 * exist.</li>
+	 * <li>Related group must be managed by the current user, directly or via a
+	 * another parent delegate group/tree, or act as if the group does not
+	 * exist.</li>
+	 * <li>Related tree must be managed by the current user, directly or via a
+	 * another parent delegate tree.</li>
+	 * <li>'write' flag cannot be <code>true</code> without already owning an
+	 * applicable delegate with this flag.</li>
+	 * <li>'admin' flag cannot be <code>true</code> without already owning an
+	 * applicable delegate with this flag.</li>
 	 * </ul>
 	 * Attention, DN is case sensitive.
 	 * 
@@ -185,15 +214,7 @@ public class DelegateOrgResource {
 		final Map<String, GroupOrg> allGroups = getGroup().findAll();
 
 		// Save the delegate with normalized name
-		final DelegateOrg entity = new DelegateOrg();
-		entity.setId(importEntry.getId());
-		entity.setName(Normalizer.normalize(importEntry.getName()));
-		entity.setCanAdmin(importEntry.isCanAdmin());
-		entity.setCanWrite(importEntry.isCanWrite());
-		entity.setType(importEntry.getType());
-
-		// Check the target
-		validateReceiver(importEntry, entity);
+		final DelegateOrg entity = toEntity(importEntry);
 
 		// Get all delegates of current user
 		String dn = "n/a";
@@ -209,12 +230,14 @@ public class DelegateOrgResource {
 			entity.setName("-");
 		}
 
-		// Check there is at least one delegate for this user allowing to write INTO the corresponding DN
+		// Check there is at least one delegate for this user allowing to write
+		// INTO the corresponding DN
 		if (repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn, importEntry.getType()).isEmpty()) {
 			throw new ForbiddenException();
 		}
 
-		// Check there is at least one delegate for this user allowing to write FROM the corresponding DN
+		// Check there is at least one delegate for this user allowing to write
+		// FROM the corresponding DN
 		if (importEntry.getId() != null) {
 
 			// Check the related DN
@@ -228,25 +251,24 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Validate the related receiver of this delegate.
+	 * Build the entity from the import entry.
 	 * 
 	 * @param importEntry
 	 *            The new delegate.
-	 * @param entity
-	 *            The receiver entity.
+	 * @return The JPA entity form with validated inputs.
 	 */
-	private void validateReceiver(final DelegateOrgEditionVo importEntry, final DelegateOrg entity) {
-		if (importEntry.getReceiverType() == ReceiverType.USER) {
-			// Check the user is visible
-			entity.setReceiver(getUser().findByIdExpected(securityHelper.getLogin(), importEntry.getReceiver()).getId());
-		} else if (importEntry.getReceiverType() == ReceiverType.COMPANY) {
-			// Check the company is visible
-			entity.setReceiver(getCompany().findByIdExpected(securityHelper.getLogin(), importEntry.getReceiver()).getId());
-		} else {
-			// Check the group is visible
-			entity.setReceiver(getGroup().findByIdExpected(securityHelper.getLogin(), importEntry.getReceiver()).getId());
-		}
+	private DelegateOrg toEntity(final DelegateOrgEditionVo importEntry) {
+		final DelegateOrg entity = new DelegateOrg();
+		entity.setId(importEntry.getId());
+		entity.setName(Normalizer.normalize(importEntry.getName()));
+		entity.setCanAdmin(importEntry.isCanAdmin());
+		entity.setCanWrite(importEntry.isCanWrite());
+		entity.setType(importEntry.getType());
+
+		// Validate the related receiver of this delegate
+		entity.setReceiver(toReceiver.get(importEntry.getReceiverType()).apply(importEntry.getReceiver()));
 		entity.setReceiverType(importEntry.getReceiverType());
+		return entity;
 	}
 
 	/**
@@ -301,8 +323,9 @@ public class DelegateOrgResource {
 	 * Delete entity. Rules, order is important :
 	 * <ul>
 	 * <li>Related delegate must exist</li>
-	 * <li>Related delegate must be managed by the current user with 'admin' right, directly or via a another parent
-	 * delegate tree/company/.., or act as if the delegate does not exist.</li>
+	 * <li>Related delegate must be managed by the current user with 'admin'
+	 * right, directly or via a another parent delegate tree/company/.., or act
+	 * as if the delegate does not exist.</li>
 	 * </ul>
 	 * Attention, DN is case sensitive.
 	 * 

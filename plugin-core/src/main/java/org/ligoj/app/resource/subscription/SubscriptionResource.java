@@ -85,7 +85,7 @@ public class SubscriptionResource {
 	private ParameterValueResource parameterValueResource;
 
 	@Autowired
-	private ServicePluginLocator servicePluginLocator;
+	private ServicePluginLocator locator;
 
 	@Autowired
 	private EventResource eventResource;
@@ -116,14 +116,15 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return non secured parameters values related to the subscription.The attached project is validated against the
-	 * current user to check it is visible. Secured parameters (even the encrypted ones) are not returned. The
-	 * visibility of this subscription is checked.
+	 * Return non secured parameters values related to the subscription.The
+	 * attached project is validated against the current user to check it is
+	 * visible. Secured parameters (even the encrypted ones) are not returned.
+	 * The visibility of this subscription is checked.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
-	 * @return secured associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * @return secured associated parameters values. Key of returned map is the
+	 *         identifier of {@link org.ligoj.app.model.Parameter}
 	 */
 	@GET
 	@Path("{id:\\d+}")
@@ -133,7 +134,8 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return tools specific configuration. Only non secured parameters are returned.
+	 * Return tools specific configuration. Only non secured parameters are
+	 * returned.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
@@ -153,7 +155,7 @@ public class SubscriptionResource {
 		vo.setProject(DescribedBean.clone(entity.getProject()));
 
 		// Get specific configuration
-		final ConfigurablePlugin servicePlugin = servicePluginLocator.getResource(vo.getNode().getId(), ConfigurablePlugin.class);
+		final ConfigurablePlugin servicePlugin = locator.getResource(vo.getNode().getId(), ConfigurablePlugin.class);
 		if (servicePlugin != null) {
 			// Specific configuration is available
 			vo.setConfiguration(servicePlugin.getConfiguration(id));
@@ -162,14 +164,15 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return all parameters values related to the subscription. The attached project is validated against the current
-	 * user to check it is visible. Beware, these parameters must not be returned to user, since clear encrypted
-	 * parameters are present.
+	 * Return all parameters values related to the subscription. The attached
+	 * project is validated against the current user to check it is visible.
+	 * Beware, these parameters must not be returned to user, since clear
+	 * encrypted parameters are present.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
-	 * @return all associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * @return all associated parameters values. Key of returned map is the
+	 *         identifier of {@link org.ligoj.app.model.Parameter}
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getParameters(final int id) {
@@ -178,13 +181,14 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return all parameters values related to the subscription. The visibility of attached project is not checked in
-	 * this case. Secured (encrypted) parameters are decrypted.
+	 * Return all parameters values related to the subscription. The visibility
+	 * of attached project is not checked in this case. Secured (encrypted)
+	 * parameters are decrypted.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
-	 * @return all associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * @return all associated parameters values. Key of returned map is the
+	 *         identifier of {@link org.ligoj.app.model.Parameter}
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getParametersNoCheck(final int id) {
@@ -206,7 +210,8 @@ public class SubscriptionResource {
 		checkManagedProject(vo.getProject());
 		checkManagedNodeForSubscription(vo.getNode());
 
-		final List<Parameter> acceptedParameters = nodeRepository.getOrphanParameters(vo.getNode(), vo.getMode(), securityHelper.getLogin());
+		final List<Parameter> acceptedParameters = nodeRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
+				securityHelper.getLogin());
 
 		// Check all mandatory parameters for the current subscription mode
 		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
@@ -216,7 +221,8 @@ public class SubscriptionResource {
 		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),
 				vo.getParameters().stream().map(ParameterValueEditionVo::getParameter).collect(Collectors.toList()));
 
-		// Create subscription and parameters that would be removed in case of roll-back because of invalid parameters
+		// Create subscription and parameters that would be removed in case of
+		// roll-back because of invalid parameters
 		final Subscription entity = toEntity(vo);
 
 		// Expose the real entity for plug-in since we have loaded it
@@ -226,16 +232,16 @@ public class SubscriptionResource {
 		repository.saveAndFlush(entity);
 		parameterValueResource.create(vo.getParameters(), (ParameterValue value) -> value.setSubscription(entity));
 
-		// Delegate the creation --> exception can appear there, causing to roll-back the previous persists
-		ServicePlugin plugin = servicePluginLocator.getResource(vo.getNode());
-		while (plugin != null) {
+		// Delegate the creation --> exception can appear there, causing to
+		// roll-back the previous persists
+		for (ServicePlugin p = locator.getResource(vo.getNode()); p != null; p = locator.getResource(locator.getParent(p.getKey()))) {
 			if (vo.getMode() == SubscriptionMode.CREATE) {
-				plugin.create(entity.getId());
+				// Create mode
+				p.create(entity.getId());
 			} else {
-				plugin.link(entity.getId());
+				// Link mode
+				p.link(entity.getId());
 			}
-			// Also call the parent
-			plugin = servicePluginLocator.getResource(servicePluginLocator.getParent(plugin.getKey()));
 		}
 
 		// Check again the parameters in the final state
@@ -262,7 +268,8 @@ public class SubscriptionResource {
 	private void checkOverrides(final List<String> acceptedParameters, final List<String> parameters) {
 		final Collection<String> overrides = org.apache.commons.collections4.CollectionUtils.removeAll(parameters, acceptedParameters);
 		if (!overrides.isEmpty()) {
-			// A non acceptable parameter. An attempt to override a secured data?
+			// A non acceptable parameter. An attempt to override a secured
+			// data?
 			throw ValidationJsonException.newValidationJsonException("not-accepted-parameter", overrides.iterator().next());
 		}
 	}
@@ -273,7 +280,8 @@ public class SubscriptionResource {
 	protected void checkMandatoryParameters(final List<ParameterValueEditionVo> parameters, final List<Parameter> acceptedParameters,
 			final SubscriptionMode mode) {
 		// Check each mandatory parameter for the current mode
-		acceptedParameters.stream().filter(parameter -> (parameter.getMode() == mode || parameter.getMode() == null) && parameter.isMandatory())
+		acceptedParameters.stream()
+				.filter(parameter -> (parameter.getMode() == mode || parameter.getMode() == null) && parameter.isMandatory())
 				.forEach(parameter -> checkMandatoryParameter(parameters, parameter));
 	}
 
@@ -289,8 +297,9 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Delete entity and cascaded associations : parameters, events then subscription. Note that remote data are not
-	 * deleted. Links are just destroyed.
+	 * Delete entity and cascaded associations : parameters, events then
+	 * subscription. Note that remote data are not deleted. Links are just
+	 * destroyed.
 	 * 
 	 * @param id
 	 *            the entity identifier.
@@ -303,7 +312,8 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Delete entity and cascaded associations : parameters, events then subscription.
+	 * Delete entity and cascaded associations : parameters, events then
+	 * subscription.
 	 * 
 	 * @param id
 	 *            the entity identifier.
@@ -320,18 +330,18 @@ public class SubscriptionResource {
 		eventRepository.deleteAllBy("subscription", entity);
 
 		// Delegate the deletion
-		ServicePlugin plugin = servicePluginLocator.getResource(entity.getNode().getId());
+		ServicePlugin plugin = locator.getResource(entity.getNode().getId());
 		while (plugin != null) {
 			plugin.delete(id, deleteRemoteData);
-			plugin = servicePluginLocator.getResource(servicePluginLocator.getParent(plugin.getKey()));
+			plugin = locator.getResource(locator.getParent(plugin.getKey()));
 		}
 		parameterValueResource.deleteBySubscription(id);
 		repository.delete(entity);
 	}
 
 	/**
-	 * Check the associated project is managed for current user. Currently, a managed project is a project where
-	 * subscription can be managed.
+	 * Check the associated project is managed for current user. Currently, a
+	 * managed project is a project where subscription can be managed.
 	 */
 	private void checkManagedProject(final int project) {
 		if (null == projectRepository.isManageSubscription(project, securityHelper.getLogin())) {
@@ -374,8 +384,9 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return all subscriptions and related nodes. Very light data are returned there since a lot of subscriptions be
-	 * there. Parameters values are not fetch.
+	 * Return all subscriptions and related nodes. Very light data are returned
+	 * there since a lot of subscriptions be there. Parameters values are not
+	 * fetch.
 	 * 
 	 * @return Status of each subscription of given project.
 	 */
@@ -387,14 +398,17 @@ public class SubscriptionResource {
 		final List<Object[]> projects = projectRepository.findAllHavingSubscription(securityHelper.getLogin());
 
 		/*
-		 * list visible projects having at least one subscription, return involved subscriptions relating theses projects. SQL "IN" is not used, because of size
-		 * limitations. Structure : id, project.id, service.id
+		 * list visible projects having at least one subscription, return
+		 * involved subscriptions relating theses projects. SQL "IN" is not
+		 * used, because of size limitations. Structure : id, project.id,
+		 * service.id
 		 */
 		final List<Object[]> subscriptions = repository.findAllLight();
 
 		/*
-		 * Then, fetch all nodes. SQL "IN" is not used, because of size limitations. They will be filtered against
-		 * subscriptions associated to a visible project.
+		 * Then, fetch all nodes. SQL "IN" is not used, because of size
+		 * limitations. They will be filtered against subscriptions associated
+		 * to a visible project.
 		 */
 		final Map<String, NodeVo> nodes = nodeResource.findAll();
 
@@ -451,7 +465,8 @@ public class SubscriptionResource {
 			subscribedNode.setTagUiClasses(node.getTagUiClasses());
 			filteredNodes.put(node.getId(), subscribedNode);
 
-			// Now check the parent exists or not and add it to the target filtered nodes
+			// Now check the parent exists or not and add it to the target
+			// filtered nodes
 			if (node.isRefining()) {
 
 				// Completed the previous link
@@ -479,8 +494,8 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Get fresh status of given subscription. This fresh status is also stored in the data base. The project must be
-	 * visible to current user.
+	 * Get fresh status of given subscription. This fresh status is also stored
+	 * in the data base. The project must be visible to current user.
 	 * 
 	 * @param id
 	 *            Node identifier
@@ -493,11 +508,13 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Get fresh status of a set of subscriptions. This a loop shortcut of the per-subscription call.
+	 * Get fresh status of a set of subscriptions. This a loop shortcut of the
+	 * per-subscription call.
 	 * 
 	 * @param ids
 	 *            Node identifiers
-	 * @return Status of each subscription of given project. Order is not guaranted.
+	 * @return Status of each subscription of given project. Order is not
+	 *         guaranted.
 	 * @see #refreshStatus(int)
 	 */
 	@Path("status/refresh")

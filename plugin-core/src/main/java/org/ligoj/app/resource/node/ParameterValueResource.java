@@ -89,27 +89,43 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * A mapper configuration to parse string to parameter value.
-	 */
-	private static final Map<ParameterType, ParameterValueMapper<?>> STRING_TO_VALUE = new EnumMap<>(ParameterType.class);
-	static {
-		STRING_TO_VALUE.put(ParameterType.BINARY, new ParameterValueMapper<>(ParameterValueVo::setBinary, Boolean::valueOf));
-		STRING_TO_VALUE.put(ParameterType.DATE, new ParameterValueMapper<>(ParameterValueVo::setDate, s -> new Date(Long.parseLong(s))));
-		STRING_TO_VALUE.put(ParameterType.INTEGER, new ParameterValueMapper<>(ParameterValueVo::setInteger, Integer::valueOf));
-		STRING_TO_VALUE.put(ParameterType.MULTIPLE,
-				new ParameterValueMapper<>(ParameterValueVo::setSelections, s -> toConfiguration(s, LIST_INTEGER_TYPE)));
-		STRING_TO_VALUE.put(ParameterType.SELECT, new ParameterValueMapper<>(ParameterValueVo::setIndex, Integer::valueOf));
-		STRING_TO_VALUE.put(ParameterType.TAGS, new ParameterValueMapper<>(ParameterValueVo::setTags, s -> toConfiguration(s, LIST_STRING_TYPE)));
-		STRING_TO_VALUE.put(ParameterType.TEXT, new ParameterValueMapper<>(ParameterValueVo::setText, Function.identity()));
-	}
-
-	/**
 	 * Standard mapper used to read parameter configurations.
 	 */
 	private static final ObjectMapper MAPPER = new ObjectMapper();
 
 	/**
-	 * A checker configuration to check a value against the contract of the parameter.
+	 * A mapper configuration to parse parameter value to string.
+	 */
+	private static final Map<Function<ParameterValueEditionVo, Object>, Function<Object, String>> TO_STRING = new HashMap<>();
+
+	/**
+	 * A mapper configuration to parse string to parameter value.
+	 */
+	private static final Map<ParameterType, ParameterValueMapper<?>> TO_VALUE = new EnumMap<>(ParameterType.class);
+	static {
+
+		// To value mapping
+		TO_VALUE.put(ParameterType.BINARY, new ParameterValueMapper<>(ParameterValueVo::setBinary, Boolean::valueOf));
+		TO_VALUE.put(ParameterType.DATE, new ParameterValueMapper<>(ParameterValueVo::setDate, s -> new Date(Long.parseLong(s))));
+		TO_VALUE.put(ParameterType.INTEGER, new ParameterValueMapper<>(ParameterValueVo::setInteger, Integer::valueOf));
+		TO_VALUE.put(ParameterType.MULTIPLE,
+				new ParameterValueMapper<>(ParameterValueVo::setSelections, s -> toConfiguration(s, LIST_INTEGER_TYPE)));
+		TO_VALUE.put(ParameterType.SELECT, new ParameterValueMapper<>(ParameterValueVo::setIndex, Integer::valueOf));
+		TO_VALUE.put(ParameterType.TAGS, new ParameterValueMapper<>(ParameterValueVo::setTags, s -> toConfiguration(s, LIST_STRING_TYPE)));
+		TO_VALUE.put(ParameterType.TEXT, new ParameterValueMapper<>(ParameterValueVo::setText, Function.identity()));
+
+		// To String mapping
+		TO_STRING.put(ParameterValueEditionVo::getBinary, Object::toString);
+		TO_STRING.put(ParameterValueEditionVo::getDate, o -> String.valueOf(((Date) o).getTime()));
+		TO_STRING.put(ParameterValueEditionVo::getIndex, Object::toString);
+		TO_STRING.put(ParameterValueEditionVo::getInteger, Object::toString);
+		TO_STRING.put(ParameterValueEditionVo::getTags, o -> toJSonString(o).toUpperCase(Locale.ENGLISH));
+		TO_STRING.put(ParameterValueEditionVo::getSelections, o -> toJSonString(o));
+	}
+
+	/**
+	 * A checker configuration to check a value against the contract of the
+	 * parameter.
 	 */
 	private final Map<ParameterType, BiConsumer<ParameterValueEditionVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
 
@@ -149,9 +165,11 @@ public class ParameterValueResource {
 	 */
 	public static ParameterVo toVo(final Parameter entity) {
 		final ParameterVo vo = new ParameterVo();
+		// Copy basic data
 		vo.setId(entity.getId());
 		vo.setType(entity.getType());
 		vo.setMandatory(entity.isMandatory());
+		vo.setOwner(NodeResource.toVo(entity.getOwner()));
 
 		// Map constraint data
 		if (entity.getType().isArray()) {
@@ -161,9 +179,6 @@ public class ParameterValueResource {
 			vo.setMax(minMax.get("max"));
 			vo.setMin(minMax.get("min"));
 		}
-
-		// Copy related beans
-		vo.setOwner(NodeResource.toVo(entity.getOwner()));
 		return vo;
 	}
 
@@ -203,7 +218,7 @@ public class ParameterValueResource {
 	 */
 	public static <T> T parseValue(final ParameterValue entity, final ParameterValueVo vo) {
 		@SuppressWarnings("unchecked")
-		final ParameterValueMapper<T> valueMapper = (ParameterValueMapper<T>) STRING_TO_VALUE.get(entity.getParameter().getType());
+		final ParameterValueMapper<T> valueMapper = (ParameterValueMapper<T>) TO_VALUE.get(entity.getParameter().getType());
 		final T parsedValue = valueMapper.toValue.apply(entity.getData());
 		valueMapper.setter.accept(vo, parsedValue);
 		return parsedValue;
@@ -223,30 +238,19 @@ public class ParameterValueResource {
 		entity.setParameter(parameter);
 
 		// Map constraint data
-		setData(vo, entity);
-
+		entity.setData(TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null).findFirst()
+				.map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText()));
 		return entity;
 	}
 
-	private static void setData(final ParameterValueEditionVo vo, final ParameterValue entity) {
+	/**
+	 * Managed JSON writer
+	 */
+	private static String toJSonString(final Object any) {
 		try {
-			if (vo.getBinary() != null) { // NOPMD
-				entity.setData(vo.getBinary().toString());
-			} else if (vo.getDate() != null) { // NOPMD
-				entity.setData(String.valueOf(vo.getDate().getTime()));
-			} else if (vo.getIndex() != null) { // NOPMD
-				entity.setData(vo.getIndex().toString());
-			} else if (vo.getInteger() != null) { // NOPMD
-				entity.setData(vo.getInteger().toString());
-			} else if (vo.getTags() != null) { // NOPMD
-				entity.setData(MAPPER.writeValueAsString(vo.getTags()).toUpperCase(Locale.FRANCE));
-			} else if (vo.getSelections() != null) { // NOPMD
-				entity.setData(MAPPER.writeValueAsString(vo.getSelections()));
-			} else {
-				entity.setData(vo.getText());
-			}
+			return MAPPER.writeValueAsString(any);
 		} catch (final JsonProcessingException e) {
-			throw new TechnicalException("Unable to build JSon data from bean " + vo, e);
+			throw new TechnicalException("Unable to build JSon data from bean " + any, e);
 		}
 	}
 
@@ -254,7 +258,8 @@ public class ParameterValueResource {
 	 * Check optional but secure assertions.
 	 */
 	private void checkCompletude(final ParameterValueEditionVo vo) {
-		Arrays.stream(new Supplier<?>[] { vo::getText, vo::getBinary, vo::getDate, vo::getIndex, vo::getInteger, vo::getTags, vo::getSelections })
+		Arrays.stream(
+				new Supplier<?>[] { vo::getText, vo::getBinary, vo::getDate, vo::getIndex, vo::getInteger, vo::getTags, vo::getSelections })
 				.map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst().ifPresent(e -> {
 					final ValidationJsonException exception = new ValidationJsonException();
 					exception.addError(vo.getParameter(), "Too many values");
@@ -263,7 +268,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Check the data constraints and return the associated parameter definition.
+	 * Check the data constraints and return the associated parameter
+	 * definition.
 	 */
 	private Parameter checkConstraints(final ParameterValueEditionVo bean) {
 		final Parameter parameter = parameterRepository.findOneExpected(bean.getParameter());
@@ -353,8 +359,8 @@ public class ParameterValueResource {
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
 				final Pattern pattern = Pattern.compile(patternString);
-				ValidationJsonException.assertTrue(pattern.matcher(bean.getText()).matches(), javax.validation.constraints.Pattern.class.getName(),
-						parameter.getId(), pattern.pattern());
+				ValidationJsonException.assertTrue(pattern.matcher(bean.getText()).matches(),
+						javax.validation.constraints.Pattern.class.getName(), parameter.getId(), pattern.pattern());
 			}
 		}
 	}
@@ -389,20 +395,21 @@ public class ParameterValueResource {
 	 * 
 	 * @param subscription
 	 *            The subscription identifier.
-	 * @return secured associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * @return secured associated parameters values. Key of returned map is the
+	 *         identifier of {@link org.ligoj.app.model.Parameter}
 	 */
 	public Map<String, String> getNonSecuredSubscriptionParameters(final int subscription) {
 		return toMapValues(repository.findAllSecureBySubscription(subscription));
 	}
 
 	/**
-	 * Return all parameters values related to the subscription. Secured (encrypted) are parameters are decrypted.
+	 * Return all parameters values related to the subscription. Secured
+	 * (encrypted) are parameters are decrypted.
 	 * 
 	 * @param subscription
 	 *            The subscription identifier.
-	 * @return all associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * @return all associated parameters values. Key of returned map is the
+	 *         identifier of {@link org.ligoj.app.model.Parameter}
 	 */
 	@CacheResult(cacheName = "subscription-parameters")
 	public Map<String, String> getSubscriptionParameters(@CacheKey final int subscription) {
@@ -438,7 +445,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Transform {@link List} to {@link Map} where key is the parameter name. Secured parameters are decrypted.
+	 * Transform {@link List} to {@link Map} where key is the parameter name.
+	 * Secured parameters are decrypted.
 	 * 
 	 * @param values
 	 *            The parameters list.
@@ -466,7 +474,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Transform {@link List} to {@link Map} where K is the item's identifier, and VALUE is the original item.
+	 * Transform {@link List} to {@link Map} where K is the item's identifier,
+	 * and VALUE is the original item.
 	 * 
 	 * @param items
 	 *            The items list.
