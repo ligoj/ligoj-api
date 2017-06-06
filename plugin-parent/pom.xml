@@ -14,6 +14,9 @@
 	<name>Ligoj - Plugin Parent</name>
 	<description>Plugin parent pom the plugins should have.</description>
 
+	<properties>
+		<guava.version>22.0</guava.version>
+	</properties>
 	<dependencyManagement>
 		<dependencies>
 			<dependency>
