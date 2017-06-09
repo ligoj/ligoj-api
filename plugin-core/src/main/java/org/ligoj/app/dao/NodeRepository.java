@@ -81,40 +81,12 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Object[]> findAllWithValuesSecure();
 
 	/**
-	 * Return visible nodes having given refined node.
-	 * 
-	 * @param parent
-	 *            Optional parent node identifier.
-	 * @param mode
-	 *            Expected mode. When <code>null</code>, the node's mode is not
-	 *            checked.
-	 * @param user
-	 *            The user requesting the nodes.
-	 * @return Visible nodes with given refined node
-	 */
-	@Query("FROM Node n WHERE (n.refined.id = :parent OR (:parent IS NULL AND n.refined IS NULL))                                             "
-			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE)                                 "
-			+ " AND " + VISIBLE_NODES + " ORDER BY UPPER(n.name)")
-	List<Node> findAllByParent(String parent, SubscriptionMode mode, String user);
-
-	/**
 	 * Return final nodes, so representing a node (running instance) of a tool.
 	 * 
 	 * @return instance nodes considered as final .
 	 */
 	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL ORDER BY UPPER(n.name)")
 	List<Node> findAllInstance();
-
-	/**
-	 * Return final nodes, so representing a node (running instance) of a tool
-	 * implementing the given service.
-	 * 
-	 * @param service
-	 *            The expected service.
-	 * @return Instance nodes considered as final implementing a given service.
-	 */
-	@Query("FROM Node WHERE refined.refined.id = :service")
-	List<Node> findAllInstanceByService(String service);
 
 	/**
 	 * Return final nodes, so representing a node (running instance) of a tool
@@ -169,14 +141,30 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param user
 	 *            The user requesting the nodes.
 	 * @param criteria
-	 *            the optional criteria to match.
+	 *            The optional criteria to match in the name.
+	 * @param parent
+	 *            The optional parent identifier to be like. Special attention
+	 *            for 'service' value corresponding to the root.
+	 * @param mode
+	 *            Expected subscription mode. When <code>null</code>, the node's
+	 *            mode is not checked.
+	 * @param depth
+	 *            The maximal depth. When <code>0</code> means no refined, so
+	 *            basically services only. <code>1</code> means refined is a
+	 *            service, so nodes are basically tool only. <code>2</code>
+	 *            means refined is a tool, so nodes are basically instances
+	 *            only. For the other cases, there is no limit.
 	 * @param page
-	 *            the pagination.
+	 *            The pagination.
 	 * @return The visible nodes. Ordered by their identifier.
 	 */
-	@Query("FROM Node n WHERE (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_NODES
+	@Query("SELECT n FROM Node n LEFT JOIN n.refined nr1 LEFT JOIN nr1.refined nr2"
+			+ " WHERE (:parent IS NULL OR (:parent = 'service' AND n.refined IS NULL) OR n.refined.id = :parent)"
+			+ " AND (:depth < 0 OR :depth > 1 OR (:depth = 0 AND nr1 IS NULL) OR (:depth = 1 AND nr2 IS NULL))                                 "
+			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE)                        "
+			+ " AND (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_NODES
 			+ " ORDER BY n.id")
-	Page<Node> findAllVisible(String user, String criteria, Pageable page);
+	Page<Node> findAllVisible(String user, String criteria, String parent, SubscriptionMode mode, int depth, Pageable page);
 
 	/**
 	 * Return a {@link Node} by its identifier if it is visible for current user

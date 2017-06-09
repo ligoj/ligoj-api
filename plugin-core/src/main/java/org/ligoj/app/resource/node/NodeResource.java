@@ -14,6 +14,7 @@ import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
 import javax.transaction.Transactional;
 import javax.ws.rs.DELETE;
+import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
@@ -39,7 +40,6 @@ import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Refining;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.bootstrap.core.NamedBean;
@@ -192,61 +192,6 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return root nodes. Also named "services".
-	 * 
-	 * @return root nodes.
-	 */
-	@GET
-	@Path("children")
-	public List<NodeVo> findAllNoParent() {
-		return findAllByParent(null);
-	}
-
-	/**
-	 * Return all tools, so only nodes having a "service" as a parent. Note the
-	 * parent is also fetched but not considered as an item of the array.
-	 * 
-	 * @return Tool nodes ordered by their identifier.
-	 */
-	@GET
-	@Path("tools")
-	public List<NodeVo> findAllTools() {
-		return SpringUtils.getBean(NodeResource.class).findAll().values().stream().filter(Refining::isRefining)
-				.filter(n -> !n.getRefined().isRefining()).sorted().collect(Collectors.toList());
-	}
-
-	/**
-	 * Return nodes having as direct parent the given node.
-	 * 
-	 * @param id
-	 *            The required direct parent node identifier.
-	 * @return Nodes having the required parent.
-	 */
-	@GET
-	@Path("{id:.+:.*}/children")
-	public List<NodeVo> findAllByParent(@PathParam("id") final String id) {
-		return findAllByParent(id, null);
-	}
-
-	/**
-	 * Return nodes (light form) having as parent the given node.
-	 * 
-	 * @param id
-	 *            The optional parent node identifier. When <code>null</code>,
-	 *            root services are returned.
-	 * @param mode
-	 *            Optional Subscription mode.
-	 * @return Nodes implementing the given service. Note this is a light form
-	 *         of the node, without recursive redefinition.
-	 */
-	@GET
-	@Path("{id:.+:.*}/children/{mode}")
-	public List<NodeVo> findAllByParent(@PathParam("id") final String id, @PathParam("mode") final SubscriptionMode mode) {
-		return repository.findAllByParent(id, mode, securityHelper.getLogin()).stream().map(NodeResource::toVoLight)
-				.collect(Collectors.toList());
-	}
-
-	/**
 	 * Return all parameters definition where a value is expected to be attached
 	 * to the final subscription in case of linking a project to an existing or
 	 * a new instance inside the provided node.
@@ -336,21 +281,16 @@ public class NodeResource {
 	}
 
 	/**
-	 * Delete an existing tool {@link Node} from its identifier. The whole cache
-	 * of nodes is invalidated. All related subscriptions are also deleted.
+	 * Delete an existing {@link Node} from its identifier. The whole cache of
+	 * nodes is invalidated. All related subscriptions are also deleted.
 	 * 
 	 * @param id
-	 *            The tool node identifier.
+	 *            The node identifier.
 	 */
 	@DELETE
-	@Path("{id:.+:.+:.*}")
+	@Path("{id:service:.+:.+:.*}")
 	@CacheRemoveAll(cacheName = "nodes")
 	public void delete(@PathParam("id") final String id) {
-		// Check there is no node depending to the one we are deleting
-		if (!findAllByParent(id).isEmpty()) {
-			// At lest one sub-node
-			throw new ValidationJsonException("refined", "not-empty", id);
-		}
 		parameterValueRepository.deleteByNode(id);
 		parameterRepository.deleteAllBy("owner.id", id);
 		eventRepository.deleteByNode(id);
@@ -642,13 +582,28 @@ public class NodeResource {
 	 *            pagination data.
 	 * @param criteria
 	 *            the optional criteria to match.
+	 * @param parent
+	 *            The optional parent identifier to be like. Special attention
+	 *            for 'service' value corresponding to the root.
+	 * @param mode
+	 *            Expected subscription mode. When <code>null</code>, the node's
+	 *            mode is not checked.
+	 * @param depth
+	 *            The maximal depth. When <code>0</code> means no refined, so
+	 *            basically services only. <code>1</code> means refined is a
+	 *            service, so nodes are basically tool only. <code>2</code>
+	 *            means refined is a tool, so nodes are basically instances
+	 *            only. For the other cases, there is no limit, and corresponds
+	 *            to the default behavior.
 	 * @return All nodes with the hierarchy but without UI data.
 	 */
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
-	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo, @QueryParam(DataTableAttributes.SEARCH) final String criteria) {
-		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToNull(criteria),
-				paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
+	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo, @QueryParam(DataTableAttributes.SEARCH) final String criteria,
+			@QueryParam("refined") final String refined, @QueryParam("mode") final SubscriptionMode mode,
+			@QueryParam("depth") @DefaultValue("-1") final int depth) {
+		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToNull(criteria), refined, mode,
+				depth, paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, NodeResource::toVo);

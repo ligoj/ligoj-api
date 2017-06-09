@@ -2,7 +2,6 @@ package org.ligoj.app.resource.node;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -325,11 +324,12 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// All nodes changed [(1* nb services) + 1 (LDAP*2) + 1(Source*2)
 		// +1(BT*2)] but Jira6 node
-		expectedCount += resource.findAllNoParent().size() + 1 + 1 - 1;
+		final int nbServices = resource.findAll(newUriInfo(), null, "service", null, 0).getData().size();
+		expectedCount += nbServices + 1 + 1 - 1;
 
 		// All subscriptions changed (1* nb services) + 1 (LDAP*2) + 1(Source*2)
 		// +1(BT*2)
-		expectedCount += resource.findAllNoParent().size() + 1 + 1 + 1;
+		expectedCount += nbServices + 1 + 1 + 1;
 		Assert.assertEquals(expectedCount, eventRepository.count());
 	}
 
@@ -360,7 +360,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void getServices() {
-		final List<NodeVo> resources = resource.findAllNoParent();
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, "service", null, -1).getData();
 		Assert.assertEquals(10, resources.size());
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals(BugTrackerResource.SERVICE_KEY, service.getId());
@@ -392,19 +392,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertEquals("KPI Collection", service5.getName());
 		Assert.assertNull(service5.getRefined());
 		Assert.assertEquals(SubscriptionMode.LINK, service5.getMode());
-	}
-
-	@Test
-	public void findAllTools() {
-		final List<NodeVo> tools = resource.findAllTools();
-		Assert.assertEquals(11, tools.size());
-		final NodeVo service = tools.get(0);
-		Assert.assertEquals("service:bt:jira", service.getId());
-		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertNull(service.getUiClasses());
-
-		// Check the parent is there
-		Assert.assertEquals("service:bt", service.getRefined().getId());
 	}
 
 	@Test
@@ -499,11 +486,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.delete("service:bt:jira:any");
 	}
 
-	@Test(expected = ValidationJsonException.class)
-	public void deleteHasSubNode() {
-		resource.delete("service:bt:jira");
-	}
-
 	@Test
 	public void delete() {
 		Assert.assertTrue(repository.exists("service:bt:jira:6"));
@@ -514,23 +496,35 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParent() {
-		final List<NodeVo> resources = resource.findAllByParent(BugTrackerResource.SERVICE_KEY);
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, null, -1).getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:bt:jira", service.getId());
 		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertNull(service.getRefined());
+		Assert.assertEquals("service:bt", service.getRefined().getId());
 		Assert.assertNull(service.getUiClasses());
 	}
 
 	@Test
+	public void findAllByDepth() {
+		// Service only
+		final UriInfo newUriInfo = newUriInfo();
+		newUriInfo.getQueryParameters().putSingle("length", "100");
+		Assert.assertEquals(10, resource.findAll(newUriInfo, null, null, null, 0).getData().size());
+		// Tools + Services only
+		Assert.assertEquals(11, resource.findAll(newUriInfo, null, null, null, 1).getData().size());
+		// No limit : Instances + Services + instances
+		Assert.assertEquals(23, resource.findAll(newUriInfo, null, null, null, 2).getData().size());
+	}
+
+	@Test
 	public void findAllByParentFilterModeCreate() {
-		final List<NodeVo> resources = resource.findAllByParent(LdapPluginResource.KEY, SubscriptionMode.CREATE);
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.CREATE, -1).getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:id:ldap:dig", service.getId());
 		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertNull(service.getRefined());
+		Assert.assertEquals("service:id:ldap", service.getRefined().getId());
 
 		// This node accept creation
 		Assert.assertEquals(SubscriptionMode.CREATE, service.getMode());
@@ -538,40 +532,42 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParentFilterModeLinkAcceptNoCreate() {
-		final List<NodeVo> resources = resource.findAllByParent(BugTrackerResource.SERVICE_KEY, SubscriptionMode.CREATE);
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.CREATE, 0)
+				.getData();
 		Assert.assertEquals(0, resources.size());
 	}
 
 	@Test
 	public void findAllByParentFilterModeLinkStrict() {
-		final List<NodeVo> resources = resource.findAllByParent(BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK);
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 0)
+				.getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:bt:jira", service.getId());
 		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertNull(service.getRefined());
+		Assert.assertEquals("service:bt", service.getRefined().getId());
 		Assert.assertNull(service.getUiClasses());
 	}
 
 	@Test
 	public void findAllByParentFilterModeCreateAcceptLink() {
-		final List<NodeVo> resources = resource.findAllByParent(LdapPluginResource.KEY, SubscriptionMode.LINK);
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.LINK, -1).getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:id:ldap:dig", service.getId());
 		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertNull(service.getRefined());
+		Assert.assertEquals("service:id:ldap", service.getRefined().getId());
 		Assert.assertNull(service.getUiClasses());
 	}
 
 	@Test
 	public void findAllByParentCreateMode() {
-		final List<NodeVo> resources = resource.findAllByParent(LdapPluginResource.KEY);
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, null, -1).getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assert.assertEquals("service:id:ldap:dig", service.getId());
 		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertNull(service.getRefined());
+		Assert.assertEquals("service:id:ldap", service.getRefined().getId());
 
 		// This node accept creation
 		Assert.assertEquals(SubscriptionMode.CREATE, service.getMode());
@@ -579,7 +575,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParentMutiple() {
-		final List<NodeVo> resources = new ArrayList<>(resource.findAllByParent(JiraBaseResource.KEY));
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, JiraBaseResource.KEY, null, -1).getData();
 		Assert.assertEquals(2, resources.size());
 		Assert.assertEquals("service:bt:jira:4", resources.get(0).getId());
 		Assert.assertEquals("service:bt:jira:6", resources.get(1).getId());
@@ -687,7 +683,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void getNodeStatistics() throws Exception {
 		final List<NodeStatisticsVo> nodes = resource.getNodeStatistics();
 		// +2 Since there are 2 nodes for JIRA and 2 for source
-		Assert.assertEquals(resource.findAllNoParent().size() + 2, nodes.size());
+		Assert.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2, nodes.size());
 	}
 
 	@Test
@@ -731,7 +727,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllCriteria() {
-		final List<NodeVo> result = resource.findAll(newFindAllParameters(), "sonar").getData();
+		final List<NodeVo> result = resource.findAll(newFindAllParameters(), "sonar", null, null, -1).getData();
 		Assert.assertEquals(2, result.size());
 		// Check SonarQube
 		Assert.assertEquals("service:kpi:sonar", result.get(0).getId());
@@ -745,7 +741,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllNoCriteria() {
-		final TableItem<NodeVo> findAll = resource.findAll(newFindAllParameters(), null);
+		final TableItem<NodeVo> findAll = resource.findAll(newFindAllParameters(), null, null, null, 0);
 		final List<NodeVo> result = findAll.getData();
 		Assert.assertEquals(10, result.size());
 		Assert.assertTrue(findAll.getRecordsTotal() > 30);
