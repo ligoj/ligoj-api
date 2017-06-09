@@ -93,7 +93,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @return Visible nodes with given refined node
 	 */
 	@Query("FROM Node n WHERE (n.refined.id = :parent OR (:parent IS NULL AND n.refined IS NULL))                                             "
-			+ " AND (:mode IS NULL OR (n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE))                                 "
+			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE)                                 "
 			+ " AND " + VISIBLE_NODES + " ORDER BY UPPER(n.name)")
 	List<Node> findAllByParent(String parent, SubscriptionMode mode, String user);
 
