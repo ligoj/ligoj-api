@@ -30,21 +30,13 @@ cache:
   - C:\maven\
   - C:\Users\appveyor\.m2
 artifacts:
-  - path: 'bootstrap-business\target\*.jar'
-  - path: 'bootstrap-core\target\*.jar'
-  - path: 'bootstrap-business-parent\target\*.jar'
-  - path: 'bootstrap-business-test\target\*.jar'
-  - path: 'bootstrap-launcher\target\*.jar'
-  - path: 'bootstrap-web\target\*.jar'
-  - path: 'bootstrap-web-parent\target\*.jar'
-  - path: 'bootstrap-web-test\target\*.jar'
+  - path: 'plugin-api\target\*.jar'
+  - path: 'plugin-api-test\target\*.jar'
+  - path: 'plugin-core\target\*.jar'
+  - path: 'plugin-iam-empty\target\*.jar'
 on_failure:
-  - ps: Get-ChildItem bootstrap-business\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-core\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-business-parent\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-business-test\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-launcher\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-web\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-web-parent\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
-  - ps: Get-ChildItem bootstrap-web-test\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem plugin-api\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem plugin-api-test\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem plugin-core\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+  - ps: Get-ChildItem plugin-iam-empty\target\surefire-reports\*.txt | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
   - ps: Get-ChildItem *.log | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
