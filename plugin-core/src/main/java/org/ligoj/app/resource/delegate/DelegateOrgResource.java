@@ -92,8 +92,7 @@ public class DelegateOrgResource {
 		// Check the user/company/group is visible
 		toReceiver.put(ReceiverType.USER, r -> getUser().findByIdExpected(securityHelper.getLogin(), r).getId());
 		toReceiver.put(ReceiverType.COMPANY, r -> getCompany().findByIdExpected(securityHelper.getLogin(), r).getId());
-		toReceiver.put(ReceiverType.COMPANY, r -> getCompany().findByIdExpected(securityHelper.getLogin(), r).getId());
-		toReceiver.put(ReceiverType.COMPANY, r -> getGroup().findByIdExpected(securityHelper.getLogin(), r).getId());
+		toReceiver.put(ReceiverType.GROUP, r -> getGroup().findByIdExpected(securityHelper.getLogin(), r).getId());
 	}
 
 	/**

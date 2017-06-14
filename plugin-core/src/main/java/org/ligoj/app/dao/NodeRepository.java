@@ -18,27 +18,33 @@ import org.ligoj.app.model.ParameterValue;
  */
 public interface NodeRepository extends RestRepository<Node, String> {
 
-	String MATCH_DELEGATE = DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ " AND (n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id)";
+	String MATCH_DELEGATE = "(n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id) AND " + DelegateOrgRepository.ASSIGNED_DELEGATE;
 
 	/**
 	 * Visible nodes condition.
 	 */
-	String VISIBLE_NODES_PART = " EXISTS(SELECT 1 FROM DelegateNode d WHERE " + MATCH_DELEGATE;
+	String VISIBLE_NODES_PART = "(" + DelegateOrgRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM DelegateNode d WHERE " + MATCH_DELEGATE;
 
 	/**
 	 * Visible nodes condition.
 	 */
-	String VISIBLE_NODES = VISIBLE_NODES_PART + ")";
+	String VISIBLE_NODES = VISIBLE_NODES_PART + "))";
 
 	/**
-	 * Visible nodes condition to subscribe projects : either administrator, either can edit it, either administer it.
+	 * Visible nodes condition to subscribe projects : either administrator,
+	 * either can edit it, either administer it.
 	 */
-	String SUBSCRIBE_NODES = VISIBLE_NODES_PART
-			+ " AND (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true))";
+	String SUBSCRIBE_NODES = VISIBLE_NODES_PART + " AND (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true)))";
 
 	/**
-	 * Return all parameter values associated to a node, including the ones from the parent.
+	 * Visible nodes condition for update : either administrator, either can
+	 * edit it, either administer it.
+	 */
+	String WRITE_NODES = VISIBLE_NODES_PART + " AND (d.canWrite = true OR d.canAdmin = true)))";
+
+	/**
+	 * Return all parameter values associated to a node, including the ones from
+	 * the parent.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -49,8 +55,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<ParameterValue> getParameterValues(String id);
 
 	/**
-	 * Return all parameters associated to a node and without specified value and for given mode. Also check the node is
-	 * visible for the given user.
+	 * Return all parameters associated to a node and without specified value
+	 * and for given mode. Also check the node is visible for the given user.
 	 * 
 	 * @param id
 	 *            the node identifier.
@@ -75,22 +81,6 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Object[]> findAllWithValuesSecure();
 
 	/**
-	 * Return visible nodes having given refined node.
-	 * 
-	 * @param parent
-	 *            Optional parent node identifier.
-	 * @param mode
-	 *            Expected mode. When <code>null</code>, the node's mode is not checked.
-	 * @param user
-	 *            The user requesting the nodes.
-	 * @return Visible nodes with given refined node
-	 */
-	@Query("FROM Node n WHERE (n.refined.id = :parent OR (:parent IS NULL AND n.refined IS NULL))                                             "
-			+ " AND (:mode IS NULL OR (n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE))                                 "
-			+ " AND " + VISIBLE_NODES + " ORDER BY UPPER(n.name)")
-	List<Node> findAllByParent(String parent, SubscriptionMode mode, String user);
-
-	/**
 	 * Return final nodes, so representing a node (running instance) of a tool.
 	 * 
 	 * @return instance nodes considered as final .
@@ -99,24 +89,14 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Node> findAllInstance();
 
 	/**
-	 * Return final nodes, so representing a node (running instance) of a tool implementing the given service.
-	 * 
-	 * @param service
-	 *            The expected service.
-	 * @return Instance nodes considered as final implementing a given service.
-	 */
-	@Query("FROM Node WHERE refined.refined.id = :service")
-	List<Node> findAllInstanceByService(String service);
-
-	/**
-	 * Return final nodes, so representing a node (running instance) of a tool and visible for a given user.
+	 * Return final nodes, so representing a node (running instance) of a tool
+	 * and visible for a given user.
 	 * 
 	 * @param user
 	 *            The user requesting the nodes.
 	 * @return instance nodes considered as final .
 	 */
-	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL AND " + VISIBLE_NODES
-			+ " ORDER BY UPPER(n.name)")
+	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL AND " + VISIBLE_NODES + " ORDER BY UPPER(n.name)")
 	List<Node> findAllInstance(String user);
 
 	/**
@@ -126,12 +106,12 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            The user requesting the nodes.
 	 * @return node subscriptions count
 	 */
-	@Query("SELECT n.id, count(sub) FROM Subscription sub INNER JOIN sub.node n WHERE " + VISIBLE_NODES
-			+ " GROUP BY n.id")
+	@Query("SELECT n.id, count(sub) FROM Subscription sub INNER JOIN sub.node n WHERE " + VISIBLE_NODES + " GROUP BY n.id")
 	List<Object[]> countNodeSubscriptions(String user);
 
 	/**
-	 * Return a {@link Node} by its identifier if it is visible for current user.
+	 * Return a {@link Node} by its identifier if it is visible for the current
+	 * user.
 	 * 
 	 * @param id
 	 *            The identifier to find.
@@ -143,23 +123,52 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	Node findOneVisible(String id, String user);
 
 	/**
+	 * Return a {@link Node} by its identifier if it is visible and writable for
+	 * the current user.
+	 * 
+	 * @param id
+	 *            The identifier to find.
+	 * @param user
+	 *            The user requesting the node.
+	 * @return The visible node or <code>null</code>.
+	 */
+	@Query("FROM Node n WHERE n.id=:id AND " + WRITE_NODES)
+	Node findOneWritable(String id, String user);
+
+	/**
 	 * Return all visible {@link Node} for current user.
 	 * 
 	 * @param user
 	 *            The user requesting the nodes.
 	 * @param criteria
-	 *            the optional criteria to match.
+	 *            The optional criteria to match in the name.
+	 * @param parent
+	 *            The optional parent identifier to be like. Special attention
+	 *            for 'service' value corresponding to the root.
+	 * @param mode
+	 *            Expected subscription mode. When <code>null</code>, the node's
+	 *            mode is not checked.
+	 * @param depth
+	 *            The maximal depth. When <code>0</code> means no refined, so
+	 *            basically services only. <code>1</code> means refined is a
+	 *            service, so nodes are basically tool only. <code>2</code>
+	 *            means refined is a tool, so nodes are basically instances
+	 *            only. For the other cases, there is no limit.
 	 * @param page
-	 *            the pagination.
+	 *            The pagination.
 	 * @return The visible nodes. Ordered by their identifier.
 	 */
-	@Query("FROM Node n WHERE (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
-			+ VISIBLE_NODES + " ORDER BY n.id")
-	Page<Node> findAllVisible(String user, String criteria, Pageable page);
+	@Query("SELECT n FROM Node n LEFT JOIN n.refined nr1 LEFT JOIN nr1.refined nr2"
+			+ " WHERE (:parent IS NULL OR (:parent = 'service' AND n.refined IS NULL) OR n.refined.id = :parent)"
+			+ " AND (:depth < 0 OR :depth > 1 OR (:depth = 0 AND nr1 IS NULL) OR (:depth = 1 AND nr2 IS NULL))                                 "
+			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE)                        "
+			+ " AND (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_NODES
+			+ " ORDER BY n.id")
+	Page<Node> findAllVisible(String user, String criteria, String parent, SubscriptionMode mode, int depth, Pageable page);
 
 	/**
-	 * Return a {@link Node} by its identifier if it is visible for current user and if this user can create a
-	 * subscription on it.
+	 * Return a {@link Node} by its identifier if it is visible for current user
+	 * and if this user can create a subscription on it.
 	 * 
 	 * @param id
 	 *            The identifier to find.

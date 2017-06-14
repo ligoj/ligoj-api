@@ -35,7 +35,7 @@ import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
-import org.ligoj.app.resource.node.ParameterValueEditionVo;
+import org.ligoj.app.resource.node.ParameterValueCreateVo;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
@@ -105,9 +105,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void checkMandatoryParameters() {
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValue = new ParameterValueEditionVo();
+		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter("p");
 		parameters.add(parameterValue);
 		final Parameter parameter = new Parameter();
@@ -118,7 +118,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test(expected = ValidationJsonException.class)
 	public void checkMandatoryParametersMandatory() {
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
 		final Parameter parameter = new Parameter();
 		parameter.setId("p");
@@ -129,7 +129,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void checkMandatoryParametersMandatoryNotMode() {
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
 		final Parameter parameter = new Parameter();
 		parameter.setId("p");
@@ -141,7 +141,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test(expected = ValidationJsonException.class)
 	public void checkMandatoryParametersMandatoryMode() {
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
 		final Parameter parameter = new Parameter();
 		parameter.setId("p");
@@ -316,12 +316,12 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValueEditionVo = new ParameterValueEditionVo();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
+		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter(JiraBaseResource.PARAMETER_PROJECT);
 		parameterValueEditionVo.setInteger(10074);
 		parameters.add(parameterValueEditionVo);
-		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
+		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter(JiraBaseResource.PARAMETER_PKEY);
 		parameterValueEditionVo2.setText("MDA");
 		parameters.add(parameterValueEditionVo2);
@@ -346,16 +346,16 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	private int createCreateBase(final String parent, final String group) throws Exception {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValueEditionVo = new ParameterValueEditionVo();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
+		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter(IdentityResource.PARAMETER_OU);
 		parameterValueEditionVo.setText("gfi");
 		parameters.add(parameterValueEditionVo);
-		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
+		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter(IdentityResource.PARAMETER_PARENT_GROUP);
 		parameterValueEditionVo2.setText(parent);
 		parameters.add(parameterValueEditionVo2);
-		final ParameterValueEditionVo parameterValueEditionVo3 = new ParameterValueEditionVo();
+		final ParameterValueCreateVo parameterValueEditionVo3 = new ParameterValueCreateVo();
 		parameterValueEditionVo3.setParameter(IdentityResource.PARAMETER_GROUP);
 		parameterValueEditionVo3.setText(group);
 		parameters.add(parameterValueEditionVo3);
@@ -392,12 +392,12 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		thrown.expect(MatcherUtil.validationMatcher(JiraBaseResource.PARAMETER_JDBC_PASSSWORD, "not-accepted-parameter"));
 
 		final SubscriptionEditionVo vo = newCreateVoBadParameters();
-		final ParameterValueEditionVo parameterValueEditionVo2 = new ParameterValueEditionVo();
+		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter("service:bt:jira:pkey");
 		parameterValueEditionVo2.setText("MYPROJECT");
 		vo.getParameters().add(parameterValueEditionVo2);
 
-		final ParameterValueEditionVo parameterValueEditionVo3 = new ParameterValueEditionVo();
+		final ParameterValueCreateVo parameterValueEditionVo3 = new ParameterValueCreateVo();
 		parameterValueEditionVo3.setParameter("service:bt:jira:jdbc-password");
 		parameterValueEditionVo3.setInteger(1007400);
 		vo.getParameters().add(parameterValueEditionVo3);
@@ -424,8 +424,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.clear();
 
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueEditionVo> parameters = new ArrayList<>();
-		final ParameterValueEditionVo parameterValueEditionVo = new ParameterValueEditionVo();
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
+		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter("service:bt:jira:project");
 		parameterValueEditionVo.setInteger(1007400);
 		parameters.add(parameterValueEditionVo);
