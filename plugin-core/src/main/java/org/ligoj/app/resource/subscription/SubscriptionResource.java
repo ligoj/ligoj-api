@@ -47,6 +47,7 @@ import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
 import org.ligoj.app.resource.node.ParameterValueCreateVo;
 import org.ligoj.app.resource.node.ParameterValueResource;
+import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.NamedBean;
 import org.ligoj.bootstrap.core.resource.BusinessException;
@@ -346,11 +347,25 @@ public class SubscriptionResource {
 		// Delegate the deletion
 		ServicePlugin plugin = locator.getResource(entity.getNode().getId());
 		while (plugin != null) {
+			// Pre-check for long task
+			checkForDeletion(plugin, id);
+
 			plugin.delete(id, deleteRemoteData);
 			plugin = locator.getResource(locator.getParent(plugin.getKey()));
 		}
 		parameterValueResource.deleteBySubscription(id);
 		repository.delete(entity);
+	}
+
+	/**
+	 * Check for deletion the related subscription : no running tasks.
+	 */
+	protected void checkForDeletion(ServicePlugin plugin, int id) {
+		if (plugin instanceof LongTaskRunner) {
+			// CHeck and delete the related finished tasks
+			final LongTaskRunner<?, ?> runner = (LongTaskRunner<?, ?>) plugin;
+			runner.deleteTask(id);
+		}
 	}
 
 	/**

@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.ligoj.app.MatcherUtil;
 import org.ligoj.app.api.ConfigurationVo;
 import org.ligoj.app.api.NodeStatus;
+import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.dao.ParameterValueRepository;
@@ -40,7 +41,9 @@ import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
 import org.ligoj.app.resource.node.sample.JiraPluginResource;
+import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -82,7 +85,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
+	 * Return the subscription identifier of MDA. Assumes there is only one
+	 * subscription for a service.
 	 */
 	protected int getSubscription(final String project) {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);
@@ -90,7 +94,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void getSubscriptionParameterValue() {
-		Assert.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
+		Assert.assertEquals("10074",
+				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
 	}
 
 	@Test
@@ -98,7 +103,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final Subscription subscription = repository.findOneExpected(this.subscription);
 		final String subscriptionStr = subscription.toString();
 		Assert.assertTrue(subscriptionStr.startsWith("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: "));
-		Assert.assertTrue(subscriptionStr.endsWith(", node=AbstractNamedBusinessEntity(name=JIRA 4), project=AbstractNamedAuditedEntity(name=MDA))"));
+		Assert.assertTrue(
+				subscriptionStr.endsWith(", node=AbstractNamedBusinessEntity(name=JIRA 4), project=AbstractNamedAuditedEntity(name=MDA))"));
 		Assert.assertEquals("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: null, node=null, project=null)",
 				new Subscription().toString());
 	}
@@ -211,6 +217,21 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		resource.getParameters(subscription);
 	}
 
+	/**
+	 * Not a {@link LongTaskRunner} implementation -> does nothing
+	 */
+	@Test
+	public void checkForDeletionNotTaskRunner() throws Exception {
+		resource.checkForDeletion(Mockito.mock(ServicePlugin.class), 0);
+	}
+
+	@Test
+	public void checkForDeletion() throws Exception {
+		final TaskSampleResource sampleResource = new TaskSampleResource();
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(sampleResource);
+		resource.checkForDeletion(sampleResource, subscription);
+	}
+
 	@Test
 	public void delete() throws Exception {
 		initSpringSecurityContext("fdaugan");
@@ -245,7 +266,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Test a creation by another user than the team leader. The current user is administrator, can see all projects.
+	 * Test a creation by another user than the team leader. The current user is
+	 * administrator, can see all projects.
 	 */
 	@Test
 	public void createByAdmin() throws Exception {
@@ -259,14 +281,16 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		Assert.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
+		Assert.assertEquals("10074",
+				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
 		Assert.assertEquals("MDA", parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
 	}
 
 	/**
-	 * The project is visible for user "alongchu" since he is in the main group "gfi-gstack" of the project
-	 * "gfi-gstack", however he is neither the team leader of this project, neither an administrator, neither a manger
-	 * of the group "gfi-gstack".
+	 * The project is visible for user "alongchu" since he is in the main group
+	 * "gfi-gstack" of the project "gfi-gstack", however he is neither the team
+	 * leader of this project, neither an administrator, neither a manger of the
+	 * group "gfi-gstack".
 	 */
 	@Test(expected = ForbiddenException.class)
 	public void createNotManagedProject() throws Exception {
@@ -466,15 +490,15 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final SubscriptionLightVo subscription0 = subscriptions.get(0);
 		Assert.assertTrue(subscription0.getId() > 0);
 		Assert.assertTrue(subscription0.getProject() > 0);
-		Assert.assertEquals("gStack",
-				subscriptionList.getProjects().stream().filter(p -> p.getId().equals(subscription0.getProject())).findFirst().get().getName());
+		Assert.assertEquals("gStack", subscriptionList.getProjects().stream().filter(p -> p.getId().equals(subscription0.getProject()))
+				.findFirst().get().getName());
 
 		// MDA Project (last subscription), only JIRA4 subscription
 		final SubscriptionLightVo subscription = subscriptions.get(subscriptions.size() - 1);
 		Assert.assertTrue(subscription.getId() > 0);
 		Assert.assertTrue(subscription.getProject() > 0);
-		Assert.assertEquals("MDA",
-				subscriptionList.getProjects().stream().filter(p -> p.getId().equals(subscription.getProject())).findFirst().get().getName());
+		Assert.assertEquals("MDA", subscriptionList.getProjects().stream().filter(p -> p.getId().equals(subscription.getProject()))
+				.findFirst().get().getName());
 		Assert.assertEquals("service:bt:jira:4", subscription.getNode());
 
 		// Check projects
@@ -482,7 +506,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		Assert.assertEquals(2, projects.size());
 
 		// Check subscription project
-		final SubscribingProjectVo projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), subscription.getProject())).findFirst().get();
+		final SubscribingProjectVo projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), subscription.getProject()))
+				.findFirst().get();
 		Assert.assertEquals("MDA", projectVo.getName());
 		Assert.assertEquals("mda", projectVo.getPkey());
 
