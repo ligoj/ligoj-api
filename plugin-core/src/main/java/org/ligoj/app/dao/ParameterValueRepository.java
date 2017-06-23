@@ -54,14 +54,16 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	List<ParameterValue> findAllSecureBySubscription(int subscription);
 
 	/**
-	 * Delete all parameter values related to the given node.
+	 * Delete all parameter values related to the given node or sub-nodes.
 	 * 
 	 * @param node
 	 *            The node identifier.
 	 */
 	@Modifying
-	@Query("DELETE ParameterValue WHERE parameter.id IN (SELECT id FROM Parameter WHERE owner.id = :node)"
-			+ " OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node) OR node.id = :node")
+	@Query("DELETE ParameterValue WHERE"
+			+ "    parameter.id IN (SELECT id FROM Parameter WHERE owner.id = :node OR owner.id LIKE CONCAT(:node, ':%'))"
+			+ " OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%'))"
+			+ " OR node.id = :node OR node.id LIKE CONCAT(:node, ':%') ")
 	void deleteByNode(String node);
 
 	/**

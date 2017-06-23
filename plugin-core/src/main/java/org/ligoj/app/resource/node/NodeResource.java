@@ -292,7 +292,7 @@ public class NodeResource {
 	@CacheRemoveAll(cacheName = "nodes")
 	public void delete(@PathParam("id") final String id) {
 		parameterValueRepository.deleteByNode(id);
-		parameterRepository.deleteAllBy("owner.id", id);
+		parameterRepository.deleteByNode(id);
 		eventRepository.deleteByNode(id);
 		subscriptionRepository.deleteAllBy("node.id", id);
 		repository.delete(id);

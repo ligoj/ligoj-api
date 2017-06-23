@@ -81,6 +81,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void prepare() throws IOException {
 		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class,
 				Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
+		persistSystemEntities();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -507,14 +508,17 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByDepth() {
-		// Service only
 		final UriInfo newUriInfo = newUriInfo();
 		newUriInfo.getQueryParameters().putSingle("length", "100");
+
+		// Service only
 		Assert.assertEquals(10, resource.findAll(newUriInfo, null, null, null, 0).getData().size());
+
 		// Tools + Services only
-		Assert.assertEquals(11, resource.findAll(newUriInfo, null, null, null, 1).getData().size());
+		Assert.assertEquals(21, resource.findAll(newUriInfo, null, null, null, 1).getData().size());
+
 		// No limit : Instances + Services + instances
-		Assert.assertEquals(23, resource.findAll(newUriInfo, null, null, null, 2).getData().size());
+		Assert.assertEquals(33, resource.findAll(newUriInfo, null, null, null, 2).getData().size());
 	}
 
 	@Test
@@ -539,7 +543,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParentFilterModeLinkStrict() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 0)
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 2)
 				.getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
@@ -741,7 +745,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllNoCriteria() {
-		final TableItem<NodeVo> findAll = resource.findAll(newFindAllParameters(), null, null, null, 0);
+		final TableItem<NodeVo> findAll = resource.findAll(newFindAllParameters(), null, null, null, 2);
 		final List<NodeVo> result = findAll.getData();
 		Assert.assertEquals(10, result.size());
 		Assert.assertTrue(findAll.getRecordsTotal() > 30);

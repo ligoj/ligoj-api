@@ -80,6 +80,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 *            The node identifier.
 	 */
 	@Modifying
-	@Query("DELETE Event WHERE node.id = :node OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node)")
+	@Query("DELETE Event WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%')"
+			+ " OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%'))")
 	void deleteByNode(String node);
 }
