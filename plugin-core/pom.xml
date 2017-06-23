@@ -27,4 +27,46 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/*.csv</exclude>
+					<exclude>**/*.xls</exclude>
+				</excludes>
+			</resource>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.csv</include>
+					<include>**/*.xls</include>
+				</includes>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>true</filtering>
+				<excludes>
+					<exclude>**/*.jar</exclude>
+					<exclude>**/*.txt</exclude>
+					<exclude>**/*.csv</exclude>
+					<exclude>**/*.xls</exclude>
+				</excludes>
+			</testResource>
+			<testResource>
+				<directory>src/test/resources</directory>
+				<filtering>false</filtering>
+				<includes>
+					<include>**/*.jar</include>
+					<include>**/*.txt</include>
+					<include>**/*.csv</include>
+					<include>**/*.xls</include>
+				</includes>
+			</testResource>
+		</testResources>
+	</build>
 </project>
