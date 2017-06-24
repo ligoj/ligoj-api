@@ -86,7 +86,7 @@ public interface LongTaskRunner<T extends AbstractLongTask, R extends LongTaskRe
 		task.setFailed(failed);
 
 		// Save now the new state
-		getTaskRepository().save(task);
+		getTaskRepository().saveAndFlush(task);
 	}
 
 	/**
@@ -135,7 +135,7 @@ public interface LongTaskRunner<T extends AbstractLongTask, R extends LongTaskRe
 			resetTask(task);
 
 			// Save this entity inside this transaction
-			getTaskRepository().save(task);
+			getTaskRepository().saveAndFlush(task);
 			return task;
 		}
 	}
