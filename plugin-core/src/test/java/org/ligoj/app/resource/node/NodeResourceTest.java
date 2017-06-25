@@ -23,6 +23,8 @@ import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
+import org.ligoj.app.dao.ParameterValueRepository;
+import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
@@ -45,6 +47,7 @@ import org.ligoj.app.resource.node.sample.LdapPluginResource;
 import org.ligoj.app.resource.node.sample.SonarPluginResource;
 import org.ligoj.bootstrap.core.SpringUtils;
 import org.ligoj.bootstrap.core.json.TableItem;
+import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.ArgumentMatchers;
@@ -68,11 +71,16 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private NodeRepository repository;
+	@Autowired
+	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
 	private NodeResource resource;
 
 	private NodeResource resourceMock;
+
+	@Autowired
+	private ParameterValueRepository parameterValueRepository;
 
 	@Autowired
 	private EventRepository eventRepository;
@@ -487,9 +495,23 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.delete("service:bt:jira:any");
 	}
 
+	@Test(expected = BusinessException.class)
+	public void deleteHasSubscription() {
+		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+		em.clear();
+		resource.delete("service:bt:jira:6");
+	}
+
 	@Test
 	public void delete() {
 		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6")
+				.forEach(s ->{
+				eventRepository.deleteAllBy("subscription.id", s.getId());
+				parameterValueRepository.deleteAllBy("subscription.id", s.getId());
+				em.remove(s);
+		});
+		em.flush();
 		em.clear();
 		resource.delete("service:bt:jira:6");
 		Assert.assertFalse(repository.exists("service:bt:jira:6"));

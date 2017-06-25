@@ -282,7 +282,8 @@ public class NodeResource {
 
 	/**
 	 * Delete an existing {@link Node} from its identifier. The whole cache of
-	 * nodes is invalidated. All related subscriptions are also deleted.
+	 * nodes is invalidated. The deletion can only succeed if there are no
+	 * related subscription. They need to be previously deleted.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -291,10 +292,15 @@ public class NodeResource {
 	@Path("{id:service:.+:.+:.*}")
 	@CacheRemoveAll(cacheName = "nodes")
 	public void delete(@PathParam("id") final String id) {
+		final int nbSubscriptions = subscriptionRepository.countByNode(id);
+		if (nbSubscriptions > 0) {
+			// Subscriptions need to be deleted first
+			throw new BusinessException("existing-subscriptions", nbSubscriptions);
+		}
+
 		parameterValueRepository.deleteByNode(id);
 		parameterRepository.deleteByNode(id);
 		eventRepository.deleteByNode(id);
-		subscriptionRepository.deleteAllBy("node.id", id);
 		repository.delete(id);
 
 		// Also invalidates the node parameters cache
