@@ -9,7 +9,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.CharEncoding;
 import org.apache.commons.lang3.ObjectUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -34,7 +33,7 @@ public abstract class AbstractXmlApiToolPluginResource extends AbstractToolPlugi
 		factory.setExpandEntityReferences(false);
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		return factory.newDocumentBuilder().parse(input, CharEncoding.UTF_8);
+		return factory.newDocumentBuilder().parse(input, StandardCharsets.UTF_8.name());
 	}
 
 	/**
