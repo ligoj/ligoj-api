@@ -271,13 +271,14 @@ public class PluginsClassLoader extends URLClassLoader {
 	 */
 	public File toFile(Subscription subscription, final String... fragments) throws IOException {
 		Path parent = toPath(getHomeDirectory(), subscription.getNode());
+		parent = parent.resolve(String.valueOf(subscription.getId()));
 
 		// Ensure the t
-		for (int i = 0; i < fragments.length - 1; i++) {
+		for (int i = 0; i < fragments.length; i++) {
 			parent = parent.resolve(fragments[i]);
 		}
-		FileUtils.forceMkdir(parent.toFile());
-		return parent.resolve(fragments[fragments.length - 1]).toFile();
+		FileUtils.forceMkdir(parent.getParent().toFile());
+		return parent.toFile();
 	}
 
 	/**

@@ -93,12 +93,12 @@ public class PluginsClassLoaderTest {
 		PluginsClassLoader classLoader = null;
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
-			classLoader = checkClassLoader();
-			final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/foo/bar.log");
+			final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/42/foo/bar.log");
 			final File subscriptionParent = new File(USER_HOME_DIRECTORY, ".ligoj/service-id");
 			FileUtils.deleteQuietly(subscriptionParent);
 			Assert.assertFalse(subscriptionParent.exists());
 			Assert.assertFalse(file.exists());
+			classLoader = checkClassLoader();
 			final Subscription subscription = newSubscription();
 			final File cfile = classLoader.toFile(subscription, "foo", "bar.log");
 			Assert.assertTrue(subscriptionParent.exists());
@@ -122,6 +122,7 @@ public class PluginsClassLoaderTest {
 		tool.setRefined(service);
 		node.setRefined(tool);
 		subscription.setNode(node);
+		subscription.setId(42);
 		return subscription;
 	}
 
