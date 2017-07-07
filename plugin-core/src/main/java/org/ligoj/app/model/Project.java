@@ -19,13 +19,16 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.bootstrap.core.model.AbstractDescribedAuditedEntity;
 import org.ligoj.bootstrap.core.validation.LowerCase;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  * A managed project.
  */
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name"), @UniqueConstraint(columnNames = "pkey") }, name = "LIGOJ_PROJECT")
+@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name"),
+		@UniqueConstraint(columnNames = "pkey") }, name = "LIGOJ_PROJECT")
 public class Project extends AbstractDescribedAuditedEntity<Integer> {
 
 	/**
@@ -55,5 +58,9 @@ public class Project extends AbstractDescribedAuditedEntity<Integer> {
 	 * Team Leader user name
 	 */
 	private String teamLeader;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
+	private List<CacheProjectGroup> cacheGroups;
 
 }
