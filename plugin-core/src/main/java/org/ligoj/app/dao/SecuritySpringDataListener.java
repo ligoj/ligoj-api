@@ -49,19 +49,19 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 			String teamLeader = (String) args.get(0);
 			String dn = (String) args.get(1);
 			return ("$team=$user"
-					+ " OR $exists ($member(_s_cmg0, _s_cm0,$dn)) $end"
-					+ " OR $exists ($select_dn(_s_d1.dn,USER) AND _s_d1.receiver=$user) AS _s_d WHERE $match($dn,_s_d.dn) $end"
-					+ " OR $exists ($select_dn(_s_d2.dn,GROUP) AND $exists ($member(_s_cmg1, _s_cm1,_s_d2.dn)) $end AS _s_d3 WHERE $match($dn,_s_d3.dn) $end"
-					+ " OR $exists ($select_dn(_s_d4.dn,COMPANY)"
+					+ " OR $exists $member(_s_cmg0, _s_cm0,$dn) $end"
+					+ " OR $exists ($select_dn(_s_d1,USER) AND _s_d1.receiver=$user) AS _s_d WHERE $match($dn,_s_d.dn) $end"
+					+ " OR $exists ($select_dn(_s_d2,GROUP) AND $exists $member(_s_cmg1, _s_cm1,_s_d2.dn) $end) AS _s_d3 WHERE $match($dn,_s_d3.dn) $end"
+					+ " OR $exists ($select_dn(_s_d4,COMPANY)"
 					+ " 	AND $exists (SELECT _s_cc1.$desc  AS dn FROM $cu AS _s_cu LEFT JOIN $cc AS _s_cc1 ON (_s_cc1.id=_s_cu.company) WHERE _s_cu.id=$user) AS _s_cc2"
 					+ " 	 WHERE $match(_s_cc2.dn,_s_d4.dn)))) AS _s_d5"
 					+ "  WHERE $match($dn,_s_d5.dn) $end")
 							.replaceAll("\\$member\\(([^,]+),([^)]+),([^)]+)\\)",
-									"SELECT $1.\\$desc AS dn FROM \\$cm AS $2 LEFT JOIN \\$cg AS $1 ON ($1.id=$2.`group`) WHERE $2.`user`=\\$user) AS $1 WHERE \\$match($1.dn, $3)")
+									"(SELECT $1.\\$desc AS dn FROM \\$cm AS $2 LEFT JOIN \\$cg AS $1 ON ($1.id=$2.`group`) WHERE $2.`user`=\\$user) AS $1 WHERE \\$match($1.dn, $3)")
 							.replaceAll("\\$match\\(([^,]+),([^)]+)\\)",
 									"$1=$2 OR $1 LIKE CONCAT('%,',$2) OR $2 LIKE CONCAT('%,',$1)")
+							.replaceAll("\\$select_dn\\(([^,]+),([^)]+)\\)", "SELECT $1.dn FROM \\$do AS $1 WHERE $1.receiver_type='$2'")
 							.replace("$exists", "(EXISTS (SELECT 1 FROM")
-							.replace("$select_dn\\(([^,]+),([^)]+)\\)", "SELECT $1.dn FROM $do AS $1 WHERE $1.receiver_type='$2'")
 							.replace("$end", "))")
 							.replace("$desc", "description")
 							.replace("$do", "ligoj_delegate_org")

@@ -27,38 +27,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Visible projects condition, using ID subscription and team leader
 	 * attribute.
 	 */
-	String VISIBLE_PROJECTS = "(p.teamLeader = :user OR " + DelegateOrgRepository.IS_ADMIN
-			+ " OR EXISTS(SELECT 1 FROM CacheProjectGroup pg INNER JOIN pg.group pgg WHERE pg.project = p"
-			+ "     AND (EXISTS(SELECT 1 FROM CacheMembership AS cm WHERE cm.group = pgg AND cm.user.id = :user)"
-			+ "       OR EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ "         AND (pgg.description LIKE CONCAT('%,',d.dn) OR pgg.description=d.dn)))))";
+	String VISIBLE_PROJECTS = "(" + DelegateOrgRepository.IS_ADMIN
+			+ " OR VISIBLEPROJECT(p.teamLeader, cg.description, :user, :user, :user, :user, :user) = true)";
 
-
-	/**
-	 * ":user" : Context user login <br>
-	 * <br>
-	 * Delegates assigned to a receiver<br>
-	 */
-	String ASSIGNED_DELEGATE2 = "((receiverType=org.ligoj.app.iam.model.ReceiverType.USER    AND receiver=:user)"
-			+ "  OR (receiverType=org.ligoj.app.iam.model.ReceiverType.GROUP   AND EXISTS(SELECT 1 FROM CacheGroup cg   WHERE receiver = cg.id"
-			+ "     AND EXISTS(SELECT 1 FROM CacheMembership cm INNER JOIN cm.group g WHERE cm.user.id = :user"
-			+ "          AND (g.description = cg.description OR g.description LIKE CONCAT('%,',cg.description)))))"
-			+ "  OR (receiverType=org.ligoj.app.iam.model.ReceiverType.COMPANY AND EXISTS(SELECT 1 FROM CacheCompany cc WHERE receiver = cc.id"
-			+ "     AND EXISTS(SELECT 1 FROM CacheUser cu INNER JOIN cu.company c   WHERE cu.id = :user"
-			+ "          AND (c.description = cc.description OR c.description LIKE CONCAT('%,',cc.description))))))";
-
-	/**
-	 * Visible projects condition, using ID subscription and team leader
-	 * attribute.
-	 */
-	String VISIBLE_PROJECTS2 = "(p.teamLeader = :user OR " + DelegateOrgRepository.IS_ADMIN
-			+ " OR (EXISTS (SELECT 1 FROM (SELECT cm.group FROM CacheMembership AS cm WHERE cm.user=:user) AS cmg WHERE cmg.group=cpg.group))"
-			+ " OR (EXISTS (SELECT 1 FROM (SELECT cm.group FROM DelegateOrg AS d1 WHERE d1.receiverType=org.ligoj.app.iam.model.ReceiverType.USER AND d1.receiver=:user) AS d WHERE cg.description LIKE CONCAT('%,',d.dn) OR cg.description=d.dn))"
-			+ " OR (EXISTS (SELECT 1 FROM (SELECT cm.group FROM DelegateOrg AS d1 WHERE d1.receiverType=org.ligoj.app.iam.model.ReceiverType.GROUP"
-			+ "			 AND (EXISTS (SELECT 1 FROM (SELECT cg.description AS dn FROM CacheMembership AS cm LEFT JOIN cm.group AS cg WHERE cm.user=:user AND receiver=cg.id) AS cg WHERE cg.description LIKE CONCAT('%,',d.dn) OR cg.description=d.dn)))))"
-			+")";
-
-	
 	/**
 	 * Return all {@link Project} objects with the given name.The other
 	 * constraints are :
@@ -80,10 +51,13 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @return all {@link Project} objects with the given name. Insensitive case
 	 *         search is used.
 	 */
-	@Query("SELECT p, COUNT(s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
-			+ " WHERE VISIBLEPROJECT(p.teamLeader, cg.description, :user, :user, :user, :user, :user) = true"
+	@Query(value = "SELECT DISTINCT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+			+ " WHERE " + VISIBLE_PROJECTS
 			+ " AND (:criteria IS NULL OR (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) GROUP BY p")
+			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) GROUP BY p", countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+					+ " WHERE " + VISIBLE_PROJECTS
+					+ " AND (:criteria IS NULL OR (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) GROUP BY p")
 	Page<Object[]> findAllLight(String user, String criteria, Pageable page);
 
 	/**
@@ -102,8 +76,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name
 	 * @return all visible {@link Project} objects for the given user.
 	 */
-	@Query("SELECT id, name, pkey FROM Project AS p WHERE " + VISIBLE_PROJECTS
-			+ " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project=p)")
+	@Query("SELECT DISTINCT p.id, p.name, p.pkey FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE "
+			+ VISIBLE_PROJECTS + " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project=p)")
 	List<Object[]> findAllHavingSubscription(String user);
 
 	/**
@@ -123,7 +97,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
-	@Query("SELECT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s WHERE p.id = :id AND " + VISIBLE_PROJECTS)
+	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :id AND "
+			+ VISIBLE_PROJECTS)
 	Project findOneVisible(int id, String user);
 
 	/**
@@ -143,7 +118,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
-	@Query("SELECT p FROM Project AS p WHERE p.pkey = :pkey AND " + VISIBLE_PROJECTS)
+	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
+			+ VISIBLE_PROJECTS)
 	Project findByPKey(String pkey, String user);
 
 	/**
