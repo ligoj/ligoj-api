@@ -28,7 +28,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * attribute.
 	 */
 	String VISIBLE_PROJECTS = "(" + DelegateOrgRepository.IS_ADMIN
-			+ " OR VISIBLEPROJECT(p.teamLeader, cg.description, :user, :user, :user, :user, :user) = true)";
+			+ " OR visibleproject(p, cg.description, :user, :user, :user, :user, :user) = true)";
 
 	/**
 	 * Return all {@link Project} objects with the given name.The other
