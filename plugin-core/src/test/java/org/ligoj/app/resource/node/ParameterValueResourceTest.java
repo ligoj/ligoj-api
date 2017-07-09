@@ -367,7 +367,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	public void createSelectJSonError() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
-		@SuppressWarnings({ "cast", "unchecked" })
+		@SuppressWarnings("cast")
 		final List<String> badList = (List<String>) Mockito.mock(List.class);
 		Mockito.when(badList.isEmpty()).thenReturn(Boolean.FALSE);
 		Mockito.when(badList.iterator()).thenThrow(new IllegalStateException());

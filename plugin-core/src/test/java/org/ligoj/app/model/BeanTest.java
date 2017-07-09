@@ -31,6 +31,14 @@ public class BeanTest {
 	}
 
 	@Test
+	public void testCacheProjectGroup() {
+		Assert.assertNull(new CacheProjectGroup().getGroup());
+		Assert.assertNull(new CacheProjectGroup().getProject());
+		Assert.assertNull(new Project().getCacheGroups());
+		new Project().setCacheGroups(Collections.emptyList());
+	}
+
+	@Test
 	public void testBitBucketTag() {
 		check(new BitBucketTag(), BitBucketTag::setName, BitBucketTag::getName, "v");
 	}

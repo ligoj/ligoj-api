@@ -28,7 +28,7 @@ public class CacheContainer extends AbstractNamedBusinessEntity<String> implemen
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Human readable description.
+	 * DN.
 	 */
 	@Length(max = 512)
 	@NotNull

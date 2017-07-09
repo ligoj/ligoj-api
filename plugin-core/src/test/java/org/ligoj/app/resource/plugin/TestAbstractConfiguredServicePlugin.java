@@ -29,7 +29,6 @@ public class TestAbstractConfiguredServicePlugin {
 	private Subscription subscription;
 	private Project project;
 
-	@SuppressWarnings("unchecked")
 	@Before
 	public void prepareMock() {
 		resource = new AbstractConfiguredServicePlugin<PluginConfiguration>() {

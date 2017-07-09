@@ -159,11 +159,11 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
 		Assert.assertEquals(1, result.getData().size());
 		Assert.assertEquals(1, result.getRecordsTotal());
-		final DelegateOrgLightVo entity = result.getData().get(0);
-		Assert.assertEquals("ing", entity.getName());
-		Assert.assertEquals(DelegateType.COMPANY, entity.getType());
-		Assert.assertEquals("gfi-gstack", entity.getReceiver().getId());
-		Assert.assertEquals(ReceiverType.GROUP, entity.getReceiverType());
+		final DelegateOrgLightVo vo = result.getData().get(0);
+		Assert.assertEquals("ing", vo.getName());
+		Assert.assertEquals(DelegateType.COMPANY, vo.getType());
+		Assert.assertEquals("gfi-gstack", vo.getReceiver().getId());
+		Assert.assertEquals(ReceiverType.GROUP, vo.getReceiverType());
 	}
 
 	@Test
@@ -278,6 +278,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		// Check the stored name is normalized
 		Assert.assertEquals("hub paris", entity.getName());
 		Assert.assertEquals("cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com", entity.getDn());
+		Assert.assertNull(entity.getReceiverDn());
 		Assert.assertEquals(DelegateType.GROUP, entity.getType());
 		Assert.assertEquals(DEFAULT_USER, entity.getCreatedBy());
 		Assert.assertEquals("fdaugan", entity.getReceiver());
@@ -301,6 +302,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		final DelegateOrg entity = repository.findOneExpected(id);
 		Assert.assertEquals("socygan", entity.getName());
 		Assert.assertEquals("ou=socygan,ou=external,ou=people,dc=sample,dc=com", entity.getDn());
+		Assert.assertNull(entity.getReceiverDn());
 		Assert.assertEquals(DelegateType.COMPANY, entity.getType());
 		Assert.assertEquals(DEFAULT_USER, entity.getCreatedBy());
 		Assert.assertEquals("fdaugan", entity.getReceiver());
@@ -330,6 +332,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assert.assertEquals("mtuyer", entity.getCreatedBy());
 		Assert.assertEquals("ing", entity.getReceiver());
 		Assert.assertEquals(ReceiverType.COMPANY, entity.getReceiverType());
+		Assert.assertEquals("ou=ing,ou=external,ou=people,dc=sample,dc=com", entity.getReceiverDn());
 		Assert.assertTrue(entity.isCanAdmin());
 	}
 
@@ -354,6 +357,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assert.assertEquals("mtuyer", entity.getCreatedBy());
 		Assert.assertEquals("dig", entity.getReceiver());
 		Assert.assertEquals(ReceiverType.GROUP, entity.getReceiverType());
+		Assert.assertEquals("cn=dig,ou=fonction,ou=groups,dc=sample,dc=com", entity.getReceiverDn());
 		Assert.assertTrue(entity.isCanAdmin());
 	}
 

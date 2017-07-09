@@ -27,7 +27,7 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The user receiving the delegation.
+	 * The resource receiving the delegation.
 	 */
 	@NotBlank
 	@NotNull

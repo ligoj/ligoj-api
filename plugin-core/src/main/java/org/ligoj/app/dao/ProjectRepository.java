@@ -19,9 +19,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Visible projects condition where the current user is either team leader,
 	 * either member of one of the groups of this project.
 	 */
-	String MY_PROJECTS = "(p.teamLeader = :user"
-			+ " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data"
-			+ "     AND EXISTS(SELECT 1 FROM CacheMembership AS cm WHERE cm.user.id = :user AND cm.group = g)))";
+	String MY_PROJECTS = "inproject(p,:user,:user)=true";
 
 	/**
 	 * Visible projects condition, using ID subscription and team leader
@@ -148,13 +146,4 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 			+ "   AND d.canAdmin=true AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.dn=g.description) OR"
 			+ "    (d.type=org.ligoj.app.iam.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))")
 	Integer isManageSubscription(int project, String user);
-
-	/**
-	 * Return all couples {@link Project} and subscribed group.
-	 * 
-	 * @return all couples {@link Project} and subscribed group identifier.
-	 */
-	@Query("SELECT p.id, pv.data FROM ParameterValue pv INNER JOIN pv.subscription AS s"
-			+ " INNER JOIN s.project AS p WHERE pv.parameter.id = 'service:id:group'")
-	List<Object[]> findAllProjectGroup();
 }

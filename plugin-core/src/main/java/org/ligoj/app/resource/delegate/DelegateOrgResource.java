@@ -23,11 +23,13 @@ import javax.ws.rs.core.UriInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.Normalizer;
 import org.ligoj.app.iam.CompanyOrg;
+import org.ligoj.app.iam.ContainerOrg;
 import org.ligoj.app.iam.GroupOrg;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.app.iam.ResourceOrg;
 import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.iam.model.DelegateOrg;
@@ -69,7 +71,7 @@ public class DelegateOrgResource {
 	/**
 	 * Receiver function from the receiver type.
 	 */
-	private final Map<ReceiverType, Function<String, String>> toReceiver = new EnumMap<>(ReceiverType.class);
+	private final Map<ReceiverType, Function<String, ResourceOrg>> toReceiver = new EnumMap<>(ReceiverType.class);
 
 	/**
 	 * Ordered columns.
@@ -90,9 +92,9 @@ public class DelegateOrgResource {
 	 */
 	public DelegateOrgResource() {
 		// Check the user/company/group is visible
-		toReceiver.put(ReceiverType.USER, r -> getUser().findByIdExpected(securityHelper.getLogin(), r).getId());
-		toReceiver.put(ReceiverType.COMPANY, r -> getCompany().findByIdExpected(securityHelper.getLogin(), r).getId());
-		toReceiver.put(ReceiverType.GROUP, r -> getGroup().findByIdExpected(securityHelper.getLogin(), r).getId());
+		toReceiver.put(ReceiverType.USER, r -> getUser().findByIdExpected(securityHelper.getLogin(), r));
+		toReceiver.put(ReceiverType.COMPANY, r -> getCompany().findByIdExpected(securityHelper.getLogin(), r));
+		toReceiver.put(ReceiverType.GROUP, r -> getGroup().findByIdExpected(securityHelper.getLogin(), r));
 	}
 
 	/**
@@ -257,16 +259,21 @@ public class DelegateOrgResource {
 	 * @return The JPA entity form with validated inputs.
 	 */
 	private DelegateOrg toEntity(final DelegateOrgEditionVo importEntry) {
+		// Validate the related receiver of this delegate
+		final ResourceOrg receiver = toReceiver.get(importEntry.getReceiverType()).apply(importEntry.getReceiver());
+
 		final DelegateOrg entity = new DelegateOrg();
 		entity.setId(importEntry.getId());
 		entity.setName(Normalizer.normalize(importEntry.getName()));
 		entity.setCanAdmin(importEntry.isCanAdmin());
 		entity.setCanWrite(importEntry.isCanWrite());
 		entity.setType(importEntry.getType());
-
-		// Validate the related receiver of this delegate
-		entity.setReceiver(toReceiver.get(importEntry.getReceiverType()).apply(importEntry.getReceiver()));
+		entity.setReceiver(receiver.getId());
 		entity.setReceiverType(importEntry.getReceiverType());
+		if (receiver instanceof ContainerOrg) {
+			// Store receiver DN only for immutable containers
+			entity.setReceiverDn(receiver.getDn());
+		}
 		return entity;
 	}
 

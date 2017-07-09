@@ -83,7 +83,8 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Converter from {@link Project} to {@link ProjectVo} with the associated subscriptions.
+	 * Converter from {@link Project} to {@link ProjectVo} with the associated
+	 * subscriptions.
 	 * 
 	 * @param project
 	 *            Entity to convert.
@@ -91,14 +92,17 @@ public class ProjectResource {
 	 */
 	public ProjectVo toVo(final Project project) {
 		// Get subscriptions
-		final List<Object[]> subscriptionsResultSet = subscriptionRepository.findAllWithValuesSecureByProject(project.getId());
-		final boolean manageSubscriptions = null != repository.isManageSubscription(project.getId(), securityHelper.getLogin());
+		final List<Object[]> subscriptionsResultSet = subscriptionRepository
+				.findAllWithValuesSecureByProject(project.getId());
+		final boolean manageSubscriptions = null != repository.isManageSubscription(project.getId(),
+				securityHelper.getLogin());
 
 		// Get subscriptions status
 		final Map<Integer, EventVo> subscriptionStatus = subscriptionResource.getStatusByProject(project.getId());
 
 		// Convert users, project and subscriptions
-		final ProjectVo projectVo = new ToVoConverter(toUser(), subscriptionsResultSet, subscriptionStatus).apply(project);
+		final ProjectVo projectVo = new ToVoConverter(toUser(), subscriptionsResultSet, subscriptionStatus)
+				.apply(project);
 		projectVo.setManageSubscriptions(manageSubscriptions);
 		return projectVo;
 	}
@@ -108,7 +112,8 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription count.
+	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription
+	 * count.
 	 * 
 	 * @param resultset
 	 *            Entity to convert and the associated subscription count.
@@ -121,7 +126,8 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription count.
+	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription
+	 * count.
 	 * 
 	 * @param entity
 	 *            Entity to convert.
@@ -139,8 +145,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * /**
-	 * Converter from {@link ProjectEditionVo} to {@link Project}
+	 * /** Converter from {@link ProjectEditionVo} to {@link Project}
 	 */
 	private static Project toEntity(final ProjectEditionVo vo) {
 		final Project entity = new Project();
@@ -152,7 +157,8 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Retrieve all project with pagination, and filtered. A visible project is attached to a visible group.
+	 * Retrieve all project with pagination, and filtered. A visible project is
+	 * attached to a visible group.
 	 * 
 	 * @param uriInfo
 	 *            pagination data.
@@ -161,9 +167,10 @@ public class ProjectResource {
 	 * @return all elements with pagination.
 	 */
 	@GET
-	public TableItem<ProjectLightVo> findAll(@Context final UriInfo uriInfo, @QueryParam(DataTableAttributes.SEARCH) final String criteria) {
-		final Page<Object[]> findAll = repository.findAllLight(securityHelper.getLogin(), StringUtils.trimToNull(criteria),
-				paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
+	public TableItem<ProjectLightVo> findAll(@Context final UriInfo uriInfo,
+			@QueryParam(DataTableAttributes.SEARCH) final String criteria) {
+		final Page<Object[]> findAll = repository.findAllLight(securityHelper.getLogin(),
+				StringUtils.trimToNull(criteria), paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, this::toVoLightCount);
@@ -174,18 +181,17 @@ public class ProjectResource {
 	 * 
 	 * @param id
 	 *            Project identifier.
-	 * @return Found element. May not be <tt>null</tt>.
+	 * @return Found element. Never <tt>null</tt>.
 	 */
 	@GET
 	@Path("{id:\\d+}")
 	public ProjectVo findById(@PathParam("id") final int id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(this::toVo)
-				.orElseThrow(() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "user", "1", id));
+		return findOneVisible(id, this::toVo);
 	}
 
 	/**
-	 * Return a project with all subscription parameters and their status. The security is checked regarding the current
-	 * user.
+	 * Return a project with all subscription parameters and their status. The
+	 * security is checked regarding the current user.
 	 * 
 	 * @param pkey
 	 *            Project pkey.
@@ -195,7 +201,8 @@ public class ProjectResource {
 	@Path("{pkey:" + Project.PKEY_PATTERN + "}")
 	public ProjectLightVo findByPKey(@PathParam("pkey") final String pkey) {
 		return Optional.ofNullable(repository.findByPKey(pkey, securityHelper.getLogin())).map(this::toVoLight)
-				.orElseThrow(() -> new ValidationJsonException("pkey", BusinessException.KEY_UNKNOW_ID, "0", "project", "1", pkey));
+				.orElseThrow(() -> new ValidationJsonException("pkey", BusinessException.KEY_UNKNOW_ID, "0", "project",
+						"1", pkey));
 	}
 
 	/**
@@ -239,9 +246,15 @@ public class ProjectResource {
 	@DELETE
 	@Path("{id:\\d+}")
 	public void delete(@PathParam("id") final int id) throws Exception {
-		for (final Subscription subscription : repository.findOneExpected(id).getSubscriptions()) {
+		final Project project = findOneVisible(id, Function.identity());
+		for (final Subscription subscription : project.getSubscriptions()) {
 			subscriptionResource.delete(subscription.getId());
 		}
-		repository.delete(id);
+		repository.delete(project);
+	}
+
+	private <T> T findOneVisible(final int id, final Function<Project, T> mapper) {
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(mapper)
+				.orElseThrow(() -> new BusinessException(BusinessException.KEY_UNKNOW_ID, id));
 	}
 }

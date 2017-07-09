@@ -29,6 +29,7 @@ import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.app.iam.model.CacheMembership;
 import org.ligoj.app.iam.model.CacheUser;
 import org.ligoj.app.iam.model.DelegateOrg;
+import org.ligoj.app.model.CacheProjectGroup;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
@@ -56,7 +57,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 				StandardCharsets.UTF_8.name());
 
 		// Add the IAM data
-		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class);
+		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class, CacheProjectGroup.class);
 		final Map<String, CompanyOrg> companies = csvForJpa.insert("csv", CacheCompany.class, StandardCharsets.UTF_8.name()).stream()
 				.map(c -> new CompanyOrg(c.getDescription(), c.getName())).collect(Collectors.toMap(CompanyOrg::getId, Function.identity()));
 		final Map<String, UserOrg> users = csvForJpa.insert("csv", CacheUser.class, StandardCharsets.UTF_8.name()).stream().map(c -> {
@@ -73,6 +74,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 				.map(c -> new GroupOrg(c.getDescription(), c.getName(), new HashSet<>()))
 				.collect(Collectors.toMap(GroupOrg::getId, Function.identity()));
 		CacheMembership cacheMembership = csvForJpa.insert("csv", CacheMembership.class, StandardCharsets.UTF_8.name()).get(0);
+		csvForJpa.insert("csv", CacheProjectGroup.class, StandardCharsets.UTF_8.name());
 
 		// Coverage required here only there because of JPA bean
 		Assert.assertNotNull(cacheMembership.getGroup());

@@ -10,6 +10,8 @@ import org.hibernate.validator.constraints.Length;
 import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.app.validation.DistinguishName;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -38,6 +40,14 @@ public class DelegateOrg extends AbstractDelegate {
 	@Length(max = 512)
 	@DistinguishName
 	private String dn;
+
+	/**
+	 * The resource DN receiving the delegation.
+	 */
+	@Length(max = 512)
+	@DistinguishName
+	@JsonIgnore
+	private String receiverDn;
 
 	/**
 	 * The delegate type.
