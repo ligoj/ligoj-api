@@ -22,21 +22,20 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	String MY_PROJECTS = "inproject(p,:user,:user)=true";
 
 	/**
-	 * Visible projects condition, using ID subscription and team leader
-	 * attribute.
+	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
 	String VISIBLE_PROJECTS = "(" + DelegateOrgRepository.IS_ADMIN
 			+ " OR visibleproject(p, cg.description, :user, :user, :user, :user, :user) = true)";
 
 	/**
-	 * Return all {@link Project} objects with the given name.The other
-	 * constraints are :
+	 * Return all {@link Project} objects with the given name.The other constraints
+	 * are :
 	 * <ul>
 	 * <li>The current user is the team leader</li>
-	 * <li>Or, the current user is member of the group associated to this
-	 * project via the service:id subscription</li>
-	 * <li>Or, the current user is see the the group associated to this project
-	 * via the service:id subscription and
+	 * <li>Or, the current user is member of the group associated to this project
+	 * via the service:id subscription</li>
+	 * <li>Or, the current user is see the the group associated to this project via
+	 * the service:id subscription and
 	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
@@ -49,24 +48,22 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @return all {@link Project} objects with the given name. Insensitive case
 	 *         search is used.
 	 */
-	@Query(value = "SELECT DISTINCT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
-			+ " WHERE " + VISIBLE_PROJECTS
-			+ " AND (:criteria IS NULL OR (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) GROUP BY p", countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
-					+ " WHERE " + VISIBLE_PROJECTS
-					+ " AND (:criteria IS NULL OR (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) GROUP BY p")
+	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+			+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p", countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+					+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p")
 	Page<Object[]> findAllLight(String user, String criteria, Pageable page);
 
 	/**
-	 * Return all {@link Project} objects having at least one subscription and
-	 * with light information. The visibility is checked :
+	 * Return all {@link Project} objects having at least one subscription and with
+	 * light information. The visibility is checked :
 	 * <ul>
 	 * <li>The current user is the team leader</li>
-	 * <li>Or, the current user is member of the group associated to this
-	 * project via the service:id subscription</li>
-	 * <li>Or, the current user is see the the group associated to this project
-	 * via the service:id subscription and
+	 * <li>Or, the current user is member of the group associated to this project
+	 * via the service:id subscription</li>
+	 * <li>Or, the current user is see the the group associated to this project via
+	 * the service:id subscription and
 	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
@@ -82,10 +79,10 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Return a project by its identifier. The other constraints are :
 	 * <ul>
 	 * <li>The current user is the team leader</li>
-	 * <li>Or, the current user is member of the group associated to this
-	 * project via the service:id subscription</li>
-	 * <li>Or, the current user is see the the group associated to this project
-	 * via the service:id subscription and
+	 * <li>Or, the current user is member of the group associated to this project
+	 * via the service:id subscription</li>
+	 * <li>Or, the current user is see the the group associated to this project via
+	 * the service:id subscription and
 	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
@@ -103,10 +100,10 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Return a project by its pkey. The other constraints are :
 	 * <ul>
 	 * <li>The current user is the team leader</li>
-	 * <li>Or, the current user is member of the group associated to this
-	 * project via the service:id subscription</li>
-	 * <li>Or, the current user is see the the group associated to this project
-	 * via the service:id subscription and
+	 * <li>Or, the current user is member of the group associated to this project
+	 * via the service:id subscription</li>
+	 * <li>Or, the current user is see the the group associated to this project via
+	 * the service:id subscription and
 	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
@@ -121,8 +118,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	Project findByPKey(String pkey, String user);
 
 	/**
-	 * Indicate the current user can manage the subscriptions of the given
-	 * project. The other constraints are :
+	 * Indicate the current user can manage the subscriptions of the given project.
+	 * The other constraints are :
 	 * <ul>
 	 * <li>The current user is the team leader</li>
 	 * <li>Or, the current user is an administrator
@@ -136,8 +133,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name.
 	 * @param project
 	 *            The project's identifier to match.
-	 * @return Non <code>null</code> project's identifier if the user can manage
-	 *         the subscriptions of this project.
+	 * @return Non <code>null</code> project's identifier if the user can manage the
+	 *         subscriptions of this project.
 	 */
 	@Query("SELECT p.id FROM Project AS p WHERE p.id = :project AND (p.teamLeader = :user OR "
 			+ DelegateOrgRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE"

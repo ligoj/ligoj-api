@@ -14,14 +14,13 @@ import org.springframework.data.jpa.repository.Query;
 public interface CacheGroupRepository extends RestRepository<CacheGroup, String>, CacheContainerRepository<CacheGroup> {
 
 	/**
-	 * Filter to determine the group is visible or not : brought by a delegate
-	 * or one of the sub groups the current user is member.
+	 * Filter to determine the group is visible or not : brought by a delegate or
+	 * one of the sub groups the current user is member.
 	 */
 	String VISIBLE_RESOURCE = "visiblegroup(l.description,:user,:user,:user,:user)=true";
 
 	@Override
-	@Query("FROM CacheGroup l WHERE (:criteria IS NULL OR (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) AND "
-			+ VISIBLE_RESOURCE)
+	@Query("FROM CacheGroup l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_RESOURCE)
 	Page<CacheGroup> findAll(String user, String criteria, Pageable page);
 
 	@Override

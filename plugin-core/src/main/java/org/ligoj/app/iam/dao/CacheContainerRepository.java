@@ -21,8 +21,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	String WRITABLE_RESOURCE = "writedn(l.description,:user,:user,:user)=true";
 
 	/**
-	 * Filter to determine the group is administered : brought only by a
-	 * delegate.
+	 * Filter to determine the group is administered : brought only by a delegate.
 	 */
 	String ADMIN_RESOURCE = "admindn(l.description,:user,:user,:user)=true";
 
@@ -60,7 +59,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 *            Page control.
 	 * @return The pagination result.
 	 */
-	@Query("FROM #{#entityName} l WHERE (:criteria IS NULL OR (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) AND "
+	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ WRITABLE_RESOURCE)
 	Page<C> findAllWrite(String user, String criteria, Pageable page);
 
@@ -75,8 +74,8 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	List<C> findAllWrite(String user);
 
 	/**
-	 * All visible containers regarding the security with administration access,
-	 * and the criteria.
+	 * All visible containers regarding the security with administration access, and
+	 * the criteria.
 	 * 
 	 * @param user
 	 *            The user requesting the operation.
@@ -86,7 +85,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 *            Page control.
 	 * @return The pagination result.
 	 */
-	@Query("FROM #{#entityName} l WHERE (:criteria IS NULL OR (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) AND "
+	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ ADMIN_RESOURCE)
 	Page<C> findAllAdmin(String user, String criteria, Pageable page);
 
@@ -101,15 +100,15 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	List<C> findAllAdmin(String user);
 
 	/**
-	 * Return a container matching to the given identifier and also visible by
-	 * the given user.
+	 * Return a container matching to the given identifier and also visible by the
+	 * given user.
 	 * 
 	 * @param user
 	 *            The user requesting the operation.
 	 * @param id
 	 *            The container's identifier to find.
-	 * @return a container matching to the given identifier and also visible by
-	 *         the given user. May be <code>null</code>
+	 * @return a container matching to the given identifier and also visible by the
+	 *         given user. May be <code>null</code>
 	 */
 	C findById(String user, String id);
 

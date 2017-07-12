@@ -20,7 +20,7 @@ public interface CacheCompanyRepository
 	String VISIBLE_RESOURCE = "visiblecompany(l.description,:user,:user,:user,:user)=true";
 
 	@Override
-	@Query("FROM CacheCompany l WHERE (:criteria IS NULL OR (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) AND "
+	@Query("FROM CacheCompany l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ VISIBLE_RESOURCE)
 	Page<CacheCompany> findAll(String user, String criteria, Pageable page);
 

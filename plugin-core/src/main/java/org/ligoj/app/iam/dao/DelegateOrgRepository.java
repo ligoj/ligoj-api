@@ -124,7 +124,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 */
 	@Query("SELECT d FROM DelegateOrg d WHERE " + VISIBLE_DELEGATE
 			+ " AND (:type IS NULL OR d.type = :type)                                                                "
-			+ "	AND (:criteria IS NULL                                                                               "
+			+ "	AND (:criteria = ''                                                                               "
 			+ "  OR   UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))                                "
 			+ "  OR   UPPER(d.name)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 			+ "  OR   (d.type=org.ligoj.app.iam.model.DelegateType.TREE"

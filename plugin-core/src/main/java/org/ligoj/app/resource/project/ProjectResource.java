@@ -170,7 +170,7 @@ public class ProjectResource {
 	public TableItem<ProjectLightVo> findAll(@Context final UriInfo uriInfo,
 			@QueryParam(DataTableAttributes.SEARCH) final String criteria) {
 		final Page<Object[]> findAll = repository.findAllLight(securityHelper.getLogin(),
-				StringUtils.trimToNull(criteria), paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
+				StringUtils.trimToEmpty(criteria), paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, this::toVoLightCount);
