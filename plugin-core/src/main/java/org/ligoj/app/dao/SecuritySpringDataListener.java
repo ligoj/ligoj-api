@@ -31,12 +31,18 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	private static final String IS_TEAM_LEADER = "$project.team_leader=$user OR ";
 	private static final String VISIBLE_PROJECT = IS_TEAM_LEADER + VISIBLE_GROUP;
 
-	private static final String MEMBER_GROUP = "  $exists (SELECT f_cg6.description AS receiver_dn FROM $cg AS f_cg6 WHERE f_cg6.id=$arg) AS cg_dn WHERE $exists $member(cg_dn,s_cg6,$cm,$cg,$q(group),$q(user)) $end $end";
-	private static final String MEMBER_COMPANY = "$exists (SELECT f_cc7.description AS receiver_dn FROM $cc AS f_cc7 WHERE f_cc7.id=$arg) AS cc_dn WHERE $exists $member(cc_dn,s_cc7,$cu,$cc,company,id) $end $end";
-	private static final String MEMBER_PKEY = "   $exists (SELECT f_cg8.description AS receiver_dn, f_pr8.team_leader FROM $pj AS f_pr8 LEFT OUTER JOIN $cpg AS f_cpg8 ON (f_cpg8.project=f_pr8.id) LEFT JOIN $cg AS f_cg8 ON (f_cg8.id=f_cpg8.$q(group)) WHERE f_pr8.pkey=$arg) AS cg_dn"
-			+ " WHERE cg_dn.team_leader=$user OR $exists $member(cg_dn,s_pr8,$cm,$cg,$q(group),$q(user)) $end $end";
-	private static final String MEMBER_PROJECT = "$exists (SELECT f_cg9.description AS receiver_dn FROM $cpg AS f_cpg9 LEFT JOIN $cg AS f_cg9 ON (f_cg9.id=f_cpg9.$q(group)) WHERE f_cpg9.project=$arg) AS cg_dn"
-			+ " WHERE $exists $member(cg_dn,s_pr9,$cm,$cg,$q(group),$q(user)) $end $end";
+	private static final String MEMBER_GROUP = "   $exists (SELECT cg.description AS dn, cg.id FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user) AS s_cg6 WHERE s_cg6.id=$arg OR $exists $cg WHERE s_cg6.dn LIKE CONCAT('%,',description) $end $end";
+	private static final String MEMBER_GROUP2 = "  $exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user AND cg.id=$arg OR $exists $cg AS cg WHERE cg.description LIKE CONCAT('%,',description) $end $end";
+	private static final String MEMBER_COMPANY = " $exists (SELECT cc.description AS dn, cc.id FROM $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user)       AS s_cc7 WHERE s_cc7.id=$arg OR $exists $cc WHERE s_cc7.dn LIKE CONCAT('%,',description) $end $end";
+	private static final String MEMBER_COMPANY2 = "$exists $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user       AND cc.id=$arg OR $exists $cc AS cc WHERE cc.description LIKE CONCAT('%,',description) $end $end";
+	private static final String MEMBER_PKEY = "    $exists (SELECT pj.pkey FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) LEFT JOIN $pj AS pj ON (pj.id=cpg.project) WHERE cm.$q(user)=$user) AS s_pj8 WHERE s_pj8.pkey=$arg $end";
+	private static final String MEMBER_PKEY2 = "   $exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) LEFT JOIN $pj AS pj ON (pj.id=cpg.project) WHERE cm.$q(user)=$user AND pj.pkey=$arg $end";
+	private static final String MEMBER_PROJECT = " $exists (SELECT cpg.project AS id FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) WHERE cm.$q(user)=$user) AS s_pj9 WHERE s_pj9.id=$arg $end";
+	private static final String MEMBER_PROJECT2 = "$exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) WHERE cm.$q(user)=$user AND cpg.project=$arg $end";
+	private static final String IS_TEAM_LEADER_ID = " $exists (SELECT id FROM $pj pj WHERE pj.team_leader=$user) AS pj10 WHERE pj10.id=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_ID2 = "$exists $pj pj WHERE pj.team_leader=$user AND pj.id=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_PK = " $exists (SELECT pkey FROM $pj pj WHERE pj.team_leader=$user) AS pj11 WHERE pj11.pkey=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_PK2 = "$exists $pj pj WHERE pj.team_leader=$user AND pj.pkey=$arg $end OR ";
 
 	@Getter
 	private final Map<String, SQLFunction> sqlFunctions;
@@ -65,15 +71,26 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// Member of a group : member of this group or one of its sub-groups
 		registerFunction(new DnFunction("ingroup", 2, 0, MEMBER_GROUP, null, null, (sql, args) -> sql));
 
+		// Member of a group : member of this group or one of its sub-groups
+		registerFunction(new DnFunction("ingroup2", 2, 0, MEMBER_GROUP2, null, null, (sql, args) -> sql));
+
 		// Member of a company : member of this company or one of its sub-company
 		registerFunction(new DnFunction("incompany", 2, 0, MEMBER_COMPANY, null, null, (sql, args) -> sql));
 
-		// Member of a project : team leader or member of any group of this project
-		registerFunction(new DnFunction("inprojectkey", 3, 0, MEMBER_PKEY, null, null, (sql, args) -> sql));
+		// Member of a company : member of this company or one of its sub-company
+		registerFunction(new DnFunction("incompany2", 2, 0, MEMBER_COMPANY2, null, null, (sql, args) -> sql));
 
 		// Member of a project : team leader or member of any group of this project
-		registerFunction(new DnFunction("inproject", 3, 0, MEMBER_PROJECT, null, IS_TEAM_LEADER,
-				(sql, args) -> sql.replace("$project", StringUtils.removeEnd((String) args.get(0), ".id"))));
+		registerFunction(new DnFunction("inprojectkey", 3, 0, MEMBER_PKEY, null, IS_TEAM_LEADER_PK, (sql, args) -> sql));
+
+		// Member of a project : team leader or member of any group of this project
+		registerFunction(new DnFunction("inprojectkey2", 3, 1, MEMBER_PKEY2, null, IS_TEAM_LEADER_PK2, (sql, args) -> sql));
+
+		// Member of a project : team leader or member of any group of this project
+		registerFunction(new DnFunction("inproject", 3, 0, MEMBER_PROJECT, null, IS_TEAM_LEADER_ID, (sql, args) -> sql));
+
+		// Member of a project : team leader or member of any group of this project
+		registerFunction(new DnFunction("inproject2", 2, 0, MEMBER_PROJECT2, null, IS_TEAM_LEADER_ID2, (sql, args) -> sql));
 
 		// Visible company : member of this company or one of its sub-companies
 		// or delegate on this company or one of its sub-companies
@@ -140,8 +157,10 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 			if (args.size() != nbArgs) {
 				throw new IllegalArgumentException("The function must be passed " + nbArgs + " arguments");
 			}
-			return "(" + callback.apply(parse(StringUtils.defaultString(filter, "") + StringUtils.defaultString(query, ""), (String) args.get(dnIndex),
-					(String) args.get(userIndex)), args) + ")";
+			return "("
+					+ callback.apply(parse(StringUtils.defaultString(filter, "") + StringUtils.defaultString(query, ""),
+							(String) args.get(dnIndex), (String) args.get(userIndex)), args)
+					+ ")";
 		}
 
 		private String member(final String parent, final String child) {
