@@ -186,7 +186,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		@Override
-		public String render(final Type type, final List args, SessionFactoryImplementor arg2) throws QueryException {
+		public String render(final Type type, final List args, SessionFactoryImplementor arg2) {
 			if (args.size() != nbArgs) {
 				throw new QueryException("The function requires " + nbArgs + " arguments");
 			}
