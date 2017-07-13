@@ -30,6 +30,9 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	private static final String VISIBLE_COMPANY = "$exists $memberR($arg,s_cc0,$cu,$cc,company,id) $end OR ";
 	private static final String IS_TEAM_LEADER = "$project.team_leader=$user OR ";
 	private static final String VISIBLE_PROJECT = IS_TEAM_LEADER + VISIBLE_GROUP;
+	private static final String DELEGATED = "$exists ($select_do(s_d1,USER)    AND s_d1.receiver=$user)               AS s_d1 WHERE $parent_dn(s_d1.dn,$arg) $end"
+			+ " OR $exists ($select_do(s_d2,GROUP)   AND $exists $member(s_d2,s_cg1,$cm,$cg,$q(group),$q(user)) $end) AS s_d3 WHERE $parent_dn(s_d3.dn,$arg) $end"
+			+ " OR $exists ($select_do(s_d4,COMPANY) AND $exists $member(s_d4,s_cc1,$cu,$cc,company,id) $end)         AS s_d5 WHERE $parent_dn(s_d5.dn,$arg) $end";
 
 	private static final String IN_GROUP = "   $exists (SELECT cg.description AS dn, cg.id FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user) AS s_cg6 WHERE s_cg6.id=$arg OR $exists $cg WHERE id=$arg AND s_cg6.dn LIKE CONCAT('%,',description) $end $end";
 	private static final String IN_COMPANY = " $exists (SELECT cc.description AS dn, cc.id FROM $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user)       AS s_cc7 WHERE s_cc7.id=$arg OR $exists $cc WHERE id=$arg AND s_cc7.dn LIKE CONCAT('%,',description) $end $end";
@@ -66,24 +69,24 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// - visibleproject(:project,dn,:user,:user,:user,:user,:user)
 		// - visibleproject(:project,:dn,:user,:user,:user,:user,:user)
 		// - visibleproject(project.id,:dn,:user,:user,:user,:user,:user)
-		registerFunction(new DnFunction("visibleproject", 7, 1, null, VISIBLE_PROJECT,
+		registerFunction(new DnFunction("visibleproject", 7, 1, VISIBLE_PROJECT + DELEGATED, null,
 				(sql, args) -> sql.replace("$project", StringUtils.removeEnd((String) args.get(0), ".id"))));
 
 		// Visible group : member of this group or one of its sub-groups or
 		// delegate on this group or one of its sub-groups
-		registerFunction(new DnFunction("visiblegroup", 5, 0, null, VISIBLE_GROUP, (sql, args) -> sql));
+		registerFunction(new DnFunction("visiblegroup", 5, 0, VISIBLE_GROUP + DELEGATED, null, (sql, args) -> sql));
 
 		// Visible company : member of this company or one of its sub-companies
 		// or delegate on this company or one of its sub-companies
-		registerFunction(new DnFunction("visiblecompany", 5, 0, null, VISIBLE_COMPANY, (sql, args) -> sql));
+		registerFunction(new DnFunction("visiblecompany", 5, 0, VISIBLE_COMPANY + DELEGATED, null, (sql, args) -> sql));
 
 		// Write DN : delegate with "can_write" flag on the related DN of one of
 		// its parent
-		registerFunction(new DnFunction("writedn", 4, 0, "can_write", null, (sql, args) -> sql));
+		registerFunction(new DnFunction("writedn", 4, 0, DELEGATED, "can_write", (sql, args) -> sql));
 
 		// Admin DN : delegate with "can_admin" flag on the related DN of one of
 		// its parent
-		registerFunction(new DnFunction("admindn", 4, 0, "can_admin", null, (sql, args) -> sql));
+		registerFunction(new DnFunction("admindn", 4, 0, DELEGATED, "can_admin", (sql, args) -> sql));
 
 		// Member of a group : member of this group or one of its sub-groups
 		// Accepted signatures :
@@ -91,23 +94,23 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// - ingroup(:user, 'fixed_group', 'fixed_group')
 		// - ingroup('fixed_user',group.id,group.id)
 		// - ingroup('fixed_user', 'fixed_group', 'fixed_group')
-		registerFunction(new DnFunction("ingroup", 3, 1, 0, IN_GROUP, null, null, (sql, args) -> sql));
+		registerFunction(new DnFunction("ingroup", 3, 1, 0, IN_GROUP, null, (sql, args) -> sql));
 
 		// Member of a group : member of this group or one of its sub-groups
 		// Accepted signatures :
 		// - ingroup(any user id, any group id, any group id)
-		registerFunction(new DnFunction("ingroup2", 3, 1, 0, IN_GROUP2, null, null, (sql, args) -> sql));
+		registerFunction(new DnFunction("ingroup2", 3, 1, 0, IN_GROUP2, null, (sql, args) -> sql));
 
 		// Member of a company : member of this company or one of its sub-company
 		// - incompany(:user, company.id, company.id)
 		// - incompany(:user, 'fixed_company', 'fixed_company')
 		// - incompany('fixed_user',company.id,company.id )
 		// - incompany('fixed_user', 'fixed_company', 'fixed_company')
-		registerFunction(new DnFunction("incompany", 3, 1, 0, IN_COMPANY, null, null, (sql, args) -> sql));
+		registerFunction(new DnFunction("incompany", 3, 1, 0, IN_COMPANY, null, (sql, args) -> sql));
 
 		// Member of a company : member of this company or one of its sub-company
 		// - incompany2(any user id, any company id, any company id)
-		registerFunction(new DnFunction("incompany2", 3, 1, 0, IN_COMPANY2, null, null, (sql, args) -> sql));
+		registerFunction(new DnFunction("incompany2", 3, 1, 0, IN_COMPANY2, null, (sql, args) -> sql));
 
 		// Member of a project : team leader or member of any group of this project
 		// Accepted signatures :
@@ -115,12 +118,14 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// - inprojectkey(:user, 'fixed_pkey', :user, 'fixed_pkey')
 		// - inprojectkey('fixed_user', 'fixed_pkey', 'fixed_user', 'fixed_pkey')
 		// - inprojectkey('fixed_user', project.pkey, 'fixed_user', project.pkey)
-		registerFunction(new DnFunction("inprojectkey", 4, 1, 0, IN_PKEY, null, IS_TEAM_LEADER_PK, (sql, args) -> sql));
+		registerFunction(
+				new DnFunction("inprojectkey", 4, 1, 0, IS_TEAM_LEADER_PK + IN_PKEY, null, (sql, args) -> sql));
 
 		// Member of a project : team leader or member of any group of this project
 		// Accepted signatures :
-		// - inprojectkey2(any user id form, any pkey form, any user id form, any pkey form)
-		registerFunction(new DnFunction("inprojectkey2", 4, 1, 0, IN_PKEY2, null, IS_TEAM_LEADER_PK2, (sql, args) -> sql));
+		// - inprojectkey2(any user id, any pkey, any user id, any pkey)
+		registerFunction(
+				new DnFunction("inprojectkey2", 4, 1, 0, IS_TEAM_LEADER_PK2 + IN_PKEY2, null, (sql, args) -> sql));
 
 		// Member of a project : team leader or member of any group of this project
 		// Accepted signatures :
@@ -128,12 +133,14 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// - inproject(:user, 'fixed_id', :user, 'fixed_id')
 		// - inproject('fixed_user', 'fixed_id', 'fixed_user', 'fixed_id')
 		// - inproject('fixed_user', project.id, 'fixed_user', project.id)
-		registerFunction(new DnFunction("inproject", 4, 1, 0, IN_PROJECT, null, IS_TEAM_LEADER_ID, (sql, args) -> sql));
+		registerFunction(
+				new DnFunction("inproject", 4, 1, 0, IS_TEAM_LEADER_ID + IN_PROJECT, null, (sql, args) -> sql));
 
 		// Member of a project : team leader or member of any group of this project
 		// Accepted signatures :
 		// - inproject2(any user id form, any id form, any user id form, any id form)
-		registerFunction(new DnFunction("inproject2", 4, 1, 0, IN_PROJECT2, null, IS_TEAM_LEADER_ID2, (sql, args) -> sql));
+		registerFunction(
+				new DnFunction("inproject2", 4, 1, 0, IS_TEAM_LEADER_ID2 + IN_PROJECT2, null, (sql, args) -> sql));
 	}
 
 	private void registerFunction(final StandardSQLFunction sqlFunction) {
@@ -143,14 +150,10 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 	private class DnFunction extends StandardSQLFunction {
 
-		private static final String DELEGATED = "$exists ($select_do(s_d1,USER)    AND s_d1.receiver=$user)               AS s_d1 WHERE $parent_dn(s_d1.dn,$arg) $end"
-				+ " OR $exists ($select_do(s_d2,GROUP)   AND $exists $member(s_d2,s_cg1,$cm,$cg,$q(group),$q(user)) $end) AS s_d3 WHERE $parent_dn(s_d3.dn,$arg) $end"
-				+ " OR $exists ($select_do(s_d4,COMPANY) AND $exists $member(s_d4,s_cc1,$cu,$cc,company,id) $end)         AS s_d5 WHERE $parent_dn(s_d5.dn,$arg) $end";
 		private int nbArgs;
 		private int dnIndex;
 		private int userIndex;
 		private String access;
-		private String filter;
 		private String query;
 		private BiFunction<String, List<?>, String> callback;
 
@@ -160,20 +163,9 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 * @param name
 		 *            The name of the function.
 		 */
-		private DnFunction(final String name, final int nbArgs, final int dnIndex, final String access,
-				final String filter, final BiFunction<String, List<?>, String> callback) {
-			this(name, nbArgs, dnIndex, DELEGATED, access, filter, callback);
-		}
-
-		/**
-		 * Construct a standard SQL function definition with a static return type.
-		 *
-		 * @param name
-		 *            The name of the function.
-		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final String query,
-				final String access, final String filter, final BiFunction<String, List<?>, String> callback) {
-			this(name, nbArgs, dnIndex, dnIndex + 1, query, access, filter, callback);
+				final String access, final BiFunction<String, List<?>, String> callback) {
+			this(name, nbArgs, dnIndex, dnIndex + 1, query, access, callback);
 		}
 
 		/**
@@ -183,11 +175,9 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 *            The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final int userIndex,
-				final String query, final String access, final String filter,
-				final BiFunction<String, List<?>, String> callback) {
+				final String query, final String access, final BiFunction<String, List<?>, String> callback) {
 			super(name, StandardBasicTypes.BOOLEAN);
 			this.nbArgs = nbArgs;
-			this.filter = filter;
 			this.callback = callback;
 			this.access = access;
 			this.dnIndex = dnIndex;
@@ -198,12 +188,10 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		@Override
 		public String render(final Type type, final List args, SessionFactoryImplementor arg2) throws QueryException {
 			if (args.size() != nbArgs) {
-				throw new IllegalArgumentException("The function must be passed " + nbArgs + " arguments");
+				throw new QueryException("The function requires " + nbArgs + " arguments");
 			}
-			return "("
-					+ callback.apply(parse(StringUtils.defaultString(filter, "") + StringUtils.defaultString(query, ""),
-							(String) args.get(dnIndex), (String) args.get(userIndex)), args)
-					+ ")";
+			return "(" + callback.apply(parse(StringUtils.defaultString(query, ""), (String) args.get(dnIndex),
+					(String) args.get(userIndex)), args) + ")";
 		}
 
 		private String member(final String parent, final String child) {
@@ -217,7 +205,6 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		private String parse(final String query, final String arg, final String user) {
-			final Dialect dialect = SecuritySpringDataListener.this.dialect;
 			final String quote = String.valueOf(dialect.openQuote()) + "$1" + dialect.closeQuote();
 			return query.replace("$exists", "(EXISTS (SELECT 1 FROM").replace("$end", "))")
 					.replace("$pj", "ligoj_project").replace("$cg", "ligoj_cache_group")

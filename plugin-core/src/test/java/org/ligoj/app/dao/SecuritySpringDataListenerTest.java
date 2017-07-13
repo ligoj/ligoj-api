@@ -6,6 +6,7 @@ import java.util.Collections;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.QueryException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +30,7 @@ public class SecuritySpringDataListenerTest {
 	@Autowired
 	private SecuritySpringDataListener listener;
 
-	@Test(expected = IllegalArgumentException.class)
+	@Test(expected = QueryException.class)
 	public void visiblegroupArgsError() {
 		listener.getSqlFunctions().get("visiblegroup").render(null, Collections.emptyList(), null);
 	}
