@@ -39,10 +39,10 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	private static final String IN_PKEY2 = "   $exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) LEFT JOIN $pj AS pj ON (pj.id=cpg.project) WHERE cm.$q(user)=$user AND pj.pkey=$arg $end";
 	private static final String IN_PROJECT = " $exists (SELECT cpg.project AS id FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) WHERE cm.$q(user)=$user) AS s_pj9 WHERE s_pj9.id=$arg $end";
 	private static final String IN_PROJECT2 = "$exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) WHERE cm.$q(user)=$user AND cpg.project=$arg $end";
-	private static final String IS_TEAM_LEADER_ID = " $exists (SELECT id FROM $pj pj WHERE pj.team_leader=$user) AS pj10 WHERE pj10.id=$arg $end OR ";
-	private static final String IS_TEAM_LEADER_ID2 = "$exists $pj pj WHERE pj.team_leader=$user AND pj.id=$arg $end OR ";
-	private static final String IS_TEAM_LEADER_PK = " $exists (SELECT pkey FROM $pj pj WHERE pj.team_leader=$user) AS pj11 WHERE pj11.pkey=$arg $end OR ";
-	private static final String IS_TEAM_LEADER_PK2 = "$exists $pj pj WHERE pj.team_leader=$user AND pj.pkey=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_ID = " $exists (SELECT id FROM $pj WHERE team_leader=$user) AS pj10 WHERE pj10.id=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_ID2 = "$exists $pj WHERE team_leader=$user AND id=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_PK = " $exists (SELECT pkey FROM $pj WHERE team_leader=$user) AS pj11 WHERE pj11.pkey=$arg $end OR ";
+	private static final String IS_TEAM_LEADER_PK2 = "$exists $pj WHERE team_leader=$user AND pkey=$arg $end OR ";
 
 	@Getter
 	private final Map<String, SQLFunction> sqlFunctions;
@@ -61,6 +61,11 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	public void callback() {
 
 		// Visible project : visible subscribed group of this project
+		// Accepted signatures :
+		// - visibleproject(project.id,dn,:user,:user,:user,:user,:user)
+		// - visibleproject(:project,dn,:user,:user,:user,:user,:user)
+		// - visibleproject(:project,:dn,:user,:user,:user,:user,:user)
+		// - visibleproject(project.id,:dn,:user,:user,:user,:user,:user)
 		registerFunction(new DnFunction("visibleproject", 7, 1, null, VISIBLE_PROJECT,
 				(sql, args) -> sql.replace("$project", StringUtils.removeEnd((String) args.get(0), ".id"))));
 
@@ -82,32 +87,32 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 		// Member of a group : member of this group or one of its sub-groups
 		// Accepted signatures :
-		// - ingroup(:user_id, group.id)
-		// - ingroup(:user_id, 'fixed_group')
-		// - ingroup('fixed_user',group.id, )
-		// - ingroup('fixed_user', 'fixed_group')
-		registerFunction(new DnFunction("ingroup", 2, 1, 0, IN_GROUP, null, null, (sql, args) -> sql));
+		// - ingroup(:user, group.id, group.id)
+		// - ingroup(:user, 'fixed_group', 'fixed_group')
+		// - ingroup('fixed_user',group.id,group.id)
+		// - ingroup('fixed_user', 'fixed_group', 'fixed_group')
+		registerFunction(new DnFunction("ingroup", 3, 1, 0, IN_GROUP, null, null, (sql, args) -> sql));
 
 		// Member of a group : member of this group or one of its sub-groups
 		// Accepted signatures :
-		// - ingroup(any user id, any group id)
-		registerFunction(new DnFunction("ingroup2", 2, 1, 0, IN_GROUP2, null, null, (sql, args) -> sql));
+		// - ingroup(any user id, any group id, any group id)
+		registerFunction(new DnFunction("ingroup2", 3, 1, 0, IN_GROUP2, null, null, (sql, args) -> sql));
 
 		// Member of a company : member of this company or one of its sub-company
-		// - incompany(:user_id, company.id)
-		// - incompany(:user_id, 'fixed_company')
-		// - incompany('fixed_user',company.id, )
-		// - incompany('fixed_user', 'fixed_company')
-		registerFunction(new DnFunction("incompany", 2, 1, 0, IN_COMPANY, null, null, (sql, args) -> sql));
+		// - incompany(:user, company.id, company.id)
+		// - incompany(:user, 'fixed_company', 'fixed_company')
+		// - incompany('fixed_user',company.id,company.id )
+		// - incompany('fixed_user', 'fixed_company', 'fixed_company')
+		registerFunction(new DnFunction("incompany", 3, 1, 0, IN_COMPANY, null, null, (sql, args) -> sql));
 
 		// Member of a company : member of this company or one of its sub-company
-		// - incompany2(any user id, any company id)
-		registerFunction(new DnFunction("incompany2", 2, 1, 0, IN_COMPANY2, null, null, (sql, args) -> sql));
+		// - incompany2(any user id, any company id, any company id)
+		registerFunction(new DnFunction("incompany2", 3, 1, 0, IN_COMPANY2, null, null, (sql, args) -> sql));
 
 		// Member of a project : team leader or member of any group of this project
 		// Accepted signatures :
-		// - inprojectkey(:user_id, project.pkey, :user_id, project.pkey)
-		// - inprojectkey(:user_id, 'fixed_pkey', :user_id, 'fixed_pkey')
+		// - inprojectkey(:user, project.pkey, :user, project.pkey)
+		// - inprojectkey(:user, 'fixed_pkey', :user, 'fixed_pkey')
 		// - inprojectkey('fixed_user', 'fixed_pkey', 'fixed_user', 'fixed_pkey')
 		// - inprojectkey('fixed_user', project.pkey, 'fixed_user', project.pkey)
 		registerFunction(new DnFunction("inprojectkey", 4, 1, 0, IN_PKEY, null, IS_TEAM_LEADER_PK, (sql, args) -> sql));
@@ -119,8 +124,8 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 		// Member of a project : team leader or member of any group of this project
 		// Accepted signatures :
-		// - inproject(:user_id, project.id, :user_id, project.id)
-		// - inproject(:user_id, 'fixed_id', :user_id, 'fixed_id')
+		// - inproject(:user, project.id, :user, project.id)
+		// - inproject(:user, 'fixed_id', :user, 'fixed_id')
 		// - inproject('fixed_user', 'fixed_id', 'fixed_user', 'fixed_id')
 		// - inproject('fixed_user', project.id, 'fixed_user', project.id)
 		registerFunction(new DnFunction("inproject", 4, 1, 0, IN_PROJECT, null, IS_TEAM_LEADER_ID, (sql, args) -> sql));
