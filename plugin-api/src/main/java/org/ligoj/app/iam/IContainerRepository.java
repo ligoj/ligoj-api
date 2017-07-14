@@ -36,7 +36,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * @param id
 	 *            The container's identifier. Will be normalized.
 	 * @return The container from its identifier. <code>null</code> if the container is not found or cannot be seen by
-	 *         the given user.
+	 *         the given principal user.
 	 */
 	default T findById(String principal, String id) {
 		return findById(id);
