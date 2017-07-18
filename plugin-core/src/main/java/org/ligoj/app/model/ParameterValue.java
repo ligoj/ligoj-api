@@ -3,6 +3,7 @@ package org.ligoj.app.model;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -14,12 +15,14 @@ import lombok.Setter;
 import lombok.ToString;
 
 /**
- * Parameter instance.
+ * Parameter value.
  */
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_PARAMETER_VALUE")
+@Table(name = "LIGOJ_PARAMETER_VALUE", uniqueConstraints={
+		@UniqueConstraint(columnNames={"parameter", "node"}),
+		@UniqueConstraint(columnNames={"parameter", "subscription"})})
 @ToString(of = { "parameter", "data" })
 public class ParameterValue extends AbstractAudited<Integer> implements NodeScoped {
 
