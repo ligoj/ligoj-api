@@ -130,10 +130,10 @@ public class ParameterValueResource {
 	 * Default constructor initializing the type mappings.
 	 */
 	public ParameterValueResource() {
-		typeToChecker.put(ParameterType.BINARY, (b, p) -> ValidationJsonException.assertNotnull(b.getBinary(), p.getId()));
+		typeToChecker.put(ParameterType.BINARY, (b, p) -> assertNotnull(b.getBinary(), p.getId()));
 		typeToChecker.put(ParameterType.DATE, (b, p) -> {
-			ValidationJsonException.assertNotnull(b.getDate(), p.getId());
-			ValidationJsonException.assertTrue(b.getDate().getTime() > 0, p.getId());
+			assertNotnull(b.getDate(), p.getId());
+			assertTrue(b.getDate().getTime() > 0, p.getId(), "Min", 0);
 		});
 		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
 		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
@@ -222,15 +222,15 @@ public class ParameterValueResource {
 	 * Check tags
 	 */
 	private void checkTags(final ParameterValueCreateVo vo) {
-		ValidationJsonException.assertNotnull(vo.getTags(), vo.getParameter());
-		vo.getTags().forEach(tag -> ValidationJsonException.assertTrue(StringUtils.isNotBlank(tag), "NotBlank", vo.getParameter()));
+		assertNotnull(vo.getTags(), vo.getParameter());
+		vo.getTags().forEach(tag -> assertTrue(StringUtils.isNotBlank(tag), "NotBlank", vo.getParameter()));
 	}
 
 	/**
 	 * Check multiple selection
 	 */
 	private void checkMultiple(final ParameterValueCreateVo vo, final Parameter parameter) {
-		ValidationJsonException.assertNotnull(vo.getSelections(), parameter.getId());
+		assertNotnull(vo.getSelections(), parameter.getId());
 		final List<String> multiple = ParameterResource.toListString(parameter.getData());
 
 		// Check each index
@@ -241,7 +241,7 @@ public class ParameterValueResource {
 	 * Check simple selection
 	 */
 	private void checkSelect(final ParameterValueCreateVo vo, final Parameter parameter) {
-		ValidationJsonException.assertNotnull(vo.getIndex(), vo.getParameter());
+		assertNotnull(vo.getIndex(), vo.getParameter());
 		final List<String> single = ParameterResource.toListString(parameter.getData());
 
 		// Check the index
@@ -260,30 +260,27 @@ public class ParameterValueResource {
 	 * Check the bounds
 	 */
 	private void checkMin(final int value, final int min, final Persistable<String> parameter) {
-		ValidationJsonException.assertTrue(value >= min, Min.class.getName(), parameter.getId(), min);
+		assertTrue(value >= min, Min.class.getName(), parameter.getId(), min);
 	}
 
 	/**
 	 * Check the bounds
 	 */
 	private void checkMax(final int value, final int max, final Persistable<String> parameter) {
-		ValidationJsonException.assertTrue(value <= max, Max.class.getName(), parameter.getId(), max);
+		assertTrue(value <= max, Max.class.getName(), parameter.getId(), max);
 	}
 
 	/**
 	 * Check integer
 	 */
 	private void checkInteger(final ParameterValueCreateVo vo, final Parameter parameter) {
-		ValidationJsonException.assertNotnull(vo.getInteger(), parameter.getId());
+		assertNotnull(vo.getInteger(), parameter.getId());
 		final Map<String, Integer> minMax = ParameterResource.toMapInteger(parameter.getData());
 		// Check minimal value
-		if (minMax.get("max") != null) {
-			checkMax(vo.getInteger(), minMax.get("max"), parameter);
-		}
+		Optional.ofNullable(minMax.get("max")).ifPresent(m -> checkMax(vo.getInteger(), m, parameter));
+
 		// Check maximal value
-		if (minMax.get("min") != null) {
-			checkMin(vo.getInteger(), minMax.get("min"), parameter);
-		}
+		Optional.ofNullable(minMax.get("min")).ifPresent(m -> checkMin(vo.getInteger(), m, parameter));
 	}
 
 	/**
@@ -298,10 +295,26 @@ public class ParameterValueResource {
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
 				final Pattern pattern = Pattern.compile(patternString);
-				ValidationJsonException.assertTrue(pattern.matcher(vo.getText()).matches(),
-						javax.validation.constraints.Pattern.class.getName(), parameter.getId(), pattern.pattern());
+				assertTrue(pattern.matcher(vo.getText()).matches(), javax.validation.constraints.Pattern.class.getSimpleName(),
+						parameter.getId(), "regexp", pattern.pattern());
 			}
 		}
+	}
+
+	/**
+	 * Check is <code>true</code>
+	 */
+	private void assertTrue(final boolean valid, final String error, final String property, final Serializable... args) {
+		if (!valid) {
+			throw new ValidationJsonException(property, error, args);
+		}
+	}
+	
+	/**
+	 * Check not <code>null</code>
+	 */
+	private void assertNotnull(final Object value, final String property, final Serializable... args) {
+		assertTrue(value != null, "NotNull", property, args);
 	}
 
 	/**

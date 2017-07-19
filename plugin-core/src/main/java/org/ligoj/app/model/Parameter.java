@@ -39,10 +39,11 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	 * Optional JSon constraint data. The value of this field can be read from different manners depending on the
 	 * {@link #type} value :
 	 * <ul>
-	 * <li>Case of 'text' : this constraint is useless, and can be null.</li>
+	 * <li>Case of 'text' : contains an optional 'pattern' property to validate the text.</li>
 	 * <li>Case of 'tags' : this constraint is useless, and can be null.</li>
-	 * <li>Case of 'integer' : this constraint is read as minimal and maximal values.</li>
-	 * <li>Case of 'select' : this constraint is read as list of available values, single selection mode.</li>
+	 * <li>Case of 'integer' : contains optional constraint 'min' and 'max' properties.</li>
+	 * <li>Case of 'select' : this constraint is read as list of available values, single selection mode. 
+	 * Contains optional constraints 'min' and 'max' properties.</li>
 	 * <li>Case of 'multiple' : this constraint is read as list of available values, multiple selection mode.</li>
 	 * <li>Case of 'date' : this constraint is useless, and can be null.</li>
 	 * <li>Case of 'binary' : this constraint is useless, and can be null.</li>
