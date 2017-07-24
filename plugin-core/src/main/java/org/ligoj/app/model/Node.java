@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
+import javax.validation.constraints.NotNull;
 
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.model.AbstractNamedBusinessEntity;
@@ -35,11 +36,12 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 	private Node refined;
 
 	/**
-	 * The subscription mode. When <code>null</code>, the node cannot be used for any mode.
+	 * The subscription mode.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10)
-	private SubscriptionMode mode;
+	@NotNull
+	private SubscriptionMode mode = SubscriptionMode.ALL;
 
 	/**
 	 * Optional CSS classes used to render this node.

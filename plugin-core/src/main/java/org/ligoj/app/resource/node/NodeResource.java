@@ -1,6 +1,7 @@
 package org.ligoj.app.resource.node;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,8 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
@@ -39,6 +42,7 @@ import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
+import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
@@ -192,9 +196,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return all parameters definition where a value is expected to be attached
-	 * to the final subscription in case of linking a project to an existing or
-	 * a new instance inside the provided node.
+	 * Return all node parameter definitions where a value is expected to be
+	 * provided to the final subscription.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -277,6 +280,7 @@ public class NodeResource {
 			entity.setRefined(null);
 		}
 		entity.setMode(node.getMode());
+		checkInputParameters(node);
 		repository.saveAndFlush(entity);
 	}
 
@@ -374,8 +378,8 @@ public class NodeResource {
 
 			// Call service which check status
 			isUp = plugin.checkStatus(node, parameters);
-		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this
-										// failures
+		} catch (final Exception e) { // NOSONAR
+			// Do not pollute logs with this failures
 			// Service is down when an exception is thrown.
 			log.warn("Check status of node {} failed with {}: {}", node, e.getClass(), e.getMessage());
 		}
@@ -504,8 +508,8 @@ public class NodeResource {
 			status.setNode(node);
 			log.info("Check status of a subscription attached to {} succeed", node);
 			return status;
-		} catch (final Exception e) { // NOSONAR - Do not pollute logs with this
-										// failures
+		} catch (final Exception e) { // NOSONAR
+			// Do not pollute logs with this failures
 			// Service is down when an exception is thrown, log the error
 			// without trace
 			log.warn("Check status of a subscription attached to {} failed : {}", node, e.getMessage());
@@ -624,5 +628,34 @@ public class NodeResource {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, NodeVo> findAll() {
 		return toVoParameters(repository.findAllWithValuesSecure());
+	}
+
+
+	/**
+	 * Check the parameters that are being attached to this node
+	 */
+	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
+		final List<Parameter> acceptedParameters = repository.getOrphanParameters(vo.getNode(), vo.getMode(),
+				securityHelper.getLogin());
+
+		// Check all mandatory parameters for the current subscription mode
+		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
+
+		// Check there is no override
+		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),
+				vo.getParameters().stream().map(ParameterValueCreateVo::getParameter).collect(Collectors.toList()));
+		return acceptedParameters;
+	}
+
+	/**
+	 * Check the given parameters do not overrides a valued parameter.
+	 */
+	private void checkOverrides(final List<String> acceptedParameters, final List<String> parameters) {
+		final Collection<String> overrides = CollectionUtils.removeAll(parameters, acceptedParameters);
+		if (!overrides.isEmpty()) {
+			// A non acceptable parameter. An attempt to override a secured
+			// data?
+			throw ValidationJsonException.newValidationJsonException("not-accepted-parameter", overrides.iterator().next());
+		}
 	}
 }

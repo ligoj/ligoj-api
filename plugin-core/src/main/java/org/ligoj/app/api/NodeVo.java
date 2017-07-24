@@ -20,9 +20,9 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	private NodeVo refined;
 
 	/**
-	 * The subscription mode. When <code>null</code>, the node cannot be used for any mode.
+	 * The subscription mode.
 	 */
-	private SubscriptionMode mode;
+	private SubscriptionMode mode = SubscriptionMode.ALL;
 
 	/**
 	 * Optional CSS classes used to render this node.

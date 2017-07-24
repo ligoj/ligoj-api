@@ -16,6 +16,16 @@ public enum SubscriptionMode {
 	 * {@link #LINK}. Parameter values of this mode still stored in database but not used to retrieve information from
 	 * the tool after the link has been established.
 	 */
-	CREATE
+	CREATE,
+
+	/**
+	 * The parameter can be used for any mode.
+	 */
+	ALL,
+
+	/**
+	 * This parameter cannot be used.
+	 */
+	NONE
 
 }

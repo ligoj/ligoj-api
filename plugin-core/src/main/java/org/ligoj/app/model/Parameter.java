@@ -66,11 +66,12 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	private Node owner;
 
 	/**
-	 * Associated mode. When <code>null</code>, the parameter is applied to all modes.
+	 * Associated mode.
 	 */
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10)
-	private SubscriptionMode mode;
+	@NotNull
+	private SubscriptionMode mode = SubscriptionMode.ALL;
 
 	/**
 	 * <code>true</code> when this parameter is secured. A secured parameter is not available for read access and will be encrypted. 

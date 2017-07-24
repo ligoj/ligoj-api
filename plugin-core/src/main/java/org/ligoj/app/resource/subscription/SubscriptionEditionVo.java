@@ -1,31 +1,17 @@
 package org.ligoj.app.resource.subscription;
 
-import java.util.List;
-
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+
+import org.ligoj.app.resource.node.AbstractParameteredVo;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import org.hibernate.validator.constraints.NotBlank;
-
-import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.resource.node.ParameterValueCreateVo;
 
 /**
  * A subscription data edition.
  */
 @Getter
-public class SubscriptionEditionVo {
-
-	/**
-	 * Service (node, ...) identifier.
-	 */
-	@NotBlank
-	@Setter
-	private String node;
+public class SubscriptionEditionVo extends AbstractParameteredVo {
 
 	/**
 	 * Project identifier.
@@ -38,15 +24,4 @@ public class SubscriptionEditionVo {
 	 * Subscription identifier (only for update).
 	 */
 	private Integer id;
-
-	/**
-	 * Defined parameters for this subscription.
-	 */
-	@Valid
-	@Setter
-	private List<ParameterValueCreateVo> parameters;
-	
-	@NotNull
-	@Setter
-	private SubscriptionMode mode = SubscriptionMode.LINK;
 }

@@ -50,7 +50,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *            The node identifier.
 	 * @return All parameter values associated to a node.
 	 */
-	@Query("SELECT p FROM ParameterValue p LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
+	@Query("FROM ParameterValue p LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE n0.id = :id OR n1.refined.id = :id OR n2.refined.id = :id")
 	List<ParameterValue> getParameterValues(String id);
 
@@ -67,8 +67,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @return all parameters associated to a node.
 	 */
 	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :id AND (o=n OR o=n1 OR o=n2)"
-			+ " AND (p.mode = NULL OR p.mode = :mode) AND " + VISIBLE_NODES
-			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue v WHERE v.parameter = p AND (v.node=n OR v.node=n1 OR v.node=n2)) ORDER BY UPPER(p.id)")
+			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND " + VISIBLE_NODES
+			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND (node=n OR node=n1 OR node=n2)) ORDER BY UPPER(p.id)")
 	List<Parameter> getOrphanParameters(String id, SubscriptionMode mode, String user);
 
 	/**
@@ -160,8 +160,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 */
 	@Query("SELECT n FROM Node n LEFT JOIN n.refined nr1 LEFT JOIN nr1.refined nr2"
 			+ " WHERE (:parent IS NULL OR (:parent = 'service' AND n.refined IS NULL) OR n.refined.id = :parent)"
-			+ " AND (:depth < 0 OR :depth > 1 OR (:depth = 0 AND nr1 IS NULL) OR (:depth = 1 AND nr2 IS NULL))             "
-			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.CREATE)                "
+			+ " AND (:depth < 0 OR :depth > 1 OR (:depth = 0 AND nr1 IS NULL) OR (:depth = 1 AND nr2 IS NULL))  "
+			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.ALL)        "
 			+ " AND (:criteria IS NULL OR UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_NODES
 			+ " ORDER BY n.id")
 	Page<Node> findAllVisible(String user, String criteria, String parent, SubscriptionMode mode, int depth, Pageable page);

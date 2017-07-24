@@ -576,14 +576,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentFilterModeCreateAcceptLink() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.LINK, -1).getData();
+	public void findAllByParentFilterModeAkkAcceptLink() {
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, "service:scm:git", SubscriptionMode.LINK, -1).getData();
 		Assert.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals("service:id:ldap:dig", service.getId());
-		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertEquals("service:id:ldap", service.getRefined().getId());
-		Assert.assertNull(service.getUiClasses());
+		Assert.assertEquals("service:scm:git:dig", service.getId());
+		Assert.assertEquals("git DIG", service.getName());
+		Assert.assertEquals("service:scm:git", service.getRefined().getId());
+		Assert.assertEquals("fa fa-git", service.getUiClasses());
 	}
 
 	@Test
