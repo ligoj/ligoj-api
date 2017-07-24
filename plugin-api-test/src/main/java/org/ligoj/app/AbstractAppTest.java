@@ -58,7 +58,7 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 		user.setLogin(DEFAULT_USER);
 		em.persist(user);
 		final SystemAuthorization authorization = new SystemAuthorization();
-		authorization.setType(AuthorizationType.BUSINESS);
+		authorization.setType(AuthorizationType.API);
 		authorization.setPattern(".*");
 		authorization.setRole(role);
 		em.persist(authorization);
