@@ -9,6 +9,7 @@ import java.util.Map;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriInfo;
 
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
@@ -59,6 +60,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import net.sf.ehcache.CacheManager;
+
 /**
  * {@link NodeResource} test cases.
  */
@@ -90,6 +93,12 @@ public class NodeResourceTest extends AbstractAppTest {
 		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class,
 				Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
+	}
+
+	@Before
+	@After
+	public void cleanNodeCache() {
+		CacheManager.getInstance().clearAll();
 	}
 
 	@SuppressWarnings("unchecked")
@@ -408,7 +417,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertNotNull(resource.findAll().get("service:bt:jira:6"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:6");
-		node.setMode(SubscriptionMode.CREATE);
+		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
 		node.setRefined("service:bt:jira");
 		resource.update(node);
@@ -416,8 +425,28 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:6");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
-		Assert.assertEquals(SubscriptionMode.CREATE, nodeVo.getMode());
+		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
 		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
+	}
+
+	@Test(expected = ValidationJsonException.class)
+	public void createOverflowMode() {
+		final NodeEditionVo node = new NodeEditionVo();
+		node.setId("service:bt:jira:7");
+		node.setMode(SubscriptionMode.CREATE);
+		node.setName("Jira 7");
+		node.setRefined("service:bt:jira");
+		resource.create(node);
+	}
+
+	@Test(expected = ValidationJsonException.class)
+	public void createOverflowModeAll() {
+		final NodeEditionVo node = new NodeEditionVo();
+		node.setId("service:bt:jira:7");
+		node.setMode(SubscriptionMode.ALL);
+		node.setName("Jira 7");
+		node.setRefined("service:bt:jira");
+		resource.create(node);
 	}
 
 	@Test
@@ -425,7 +454,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
-		node.setMode(SubscriptionMode.CREATE);
+		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
 		node.setRefined("service:bt:jira");
 		resource.create(node);
@@ -433,7 +462,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
-		Assert.assertEquals(SubscriptionMode.CREATE, nodeVo.getMode());
+		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
 		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
 	}
 
@@ -477,17 +506,81 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createRoot() {
+	public void createRootAllMode() {
+		newNode(SubscriptionMode.ALL);
+	}
+
+	@Test
+	public void createOnParentAllMode() {
+		newNode(SubscriptionMode.ALL);
+		newSubNode(SubscriptionMode.NONE);
+	}
+
+	@Test
+	public void createOnParentSameMode() {
+		newNode(SubscriptionMode.CREATE);
+		newSubNode(SubscriptionMode.CREATE);
+	}
+
+	@Test
+	public void createOnParentGreaterMode() {
+		newNode(SubscriptionMode.ALL);
+		newSubNode(SubscriptionMode.CREATE);
+	}
+
+	/**
+	 * Cannot create sub node of a parent node having different subscription
+	 * mode different from "ALL".
+	 */
+	@Test(expected = ValidationJsonException.class)
+	public void createOnParentDifferentMode() {
+		newNode(SubscriptionMode.CREATE);
+		newSubNode(SubscriptionMode.LINK);
+	}
+
+	/**
+	 * Cannot create sub node of a parent node having subscription mode "NONE".
+	 */
+	@Test(expected = ValidationJsonException.class)
+	public void createOnParentDifferentMode2() {
+		newNode(SubscriptionMode.NONE);
+		newSubNode(SubscriptionMode.CREATE);
+	}
+
+	/**
+	 * Cannot create sub node of a parent node having subscription mode "NONE".
+	 */
+	@Test(expected = ValidationJsonException.class)
+	public void createOnParentNoneMode() {
+		newNode(SubscriptionMode.NONE);
+		newSubNode(SubscriptionMode.NONE);
+	}
+
+	private void newNode(final SubscriptionMode mode) {
 		Assert.assertNull(resource.findAll().get("service:some"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:some");
 		node.setName("New Service");
+		node.setMode(mode);
 		resource.create(node);
 		Assert.assertTrue(repository.exists("service:some"));
 		final NodeVo nodeVo = resource.findAll().get("service:some");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("New Service", nodeVo.getName());
 		Assert.assertFalse(nodeVo.isRefining());
+	}
+
+	private void newSubNode(SubscriptionMode mode) {
+		final NodeEditionVo node2 = new NodeEditionVo();
+		node2.setId("service:some:tool");
+		node2.setMode(mode);
+		node2.setName("New Tool");
+		node2.setRefined("service:some");
+		resource.create(node2);
+		final NodeVo nodeVo2 = resource.findAll().get("service:some:tool");
+		Assert.assertNotNull(nodeVo2);
+		Assert.assertEquals("New Tool", nodeVo2.getName());
+		Assert.assertTrue(nodeVo2.isRefining());
 	}
 
 	@Test(expected = JpaObjectRetrievalFailureException.class)
@@ -505,11 +598,10 @@ public class NodeResourceTest extends AbstractAppTest {
 	@Test
 	public void delete() {
 		Assert.assertTrue(repository.exists("service:bt:jira:6"));
-		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6")
-				.forEach(s ->{
-				eventRepository.deleteAllBy("subscription.id", s.getId());
-				parameterValueRepository.deleteAllBy("subscription.id", s.getId());
-				em.remove(s);
+		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6").forEach(s -> {
+			eventRepository.deleteAllBy("subscription.id", s.getId());
+			parameterValueRepository.deleteAllBy("subscription.id", s.getId());
+			em.remove(s);
 		});
 		em.flush();
 		em.clear();

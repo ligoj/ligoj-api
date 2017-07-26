@@ -260,8 +260,56 @@ public class NodeResource {
 		saveOrUpdate(node, repository.findOneExpected(node.getId()));
 	}
 
-	private void saveOrUpdate(final NodeEditionVo node, final Node entity) {
-		NamedBean.copy(node, entity);
+	private void saveOrUpdate(final NodeEditionVo vo, final Node entity) {
+		NamedBean.copy(vo, entity);
+		entity.setRefined(checkRefined(vo));
+		entity.setMode(checkMode(vo, entity));
+		checkInputParameters(vo);
+		repository.saveAndFlush(entity);
+	}
+
+	/**
+	 * Check the desired mode is a subset of allowed modes.
+	 */
+	private SubscriptionMode checkMode(final NodeEditionVo vo, final Node entity) {
+		if (entity.isRefining()) {
+			// Check the mode inheritance
+			return checkMode(entity.getRefined().getMode(), vo.getMode());
+		}
+		return vo.getMode();
+	}
+
+	/**
+	 * Check the desired mode is a subset of allowed modes. Accepted couples
+	 * (parent, node) are :
+	 * <ul>
+	 * <li>ALL,*
+	 * <li>
+	 * <li>CREATE,CREATE
+	 * <li>
+	 * <li>CREATE,NONE
+	 * <li>
+	 * <li>LINK,LINK
+	 * <li>
+	 * <li>LINK,NONE
+	 * <li>
+	 * </ul>
+	 */
+	private SubscriptionMode checkMode(final SubscriptionMode parentMode, final SubscriptionMode nodeMode) {
+		if (parentMode != SubscriptionMode.NONE
+				&& (parentMode == SubscriptionMode.ALL || nodeMode == SubscriptionMode.NONE || parentMode == nodeMode)) {
+			// Checked node's mode
+			return nodeMode;
+		}
+		// Node's mode overflow the refined's one
+		throw new ValidationJsonException("mode", "invalid-mode", "mode", nodeMode, "refined", parentMode);
+	}
+
+	/**
+	 * Check the desired refined and the naming convention. Return the resolved
+	 * and validated refined of <code>null</code> when is root.
+	 */
+	private Node checkRefined(final NodeEditionVo node) {
 		if (node.isRefining()) {
 			final String parent = node.getRefined();
 			// Check this parent is the direct ancestor
@@ -270,18 +318,16 @@ public class NodeResource {
 				throw new ValidationJsonException("refined", "invalid-parent", "id", node.getId(), "refined", parent);
 			}
 			// Check the refined node is existing
-			entity.setRefined(repository.findOneExpected(parent));
-		} else {
-			// Check the current node can be a root node, AKA a service.
-			if (!node.getId().matches("service:\\w+")) {
-				// Identifier does not match to a root
-				throw new ValidationJsonException("refined", "invalid-parent", node.getId());
-			}
-			entity.setRefined(null);
+			return repository.findOneExpected(parent);
 		}
-		entity.setMode(node.getMode());
-		checkInputParameters(node);
-		repository.saveAndFlush(entity);
+		// Check the current node can be a root node, AKA a service.
+		if (!node.getId().matches("service:\\w+")) {
+			// Identifier does not match to a root
+			throw new ValidationJsonException("refined", "invalid-parent", node.getId());
+		}
+
+		// A true root node
+		return null;
 	}
 
 	/**
@@ -630,13 +676,11 @@ public class NodeResource {
 		return toVoParameters(repository.findAllWithValuesSecure());
 	}
 
-
 	/**
 	 * Check the parameters that are being attached to this node
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
-		final List<Parameter> acceptedParameters = repository.getOrphanParameters(vo.getNode(), vo.getMode(),
-				securityHelper.getLogin());
+		final List<Parameter> acceptedParameters = repository.getOrphanParameters(vo.getNode(), vo.getMode(), securityHelper.getLogin());
 
 		// Check all mandatory parameters for the current subscription mode
 		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
