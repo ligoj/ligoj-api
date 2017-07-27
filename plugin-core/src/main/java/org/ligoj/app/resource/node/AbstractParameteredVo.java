@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.app.model.NodeId;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,8 @@ public abstract class AbstractParameteredVo {
 	 * Service (node, ...) identifier.
 	 */
 	@NotBlank
+	@NotNull
+	@NodeId
 	private String node;
 
 	/**

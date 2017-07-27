@@ -419,7 +419,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setId("service:bt:jira:6");
 		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
-		node.setRefined("service:bt:jira");
+		node.setNode("service:bt:jira");
 		resource.update(node);
 		Assert.assertTrue(repository.exists("service:bt:jira:6"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:6");
@@ -435,7 +435,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.CREATE);
 		node.setName("Jira 7");
-		node.setRefined("service:bt:jira");
+		node.setNode("service:bt:jira");
 		resource.create(node);
 	}
 
@@ -445,7 +445,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.ALL);
 		node.setName("Jira 7");
-		node.setRefined("service:bt:jira");
+		node.setNode("service:bt:jira");
 		resource.create(node);
 	}
 
@@ -456,7 +456,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
-		node.setRefined("service:bt:jira");
+		node.setNode("service:bt:jira");
 		resource.create(node);
 		Assert.assertTrue(repository.exists("service:bt:jira:7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
@@ -476,7 +476,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:some:instance");
 		node.setName("Any");
-		node.setRefined("service:bt:some");
+		node.setNode("service:bt:some");
 		resource.create(node);
 	}
 
@@ -489,7 +489,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setName("Any");
-		node.setRefined("service:build:jenkins");
+		node.setNode("service:build:jenkins");
 		resource.create(node);
 	}
 
@@ -575,7 +575,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node2.setId("service:some:tool");
 		node2.setMode(mode);
 		node2.setName("New Tool");
-		node2.setRefined("service:some");
+		node2.setNode("service:some");
 		resource.create(node2);
 		final NodeVo nodeVo2 = resource.findAll().get("service:some:tool");
 		Assert.assertNotNull(nodeVo2);

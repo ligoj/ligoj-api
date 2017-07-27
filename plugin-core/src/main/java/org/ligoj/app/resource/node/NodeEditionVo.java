@@ -17,24 +17,21 @@ import lombok.Setter;
 @Setter
 public class NodeEditionVo extends AbstractParameteredVo implements INamableBean<String>, Refining<String> {
 
-	/**
-	 * Identifier of this node. Must be defined even for the creation mode.
-	 */
-	@NotBlank
-	@NotNull
-	@NodeId
-	private String id;
-
 	@NotBlank
 	@NotNull
 	private String name;
 
 	/**
-	 * The refined node. Must be an existing tool.
+	 * The node identifier.
 	 */
 	@NotBlank
 	@NotNull
 	@NodeId
-	String refined;
+	String id;
+
+	@Override
+	public String getRefined() {
+		return getNode();
+	}
 
 }

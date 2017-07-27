@@ -58,8 +58,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * Return all parameters associated to a node and without specified value
 	 * and for given mode. Also check the node is visible for the given user.
 	 * 
-	 * @param id
-	 *            the node identifier.
+	 * @param parent
+	 *            the parent node identifier.
 	 * @param mode
 	 *            Expected mode.
 	 * @param user
