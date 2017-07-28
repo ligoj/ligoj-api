@@ -4,14 +4,18 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
+import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
@@ -30,7 +34,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/node/parameter")
+@Path("/node")
 public class ParameterResource {
 
 	@Autowired
@@ -137,6 +141,7 @@ public class ParameterResource {
 		vo.setId(entity.getId());
 		vo.setType(entity.getType());
 		vo.setMandatory(entity.isMandatory());
+		vo.setSecured(entity.isSecured());
 		vo.setOwner(NodeResource.toVo(entity.getOwner()));
 
 		// Map constraint data
@@ -159,5 +164,41 @@ public class ParameterResource {
 	 */
 	public Parameter findByIdInternal(final String id) {
 		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).orElseThrow(EntityNotFoundException::new);
+	}
+
+	/**
+	 * Return all node parameter definitions where a value is expected to be
+	 * provided to the final subscription.
+	 * 
+	 * @param node
+	 *            The node identifier.
+	 * @param mode
+	 *            Subscription mode.
+	 * @return All parameter definitions where a value is expected to be
+	 *         attached to the final subscription in given mode.
+	 */
+	@GET
+	@Path("{node:.+:.*}/parameter/{mode}")
+	public List<ParameterVo> getNotProvidedParameters(@PathParam("node") final String node,
+			@PathParam("mode") final SubscriptionMode mode) {
+		return repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
+				.collect(Collectors.toList());
+	}
+
+	/**
+	 * Return all node parameter definitions where a value is expected to be
+	 * provided to the final subscription.
+	 * 
+	 * @param node
+	 *            The node identifier.
+	 * @param mode
+	 *            Subscription mode.
+	 * @return All parameter definitions where a value is expected to be
+	 *         attached to the final subscription in given mode.
+	 */
+	public List<ParameterVo> getNotProvidedAndAssociatedParameters(@PathParam("node") final String node,
+			@PathParam("mode") final SubscriptionMode mode) {
+		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
+				.collect(Collectors.toList());
 	}
 }

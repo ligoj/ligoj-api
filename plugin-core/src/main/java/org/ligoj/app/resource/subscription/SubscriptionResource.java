@@ -38,7 +38,6 @@ import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
@@ -220,7 +219,7 @@ public class SubscriptionResource {
 
 		// Save this subscription in the transaction
 		repository.saveAndFlush(entity);
-		parameterValueResource.create(vo.getParameters(), (ParameterValue value) -> value.setSubscription(entity));
+		parameterValueResource.create(vo.getParameters(), entity);
 
 		// Delegate to the related plug-in the next process
 		delegateToPLugin(vo, entity);

@@ -3,6 +3,7 @@ package org.ligoj.app.resource.node;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +32,6 @@ import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
@@ -79,6 +79,9 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private NodeResource resource;
+
+	@Autowired
+	private ParameterValueResource pvResource;
 
 	private NodeResource resourceMock;
 
@@ -466,6 +469,111 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
 	}
 
+	@Test
+	public void create() {
+		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		final NodeEditionVo node = new NodeEditionVo();
+		node.setId("service:bt:jira:7");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		final ParameterValueCreateVo value = new ParameterValueCreateVo();
+		value.setParameter("service:bt:jira:password");
+		value.setText("secret");
+		node.setParameters(Collections.singletonList(value ));
+		resource.create(node);
+		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
+		Assert.assertNotNull(nodeVo);
+		Assert.assertEquals("Jira 7", nodeVo.getName());
+		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
+		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
+		Assert.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:7").get("service:bt:jira:password"));
+		
+		// Secured data
+		Assert.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:7").get(0).getData());
+	}
+
+
+	@Test
+	public void updateParameters() {
+		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		final NodeEditionVo node = new NodeEditionVo();
+		node.setId("service:bt:jira:7");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		
+		// This parameter would be untouched
+		final ParameterValueCreateVo value = new ParameterValueCreateVo();
+		value.setParameter("service:bt:jira:password");
+		value.setText("secret");
+		
+		// This parameter would be deleted
+		final ParameterValueCreateVo value3 = new ParameterValueCreateVo();
+		value3.setParameter("service:bt:jira:user");
+		value3.setText("secret3");
+		
+		// This parameter would be updated
+		final ParameterValueCreateVo value4 = new ParameterValueCreateVo();
+		value4.setParameter("service:bt:jira:url");
+		value4.setText("http://localhost");
+		
+		// Initial node
+		node.setParameters(Arrays.asList(value, value3, value4));
+		resource.create(node);
+		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		
+		// Don't touch the first secured parameter
+		value.setUntouched(true);
+		
+		// Update another parameter
+		value4.setText("http://remote");
+		
+		// Add a new parameter
+		final ParameterValueCreateVo value2 = new ParameterValueCreateVo();
+		value2.setParameter("service:bt:jira:jdbc-password");
+		value2.setText("secret2");
+		
+		// Omit the parameter to delete (value3)
+		node.setParameters(Arrays.asList(value, value2, value4));
+		
+		// Update the node : 1 untouched, 1 new, 1 added, 1 updated
+		resource.update(node);
+
+		final Map<String, String> parameters = pvResource.getNodeParameters("service:bt:jira:7");
+		Assert.assertEquals("secret", parameters.get("service:bt:jira:password"));
+		Assert.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
+		Assert.assertEquals("secret2", parameters.get("service:bt:jira:jdbc-password"));
+		Assert.assertEquals(3, parameters.size());
+		final List<ParameterValue> parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
+		Assert.assertNotNull(parameterValues.get(0).getData());
+		Assert.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
+		Assert.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
+		Assert.assertEquals("http://remote", parameterValues.get(1).getData());
+		Assert.assertEquals("service:bt:jira:url", parameterValues.get(1).getParameter().getId());
+		Assert.assertNotNull(parameterValues.get(2).getData());
+		Assert.assertEquals("service:bt:jira:jdbc-password", parameterValues.get(2).getParameter().getId());
+		Assert.assertEquals(3, parameterValues.size());
+		
+		final List<ParameterNodeVo> nodeParameters = pvResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
+		Assert.assertEquals(32, nodeParameters.size());
+		Assert.assertEquals("-secured-", nodeParameters.get(24).getText());
+		Assert.assertEquals("service:bt:jira:jdbc-password", nodeParameters.get(24).getParameter().getId());
+		Assert.assertTrue(nodeParameters.get(24).getParameter().isSecured());
+		Assert.assertEquals("-secured-", nodeParameters.get(27).getText());
+		Assert.assertEquals("service:bt:jira:password", nodeParameters.get(27).getParameter().getId());
+		Assert.assertTrue(nodeParameters.get(27).getParameter().isSecured());
+		Assert.assertEquals("http://remote", nodeParameters.get(30).getText());
+		Assert.assertEquals("service:bt:jira:url", nodeParameters.get(30).getParameter().getId());
+		Assert.assertFalse(nodeParameters.get(30).getParameter().isSecured());
+
+		// Deleted secured (value3) is not set
+		Assert.assertNull(nodeParameters.get(31).getText());
+		Assert.assertEquals("service:bt:jira:user", nodeParameters.get(31).getParameter().getId());
+		Assert.assertTrue(nodeParameters.get(31).getParameter().isSecured());
+}
+
 	/**
 	 * The relationship is valid regarding the syntax but the parent does not
 	 * exist.
@@ -698,87 +806,6 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertEquals("service:bt:jira:4", resources.get(0).getId());
 		Assert.assertEquals("service:bt:jira:6", resources.get(1).getId());
 	}
-
-	@Test
-	public void getNotProvidedParameters() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6", SubscriptionMode.LINK);
-		Assert.assertEquals(25, parameters.size());
-		final int nonDummyStartIndex = 23;
-		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex).getId());
-		Assert.assertEquals("service:bt:jira:project", parameters.get(nonDummyStartIndex + 1).getId());
-	}
-
-	@Test
-	public void getNotProvidedParametersTool() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira", SubscriptionMode.LINK);
-		Assert.assertEquals(32, parameters.size());
-		Assert.assertEquals("c_10", parameters.get(0).getId());
-		final int nonDummyStartIndex = 23;
-		Assert.assertEquals("service:bt:jira:jdbc-driver", parameters.get(nonDummyStartIndex).getId());
-		Assert.assertEquals("service:bt:jira:jdbc-password", parameters.get(nonDummyStartIndex + 1).getId());
-		Assert.assertEquals("service:bt:jira:jdbc-url", parameters.get(nonDummyStartIndex + 2).getId());
-		Assert.assertEquals("service:bt:jira:jdbc-user", parameters.get(nonDummyStartIndex + 3).getId());
-
-		final ParameterVo projectParameter = parameters.get(nonDummyStartIndex + 4);
-		Assert.assertEquals("service:bt:jira:password", projectParameter.getId());
-		Assert.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex + 5).getId());
-		final ParameterVo projectParameter2 = parameters.get(nonDummyStartIndex + 6);
-		Assert.assertEquals(ParameterType.INTEGER, projectParameter2.getType());
-		Assert.assertEquals("service:bt:jira", projectParameter2.getOwner().getId());
-		Assert.assertEquals("service:bt:jira:project", projectParameter2.getId());
-		Assert.assertEquals(1, projectParameter2.getMin().intValue());
-		Assert.assertNull(projectParameter2.getMax());
-		Assert.assertNull(projectParameter2.getValues());
-	}
-
-	@Test
-	public void getNotProvidedParametersServiceEmpty() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt", SubscriptionMode.LINK);
-		Assert.assertEquals(0, parameters.size());
-	}
-
-	@Test
-	public void getNotProvidedParametersServiceToService() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id", SubscriptionMode.LINK);
-		Assert.assertEquals(2, parameters.size());
-		Assert.assertEquals("service:id:group", parameters.get(0).getId());
-		Assert.assertEquals("service:id:uid-pattern", parameters.get(1).getId());
-	}
-
-	@Test
-	public void getNotProvidedParametersServiceToTool() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap", SubscriptionMode.LINK);
-		Assert.assertEquals(19, parameters.size());
-		final List<String> expected = Arrays.asList("service:id:ldap:base-dn", "service:id:ldap:companies-dn", "service:id:group",
-				"service:id:ldap:groups-dn", "service:id:ldap:local-id-attribute", "service:id:ldap:locked-attribute",
-				"service:id:ldap:locked-value", "service:id:ldap:password", "service:id:ldap:people-dn",
-				"service:id:ldap:people-internal-dn", "service:id:ldap:people-class", "service:id:ldap:quarantine-dn",
-				"service:id:ldap:referral", "service:id:ldap:uid-attribute", "service:id:uid-pattern", "service:id:ldap:url",
-				"service:id:ldap:company-pattern", "service:id:ldap:department-attribute", "service:id:ldap:user-dn");
-		Assert.assertTrue(parameters.stream().map(ParameterVo::getId).allMatch(expected::contains));
-	}
-
-	@Test
-	public void getNotProvidedParametersServiceToToolCreate() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap", SubscriptionMode.CREATE);
-		Assert.assertEquals(21, parameters.size());
-		final List<String> expected = Arrays.asList("service:id:ldap:base-dn", "service:id:ldap:companies-dn", "service:id:group",
-				"service:id:ldap:groups-dn", "service:id:ldap:local-id-attribute", "service:id:ldap:locked-attribute",
-				"service:id:ldap:locked-value", "service:id:ou", "service:id:parent-group", "service:id:ldap:password",
-				"service:id:ldap:people-dn", "service:id:ldap:people-internal-dn", "service:id:ldap:people-class",
-				"service:id:ldap:quarantine-dn", "service:id:ldap:referral", "service:id:ldap:uid-attribute", "service:id:uid-pattern",
-				"service:id:ldap:url", "service:id:ldap:department-attribute", "service:id:ldap:company-pattern",
-				"service:id:ldap:user-dn");
-		Assert.assertTrue(parameters.stream().map(ParameterVo::getId).allMatch(expected::contains));
-	}
-
-	@Test
-	public void getNotProvidedParametersServiceToNode() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap:dig", SubscriptionMode.LINK);
-		Assert.assertEquals(1, parameters.size());
-		Assert.assertEquals("service:id:group", parameters.get(0).getId());
-	}
-
 	@Test
 	public void getNodeStatus() throws Exception {
 		final List<EventVo> nodes = resource.getNodeStatus();

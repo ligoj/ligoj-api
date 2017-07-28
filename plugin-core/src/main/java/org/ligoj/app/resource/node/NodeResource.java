@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
 import javax.transaction.Transactional;
@@ -28,7 +27,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
@@ -38,7 +37,6 @@ import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterRepository;
-import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
@@ -60,7 +58,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
-import net.sf.ehcache.CacheManager;
 
 /**
  * {@link Node} resource.
@@ -85,16 +82,13 @@ public class NodeResource {
 	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
-	private ParameterValueRepository parameterValueRepository;
-
-	@Autowired
 	private ParameterRepository parameterRepository;
 
 	@Autowired
 	protected ServicePluginLocator servicePluginLocator;
 
 	@Autowired
-	private ParameterValueResource parameterValueResource;
+	private ParameterValueResource pvResource;
 
 	@Autowired
 	private SecurityHelper securityHelper;
@@ -196,39 +190,6 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return all node parameter definitions where a value is expected to be
-	 * provided to the final subscription.
-	 * 
-	 * @param id
-	 *            The node identifier.
-	 * @param mode
-	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be
-	 *         attached to the final subscription in given mode.
-	 */
-	@GET
-	@Path("{id:.+:.*}/parameter/{mode}")
-	public List<ParameterVo> getNotProvidedParameters(@PathParam("id") final String id, @PathParam("mode") final SubscriptionMode mode) {
-		return repository.getOrphanParameters(id, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
-				.collect(Collectors.toList());
-	}
-
-	/**
-	 * Return the parameters of given node. Not exposed as web-service since
-	 * secured data are clearly exposed. The result is cached.
-	 * 
-	 * @param node
-	 *            the node identifier.
-	 * @return the parameters of given node as {@link Map}.
-	 */
-	@org.springframework.transaction.annotation.Transactional(readOnly = true)
-	@CacheResult(cacheName = "node-parameters")
-	public Map<String, String> getParametersAsMap(@CacheKey final String node) {
-		// Get parameters of given node
-		return parameterValueResource.toMapValues(repository.getParameterValues(node));
-	}
-
-	/**
 	 * Daily, Check status of each node instance.
 	 */
 	@Scheduled(cron = "${health.node}")
@@ -244,8 +205,12 @@ public class NodeResource {
 	 */
 	@POST
 	@CacheRemoveAll(cacheName = "nodes")
-	public void create(final NodeEditionVo node) {
-		saveOrUpdate(node, new Node());
+	public void create(final NodeEditionVo vo) {
+		final Node entity = new Node();
+		saveOrUpdate(vo, entity);
+
+		// Create and the new parameters
+		pvResource.create(vo.getParameters(), entity);
 	}
 
 	/**
@@ -256,16 +221,20 @@ public class NodeResource {
 	 */
 	@PUT
 	@CacheRemoveAll(cacheName = "nodes")
-	public void update(final NodeEditionVo node) {
-		saveOrUpdate(node, repository.findOneExpected(node.getId()));
+	public void update(final NodeEditionVo vo) {
+		final Node entity = saveOrUpdate(vo, repository.findOneWritable(vo.getId(), securityHelper.getLogin()));
+
+		// Create and the new parameters
+		pvResource.update(vo.getParameters(), entity);
 	}
 
-	private void saveOrUpdate(final NodeEditionVo vo, final Node entity) {
+	private Node saveOrUpdate(final NodeEditionVo vo, final Node entity) {
 		NamedBean.copy(vo, entity);
 		entity.setRefined(checkRefined(vo));
 		entity.setMode(checkMode(vo, entity));
 		checkInputParameters(vo);
 		repository.saveAndFlush(entity);
+		return entity;
 	}
 
 	/**
@@ -348,15 +317,10 @@ public class NodeResource {
 			throw new BusinessException("existing-subscriptions", nbSubscriptions);
 		}
 
-		parameterValueRepository.deleteByNode(id);
+		pvResource.deleteByNode(id);
 		parameterRepository.deleteByNode(id);
 		eventRepository.deleteByNode(id);
 		repository.delete(id);
-
-		// Also invalidates the node parameters cache
-		// Note "subscription-parameters" cache is not invalidated. A process
-		// could be added there to invalidate each related subscription.
-		CacheManager.getInstance().removeCache("node-parameters");
 	}
 
 	/**
@@ -399,7 +363,7 @@ public class NodeResource {
 	 *            The node to check.
 	 */
 	private void checkNodeStatus(final Node node) {
-		final Map<String, String> parameters = getParametersAsMap(node.getId());
+		final Map<String, String> parameters = pvResource.getNodeParameters(node.getId());
 		final NodeStatus status = SpringUtils.getBean(NodeResource.class).checkNodeStatus(node.getId(), parameters);
 		if (eventResource.registerEvent(node, EventType.STATUS, status.name())) {
 			checkSubscriptionStatus(node, status);
@@ -493,7 +457,7 @@ public class NodeResource {
 	 *            node status
 	 */
 	public void checkSubscriptionStatus(final Node node, final NodeStatus status) {
-		final Map<String, String> nodeParameters = getParametersAsMap(node.getId());
+		final Map<String, String> nodeParameters = pvResource.getNodeParameters(node.getId());
 
 		// Retrieve subscriptions where parameters are redefined. Other
 		// subscriptions have node
@@ -680,10 +644,11 @@ public class NodeResource {
 	 * Check the parameters that are being attached to this node
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
-		final List<Parameter> acceptedParameters = repository.getOrphanParameters(vo.getNode(), vo.getMode(), securityHelper.getLogin());
+		final List<Parameter> acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
+				securityHelper.getLogin());
 
 		// Check all mandatory parameters for the current subscription mode
-		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
+		vo.setParameters(ListUtils.emptyIfNull(vo.getParameters()));
 
 		// Check there is no override
 		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),

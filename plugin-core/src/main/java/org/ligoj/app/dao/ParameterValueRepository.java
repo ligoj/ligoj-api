@@ -13,6 +13,18 @@ import org.springframework.data.jpa.repository.Query;
 public interface ParameterValueRepository extends RestRepository<ParameterValue, Integer> {
 
 	/**
+	 * Return all parameter values associated to a node, including the ones from
+	 * the parent.
+	 * 
+	 * @param node
+	 *            The node identifier.
+	 * @return All parameter values associated to a node.
+	 */
+	@Query("SELECT p FROM ParameterValue p LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
+			+ " WHERE n0.id = :node OR n1.refined.id = :node OR n2.refined.id = :node")
+	List<ParameterValue> getParameterValues(String node);
+
+	/**
 	 * Return a parameter value related to the subscription to the given service
 	 * for a project.
 	 * 

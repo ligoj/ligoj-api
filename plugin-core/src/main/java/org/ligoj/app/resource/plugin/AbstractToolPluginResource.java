@@ -15,7 +15,7 @@ import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
-import org.ligoj.app.resource.node.NodeResource;
+import org.ligoj.app.resource.node.ParameterValueResource;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,7 +28,7 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 	protected SubscriptionResource subscriptionResource;
 
 	@Autowired
-	protected NodeResource nodeResource;
+	protected ParameterValueResource pvResource;
 
 	@Autowired
 	protected SubscriptionRepository subscriptionRepository;

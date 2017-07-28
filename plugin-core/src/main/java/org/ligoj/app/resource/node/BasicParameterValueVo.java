@@ -44,7 +44,7 @@ public class BasicParameterValueVo extends AuditedBean<SimpleUserOrg, Integer> {
 	/**
 	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#BINARY}.
 	 */
-	private Boolean binary;
+	private Boolean bool;
 
 	/**
 	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#DATE}.

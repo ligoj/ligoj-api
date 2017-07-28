@@ -6,6 +6,7 @@ import javax.validation.constraints.NotNull;
 
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.model.ParameterType;
+import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +16,12 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ParameterVo {
+public class ParameterVo extends AbstractBusinessEntity<String> {
 
 	/**
-	 * Identifier of this parameter. 
+	 * SID
 	 */
-	private String id;
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Type
@@ -49,5 +50,7 @@ public class ParameterVo {
 	private NodeVo owner;
 
 	private boolean mandatory;
+
+	private boolean secured;
 
 }

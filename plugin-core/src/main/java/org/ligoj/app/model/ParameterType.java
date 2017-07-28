@@ -33,7 +33,7 @@ public enum ParameterType {
 	/**
 	 * Boolean
 	 */
-	BINARY,
+	BOOL,
 
 	/**
 	 * Multiple free text.

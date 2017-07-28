@@ -243,10 +243,10 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	public void createBoolean() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_5").getId());
-		parameterValue.setBinary(Boolean.TRUE);
+		parameterValue.setBool(Boolean.TRUE);
 		final ParameterValue entity = resource.createInternal(parameterValue);
 		Assert.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
-		Assert.assertEquals(parameterValue.getBinary().toString(), entity.getData());
+		Assert.assertEquals(parameterValue.getBool().toString(), entity.getData());
 	}
 
 	@Test(expected = ValidationJsonException.class)
@@ -433,14 +433,14 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findBinary() {
+	public void findBool() {
 		final Parameter parameter = parameterRepository.findOne("c_5");
 		final ParameterValue parameterValueEntity = newParameterValue(Boolean.TRUE.toString(), parameter);
 		em.persist(parameterValueEntity);
 		em.flush();
 		final ParameterValueVo valueVo = resource.toVo(parameterValueEntity);
 		Assert.assertEquals(parameter.getId(), valueVo.getParameter().getId());
-		Assert.assertTrue(valueVo.getBinary());
+		Assert.assertTrue(valueVo.getBool());
 		Assert.assertNotNull(valueVo.getCreatedDate());
 		Assert.assertNotNull(valueVo.getCreatedBy());
 	}
@@ -623,7 +623,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		em.persist(node);
 		em.flush();
 		em.clear();
-		resource.create(parameters, v -> v.setNode(node));
+		resource.create(parameters, node);
 
 		em.flush();
 		em.clear();

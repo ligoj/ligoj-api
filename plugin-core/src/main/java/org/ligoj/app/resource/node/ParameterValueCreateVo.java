@@ -1,8 +1,5 @@
 package org.ligoj.app.resource.node;
 
-import java.util.Date;
-import java.util.List;
-
 import javax.validation.constraints.NotNull;
 
 import lombok.Getter;
@@ -15,46 +12,16 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString(of = "parameter")
-public class ParameterValueCreateVo {
+public class ParameterValueCreateVo extends BasicParameterValueVo {
 	
 	/**
 	 * Parameter's identifier.
 	 */
 	@NotNull
 	private String parameter;
-
+	
 	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#TEXT}
+	 * When <code>true</code>,  the values is considered as set to its old value.
 	 */
-	private String text;
-
-	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#TAGS}
-	 */
-	private List<String> tags;
-
-	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#MULTIPLE}
-	 */
-	private List<Integer> selections;
-
-	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#INTEGER}
-	 */
-	private Integer integer;
-
-	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#SELECT}. Represents index of selected item.
-	 */
-	private Integer index;
-
-	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#BINARY}.
-	 */
-	private Boolean binary;
-
-	/**
-	 * Not null for {@value org.ligoj.app.model.ParameterType#DATE}.
-	 */
-	private Date date;
+	private boolean untouched;
 }

@@ -2,16 +2,13 @@ package org.ligoj.app.dao;
 
 import java.util.List;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Query;
-
-import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
+import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * {@link Node} repository
@@ -41,35 +38,6 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * edit it, either administer it.
 	 */
 	String WRITE_NODES = VISIBLE_NODES_PART + " AND (d.canWrite = true OR d.canAdmin = true)))";
-
-	/**
-	 * Return all parameter values associated to a node, including the ones from
-	 * the parent.
-	 * 
-	 * @param id
-	 *            The node identifier.
-	 * @return All parameter values associated to a node.
-	 */
-	@Query("FROM ParameterValue p LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE n0.id = :id OR n1.refined.id = :id OR n2.refined.id = :id")
-	List<ParameterValue> getParameterValues(String id);
-
-	/**
-	 * Return all parameters associated to a node and without specified value
-	 * and for given mode. Also check the node is visible for the given user.
-	 * 
-	 * @param parent
-	 *            the parent node identifier.
-	 * @param mode
-	 *            Expected mode.
-	 * @param user
-	 *            The user requesting the nodes.
-	 * @return all parameters associated to a node.
-	 */
-	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :id AND (o=n OR o=n1 OR o=n2)"
-			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND " + VISIBLE_NODES
-			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND (node=n OR node=n1 OR node=n2)) ORDER BY UPPER(p.id)")
-	List<Parameter> getOrphanParameters(String id, SubscriptionMode mode, String user);
 
 	/**
 	 * Return all nodes with all non secured parameters.
