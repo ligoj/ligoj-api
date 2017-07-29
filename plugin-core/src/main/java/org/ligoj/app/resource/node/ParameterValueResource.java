@@ -449,7 +449,7 @@ public class ParameterValueResource {
 	 *            The entity to update.
 	 * @return corresponding entity.
 	 */
-	private ParameterValue saveOrUpdateInternal(final BasicParameterValueVo vo, final Parameter parameter, final ParameterValue entity) {
+	private ParameterValue saveOrUpdateInternal(final ParameterValueCreateVo vo, final Parameter parameter, final ParameterValue entity) {
 		checkConstraints(vo, parameter);
 		checkCompletude(vo, parameter);
 
@@ -463,6 +463,25 @@ public class ParameterValueResource {
 		}
 
 		return entity;
+	}
+
+	/**
+	 * Check the parameter is related to the given node.
+	 * 
+	 * @param parameter
+	 *            The parameter to check.
+	 * @param node
+	 *            The node scope the parameter must be related to.
+	 */
+	public void checkOwnership(final Parameter parameter, final Node node) {
+		if (!equalsOrParentOf(parameter.getOwner(), node)) {
+			// This parameter is detached from the node's hierarchy
+			throw new BusinessException("invalid-parameter-node-ownership", "parameter", parameter.getId(), "node", node.getId());
+		}
+	}
+
+	private boolean equalsOrParentOf(final Node parent, final Node node) {
+		return node != null && (node.equals(parent) || equalsOrParentOf(parent, node.getRefined()));
 	}
 
 	/**
@@ -554,7 +573,7 @@ public class ParameterValueResource {
 
 	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing, final ParameterValueCreateVo value, final Node node) {
 		if (value.isUntouched()) {
-			// Untouched value, keep the previous value
+			// Untouched value, keep the previous value but must exists
 			return Optional.ofNullable(existing.get(value.getParameter()))
 					.orElseThrow(() -> new BusinessException(BusinessException.KEY_UNKNOW_ID, "parameter", value.getParameter()));
 		}

@@ -3,6 +3,7 @@ package org.ligoj.app.resource.node;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -660,7 +661,8 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Create a new {@link ParameterValue} linked to a new {@link Node} without subscription.
+	 * Create a new {@link ParameterValue} linked to a new {@link Node} without
+	 * subscription.
 	 */
 	private ParameterValue newParameterValue() {
 		final Node node = new Node();
@@ -793,4 +795,51 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);
 	}
 
+	@Test(expected = BusinessException.class)
+	public void checkOwnershipDisjunction() {
+		final Node node = new Node();
+		node.setId("service:id");
+		final Parameter parameter = new Parameter();
+		parameter.setOwner(node);
+		final Node node2 = new Node();
+		node2.setId("service:other");
+		final Node node3 = new Node();
+		node3.setId("service:other:sub");
+		node3.setRefined(node2);
+		resource.checkOwnership(parameter, node3);
+	}
+
+	@Test
+	public void checkOwnership() {
+		final Node node = new Node();
+		node.setId("service:id");
+		final Parameter parameter = new Parameter();
+		parameter.setOwner(node);
+		final Node node2 = new Node();
+		node2.setId("service:id:sub");
+		node2.setRefined(node);
+		resource.checkOwnership(parameter, node2);
+	}
+
+	@Test(expected = BusinessException.class)
+	public void updateListUntouchedNotExist() throws Exception {
+		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
+		parameterValue.setUntouched(true);
+		parameterValue.setParameter("any");
+		final List<ParameterValueCreateVo> values = Collections.singletonList(parameterValue);
+		final Node node = new Node();
+		node.setId("service:id:ldap");
+		resource.update(values, node);
+	}
+
+	@Test
+	public void updateListUntouchedExists() throws Exception {
+		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
+		parameterValue.setUntouched(true);
+		parameterValue.setParameter("service:id:ldap:quarantine-dn");
+		final List<ParameterValueCreateVo> values = Collections.singletonList(parameterValue);
+		final Node node = new Node();
+		node.setId("service:id:ldap:dig");
+		resource.update(values, node);
+	}
 }

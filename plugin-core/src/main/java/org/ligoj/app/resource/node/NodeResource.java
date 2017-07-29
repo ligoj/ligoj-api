@@ -232,7 +232,9 @@ public class NodeResource {
 		NamedBean.copy(vo, entity);
 		entity.setRefined(checkRefined(vo));
 		entity.setMode(checkMode(vo, entity));
-		checkInputParameters(vo);
+
+		// Check the parameters : data and structure
+		checkInputParameters(vo).forEach(p -> pvResource.checkOwnership(p,entity));
 		repository.saveAndFlush(entity);
 		return entity;
 	}
