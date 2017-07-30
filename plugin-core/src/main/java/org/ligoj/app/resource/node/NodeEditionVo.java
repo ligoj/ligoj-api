@@ -20,6 +20,11 @@ public class NodeEditionVo extends AbstractParameteredVo implements INamableBean
 	@NotBlank
 	@NotNull
 	private String name;
+	
+	/**
+	 * When <code>true</code> the previous parameters are not updated.
+	 */
+	private boolean untouchedParameters;
 
 	/**
 	 * The node identifier.

@@ -224,8 +224,11 @@ public class NodeResource {
 	public void update(final NodeEditionVo vo) {
 		final Node entity = saveOrUpdate(vo, repository.findOneWritable(vo.getId(), securityHelper.getLogin()));
 
-		// Create and the new parameters
-		pvResource.update(vo.getParameters(), entity);
+		// Update parameters as needed
+		if (!vo.isUntouchedParameters()) {
+			// Create/update/delete the parameters
+			pvResource.update(vo.getParameters(), entity);
+		}
 	}
 
 	private Node saveOrUpdate(final NodeEditionVo vo, final Node entity) {
@@ -234,7 +237,7 @@ public class NodeResource {
 		entity.setMode(checkMode(vo, entity));
 
 		// Check the parameters : data and structure
-		checkInputParameters(vo).forEach(p -> pvResource.checkOwnership(p,entity));
+		checkInputParameters(vo).forEach(p -> pvResource.checkOwnership(p, entity));
 		repository.saveAndFlush(entity);
 		return entity;
 	}

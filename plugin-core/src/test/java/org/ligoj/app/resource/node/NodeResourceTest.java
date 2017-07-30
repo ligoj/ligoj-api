@@ -480,7 +480,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo value = new ParameterValueCreateVo();
 		value.setParameter("service:bt:jira:password");
 		value.setText("secret");
-		node.setParameters(Collections.singletonList(value ));
+		node.setParameters(Collections.singletonList(value));
 		resource.create(node);
 		Assert.assertTrue(repository.exists("service:bt:jira:7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
@@ -489,11 +489,10 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
 		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
 		Assert.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:7").get("service:bt:jira:password"));
-		
+
 		// Secured data
 		Assert.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:7").get(0).getData());
 	}
-
 
 	@Test
 	public void updateParameters() {
@@ -503,41 +502,41 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
-		
+
 		// This parameter would be untouched
 		final ParameterValueCreateVo value = new ParameterValueCreateVo();
 		value.setParameter("service:bt:jira:password");
 		value.setText("secret");
-		
+
 		// This parameter would be deleted
 		final ParameterValueCreateVo value3 = new ParameterValueCreateVo();
 		value3.setParameter("service:bt:jira:user");
 		value3.setText("secret3");
-		
+
 		// This parameter would be updated
 		final ParameterValueCreateVo value4 = new ParameterValueCreateVo();
 		value4.setParameter("service:bt:jira:url");
 		value4.setText("http://localhost");
-		
+
 		// Initial node
 		node.setParameters(Arrays.asList(value, value3, value4));
 		resource.create(node);
 		Assert.assertTrue(repository.exists("service:bt:jira:7"));
-		
+
 		// Don't touch the first secured parameter
 		value.setUntouched(true);
-		
+
 		// Update another parameter
 		value4.setText("http://remote");
-		
+
 		// Add a new parameter
 		final ParameterValueCreateVo value2 = new ParameterValueCreateVo();
 		value2.setParameter("service:bt:jira:jdbc-password");
 		value2.setText("secret2");
-		
+
 		// Omit the parameter to delete (value3)
 		node.setParameters(Arrays.asList(value, value2, value4));
-		
+
 		// Update the node : 1 untouched, 1 new, 1 added, 1 updated
 		resource.update(node);
 
@@ -555,7 +554,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertNotNull(parameterValues.get(2).getData());
 		Assert.assertEquals("service:bt:jira:jdbc-password", parameterValues.get(2).getParameter().getId());
 		Assert.assertEquals(3, parameterValues.size());
-		
+
 		final List<ParameterNodeVo> nodeParameters = pvResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
 		Assert.assertEquals(32, nodeParameters.size());
 		Assert.assertEquals("-secured-", nodeParameters.get(24).getText());
@@ -572,7 +571,41 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertNull(nodeParameters.get(31).getText());
 		Assert.assertEquals("service:bt:jira:user", nodeParameters.get(31).getParameter().getId());
 		Assert.assertTrue(nodeParameters.get(31).getParameter().isSecured());
-}
+	}
+
+	@Test
+	public void updateUntouchParameters() {
+		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		final NodeEditionVo node = new NodeEditionVo();
+		node.setId("service:bt:jira:7");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+
+		// This parameter would be untouched
+		final ParameterValueCreateVo value = new ParameterValueCreateVo();
+		value.setParameter("service:bt:jira:password");
+		value.setText("secret");
+
+		// Initial node
+		node.setParameters(Arrays.asList(value));
+		resource.create(node);
+		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+
+		// Don't touch the first secured parameter
+		node.setUntouchedParameters(true);
+
+		// Update the node without providing parameters
+		resource.update(node);
+
+		final Map<String, String> parameters = pvResource.getNodeParameters("service:bt:jira:7");
+		Assert.assertEquals("secret", parameters.get("service:bt:jira:password"));
+		Assert.assertEquals(1, parameters.size());
+		final List<ParameterValue> parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
+		Assert.assertNotNull(parameterValues.get(0).getData());
+		Assert.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
+		Assert.assertEquals(1, parameterValues.size());
+	}
 
 	/**
 	 * The relationship is valid regarding the syntax but the parent does not
@@ -634,6 +667,12 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void createOnParentGreaterMode() {
 		newNode(SubscriptionMode.ALL);
 		newSubNode(SubscriptionMode.CREATE);
+	}
+
+	@Test
+	public void createNoneOnParent() {
+		newNode(SubscriptionMode.CREATE);
+		newSubNode(SubscriptionMode.NONE);
 	}
 
 	/**
@@ -806,6 +845,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertEquals("service:bt:jira:4", resources.get(0).getId());
 		Assert.assertEquals("service:bt:jira:6", resources.get(1).getId());
 	}
+
 	@Test
 	public void getNodeStatus() throws Exception {
 		final List<EventVo> nodes = resource.getNodeStatus();
