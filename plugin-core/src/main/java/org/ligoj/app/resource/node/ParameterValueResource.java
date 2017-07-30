@@ -481,7 +481,7 @@ public class ParameterValueResource {
 	}
 
 	private boolean equalsOrParentOf(final Node parent, final Node node) {
-		return node != null && (node.equals(parent) || equalsOrParentOf(parent, node.getRefined()));
+		return node.equals(parent) || node.isRefining() && equalsOrParentOf(parent, node.getRefined());
 	}
 
 	/**
