@@ -27,7 +27,6 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
 
 import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -77,8 +76,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	 * Read only plug-in safe mode
 	 */
 	@Getter
-	@Setter
-	protected boolean safeMode;
+	protected final boolean safeMode;
 
 	/**
 	 * Initialize the plug-in {@link URLClassLoader} and the related
@@ -89,6 +87,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	 */
 	public PluginsClassLoader() throws IOException {
 		super(new URL[0], Thread.currentThread().getContextClassLoader());
+		this.safeMode = Boolean.valueOf(System.getProperty("app.safe.mode", "false"));
 		this.homeDirectory = computeHome();
 		this.pluginDirectory = this.homeDirectory.resolve(PLUGINS_DIR);
 

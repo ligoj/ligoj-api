@@ -46,6 +46,28 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
+	public void safeMode() throws Exception {
+		PluginsClassLoader classLoader = null;
+		final String old = System.getProperty("app.safe.mode");
+		try {
+			System.setProperty("app.safe.mode", "true");
+			classLoader = new PluginsClassLoader();
+
+			Assert.assertTrue(classLoader.isSafeMode());
+
+			// Check the home is in the class-path
+			final URL homeUrl = classLoader.getURLs()[0];
+			Assert.assertTrue(homeUrl.getFile().endsWith("/"));
+
+			// Check the plug-in is in the class-path
+			Assert.assertEquals(1, classLoader.getURLs().length);
+		} finally {
+			System.setProperty("app.safe.mode", old);
+			IOUtils.closeQuietly(classLoader);
+		}
+	}
+
+	@Test
 	public void forcedHome() throws Exception {
 		PluginsClassLoader classLoader = null;
 		try {
@@ -145,8 +167,7 @@ public class PluginsClassLoaderTest {
 	}
 
 	private PluginsClassLoader checkClassLoader() throws IOException {
-		PluginsClassLoader classLoader;
-		classLoader = new PluginsClassLoader();
+		final PluginsClassLoader classLoader = new PluginsClassLoader();
 		Assert.assertEquals(3, classLoader.getURLs().length);
 
 		// Check the home is in the class-path
