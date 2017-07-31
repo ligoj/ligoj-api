@@ -27,6 +27,7 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
 
 import lombok.Getter;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -73,6 +74,13 @@ public class PluginsClassLoader extends URLClassLoader {
 	private Path pluginDirectory;
 
 	/**
+	 * Read only plug-in safe mode
+	 */
+	@Getter
+	@Setter
+	protected boolean safeMode;
+
+	/**
 	 * Initialize the plug-in {@link URLClassLoader} and the related
 	 * directories.
 	 * 
@@ -90,7 +98,19 @@ public class PluginsClassLoader extends URLClassLoader {
 
 		// Add the home it self in the class-path
 		addURL(this.homeDirectory.toUri().toURL());
+		
+		if (isSafeMode()) {
+			// Ignore this refresh
+			log.info("SAFE MODE - Plugins classloader is disabled");
+		}
 
+		completeClasspath();
+	}
+
+	/**
+	 * Complete the class-path with plug-ins jars
+	 */
+	private void completeClasspath() throws IOException {
 		// Build the plug-ins list with full version to filter the oldest
 		// versions
 		final Map<String, Path> versionFileToPath = new HashMap<>();
