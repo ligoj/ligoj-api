@@ -464,10 +464,9 @@ public class NodeResource {
 	public void checkSubscriptionStatus(final Node node, final NodeStatus status) {
 		final Map<String, String> nodeParameters = pvResource.getNodeParameters(node.getId());
 
-		// Retrieve subscriptions where parameters are redefined. Other
-		// subscriptions have node
-		// status.
-		final Map<Subscription, Map<String, String>> subscriptionsToCheck = findSubscriptionsWithParams(node.getId());
+		// Retrieve subscriptions where parameters are redefined.
+		// Other subscriptions get the node's status.
+		final Map<Subscription, Map<String, String>> subscriptions = findSubscriptionsWithParams(node.getId());
 
 		// Same instance, but with proxy to resolve inner transaction issue
 		final NodeResource thisProxy = SpringUtils.getBean(NodeResource.class);
@@ -484,20 +483,28 @@ public class NodeResource {
 		// Check the subscriptions
 		if (newStatus.isUp()) {
 			// Check only the subscription in UP nodes
-			int counter = 0;
-			for (final Entry<Subscription, Map<String, String>> subscription : subscriptionsToCheck.entrySet()) {
-				// For each subscription, check status
-				log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptionsToCheck.size());
-				final Map<String, String> parameters = new HashMap<>(nodeParameters);
-				parameters.putAll(subscription.getValue());
-				final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
-				eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
-				counter++;
-			}
+			checkNodeSubscriptions(node, nodeParameters, subscriptions, thisProxy);
 		} else {
 			// All subscription of this are marked as DOWN
-			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptionsToCheck.size());
-			subscriptionsToCheck.entrySet().forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
+			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptions.size());
+			subscriptions.entrySet().forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
+		}
+	}
+
+	/**
+	 * Check the subscriptions of each subscription related to given node.
+	 */
+	private void checkNodeSubscriptions(final Node node, final Map<String, String> nodeParameters,
+			final Map<Subscription, Map<String, String>> subscriptions, final NodeResource thisProxy) {
+		int counter = 0;
+		for (final Entry<Subscription, Map<String, String>> subscription : subscriptions.entrySet()) {
+			// For each subscription, check status
+			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
+			final Map<String, String> parameters = new HashMap<>(nodeParameters);
+			parameters.putAll(subscription.getValue());
+			final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
+			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
+			counter++;
 		}
 	}
 
