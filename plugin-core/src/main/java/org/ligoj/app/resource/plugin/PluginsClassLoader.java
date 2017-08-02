@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.PluginException;
 import org.ligoj.app.model.Node;
@@ -97,7 +98,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 		// Add the home it self in the class-path
 		addURL(this.homeDirectory.toUri().toURL());
-		
+
 		if (isSafeMode()) {
 			// Ignore this refresh
 			log.info("SAFE MODE - Plugins classloader is disabled");
@@ -239,18 +240,18 @@ public class PluginsClassLoader extends URLClassLoader {
 	 * specification. Maximum 4 version ranges are accepted.
 	 * 
 	 * @param version
-	 *            The version string to convert.
+	 *            The version string to convert. May be <code>null</code>
 	 * @return The given version to be comparable with another version. Handle
 	 *         the 'SNAPSHOT' case considered has oldest than the one without
 	 *         this suffix.
+	 * @see PluginsClassLoader#toExtendedVersion(String)
 	 */
-	private String toExtendedVersion(final String version) {
+	public static String toExtendedVersion(final String version) {
 		final StringBuilder fileWithVersionExp = new StringBuilder();
-		final String[] versionFragments = StringUtils.split(version, "-.");
 		final String[] allFragments = { "0", "0", "0", "0" };
+		final String[] versionFragments = ObjectUtils.defaultIfNull(StringUtils.split(version, "-."), allFragments);
 		System.arraycopy(versionFragments, 0, allFragments, 0, versionFragments.length);
-		Arrays.stream(allFragments).map(s -> StringUtils.leftPad(StringUtils.leftPad(s, 7, '0'), 8, 'Z'))
-				.forEach(fileWithVersionExp::append);
+		Arrays.stream(allFragments).map(s -> StringUtils.leftPad(StringUtils.leftPad(s, 7, '0'), 8, 'Z')).forEach(fileWithVersionExp::append);
 		return fileWithVersionExp.toString();
 	}
 

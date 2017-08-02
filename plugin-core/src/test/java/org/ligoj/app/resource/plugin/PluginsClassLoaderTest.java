@@ -85,6 +85,15 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
+	public void toExtendedVersion() {
+		Assert.assertEquals("Z0000000Z0000000Z0000000Z0000000",PluginsClassLoader.toExtendedVersion(null));
+		Assert.assertEquals("Z0000000Z0000000Z0000000Z0000000",PluginsClassLoader.toExtendedVersion(""));
+		Assert.assertEquals("Z0000001Z0000000Z0000000Z0000000",PluginsClassLoader.toExtendedVersion("1.0"));
+		Assert.assertEquals("Z0000001Z0000002Z0000003Z0000004",PluginsClassLoader.toExtendedVersion("1.2.3.4"));
+		Assert.assertEquals("Z0000012Z0000034Z0000056Z0000789",PluginsClassLoader.toExtendedVersion("12.34.56.789"));
+	}
+
+	@Test
 	public void getInstance() {
 		ThreadClassLoaderScope scope = null;
 		try {
