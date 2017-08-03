@@ -102,6 +102,7 @@ public class PluginsClassLoader extends URLClassLoader {
 		if (isSafeMode()) {
 			// Ignore this refresh
 			log.info("SAFE MODE - Plugins classloader is disabled");
+			return;
 		}
 
 		completeClasspath();

@@ -62,7 +62,11 @@ public class PluginsClassLoaderTest {
 			// Check the plug-in is in the class-path
 			Assert.assertEquals(1, classLoader.getURLs().length);
 		} finally {
-			System.setProperty("app.safe.mode", old);
+			if (old == null) {
+				System.clearProperty("app.safe.mode");
+			} else {
+				System.setProperty("app.safe.mode", old);
+			}
 			IOUtils.closeQuietly(classLoader);
 		}
 	}
