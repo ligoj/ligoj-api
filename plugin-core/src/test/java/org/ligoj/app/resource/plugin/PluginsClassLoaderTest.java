@@ -95,6 +95,7 @@ public class PluginsClassLoaderTest {
 		Assert.assertEquals("Z0000001Z0000000Z0000000Z0000000",PluginsClassLoader.toExtendedVersion("1.0"));
 		Assert.assertEquals("Z0000001Z0000002Z0000003Z0000004",PluginsClassLoader.toExtendedVersion("1.2.3.4"));
 		Assert.assertEquals("Z0000012Z0000034Z0000056Z0000789",PluginsClassLoader.toExtendedVersion("12.34.56.789"));
+		Assert.assertEquals("Z0000012Z000003bZ000005AZ0000000",PluginsClassLoader.toExtendedVersion("12.3b.5A"));
 	}
 
 	@Test

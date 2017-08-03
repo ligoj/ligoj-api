@@ -61,7 +61,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Pattern used to extract the version from a JAR plugin file name.
 	 */
-	private static final Pattern VERSION_PATTERN = Pattern.compile("(-(\\d+(\\.\\d+){1,3}(-SNAPSHOT)?))\\.jar$");
+	private static final Pattern VERSION_PATTERN = Pattern.compile("(-(\\d[\\da-zA-Z]*(\\.[\\da-zA-Z]+){1,3}(-SNAPSHOT)?))\\.jar$");
 
 	/**
 	 * The application home directory.
