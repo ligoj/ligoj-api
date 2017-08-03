@@ -196,8 +196,7 @@ public class ParameterResource {
 	 * @return All parameter definitions where a value is expected to be
 	 *         attached to the final subscription in given mode.
 	 */
-	public List<ParameterVo> getNotProvidedAndAssociatedParameters(@PathParam("node") final String node,
-			@PathParam("mode") final SubscriptionMode mode) {
+	public List<ParameterVo> getNotProvidedAndAssociatedParameters(final String node, final SubscriptionMode mode) {
 		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
 				.collect(Collectors.toList());
 	}
