@@ -48,7 +48,8 @@ public interface LongTaskRunner<T extends AbstractLongTask, R extends LongTaskRe
 	SubscriptionRepository getSubscriptionRepository();
 
 	/**
-	 * Check there is no running task for given subscription before the deletion.
+	 * Check there is no running task for given subscription before the
+	 * deletion.
 	 * 
 	 * @param subscription
 	 *            The subscription identifier.
@@ -58,7 +59,7 @@ public interface LongTaskRunner<T extends AbstractLongTask, R extends LongTaskRe
 		Optional.ofNullable(getTask(subscription)).filter(t -> !t.isFinished()).ifPresent(t -> {
 			throw new BusinessException("Running import not finished", t.getAuthor(), t.getStart(), t.getSubscription().getId());
 		});
-		
+
 		// We can safely delete the tasks
 		getTaskRepository().deleteAllBy("subscription.id", subscription);
 	}
@@ -94,7 +95,8 @@ public interface LongTaskRunner<T extends AbstractLongTask, R extends LongTaskRe
 	 * 
 	 * @param subscription
 	 *            the subscription identifier
-	 * @return status of import.
+	 * @return status of import. May <code>null</code> when there is no previous
+	 *         task.
 	 */
 	@GET
 	@Path("{subscription:\\d+}/task")
