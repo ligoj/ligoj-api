@@ -33,7 +33,7 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	@NotNull
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10)
-	private ParameterType type;
+	private ParameterType type = ParameterType.TEXT;
 
 	/**
 	 * Optional JSon constraint data. The value of this field can be read from different manners depending on the
