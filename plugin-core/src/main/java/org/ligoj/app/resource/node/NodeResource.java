@@ -653,7 +653,7 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check the parameters that are being attached to this node
+	 * Check the parameters that are being attached to this node : overrides, mandatory and ownerships.
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
 		final List<Parameter> acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),

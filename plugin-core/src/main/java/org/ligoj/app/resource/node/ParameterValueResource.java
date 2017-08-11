@@ -512,7 +512,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Create the given subscription parameter values.
+	 * Create the given subscription parameter values. Value validity is checked.
 	 * 
 	 * @param values
 	 *            the parameter values to persist.
