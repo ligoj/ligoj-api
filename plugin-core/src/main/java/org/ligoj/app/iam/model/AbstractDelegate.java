@@ -4,10 +4,10 @@ import javax.persistence.Column;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.ColumnDefault;
-import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.bootstrap.core.model.AbstractNamedAuditedEntity;
 
 import lombok.Getter;

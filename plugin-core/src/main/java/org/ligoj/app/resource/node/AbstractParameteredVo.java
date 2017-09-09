@@ -3,9 +3,9 @@ package org.ligoj.app.resource.node;
 import java.util.List;
 
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.model.NodeId;
 

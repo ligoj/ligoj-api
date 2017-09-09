@@ -1,12 +1,11 @@
 package org.ligoj.app.resource.delegate;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotBlank;
-
-import org.ligoj.bootstrap.core.NamedBean;
 import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.iam.model.ReceiverType;
+import org.ligoj.bootstrap.core.NamedBean;
 
 import lombok.Getter;
 import lombok.Setter;

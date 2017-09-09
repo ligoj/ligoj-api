@@ -1,13 +1,13 @@
 package org.ligoj.app.iam.model;
 
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import org.ligoj.bootstrap.core.IDescribableBean;
 import org.ligoj.bootstrap.core.model.AbstractNamedBusinessEntity;
+
 import lombok.Getter;
 import lombok.Setter;
 

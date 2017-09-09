@@ -1,11 +1,11 @@
 package org.ligoj.app.resource.project;
 
 import javax.persistence.Column;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.bootstrap.core.DescribedAuditedBean;
 import org.ligoj.bootstrap.core.validation.LowerCase;

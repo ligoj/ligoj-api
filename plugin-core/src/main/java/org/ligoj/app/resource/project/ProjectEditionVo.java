@@ -1,10 +1,10 @@
 package org.ligoj.app.resource.project;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.ligoj.app.iam.SimpleUser;
 import org.ligoj.app.iam.UserOrg;
 import org.ligoj.bootstrap.core.DescribedAuditedBean;
