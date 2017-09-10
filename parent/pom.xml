@@ -30,7 +30,7 @@
 			<dependency>
 				<groupId>com.sun.mail</groupId>
 				<artifactId>javax.mail</artifactId>
-				<version>${1.5.6}</version>
+				<version>${mail.version}</version>
 				<scope>provided</scope>
 			</dependency>
 		</dependencies>
