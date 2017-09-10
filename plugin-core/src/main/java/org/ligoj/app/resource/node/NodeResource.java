@@ -207,6 +207,12 @@ public class NodeResource {
 	@CacheRemoveAll(cacheName = "nodes")
 	public void create(final NodeEditionVo vo) {
 		final Node entity = new Node();
+
+		// Also check the parent is writable
+		if (vo.isRefining()) {
+			checkWritableNode(vo.getRefined());
+		}
+
 		saveOrUpdate(vo, entity);
 
 		// Create and the new parameters
@@ -222,7 +228,7 @@ public class NodeResource {
 	@PUT
 	@CacheRemoveAll(cacheName = "nodes")
 	public void update(final NodeEditionVo vo) {
-		final Node entity = saveOrUpdate(vo, repository.findOneWritable(vo.getId(), securityHelper.getLogin()));
+		final Node entity = saveOrUpdate(vo, checkWritableNode(vo.getId()));
 
 		// Update parameters as needed
 		if (!vo.isUntouchedParameters()) {
@@ -653,7 +659,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check the parameters that are being attached to this node : overrides, mandatory and ownerships.
+	 * Check the parameters that are being attached to this node : overrides,
+	 * mandatory and ownerships.
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
 		final List<Parameter> acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
@@ -678,5 +685,19 @@ public class NodeResource {
 			// data?
 			throw ValidationJsonException.newValidationJsonException("not-accepted-parameter", overrides.iterator().next());
 		}
+	}
+
+	/**
+	 * Check the related node can be updated by the current principal.
+	 * @param The node to check.
+	 * @return the checked writable node.
+	 */
+	public Node checkWritableNode(final String id) {
+		final Node node = repository.findOneWritable(id, securityHelper.getLogin());
+		if (node == null) {
+			// Node is not readable or does not exists
+			throw new BusinessException("read-only-node", "node", id);
+		}
+		return node;
 	}
 }

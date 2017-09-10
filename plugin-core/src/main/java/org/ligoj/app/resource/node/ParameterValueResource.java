@@ -35,7 +35,6 @@ import javax.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
@@ -76,7 +75,7 @@ public class ParameterValueResource {
 	private SubscriptionRepository susbcriptionRepository;
 
 	@Autowired
-	private NodeRepository nodeRepository;
+	private NodeResource nodeResource;
 
 	@Autowired
 	private ParameterResource parameterResource;
@@ -335,7 +334,7 @@ public class ParameterValueResource {
 		final ParameterValue value = findOneExpected(id);
 
 		// Check the visible node can also be edited
-		checkWritableNode(value.getNode().getId());
+		nodeResource.checkWritableNode(value.getNode().getId());
 
 		// A mandatory parameter can be deleted only when there is no
 		// subscription to the same node
@@ -359,7 +358,7 @@ public class ParameterValueResource {
 	 */
 	public void update(final ParameterValueNodeUpdateVo vo) {
 		final ParameterValue entity = findOneExpected(vo.getId());
-		checkWritableNode(entity.getNode().getId());
+		nodeResource.checkWritableNode(entity.getNode().getId());
 		checkUnusedValue(entity.getId());
 		saveOrUpdateInternal(vo, parameterResource.findByIdInternal(vo.getParameter()), entity);
 		repository.saveAndFlush(entity);
@@ -375,7 +374,7 @@ public class ParameterValueResource {
 	 */
 	public int create(final ParameterValueNodeVo vo) {
 		final ParameterValue value = createInternal(vo, parameterResource.findByIdInternal(vo.getParameter()));
-		value.setNode(checkWritableNode(vo.getNode()));
+		value.setNode(nodeResource.checkWritableNode(vo.getNode()));
 		repository.saveAndFlush(value);
 		return value.getId();
 	}
@@ -399,18 +398,6 @@ public class ParameterValueResource {
 		if (susbcriptionRepository.countByParameterValue(value) > 0) {
 			throw new BusinessException("used-parameter-value", "parameter-value", value);
 		}
-	}
-
-	/**
-	 * Check the related node can be updated by the current user.
-	 */
-	private Node checkWritableNode(final String id) {
-		final Node node = nodeRepository.findOneWritable(id, securityHelper.getLogin());
-		if (node == null) {
-			// Node is not readable
-			throw new BusinessException("read-only-node", "node", id);
-		}
-		return node;
 	}
 
 	/**

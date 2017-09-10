@@ -13,6 +13,8 @@ public class NodeIdValidatorTest {
 		Assert.assertFalse(new NodeIdValidator().isValid("service", null));
 		Assert.assertFalse(new NodeIdValidator().isValid("service:", null));
 		Assert.assertFalse(new NodeIdValidator().isValid("service:a:", null));
+		Assert.assertFalse(new NodeIdValidator().isValid("service:a-:", null));
+		Assert.assertFalse(new NodeIdValidator().isValid("service:a--b:", null));
 		Assert.assertFalse(new NodeIdValidator().isValid("service:a:B", null));
 		Assert.assertFalse(new NodeIdValidator().isValid("1:a:b", null));
 		Assert.assertFalse(new NodeIdValidator().isValid("service:a:bé", null));
@@ -30,6 +32,7 @@ public class NodeIdValidatorTest {
 		// Real tests
 		Assert.assertTrue(new NodeIdValidator().isValid("service:e", null));
 		Assert.assertTrue(new NodeIdValidator().isValid("service:a:b", null));
+		Assert.assertTrue(new NodeIdValidator().isValid("service:a:b-c-d", null));
 		Assert.assertTrue(new NodeIdValidator().isValid("service:a:b:c:1", null));
 	}
 

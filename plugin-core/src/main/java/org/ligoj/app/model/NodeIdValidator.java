@@ -15,7 +15,7 @@ public class NodeIdValidator implements ConstraintValidator<NodeId, String> {
 	/**
 	 * A valid node identifier pattern.
 	 */
-	public static final Pattern ID_PATTERN = Pattern.compile("[a-z]+(:[a-z0-9]+)+");
+	public static final Pattern ID_PATTERN = Pattern.compile("[a-z]+(:[a-z0-9]+(-[a-z0-9])*)+");
 
 	@Override
 	public void initialize(final NodeId annotation) {
