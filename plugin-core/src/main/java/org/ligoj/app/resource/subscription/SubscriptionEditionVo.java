@@ -1,6 +1,6 @@
 package org.ligoj.app.resource.subscription;
 
-import javax.validation.constraints.Min;
+import javax.validation.constraints.Positive;
 
 import org.ligoj.app.resource.node.AbstractParameteredVo;
 
@@ -16,12 +16,13 @@ public class SubscriptionEditionVo extends AbstractParameteredVo {
 	/**
 	 * Project identifier.
 	 */
-	@Min(1)
+	@Positive
 	@Setter
 	private int project;
 
 	/**
 	 * Subscription identifier (only for update).
 	 */
+	@Positive
 	private Integer id;
 }
