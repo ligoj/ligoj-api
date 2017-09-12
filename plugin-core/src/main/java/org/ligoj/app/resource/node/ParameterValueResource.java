@@ -65,6 +65,22 @@ import net.sf.ehcache.CacheManager;
 @Path("/node")
 public class ParameterValueResource {
 
+	/**
+	 * A mapper configuration to parse parameter value to string.
+	 */
+	private static final Map<Function<BasicParameterValueVo, Object>, Function<Object, String>> TO_STRING = new HashMap<>();
+
+	/**
+	 * A mapper configuration to parse string to parameter value.
+	 */
+	private static final Map<ParameterType, ParameterValueMapper<?>> TO_VALUE = new EnumMap<>(ParameterType.class);
+
+	/**
+	 * A checker configuration to check a value against the contract of the
+	 * parameter.
+	 */
+	private final Map<ParameterType, BiConsumer<BasicParameterValueVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
+
 	@Autowired
 	private ParameterValueRepository repository;
 
@@ -94,16 +110,6 @@ public class ParameterValueResource {
 		private final BiConsumer<BasicParameterValueVo, X> setter;
 		private final Function<String, X> toValue;
 	}
-
-	/**
-	 * A mapper configuration to parse parameter value to string.
-	 */
-	private static final Map<Function<BasicParameterValueVo, Object>, Function<Object, String>> TO_STRING = new HashMap<>();
-
-	/**
-	 * A mapper configuration to parse string to parameter value.
-	 */
-	private static final Map<ParameterType, ParameterValueMapper<?>> TO_VALUE = new EnumMap<>(ParameterType.class);
 	static {
 
 		// To value mapping
@@ -124,12 +130,6 @@ public class ParameterValueResource {
 		TO_STRING.put(BasicParameterValueVo::getTags, o -> ParameterResource.toJSon(o).toUpperCase(Locale.ENGLISH));
 		TO_STRING.put(BasicParameterValueVo::getSelections, ParameterResource::toJSon);
 	}
-
-	/**
-	 * A checker configuration to check a value against the contract of the
-	 * parameter.
-	 */
-	private final Map<ParameterType, BiConsumer<BasicParameterValueVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
 
 	/**
 	 * Default constructor initializing the type mappings.

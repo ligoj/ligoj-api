@@ -83,7 +83,7 @@ public interface LongTaskRunner<T extends AbstractLongTask, R extends LongTaskRe
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default void endTask(final int subscription, final boolean failed) {
 		final T task = createAsNeeded(subscription);
-		task.setEnd(new java.util.Date());
+		task.setEnd(new Date());
 		task.setFailed(failed);
 
 		// Save now the new state

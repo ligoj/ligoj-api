@@ -32,7 +32,7 @@ public class NodeEditionVo extends AbstractParameteredVo implements INamableBean
 	@NotBlank
 	@NotNull
 	@NodeId
-	String id;
+	private String id;
 
 	@Override
 	public String getRefined() {
