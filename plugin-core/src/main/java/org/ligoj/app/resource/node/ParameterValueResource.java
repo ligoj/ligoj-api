@@ -110,6 +110,7 @@ public class ParameterValueResource {
 		private final BiConsumer<BasicParameterValueVo, X> setter;
 		private final Function<String, X> toValue;
 	}
+
 	static {
 
 		// To value mapping
@@ -197,8 +198,8 @@ public class ParameterValueResource {
 	 * @return The String data to persist.
 	 */
 	public static String toData(final BasicParameterValueVo vo) {
-		return TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null).findFirst()
-				.map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText());
+		return StringUtils.trimToNull(TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null).findFirst()
+				.map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText()));
 	}
 
 	/**
@@ -338,9 +339,7 @@ public class ParameterValueResource {
 
 		// A mandatory parameter can be deleted only when there is no
 		// subscription to the same node
-		if (value.getParameter().isMandatory()) {
-			checkUnusedValue(value.getId());
-		}
+		checkUnusedValue(value);
 
 		// Deletion can be performed
 		repository.delete(id);
@@ -359,8 +358,10 @@ public class ParameterValueResource {
 	public void update(final ParameterValueNodeUpdateVo vo) {
 		final ParameterValue entity = findOneExpected(vo.getId());
 		nodeResource.checkWritableNode(entity.getNode().getId());
-		checkUnusedValue(entity.getId());
-		saveOrUpdateInternal(vo, parameterResource.findByIdInternal(vo.getParameter()), entity);
+		if (checkSaveOrUpdate(vo, parameterResource.findByIdInternal(vo.getParameter()), entity) == null) {
+			// Empty value are not accepted in update mode/method
+			throw new ValidationJsonException("invalid-method-for-empty-data");
+		}
 		repository.saveAndFlush(entity);
 	}
 
@@ -392,11 +393,18 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Check the parameter value is not used in a subscription.
+	 * Check the parameter value is not used in a subscription when the target
+	 * value becomes <code>null</code> or empty.
+	 * 
+	 * @param entity
+	 *            The {@link ParameterValue} entity to check.
 	 */
-	private void checkUnusedValue(final int value) {
-		if (susbcriptionRepository.countByParameterValue(value) > 0) {
-			throw new BusinessException("used-parameter-value", "parameter-value", value);
+	private void checkUnusedValue(final ParameterValue entity) {
+		if (entity.getParameter().isMandatory()) {
+			final int nb = susbcriptionRepository.countByParameterValue(entity.getId());
+			if (nb > 0) {
+				throw new ValidationJsonException(entity.getParameter().getId(), "used-parameter-value", "subscriptions", nb);
+			}
 		}
 	}
 
@@ -421,7 +429,7 @@ public class ParameterValueResource {
 	 * @return corresponding entity.
 	 */
 	private ParameterValue createInternal(final ParameterValueCreateVo vo, final Parameter parameter) {
-		return saveOrUpdateInternal(vo, parameter, new ParameterValue());
+		return checkSaveOrUpdate(vo, parameter, new ParameterValue());
 	}
 
 	/**
@@ -434,14 +442,22 @@ public class ParameterValueResource {
 	 *            The resolved parameter related to the {@link ParameterValue}
 	 * @param entity
 	 *            The entity to update.
-	 * @return corresponding entity.
+	 * @return corresponding entity when accepted for update. <code>null</code>
+	 *         when all constraints are checked, but the target operation should
+	 *         be a deletion because of the empty value.
 	 */
-	private ParameterValue saveOrUpdateInternal(final ParameterValueCreateVo vo, final Parameter parameter, final ParameterValue entity) {
+	private ParameterValue checkSaveOrUpdate(final ParameterValueCreateVo vo, final Parameter parameter, final ParameterValue entity) {
 		checkConstraints(vo, parameter);
 		checkCompletude(vo, parameter);
 
 		entity.setData(toData(vo));
 		entity.setParameter(parameter);
+
+		// Handle the target empty data
+		if (StringUtils.isBlank(entity.getData())) {
+			// A blank parameter value must be deleted
+			return null;
+		}
 
 		// Encrypt the data as needed
 		if (parameter.isSecured()) {
@@ -499,7 +515,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Create the given subscription parameter values. Value validity is checked.
+	 * Create the given subscription parameter values. Value validity is
+	 * checked.
 	 * 
 	 * @param values
 	 *            the parameter values to persist.
@@ -526,7 +543,7 @@ public class ParameterValueResource {
 
 	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {
 		// Persist each not blank parameter
-		values.stream().map(this::createInternal).filter(v -> StringUtils.isNotBlank(v.getData())).forEach(v -> {
+		values.stream().map(this::createInternal).filter(Objects::nonNull).forEach(v -> {
 			// Link this value to the subscription
 			presave.accept(v);
 			repository.saveAndFlush(v);
@@ -549,16 +566,15 @@ public class ParameterValueResource {
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
 
 		// Build the target parameter values
-		final Set<String> newParam = values.stream().map(v -> saveOrUpdate(oldMap, v, node))
-				.filter(v -> StringUtils.isNotBlank(v.getData())).map(repository::saveAndFlush).map(v -> v.getParameter().getId())
-				.collect(Collectors.toSet());
+		final Set<String> newParam = values.stream().map(v -> saveOrUpdate(oldMap, v)).filter(Objects::nonNull).peek(v -> v.setNode(node))
+				.map(repository::saveAndFlush).map(v -> v.getParameter().getId()).collect(Collectors.toSet());
 
 		// Delete the existing but not provided values
 		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
 		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
 	}
 
-	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing, final ParameterValueCreateVo value, final Node node) {
+	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing, final ParameterValueCreateVo value) {
 		if (value.isUntouched()) {
 			// Untouched value, keep the previous value but must exists
 			return Optional.ofNullable(existing.get(value.getParameter()))
@@ -569,14 +585,11 @@ public class ParameterValueResource {
 		ParameterValue entity = existing.get(value.getParameter());
 		if (entity == null) {
 			// Need to parse and recreate the value
-			entity = createInternal(value);
-			entity.setNode(node);
-		} else {
-			// Update mode
-			checkUnusedValue(entity.getId());
-			saveOrUpdateInternal(value, entity.getParameter(), entity);
+			return createInternal(value);
 		}
-		return entity;
+
+		// Update mode
+		return checkSaveOrUpdate(value, entity.getParameter(), entity);
 	}
 
 	/**

@@ -148,10 +148,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	public void createTextEmpty() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_17").getId());
-		final ParameterValue entity = resource.createInternal(parameterValue);
-
-		Assert.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
-		Assert.assertNull(entity.getData());
+		Assert.assertNull(resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -647,9 +644,14 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void deleteMandatoryUsed() {
+	public void deleteNotExists() {
 		final Integer id = repository.findBy("parameter.id", "service:kpi:sonar:project").getId();
 		resource.delete(id);
+	}
+
+	@Test(expected = BusinessException.class)
+	public void deleteMandatoryUsed() {
+		resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
 	}
 
 	@Test
@@ -769,7 +771,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test(expected = EntityNotFoundException.class)
 	public void updateSubscriptionValue() {
-		ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:project");
+		final ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:project");
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
 		parameterValue.setParameter("service:kpi:sonar:project");
 		parameterValue.setInteger(10);
@@ -777,12 +779,13 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		resource.update(parameterValue);
 	}
 
-	@Test(expected = BusinessException.class)
-	public void updateSubscribedNode() {
-		ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:user");
+	@Test(expected = ValidationJsonException.class)
+	public void updateToBlank() {
+		final ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:user");
+		value.getParameter().setMandatory(true);
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
 		parameterValue.setParameter("service:kpi:sonar:user");
-		parameterValue.setText("any");
+		parameterValue.setText("  ");
 		parameterValue.setId(value.getId());
 		resource.update(parameterValue);
 	}
@@ -821,7 +824,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		resource.checkOwnership(parameter, node2);
 	}
 
-	@Test(expected = BusinessException.class)
+	@Test(expected = ValidationJsonException.class)
 	public void updateListUntouchedNotExist() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setUntouched(true);
