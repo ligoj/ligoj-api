@@ -640,7 +640,7 @@ public class NodeResource {
 	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo, @QueryParam(DataTableAttributes.SEARCH) final String criteria,
 			@QueryParam("refined") final String refined, @QueryParam("mode") final SubscriptionMode mode,
 			@QueryParam("depth") @DefaultValue("-1") final int depth) {
-		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToNull(criteria), refined, mode,
+		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToEmpty(criteria), refined, mode,
 				depth, paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
 
 		// apply pagination and prevent lazy initialization issue
