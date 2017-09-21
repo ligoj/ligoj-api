@@ -558,7 +558,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNonSecuredParameters() throws Exception {
+	public void getNonSecuredParameters() {
 		final Map<String, String> parameters = resource.getNonSecuredSubscriptionParameters(getSubscription("MDA"));
 		Assert.assertNull(parameters.get("service:bt:jira:jdbc-user"));
 		Assert.assertNull(parameters.get("service:bt:jira:jdbc-password"));
@@ -572,7 +572,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getParametersWithFilteredNull() throws Exception {
+	public void getParametersWithFilteredNull() {
 		final Map<String, String> parameters = resource.getSubscriptionParameters(getSubscription("MDA"));
 		// User and password are empty, so not returned
 		Assert.assertEquals(5, parameters.size());
@@ -584,7 +584,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getParameters() throws Exception {
+	public void getParameters() {
 		final Map<String, String> parameters = resource.getSubscriptionParameters(getSubscription("gStack", BuildResource.SERVICE_KEY));
 		Assert.assertEquals(4, parameters.size());
 		Assert.assertEquals("junit", parameters.get("service:build:jenkins:user"));
@@ -594,7 +594,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteBySubscription() throws Exception {
+	public void deleteBySubscription() {
 		final int subscription = getSubscription("MDA");
 
 		// There are 5 parameters from the node, and 2 from the subscription
@@ -610,7 +610,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createInternal() throws Exception {
+	public void createInternal() {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
@@ -636,24 +636,24 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void deleteNotExist() throws Exception {
+	public void deleteNotExist() {
 		resource.delete(-1);
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void deleteNotVisible() throws Exception {
+	public void deleteNotVisible() {
 		initSpringSecurityContext("any");
 		resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void deleteMandatoryUsed() throws Exception {
+	public void deleteMandatoryUsed() {
 		final Integer id = repository.findBy("parameter.id", "service:kpi:sonar:project").getId();
 		resource.delete(id);
 	}
 
 	@Test
-	public void deleteMandatoryUnused() throws Exception {
+	public void deleteMandatoryUnused() {
 		final ParameterValue value = newParameterValue();
 		Assert.assertTrue(repository.exists(value.getId()));
 		resource.delete(value.getId());
@@ -681,7 +681,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteNotMandatory() throws Exception {
+	public void deleteNotMandatory() {
 		final Integer id = repository.findBy("parameter.id", "service:id:ldap:quarantine-dn").getId();
 		Assert.assertTrue(repository.exists(id));
 		resource.delete(id);
@@ -689,7 +689,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void create() throws Exception {
+	public void create() {
 		repository.delete(repository.findBy("parameter.id", "service:id:ldap:quarantine-dn"));
 		em.flush();
 		em.clear();
@@ -706,7 +706,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void createNotVisible() throws Exception {
+	public void createNotVisible() {
 		initSpringSecurityContext("any");
 		final ParameterValueNodeVo parameterValue = new ParameterValueNodeVo();
 		parameterValue.setParameter("service:id:ldap:quarantine-dn");
@@ -716,7 +716,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = BusinessException.class)
-	public void createNotWritable() throws Exception {
+	public void createNotWritable() {
 		DelegateNode delegateNode = new DelegateNode();
 		delegateNode.setReceiver("user2");
 		delegateNode.setReceiverType(ReceiverType.USER);
@@ -731,7 +731,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void update() throws Exception {
+	public void update() {
 		ParameterValue value = newParameterValue();
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
 		String parameter = value.getParameter().getId();
@@ -748,7 +748,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void updateNotVisible() throws Exception {
+	public void updateNotVisible() {
 		initSpringSecurityContext("any");
 		ParameterValue value = repository.findBy("parameter.id", "service:id:ldap:quarantine-dn");
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
@@ -759,7 +759,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void updateNotExists() throws Exception {
+	public void updateNotExists() {
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
 		parameterValue.setParameter("service:id:ldap:quarantine-dn");
 		parameterValue.setIndex(1);
@@ -768,7 +768,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = EntityNotFoundException.class)
-	public void updateSubscriptionValue() throws Exception {
+	public void updateSubscriptionValue() {
 		ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:project");
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
 		parameterValue.setParameter("service:kpi:sonar:project");
@@ -778,7 +778,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = BusinessException.class)
-	public void updateSubscribedNode() throws Exception {
+	public void updateSubscribedNode() {
 		ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:user");
 		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
 		parameterValue.setParameter("service:kpi:sonar:user");
@@ -822,7 +822,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test(expected = BusinessException.class)
-	public void updateListUntouchedNotExist() throws Exception {
+	public void updateListUntouchedNotExist() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setUntouched(true);
 		parameterValue.setParameter("any");
@@ -833,7 +833,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void updateListUntouchedExists() throws Exception {
+	public void updateListUntouchedExists() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setUntouched(true);
 		parameterValue.setParameter("service:id:ldap:quarantine-dn");
