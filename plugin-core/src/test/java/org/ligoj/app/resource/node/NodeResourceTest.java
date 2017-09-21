@@ -611,7 +611,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * The relationship is valid regarding the syntax but the parent does not
 	 * exist.
 	 */
-	@Test(expected = JpaObjectRetrievalFailureException.class)
+	@Test(expected = BusinessException.class)
 	public void createNotExistRefined() {
 		Assert.assertNull(resource.findAll().get("service:bt:some:instance"));
 		final NodeEditionVo node = new NodeEditionVo();
