@@ -375,6 +375,10 @@ public class ParameterValueResource {
 	 */
 	public int create(final ParameterValueNodeVo vo) {
 		final ParameterValue value = createInternal(vo, parameterResource.findByIdInternal(vo.getParameter()));
+		if (value == null) {
+			// Empty value are not accepted in update mode/method
+			throw new ValidationJsonException("invalid-method-for-empty-data");
+		}
 		value.setNode(nodeResource.checkWritableNode(vo.getNode()));
 		repository.saveAndFlush(value);
 		return value.getId();

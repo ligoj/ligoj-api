@@ -732,6 +732,18 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		resource.create(parameterValue);
 	}
 
+	@Test(expected = ValidationJsonException.class)
+	public void createEmpty() {
+		repository.delete(repository.findBy("parameter.id", "service:id:ldap:quarantine-dn"));
+		em.flush();
+		em.clear();
+		final ParameterValueNodeVo parameterValue = new ParameterValueNodeVo();
+		parameterValue.setParameter("service:id:ldap:quarantine-dn");
+		parameterValue.setText("  ");
+		parameterValue.setNode("service:id:ldap:dig");
+		resource.create(parameterValue);
+	}
+
 	@Test
 	public void update() {
 		ParameterValue value = newParameterValue();
