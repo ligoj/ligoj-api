@@ -96,6 +96,6 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @see #checkSubscriptionStatus(String, Map)
 	 */
 	default SubscriptionStatusWithData checkSubscriptionStatus(int subscription, String node, Map<String, String> parameters) throws Exception { // NOSONAR
-		return checkSubscriptionStatus(null, parameters);
+		return checkSubscriptionStatus(node, parameters);
 	}
 }
