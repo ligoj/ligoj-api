@@ -3,13 +3,11 @@ package org.ligoj.app.resource.node;
 import java.util.Date;
 import java.util.List;
 
-import javax.validation.constraints.NotBlank;
+import org.ligoj.app.iam.SimpleUserOrg;
+import org.ligoj.bootstrap.core.AuditedBean;
 
 import lombok.Getter;
 import lombok.Setter;
-
-import org.ligoj.app.iam.SimpleUserOrg;
-import org.ligoj.bootstrap.core.AuditedBean;
 
 /**
  * A criteria value.
@@ -21,7 +19,6 @@ public class BasicParameterValueVo extends AuditedBean<SimpleUserOrg, Integer> {
 	/**
 	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#TEXT}
 	 */
-	@NotBlank
 	private String text;
 
 	/**
