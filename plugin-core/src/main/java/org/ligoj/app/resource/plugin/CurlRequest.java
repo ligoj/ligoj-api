@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Http query to execute.
+ * HTTP query to execute.
  */
 @Getter
 public class CurlRequest {
@@ -55,9 +55,17 @@ public class CurlRequest {
 	private final Map<String, String> headers;
 
 	/**
-	 * Counter inside processor. Is updated when the processor execute this request.
+	 * Counter inside processor. Is updated when the processor execute this
+	 * request.
 	 */
 	protected int counter;
+
+	/**
+	 * Optional request timeout in milliseconds.
+	 */
+	@Getter
+	@Setter
+	protected Integer timeout;
 
 	/**
 	 * All arguments constructor.
@@ -73,7 +81,8 @@ public class CurlRequest {
 	 * @param headers
 	 *            Optional headers <code>name:value</code>.
 	 */
-	public CurlRequest(final String method, final String url, final String content, final HttpResponseCallback callback, final String... headers) {
+	public CurlRequest(final String method, final String url, final String content, final HttpResponseCallback callback,
+			final String... headers) {
 		this.method = method;
 		this.url = url;
 		this.content = content;

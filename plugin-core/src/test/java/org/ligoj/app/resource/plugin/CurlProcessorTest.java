@@ -123,6 +123,33 @@ public class CurlProcessorTest extends AbstractServerTest {
 	}
 
 	@Test
+	public void processTimeout() {
+		httpServer.stubFor(post(urlPathEqualTo("/success")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(post(urlPathEqualTo("/timeout"))
+				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT").withFixedDelay(4000)));
+		httpServer.start();
+
+		long start = System.currentTimeMillis();
+		final CurlProcessor processor = new CurlProcessor();
+
+		// Would succeed
+		final CurlRequest curlRequest1 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/success", "CONTENT");
+		curlRequest1.setTimeout(500);
+		curlRequest1.setSaveResponse(true);
+
+		// Would fail timeout
+		final CurlRequest curlRequest2 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/timeout", "CONTENT");
+		curlRequest2.setTimeout(500);
+		curlRequest2.setSaveResponse(true);
+
+		// Process
+		Assert.assertFalse(processor.process(curlRequest1, curlRequest2));
+		Assert.assertEquals("CONTENT", curlRequest1.getResponse());
+		Assert.assertNull(curlRequest2.getResponse());
+		Assert.assertTrue(System.currentTimeMillis() - start <= 1000);
+	}
+
+	@Test
 	public void testHeaders() {
 		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
