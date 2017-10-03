@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -40,8 +42,8 @@ import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.BasicHttpClientConnectionManager;
-
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -260,6 +262,19 @@ public class CurlProcessor {
 	protected boolean call(final CurlRequest request, final String url) throws Exception { // NOSONAR - Many Exception
 		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod()).getConstructor(String.class).newInstance(url);
 		addHeaders(request, request.getContent(), httpRequest);
+
+		// Timeout management
+		if (request.getTimeout() != null) {
+			// Hard timeout has been set
+			final TimerTask task = new TimerTask() {
+				@Override
+				public void run() {
+					// Abort the query if not yet completed...
+					httpRequest.abort();
+				}
+			};
+			new Timer(true).schedule(task, request.getTimeout());
+		}
 
 		// Execute the request
 		final CloseableHttpResponse response = httpClient.execute(httpRequest);

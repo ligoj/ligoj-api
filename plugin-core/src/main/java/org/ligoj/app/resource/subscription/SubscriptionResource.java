@@ -535,7 +535,7 @@ public class SubscriptionResource {
 	 * @param ids
 	 *            Node identifiers
 	 * @return Status of each subscription of given project. Order is not
-	 *         guaranted.
+	 *         guaranteed.
 	 * @see #refreshStatus(int)
 	 */
 	@Path("status/refresh")
