@@ -30,6 +30,7 @@ public class NodeIdValidatorTest {
 		new NodeIdValidator().initialize(null);
 
 		// Real tests
+		Assert.assertTrue(new NodeIdValidator().isValid("service:vm:vcloud:some-deep-name", null));
 		Assert.assertTrue(new NodeIdValidator().isValid("service:e", null));
 		Assert.assertTrue(new NodeIdValidator().isValid("service:a:b", null));
 		Assert.assertTrue(new NodeIdValidator().isValid("service:a:b-c-d", null));
