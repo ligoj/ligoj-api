@@ -10,6 +10,8 @@ import javax.validation.constraints.Size;
 import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.validation.LowerCase;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -83,6 +85,7 @@ public class SimpleUser implements INamableBean<String>, Serializable {
 	 */
 	private String localId;
 
+	@JsonIgnoreProperties
 	@Override
 	public String getName() {
 		return getId();
