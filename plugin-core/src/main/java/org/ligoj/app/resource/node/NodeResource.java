@@ -293,7 +293,7 @@ public class NodeResource {
 		if (node.isRefining()) {
 			final String parent = node.getRefined();
 			// Check this parent is the direct ancestor
-			if (!node.getId().matches(parent + ":\\w+")) {
+			if (!node.getId().matches(parent + ":[^:]+")) {
 				// Parent is in a different branch, or invalid depth
 				throw new ValidationJsonException("refined", "invalid-parent", "id", node.getId(), "refined", parent);
 			}
@@ -301,7 +301,7 @@ public class NodeResource {
 			return repository.findOneExpected(parent);
 		}
 		// Check the current node can be a root node, AKA a service.
-		if (!node.getId().matches("service:\\w+")) {
+		if (!node.getId().matches("service:[^:]+")) {
 			// Identifier does not match to a root
 			throw new ValidationJsonException("refined", "invalid-parent", node.getId());
 		}

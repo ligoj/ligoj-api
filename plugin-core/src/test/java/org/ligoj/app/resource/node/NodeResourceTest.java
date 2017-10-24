@@ -471,9 +471,9 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void create() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		Assert.assertNull(resource.findAll().get("service:bt:jira:some-7"));
 		final NodeEditionVo node = new NodeEditionVo();
-		node.setId("service:bt:jira:7");
+		node.setId("service:bt:jira:some-7");
 		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
@@ -482,16 +482,16 @@ public class NodeResourceTest extends AbstractAppTest {
 		value.setText("secret");
 		node.setParameters(Collections.singletonList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
-		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
+		Assert.assertTrue(repository.exists("service:bt:jira:some-7"));
+		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:some-7");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
 		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
 		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
-		Assert.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:7").get("service:bt:jira:password"));
+		Assert.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:some-7").get("service:bt:jira:password"));
 
 		// Secured data
-		Assert.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:7").get(0).getData());
+		Assert.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:some-7").get(0).getData());
 	}
 
 	@Test
