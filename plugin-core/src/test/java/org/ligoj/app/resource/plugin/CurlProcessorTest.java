@@ -75,10 +75,13 @@ public class CurlProcessorTest extends AbstractServerTest {
 	@Test
 	public void testGetFailed() {
 		final CurlProcessor processor = new CurlProcessor();
-		final CurlRequest curlRequest = new CurlRequest(null, "http://localhost:" + MOCK_PORT, "CONTENT");
+		final CurlRequest curlRequest = new CurlRequest(null, "http://localhost:" + MOCK_PORT);
 		curlRequest.setSaveResponse(true);
 		processor.process(curlRequest);
 		Assert.assertNull(curlRequest.getResponse());
+		
+		// Request has not been sent
+		Assert.assertEquals(0, curlRequest.getStatus());
 	}
 
 	@Test
@@ -91,6 +94,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 		curlRequest.setSaveResponse(true);
 		Assert.assertTrue(processor.process(curlRequest));
 		Assert.assertEquals("CONTENT", curlRequest.getResponse());
+		Assert.assertEquals(200, curlRequest.getStatus());
 	}
 
 	@Test
@@ -100,12 +104,12 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 		final CurlProcessor processor = new CurlProcessor();
 
-		// WOuld succeed
+		// Would succeed
 		final CurlRequest curlRequest1 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT, "CONTENT");
 		curlRequest1.setSaveResponse(true);
 
 		// Would fail
-		final CurlRequest curlRequest2 = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, "CONTENT");
+		final CurlRequest curlRequest2 = new CurlRequest("PUT", "http://localhost:" + MOCK_PORT, "CONTENT");
 		curlRequest2.setSaveResponse(true);
 
 		// Never executed
@@ -115,8 +119,11 @@ public class CurlProcessorTest extends AbstractServerTest {
 		// Process
 		Assert.assertFalse(processor.process(curlRequest1, curlRequest2, curlRequest3));
 		Assert.assertEquals("CONTENT", curlRequest1.getResponse());
+		Assert.assertEquals(200, curlRequest1.getStatus());
 		Assert.assertNull(curlRequest2.getResponse());
+		Assert.assertEquals(404, curlRequest2.getStatus());
 		Assert.assertNull(curlRequest3.getResponse());
+		Assert.assertEquals(0, curlRequest3.getStatus());
 		Assert.assertSame(processor, curlRequest1.getProcessor());
 		Assert.assertSame(processor, curlRequest2.getProcessor());
 		Assert.assertNull(curlRequest3.getProcessor());

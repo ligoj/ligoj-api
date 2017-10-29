@@ -278,6 +278,9 @@ public class CurlProcessor {
 
 		// Execute the request
 		final CloseableHttpResponse response = httpClient.execute(httpRequest);
+		
+		// Save the status
+		request.setStatus(response.getStatusLine().getStatusCode());
 
 		// Ask for the callback a flow control
 		return ObjectUtils.defaultIfNull(request.getCallback(), callback).onResponse(request, response);

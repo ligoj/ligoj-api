@@ -3,6 +3,8 @@ package org.ligoj.app.resource.plugin;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -28,6 +30,12 @@ public class CurlRequest {
 	 */
 	@Setter
 	private String response;
+	
+	/**
+	 * The status code response.
+	 */
+	@Setter
+	private int status;
 
 	/**
 	 * Optional callback handler.
@@ -108,5 +116,16 @@ public class CurlRequest {
 	 */
 	public CurlRequest(final String method, final String url, final String content, final String... headers) {
 		this(method, url, content, null, headers);
+	}
+	/**
+	 * All arguments constructor but callback processor.
+	 * 
+	 * @param method
+	 *            HTTP method to execute, upper case.
+	 * @param url
+	 *            URL encoded to execute.
+	 */
+	public CurlRequest(final String method, final String url) {
+		this(method, url, null, null, ArrayUtils.EMPTY_STRING_ARRAY);
 	}
 }
