@@ -28,6 +28,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
@@ -50,6 +51,7 @@ import org.ligoj.bootstrap.core.json.PaginationJson;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.resource.BusinessException;
+import org.ligoj.bootstrap.core.resource.OnNullReturn404;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -350,11 +352,13 @@ public class NodeResource {
 	 * 
 	 * @param id
 	 *            The node identifier to check.
+	 * @return the new status or <code>null</code> if undefined of not visible.
 	 */
 	@POST
 	@Path("status/refresh/{id:.+:.*}")
-	public void checkNodeStatus(@PathParam("id") final String id) {
-		Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).ifPresent(this::checkNodeStatus);
+	@OnNullReturn404
+	public NodeStatus checkNodeStatus(@PathParam("id") final String id) {
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(this::checkNodeStatus).orElse(null);
 	}
 
 	/**
@@ -372,13 +376,15 @@ public class NodeResource {
 	 * 
 	 * @param node
 	 *            The node to check.
+	 * @return the new status.
 	 */
-	private void checkNodeStatus(final Node node) {
+	private NodeStatus checkNodeStatus(final Node node) {
 		final Map<String, String> parameters = pvResource.getNodeParameters(node.getId());
 		final NodeStatus status = SpringUtils.getBean(NodeResource.class).checkNodeStatus(node.getId(), parameters);
 		if (eventResource.registerEvent(node, EventType.STATUS, status.name())) {
 			checkSubscriptionStatus(node, status);
 		}
+		return status;
 	}
 
 	/**
@@ -557,6 +563,22 @@ public class NodeResource {
 	}
 
 	/**
+	 * Retrieve a specific node status.
+	 * 
+	 * @param id
+	 *            The node to check.
+	 * @return Status of a single node. Many be <code>null</code> when node is
+	 *         not found or when there is not known status.
+	 */
+	@GET
+	@Path("status/{id:.+:.*}")
+	@OnNullReturn404
+	public NodeStatus getNodeStatus(@PathParam("id") final String id) {
+		return Optional.ofNullable(eventResource.findByNode(securityHelper.getLogin(), id)).map(EventVo::getValue)
+				.map(v -> EnumUtils.getEnum(NodeStatus.class, v)).orElse(null);
+	}
+
+	/**
 	 * Retrieve node statistics.
 	 * 
 	 * @return Last known status of all nodes.
@@ -689,7 +711,9 @@ public class NodeResource {
 
 	/**
 	 * Check the related node can be updated by the current principal.
-	 * @param The node to check.
+	 * 
+	 * @param The
+	 *            node to check.
 	 * @return the checked writable node.
 	 */
 	public Node checkWritableNode(final String id) {

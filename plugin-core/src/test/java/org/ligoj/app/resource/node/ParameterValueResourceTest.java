@@ -649,7 +649,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		resource.delete(id);
 	}
 
-	@Test(expected = BusinessException.class)
+	@Test(expected = ValidationJsonException.class)
 	public void deleteMandatoryUsed() {
 		resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
 	}
@@ -836,7 +836,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		resource.checkOwnership(parameter, node2);
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test(expected = BusinessException.class)
 	public void updateListUntouchedNotExist() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setUntouched(true);

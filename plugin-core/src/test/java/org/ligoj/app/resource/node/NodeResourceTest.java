@@ -170,7 +170,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkNodeStatus() throws Exception {
+	public void checkNodeStatusNotVisible() throws Exception {
 
 		// This users sees only Jenkins nodes
 		initSpringSecurityContext("user1");
@@ -181,8 +181,42 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// check status
 		final long eventsCount = eventRepository.count();
-		resource.checkNodeStatus("service:id:ldap:dig");
+
+		// Not visible node
+		Assert.assertNull(resource.checkNodeStatus("service:id:ldap:dig"));
 		Assert.assertEquals(eventsCount, eventRepository.count());
+	}
+
+	@Test
+	public void checkNodeStatus() throws Exception {
+		final NodeResource resource = resourceMock;
+
+		// Mock the servers
+		prepareEvent();
+
+		// check status
+		final long eventsCount = eventRepository.count();
+
+		// Visible and down node
+		Assert.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
+		Assert.assertEquals(eventsCount + 3, eventRepository.count());
+	}
+
+	@Test
+	public void getNodeStatusSingleNode() throws Exception {
+		final NodeResource resource = resourceMock;
+
+		// Mock the servers
+		prepareEvent();
+
+		// Visible node, but without event/check
+		Assert.assertNull(resource.getNodeStatus("service:id:ldap:dig"));
+
+		// First check to create the event
+		Assert.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
+
+		// Visible and down node
+		Assert.assertEquals(NodeStatus.DOWN, resource.getNodeStatus("service:id:ldap:dig"));
 	}
 
 	/**

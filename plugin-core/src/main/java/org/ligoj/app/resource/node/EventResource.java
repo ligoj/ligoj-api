@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.transaction.Transactional;
 
@@ -27,7 +28,8 @@ public class EventResource {
 	private EventRepository repository;
 
 	/**
-	 * Register an event on a node. The event will be registered only if the value is new.
+	 * Register an event on a node. The event will be registered only if the
+	 * value is new.
 	 * 
 	 * @param node
 	 *            node
@@ -53,7 +55,8 @@ public class EventResource {
 	}
 
 	/**
-	 * register an event on a subscription. The event will be registered only if the value is new.
+	 * register an event on a subscription. The event will be registered only if
+	 * the value is new.
 	 * 
 	 * @param subscription
 	 *            The related subscription.
@@ -91,7 +94,6 @@ public class EventResource {
 		repository.save(event);
 	}
 
-
 	/**
 	 * {@link Event} JPA to VO object transformer without refined informations.
 	 * 
@@ -113,8 +115,24 @@ public class EventResource {
 	}
 
 	/**
+	 * Return the last known event related to a visible node of given user.
+	 * 
+	 * @param user
+	 *            The principal user requesting these events.
+	 * @param node
+	 *            The related node.
+	 * @return Event related to a visible {@link Node}. May be
+	 *         <code>null</code>.
+	 */
+	public EventVo findByNode(final String user, final String node) {
+		return Optional.ofNullable(repository.findLastEvent(user, node)).map(EventResource::toVo).orElse(null);
+	}
+
+	/**
 	 * Return all events related to a visible node of given user.
-	 * @param user The user requesting these events.
+	 * 
+	 * @param user
+	 *            The principal user requesting these events.
 	 * @return Events related to a visible {@link Node}.
 	 */
 	public List<EventVo> findAll(final String user) {

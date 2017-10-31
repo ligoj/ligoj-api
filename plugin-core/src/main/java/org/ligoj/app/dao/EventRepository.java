@@ -46,8 +46,22 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @return last events of all nodes.
 	 */
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.node n INNER JOIN FETCH n.refined tool INNER JOIN tool.refined root"
-			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND " + NodeRepository.VISIBLE_NODES)
+			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND "
+			+ NodeRepository.VISIBLE_NODES)
 	List<Event> findLastEvents(String user);
+
+	/**
+	 * Return the last event if available of a visible node for a given user.
+	 * 
+	 * @param user
+	 *            The principal user requesting the nodes.
+	 * @param node
+	 *            The related node.
+	 * @return last events of a specific node.
+	 */
+	@Query("FROM Event e INNER JOIN e.node n WHERE id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
+			+ NodeRepository.VISIBLE_NODES)
+	Event findLastEvent(String user, String node);
 
 	/**
 	 * find last events for a project
@@ -71,7 +85,6 @@ public interface EventRepository extends RestRepository<Event, String> {
 			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub) AND "
 			+ NodeRepository.VISIBLE_NODES + " GROUP BY event.value, n.id")
 	List<Object[]> countSubscriptionsEvents(String user);
-
 
 	/**
 	 * Delete all events related to the given node.
