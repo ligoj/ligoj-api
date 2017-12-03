@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -32,6 +33,7 @@ import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
+import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
@@ -44,7 +46,7 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Subscription;
-import org.ligoj.app.resource.ServicePluginLocator;
+import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.NamedBean;
 import org.ligoj.bootstrap.core.SpringUtils;
 import org.ligoj.bootstrap.core.json.PaginationJson;
@@ -69,7 +71,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class NodeResource {
+public class NodeResource extends AbstractLockedResource<String> {
 
 	@Autowired
 	private NodeRepository repository;
@@ -87,9 +89,6 @@ public class NodeResource {
 	private ParameterRepository parameterRepository;
 
 	@Autowired
-	protected ServicePluginLocator servicePluginLocator;
-
-	@Autowired
 	private ParameterValueResource pvResource;
 
 	@Autowired
@@ -99,7 +98,7 @@ public class NodeResource {
 	private PaginationJson paginationJson;
 
 	/**
-	 * Ordered columns.
+	 * Mapped columns.
 	 */
 	private static final Map<String, String> ORM_MAPPING = new HashMap<>();
 
@@ -143,8 +142,7 @@ public class NodeResource {
 	 * 
 	 * @param entity
 	 *            Source entity.
-	 * @return The corresponding VO object without recursive redefined
-	 *         reference.
+	 * @return The corresponding VO object without recursive redefined reference.
 	 */
 	public static NodeVo toVoLight(final Node entity) {
 		final NodeVo vo = new NodeVo();
@@ -288,8 +286,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check the desired refined and the naming convention. Return the resolved
-	 * and validated refined of <code>null</code> when is root.
+	 * Check the desired refined and the naming convention. Return the resolved and
+	 * validated refined of <code>null</code> when is root.
 	 */
 	private Node checkRefined(final NodeEditionVo node) {
 		if (node.isRefining()) {
@@ -313,9 +311,10 @@ public class NodeResource {
 	}
 
 	/**
-	 * Delete an existing {@link Node} from its identifier. The whole cache of
-	 * nodes is invalidated. The deletion can only succeed if there are no
-	 * related subscription. They need to be previously deleted.
+	 * Delete an existing {@link Node} from its identifier. The whole cache of nodes
+	 * is invalidated. The deletion can only succeed if there are no related
+	 * subscription. They need to be previously deleted. The administrator rights
+	 * are also checked.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -323,12 +322,15 @@ public class NodeResource {
 	@DELETE
 	@Path("{id:service:.+:.+:.*}")
 	@CacheRemoveAll(cacheName = "nodes")
-	public void delete(@PathParam("id") final String id) {
+	public void delete(@PathParam("id") final String id) throws Exception {
+		checkAdministerable(id);
 		final int nbSubscriptions = subscriptionRepository.countByNode(id);
 		if (nbSubscriptions > 0) {
 			// Subscriptions need to be deleted first
 			throw new BusinessException("existing-subscriptions", nbSubscriptions);
 		}
+		// Delegate the deletion
+		deleteWithTasks(id, id, true);
 
 		pvResource.deleteByNode(id);
 		parameterRepository.deleteByNode(id);
@@ -337,8 +339,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check status of each node instance. Only visible nodes from the current
-	 * user are checked.
+	 * Check status of each node instance. Only visible nodes from the current user
+	 * are checked.
 	 */
 	@POST
 	@Path("status/refresh")
@@ -347,8 +349,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check status of a specific node instance. Only visible node from the
-	 * current user is checked.
+	 * Check status of a specific node instance. Only visible node from the current
+	 * user is checked.
 	 * 
 	 * @param id
 	 *            The node identifier to check.
@@ -396,12 +398,12 @@ public class NodeResource {
 	 *            Node parameters used to check the status.
 	 * @return The node status.
 	 */
-	public NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
+	private NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
 		boolean isUp = false;
 		log.info("Check status of node {}", node);
 		try {
 			// Find the plug-in associated to the requested node
-			final ToolPlugin plugin = servicePluginLocator.getResourceExpected(node, ToolPlugin.class);
+			final ToolPlugin plugin = locator.getResourceExpected(node, ToolPlugin.class);
 
 			// Call service which check status
 			isUp = plugin.checkStatus(node, parameters);
@@ -422,8 +424,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check status of each subscription. Only visible nodes from the current
-	 * user are checked.
+	 * Check status of each subscription. Only visible nodes from the current user
+	 * are checked.
 	 */
 	@POST
 	@Path("status/subscription/refresh")
@@ -432,8 +434,7 @@ public class NodeResource {
 	}
 
 	/**
-	 * Check the subscriptions of given nodes. The node my be checked if
-	 * unknown.
+	 * Check the subscriptions of given nodes. The node my be checked if unknown.
 	 * 
 	 * @param instances
 	 *            The nodes to check.
@@ -450,15 +451,15 @@ public class NodeResource {
 	}
 
 	/**
-	 * find subscriptions where some parameters defined.
+	 * Find subscriptions where some parameters are defined.
 	 * 
-	 * @param key
-	 *            node key
+	 * @param id
+	 *            node identifier
 	 * @return subscriptions with redefined parameters
 	 */
-	protected Map<Subscription, Map<String, String>> findSubscriptionsWithParams(final String key) {
+	protected Map<Subscription, Map<String, String>> findSubscriptionsWithParams(final String id) {
 		final Map<Subscription, Map<String, String>> result = new HashMap<>();
-		for (final Object[] entityTab : subscriptionRepository.findAllWithValuesByNode(key)) {
+		for (final Object[] entityTab : subscriptionRepository.findAllWithValuesByNode(id)) {
 			final ParameterValue value = (ParameterValue) entityTab[1];
 			result.computeIfAbsent((Subscription) entityTab[0], s -> new HashMap<>()).put(value.getParameter().getId(), value.getData());
 		}
@@ -473,7 +474,7 @@ public class NodeResource {
 	 * @param status
 	 *            node status
 	 */
-	public void checkSubscriptionStatus(final Node node, final NodeStatus status) {
+	protected void checkSubscriptionStatus(final Node node, final NodeStatus status) {
 		final Map<String, String> nodeParameters = pvResource.getNodeParameters(node.getId());
 
 		// Retrieve subscriptions where parameters are redefined.
@@ -535,7 +536,7 @@ public class NodeResource {
 			log.info("Check status of a subscription attached to {}...", node);
 
 			// Find the plug-in associated to the requested node
-			final ToolPlugin toolPlugin = servicePluginLocator.getResourceExpected(node, ToolPlugin.class);
+			final ToolPlugin toolPlugin = locator.getResourceExpected(node, ToolPlugin.class);
 
 			// Call service which check status
 			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node, parameters);
@@ -567,8 +568,8 @@ public class NodeResource {
 	 * 
 	 * @param id
 	 *            The node to check.
-	 * @return Status of a single node. Many be <code>null</code> when node is
-	 *         not found or when there is not known status.
+	 * @return Status of a single node. Many be <code>null</code> when node is not
+	 *         found or when there is not known status.
 	 */
 	@GET
 	@Path("status/{id:.+:.*}")
@@ -607,8 +608,7 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return a specific node visible for current user. The visibility is
-	 * checked.
+	 * Return a specific node visible for current user. The visibility is checked.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -623,8 +623,8 @@ public class NodeResource {
 	}
 
 	/**
-	 * Return a specific node details. The visibility is not checked, and the
-	 * cache is not involved.
+	 * Return a specific node details. The visibility is not checked, and the cache
+	 * is not involved.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -643,18 +643,18 @@ public class NodeResource {
 	 * @param criteria
 	 *            the optional criteria to match.
 	 * @param parent
-	 *            The optional parent identifier to be like. Special attention
-	 *            for 'service' value corresponding to the root.
+	 *            The optional parent identifier to be like. Special attention for
+	 *            'service' value corresponding to the root.
 	 * @param mode
 	 *            Expected subscription mode. When <code>null</code>, the node's
 	 *            mode is not checked.
 	 * @param depth
 	 *            The maximal depth. When <code>0</code> means no refined, so
 	 *            basically services only. <code>1</code> means refined is a
-	 *            service, so nodes are basically tool only. <code>2</code>
-	 *            means refined is a tool, so nodes are basically instances
-	 *            only. For the other cases, there is no limit, and corresponds
-	 *            to the default behavior.
+	 *            service, so nodes are basically tool only. <code>2</code> means
+	 *            refined is a tool, so nodes are basically instances only. For the
+	 *            other cases, there is no limit, and corresponds to the default
+	 *            behavior.
 	 * @return All nodes with the hierarchy but without UI data.
 	 */
 	@GET
@@ -716,12 +716,45 @@ public class NodeResource {
 	 *            node to check.
 	 * @return the checked writable node.
 	 */
-	public Node checkWritableNode(final String id) {
-		final Node node = repository.findOneWritable(id, securityHelper.getLogin());
+	public Node checkNode(final String id, final BiFunction<String, String, Node> checker) {
+		final Node node = checker.apply(id, securityHelper.getLogin());
 		if (node == null) {
 			// Node is not readable or does not exists
 			throw new BusinessException("read-only-node", "node", id);
 		}
 		return node;
+	}
+
+	/**
+	 * Check the related node can be updated by the current principal.
+	 * 
+	 * @param The
+	 *            node to check.
+	 * @return the checked writable node.
+	 */
+	public Node checkWritableNode(final String id) {
+		return checkNode(id, repository::findOneWritable);
+	}
+
+	/**
+	 * Check the related node can be deleted by the current principal.
+	 * 
+	 * @param The
+	 *            node to check.
+	 * @return the checked administerable node.
+	 */
+	public Node checkAdministerable(final String id) {
+		return checkNode(id, repository::findOneAdministerable);
+	}
+
+	@Override
+	protected void delete(final ServicePlugin plugin, final String id, final boolean deleteRemoteData) throws Exception {
+		plugin.delete(id, deleteRemoteData);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Class<? extends LongTaskRunner<?, ?, ?, String, ?>> getLongTaskRunnerClass() {
+		return (Class<? extends LongTaskRunner<?, ?, ?, String, ?>>) LongTaskRunnerNode.class;
 	}
 }

@@ -5,12 +5,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import javax.persistence.EntityNotFoundException;
-import javax.sql.DataSource;
 import javax.transaction.Transactional;
 import javax.ws.rs.ForbiddenException;
 
@@ -28,11 +28,13 @@ import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
+import org.ligoj.app.dao.TaskSampleSubscriptionRepository;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.TaskSampleSubscription;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
@@ -60,8 +62,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Autowired
 	protected ProjectRepository projectRepository;
-
-	protected static DataSource datasource;
 
 	protected int subscription;
 
@@ -221,15 +221,37 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * Not a {@link LongTaskRunner} implementation -> does nothing
 	 */
 	@Test
-	public void checkForDeletionNotTaskRunner() throws Exception {
-		resource.checkForDeletion(Mockito.mock(ServicePlugin.class), 0);
+	public void deleteTasksNoTaskRunner() throws Exception {
+		resource.deleteTasks(Mockito.mock(ServicePlugin.class), 0);
 	}
 
+	@Autowired
+	private TaskSampleSubscriptionRepository taskSampleRepository;
+
 	@Test
-	public void checkForDeletion() throws Exception {
-		final TaskSampleResource sampleResource = new TaskSampleResource();
-		applicationContext.getAutowireCapableBeanFactory().autowireBean(sampleResource);
-		resource.checkForDeletion(sampleResource, subscription);
+	public void deleteTasksSubscription() throws Exception {
+		final TaskSampleSubscriptionResource sampleResource = registerSingleton("taskSampleResource",
+				applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleSubscriptionResource.class));
+
+		try {
+			final TaskSampleSubscription entity = new TaskSampleSubscription();
+			entity.setLocked(repository.findOne(subscription));
+			entity.setStart(new Date());
+			entity.setAuthor(DEFAULT_USER);
+			taskSampleRepository.saveAndFlush(entity);
+			Assert.assertNotNull(taskSampleRepository.findNotFinishedByLocked(subscription));
+			entity.setEnd(new Date());
+			taskSampleRepository.saveAndFlush(entity);
+			Assert.assertNull(taskSampleRepository.findNotFinishedByLocked(subscription));
+			em.flush();
+			em.clear();
+			Assert.assertEquals(1, taskSampleRepository.count());
+			resource.deleteTasks(sampleResource, subscription);
+			Assert.assertNull(taskSampleRepository.findNotFinishedByLocked(subscription));
+			Assert.assertEquals(0, taskSampleRepository.count());
+		} finally {
+			destroySingleton("taskSampleResource");
+		}
 	}
 
 	@Test

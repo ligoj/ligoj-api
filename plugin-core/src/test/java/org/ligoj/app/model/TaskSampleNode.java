@@ -2,8 +2,6 @@ package org.ligoj.app.model;
 
 import javax.persistence.Entity;
 
-import org.ligoj.app.model.AbstractLongTask;
-
 import lombok.Getter;
 import lombok.Setter;
 
@@ -11,7 +9,7 @@ import lombok.Setter;
  * Sample long task model.
  */
 @Entity
-public class TaskSample extends AbstractLongTask {
+public class TaskSampleNode extends AbstractLongTaskNode {
 
 	/**
 	 * SID

@@ -40,7 +40,7 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
-import org.ligoj.app.resource.ServicePluginLocator;
+import org.ligoj.app.resource.node.AbstractLockedResource;
 import org.ligoj.app.resource.node.EventResource;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
@@ -66,7 +66,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class SubscriptionResource {
+public class SubscriptionResource extends AbstractLockedResource<Integer> {
 
 	@Autowired
 	private SubscriptionRepository repository;
@@ -82,9 +82,6 @@ public class SubscriptionResource {
 
 	@Autowired
 	private ParameterValueResource parameterValueResource;
-
-	@Autowired
-	private ServicePluginLocator locator;
 
 	@Autowired
 	private EventResource eventResource;
@@ -115,10 +112,10 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return non secured parameters values related to the subscription.The
-	 * attached project is validated against the current user to check it is
-	 * visible. Secured parameters (even the encrypted ones) are not returned.
-	 * The visibility of this subscription is checked.
+	 * Return non secured parameters values related to the subscription.The attached
+	 * project is validated against the current user to check it is visible. Secured
+	 * parameters (even the encrypted ones) are not returned. The visibility of this
+	 * subscription is checked.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
@@ -164,9 +161,9 @@ public class SubscriptionResource {
 
 	/**
 	 * Return all parameters values related to the subscription. The attached
-	 * project is validated against the current user to check it is visible.
-	 * Beware, these parameters must not be returned to user, since clear
-	 * encrypted parameters are present.
+	 * project is validated against the current user to check it is visible. Beware,
+	 * these parameters must not be returned to user, since clear encrypted
+	 * parameters are present.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
@@ -180,9 +177,9 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Return all parameters values related to the subscription. The visibility
-	 * of attached project is not checked in this case. Secured (encrypted)
-	 * parameters are decrypted.
+	 * Return all parameters values related to the subscription. The visibility of
+	 * attached project is not checked in this case. Secured (encrypted) parameters
+	 * are decrypted.
 	 * 
 	 * @param id
 	 *            The subscription identifier.
@@ -222,7 +219,7 @@ public class SubscriptionResource {
 		parameterValueResource.create(vo.getParameters(), entity);
 
 		// Delegate to the related plug-in the next process
-		delegateToPLugin(vo, entity);
+		delegateToPlugin(vo, entity);
 
 		// Check again the parameters in the final state
 		checkMandatoryParameters(vo.getParameters(), acceptedParameters, SubscriptionMode.CREATE);
@@ -232,11 +229,11 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Delegates the creation to the hierarchy of the related plug-in, and
-	 * starting from the related plug-in. <br>
+	 * Delegates the creation to the hierarchy of the related plug-in, and starting
+	 * from the related plug-in. <br>
 	 * Exception appearing there causes to roll-back the previous persists.
 	 */
-	private void delegateToPLugin(final SubscriptionEditionVo vo, final Subscription entity) throws Exception {
+	private void delegateToPlugin(final SubscriptionEditionVo vo, final Subscription entity) throws Exception {
 		for (ServicePlugin p = locator.getResource(vo.getNode()); p != null; p = locator.getResource(locator.getParent(p.getKey()))) {
 			if (vo.getMode() == SubscriptionMode.CREATE) {
 				// Create mode
@@ -277,8 +274,8 @@ public class SubscriptionResource {
 	protected void checkMandatoryParameters(final List<ParameterValueCreateVo> parameters, final List<Parameter> acceptedParameters,
 			final SubscriptionMode mode) {
 		// Check each mandatory parameter for the current mode
-		acceptedParameters.stream()
-				.filter(parameter -> (parameter.getMode() == mode || parameter.getMode() == SubscriptionMode.ALL) && parameter.isMandatory())
+		acceptedParameters.stream().filter(
+				parameter -> (parameter.getMode() == mode || parameter.getMode() == SubscriptionMode.ALL) && parameter.isMandatory())
 				.forEach(parameter -> checkMandatoryParameter(parameters, parameter));
 	}
 
@@ -327,27 +324,9 @@ public class SubscriptionResource {
 		eventRepository.deleteAllBy("subscription", entity);
 
 		// Delegate the deletion
-		ServicePlugin plugin = locator.getResource(entity.getNode().getId());
-		while (plugin != null) {
-			// Pre-check for long task
-			checkForDeletion(plugin, id);
-
-			plugin.delete(id, deleteRemoteData);
-			plugin = locator.getResource(locator.getParent(plugin.getKey()));
-		}
+		deleteWithTasks(entity.getNode().getId(), id, deleteRemoteData);
 		parameterValueResource.deleteBySubscription(id);
 		repository.delete(entity);
-	}
-
-	/**
-	 * Check for deletion the related subscription : no running tasks.
-	 */
-	protected void checkForDeletion(ServicePlugin plugin, int id) {
-		if (plugin instanceof LongTaskRunner) {
-			// CHeck and delete the related finished tasks
-			final LongTaskRunner<?, ?> runner = (LongTaskRunner<?, ?>) plugin;
-			runner.deleteTask(id);
-		}
 	}
 
 	/**
@@ -396,8 +375,7 @@ public class SubscriptionResource {
 
 	/**
 	 * Return all subscriptions and related nodes. Very light data are returned
-	 * there since a lot of subscriptions there. Parameters values are not
-	 * fetch.
+	 * there since a lot of subscriptions there. Parameters values are not fetch.
 	 * 
 	 * @return Status of each subscription of each project and each node.
 	 */
@@ -414,17 +392,15 @@ public class SubscriptionResource {
 		result.setProjects(projectsMap.values());
 
 		/*
-		 * List visible projects having at least one subscription, return
-		 * involved subscriptions relating theses projects. SQL "IN" is not
-		 * used, because of size limitations. Structure : id, project.id,
-		 * service.id
+		 * List visible projects having at least one subscription, return involved
+		 * subscriptions relating theses projects. SQL "IN" is not used, because of size
+		 * limitations. Structure : id, project.id, service.id
 		 */
 		result.setSubscriptions(toSubscriptions(repository.findAllLight(), projectsMap));
 
 		/*
-		 * Then, fetch all nodes. SQL "IN" is not used, because of size
-		 * limitations. They will be filtered against subscriptions associated
-		 * to a visible project.
+		 * Then, fetch all nodes. SQL "IN" is not used, because of size limitations.
+		 * They will be filtered against subscriptions associated to a visible project.
 		 */
 		result.setNodes(toNodes(nodeResource.findAll(), result.getSubscriptions()).values());
 		return result;
@@ -515,8 +491,8 @@ public class SubscriptionResource {
 	}
 
 	/**
-	 * Get fresh status of given subscription. This fresh status is also stored
-	 * in the data base. The project must be visible to current user.
+	 * Get fresh status of given subscription. This fresh status is also stored in
+	 * the data base. The project must be visible to current user.
 	 * 
 	 * @param id
 	 *            Node identifier
@@ -559,5 +535,16 @@ public class SubscriptionResource {
 
 		// Return the fresh statuses
 		return statusWithData;
+	}
+
+	@Override
+	protected void delete(final ServicePlugin plugin, final Integer id, final boolean deleteRemoteData) throws Exception {
+		plugin.delete(id, deleteRemoteData);
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?>> getLongTaskRunnerClass() {
+		return (Class<? extends LongTaskRunner<?, ?, ?, Integer, ?>>) LongTaskRunnerSubscription.class;
 	}
 }
