@@ -752,9 +752,9 @@ public class NodeResource extends AbstractLockedResource<String> {
 		plugin.delete(id, deleteRemoteData);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected Class<? extends LongTaskRunner<?, ?, ?, String, ?>> getLongTaskRunnerClass() {
-		return (Class<? extends LongTaskRunner<?, ?, ?, String, ?>>) LongTaskRunnerNode.class;
+		return (Class) LongTaskRunnerNode.class;
 	}
 }

@@ -39,7 +39,9 @@ import org.springframework.data.domain.Persistable;
  * @param <I>
  *            Associated type of locked entity's identifier.
  * @param <A>
- *            Repository managing the associated type of locked entity.
+ *            Repository managing the locked entity.
+ * @param <R>
+ *            Repository managing the task entity.
  */
 public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends LongTaskRepository<T, L, I>, L extends Persistable<I>, I extends Serializable, A extends RestRepository<L, I>> {
 

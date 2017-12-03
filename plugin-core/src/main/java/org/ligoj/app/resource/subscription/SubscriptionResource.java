@@ -542,9 +542,9 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 		plugin.delete(id, deleteRemoteData);
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?>> getLongTaskRunnerClass() {
-		return (Class<? extends LongTaskRunner<?, ?, ?, Integer, ?>>) LongTaskRunnerSubscription.class;
+		return (Class) LongTaskRunnerSubscription.class;
 	}
 }
