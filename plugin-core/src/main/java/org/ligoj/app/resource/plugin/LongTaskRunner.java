@@ -95,9 +95,27 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default void endTask(final I lockedId, final boolean failed) {
+		endTask(lockedId, failed, t -> {
+		});
+	}
+
+	/**
+	 * Release the lock on the locked entity by its identifier. The task is
+	 * considered as finished.
+	 * 
+	 * @param lockedId
+	 *            The locked entity's identifier.
+	 * @param failed
+	 *            The task status as resolution of this task.
+	 * @param finalizer
+	 *            The function to call while finalizing the task.
+	 */
+	@Transactional(value = TxType.REQUIRES_NEW)
+	default void endTask(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
 		Optional.ofNullable(getTask(lockedId)).ifPresent(task -> {
 			task.setEnd(new Date());
 			task.setFailed(failed);
+			finalizer.accept(task);
 
 			// Save now the new state
 			getTaskRepository().saveAndFlush(task);
