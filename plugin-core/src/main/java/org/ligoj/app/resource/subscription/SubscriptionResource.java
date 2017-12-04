@@ -97,17 +97,17 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 * 
 	 * @param vo
 	 *            The object to convert.
+	 * @param project
+	 *            The related project.
+	 * @param node
+	 *            The related node.
 	 * @return The mapped entity.
 	 */
-	public static Subscription toEntity(final SubscriptionEditionVo vo) {
+	public static Subscription toEntity(final SubscriptionEditionVo vo, final Project project, final Node node) {
 		final Subscription entity = new Subscription();
-		final Node node = new Node();
-		node.setId(vo.getNode());
-		entity.setNode(node);
-		final Project project = new Project();
-		project.setId(vo.getProject());
 		entity.setProject(project);
 		entity.setId(vo.getId());
+		entity.setNode(node);
 		return entity;
 	}
 
@@ -204,12 +204,12 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 		// Validate entities
 		final Project project = checkVisibleProject(vo.getProject());
 		checkManagedProject(vo.getProject());
-		checkManagedNodeForSubscription(vo.getNode());
+		final Node node = checkManagedNodeForSubscription(vo.getNode());
 		final List<Parameter> acceptedParameters = checkInputParameters(vo);
 
 		// Create subscription and parameters that would be removed in case of
 		// roll-back because of invalid parameters
-		final Subscription entity = toEntity(vo);
+		final Subscription entity = toEntity(vo, project, node);
 
 		// Expose the real entity for plug-in since we have loaded it
 		entity.setProject(project);
@@ -261,10 +261,11 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 * Check the current user can subscribe a project to the given visible node.
 	 * 
 	 * @param node
-	 *            The node to subscribe.
+	 *            The node identifier to subscribe.
+	 * @return The found visible node. Never <code>null</code>.
 	 */
-	private void checkManagedNodeForSubscription(final String node) {
-		Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin()))
+	private Node checkManagedNodeForSubscription(final String node) {
+		return Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin()))
 				.orElseThrow(() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "node", "1", node));
 	}
 
