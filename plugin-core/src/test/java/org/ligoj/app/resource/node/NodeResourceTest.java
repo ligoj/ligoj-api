@@ -276,6 +276,20 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// data
 		final Node jiraNode = repository.findByName("JIRA 4");
+		Assert.assertFalse(jiraNode.isService());
+		Assert.assertFalse(jiraNode.isTool());
+		Assert.assertTrue(jiraNode.isInstance());
+		Assert.assertSame(jiraNode.getRefined(), jiraNode.getTool());
+
+		Assert.assertFalse(jiraNode.getRefined().isService());
+		Assert.assertTrue(jiraNode.getRefined().isTool());
+		Assert.assertFalse(jiraNode.getRefined().isInstance());
+		Assert.assertSame(jiraNode.getRefined(), jiraNode.getRefined().getTool());
+
+		Assert.assertTrue(jiraNode.getRefined().getRefined().isService());
+		Assert.assertFalse(jiraNode.getRefined().getRefined().isTool());
+		Assert.assertFalse(jiraNode.getRefined().getRefined().isInstance());
+		Assert.assertNull(jiraNode.getRefined().getRefined().getTool());
 
 		// Mock the servers
 		final int nbNodes = prepareEvent();
