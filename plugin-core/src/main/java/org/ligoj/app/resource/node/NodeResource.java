@@ -636,7 +636,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Return all nodes with the hierarchy but without UI data.
+	 * Return all visible nodes for current user. The hierarchy data is returned but
+	 * without UI data.
 	 * 
 	 * @param uriInfo
 	 *            pagination data.
@@ -655,7 +656,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 *            refined is a tool, so nodes are basically instances only. For the
 	 *            other cases, there is no limit, and corresponds to the default
 	 *            behavior.
-	 * @return All nodes with the hierarchy but without UI data.
+	 * @return All visible nodes with the hierarchy but without UI data.
 	 */
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
