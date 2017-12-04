@@ -20,8 +20,8 @@ public abstract class AbstractLongTaskNode extends AbstractLongTask<Node, String
 	private static final long serialVersionUID = 1L;
 
 	@ManyToOne
-	@JsonIgnore
 	@NotNull
+	@JsonIgnore
 	private Node locked;
 
 }
