@@ -9,6 +9,8 @@ import javax.validation.constraints.NotNull;
 import org.ligoj.bootstrap.core.model.AbstractPersistable;
 import org.springframework.data.domain.Persistable;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -52,6 +54,7 @@ public abstract class AbstractLongTask<L extends Persistable<I>, I extends Seria
 	/**
 	 * Indicates the current task is finished.
 	 */
+	@JsonIgnore
 	public boolean isFinished() {
 		return end != null;
 	}
