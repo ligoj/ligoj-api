@@ -47,8 +47,8 @@ public class TaskSampleSubscriptionResource
 	}
 
 	@Override
-	public void endTask(final Integer subscription, final boolean failed) {
-		LongTaskRunnerSubscription.super.endTask(subscription, failed);
+	public TaskSampleSubscription endTask(final Integer subscription, final boolean failed) {
+		return LongTaskRunnerSubscription.super.endTask(subscription, failed);
 	}
 
 }

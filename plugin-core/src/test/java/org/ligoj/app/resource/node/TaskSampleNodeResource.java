@@ -46,8 +46,13 @@ public class TaskSampleNodeResource implements ServicePlugin, LongTaskRunnerNode
 	}
 
 	@Override
-	public void endTask(final String node, final boolean failed) {
-		LongTaskRunnerNode.super.endTask(node, failed);
+	public TaskSampleNode endTask(final String node, final boolean failed) {
+		return LongTaskRunnerNode.super.endTask(node, failed);
+	}
+
+	@Override
+	public TaskSampleNode cancel(final String node) {
+		return LongTaskRunnerNode.super.cancel(node);
 	}
 
 }

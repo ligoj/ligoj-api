@@ -4,18 +4,23 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.ligoj.app.dao.TaskSampleNodeRepository;
 import org.ligoj.app.dao.TaskSampleSubscriptionRepository;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
+import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.TaskSampleNode;
 import org.ligoj.app.model.TaskSampleSubscription;
 import org.ligoj.app.resource.AbstractOrgTest;
+import org.ligoj.app.resource.node.TaskSampleNodeResource;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.subscription.TaskSampleSubscriptionResource;
 import org.ligoj.bootstrap.core.resource.BusinessException;
@@ -34,9 +39,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class LongTaskRunnerTest extends AbstractOrgTest {
 
 	protected TaskSampleSubscriptionResource resource;
+	protected TaskSampleNodeResource resourceNode;
 
 	@Autowired
 	protected TaskSampleSubscriptionRepository repository;
+	@Autowired
+	protected TaskSampleNodeRepository repositoryNode;
 
 	protected int subscription;
 
@@ -46,6 +54,24 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		persistSystemEntities();
 		this.subscription = getSubscription("MDA");
 		this.resource = applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleSubscriptionResource.class);
+		this.resourceNode = applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleNodeResource.class);
+	}
+
+	@Test
+	public void cancel() {
+		final TaskSampleNode task = newTaskSampleNode();
+		task.setEnd(null);
+		Assert.assertFalse(task.isFailed());
+		repositoryNode.saveAndFlush(task);
+		resourceNode.cancel(task.getLocked().getId());
+		Assert.assertTrue(resourceNode.getTask(task.getLocked().getId()).isFailed());
+	}
+
+	@Test(expected = BusinessException.class)
+	public void cancelNotRunnging() {
+		final TaskSampleNode task = newTaskSampleNode();
+		repositoryNode.saveAndFlush(task);
+		resourceNode.cancel(task.getLocked().getId());
 	}
 
 	@Test
@@ -83,6 +109,16 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		return taskSample;
 	}
 
+	private TaskSampleNode newTaskSampleNode() {
+		final TaskSampleNode taskSample = new TaskSampleNode();
+		taskSample.setAuthor(DEFAULT_USER);
+		taskSample.setData("custom");
+		taskSample.setStart(new Date());
+		taskSample.setEnd(new Date());
+		taskSample.setLocked(em.find(Node.class, "service:bt:jira"));
+		return taskSample;
+	}
+
 	@Test
 	public void getTask() {
 		repository.saveAndFlush(newTaskSample());
@@ -95,12 +131,18 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	public void endTask() {
 		final TaskSampleSubscription newTaskSample = newTaskSample();
 		newTaskSample.setEnd(null);
-		repository.saveAndFlush(newTaskSample());
+		repository.saveAndFlush(newTaskSample);
 		resource.endTask(subscription, true);
 		TaskSampleSubscription task = resource.getTask(subscription);
 		assertTask(task);
 		Assert.assertTrue(task.isFailed());
 		Assert.assertNotNull(task.getEnd());
+	}
+
+	@Test(expected = BusinessException.class)
+	public void endTaskAlreadyFinished() {
+		repository.saveAndFlush(newTaskSample());
+		resource.endTask(subscription, true);
 	}
 
 	@Test
@@ -129,6 +171,17 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		repository.saveAndFlush(newTaskSample);
 		resource.nextStep(subscription, t -> t.setData("step2"));
 		Assert.assertEquals("step2", newTaskSample.getData());
+	}
+
+	@Test(expected = EntityNotFoundException.class)
+	public void nextStepNotFound() {
+		resource.nextStep(subscription, t -> t.setData("step2"));
+	}
+
+	@Test(expected = BusinessException.class)
+	public void nextStepAlreadyFinished() {
+		repository.saveAndFlush(newTaskSample());
+		resource.nextStep(subscription, t -> t.setData("step2"));
 	}
 
 	/**

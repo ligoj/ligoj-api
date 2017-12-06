@@ -48,7 +48,7 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 	@Override
 	@GET
 	@Path("{subscription:\\d+}/task")
-	default T getTask(@PathParam("locked") final Integer subscription) {
+	default T getTask(@PathParam("subscription") final Integer subscription) {
 		return LongTaskRunner.super.getTask(subscription);
 	}
 

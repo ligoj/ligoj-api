@@ -1,5 +1,6 @@
 package org.ligoj.app.resource.node;
 
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -9,6 +10,7 @@ import org.ligoj.app.dao.task.LongTaskNodeRepository;
 import org.ligoj.app.model.AbstractLongTaskNode;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
+import org.ligoj.bootstrap.core.resource.OnNullReturn404;
 
 /**
  * A resource running some long task. Implementing this interface causes the
@@ -48,8 +50,23 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 	@Override
 	@GET
 	@Path("{node:service:.+}/task")
-	default T getTask(@PathParam("locked") final String node) {
+	default T getTask(@PathParam("node") final String node) {
 		return LongTaskRunner.super.getTask(node);
+	}
+
+	/**
+	 * Cancel (stop) current the catalog update. Synchronous operation, flag the
+	 * task as failed.
+	 * 
+	 * @param node
+	 *            The node (provider) to cancel update.
+	 * @return The ended task if present or <code>null</code>.
+	 */
+	@DELETE
+	@Path("{node:service:.+}/task")
+	@OnNullReturn404
+	default T cancel(@PathParam("node") final String node) {
+		return endTask(node, true);
 	}
 
 }

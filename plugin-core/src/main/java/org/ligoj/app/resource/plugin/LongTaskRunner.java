@@ -92,10 +92,11 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 *            The locked entity's identifier.
 	 * @param failed
 	 *            The task status as resolution of this task.
+	 * @return The ended task if present.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
-	default void endTask(final I lockedId, final boolean failed) {
-		endTask(lockedId, failed, t -> {
+	default T endTask(final I lockedId, final boolean failed) {
+		return endTask(lockedId, failed, t -> {
 		});
 	}
 
@@ -109,17 +110,19 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 *            The task status as resolution of this task.
 	 * @param finalizer
 	 *            The function to call while finalizing the task.
+	 * @return The ended task if present.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
-	default void endTask(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
-		Optional.ofNullable(getTask(lockedId)).ifPresent(task -> {
+	default T endTask(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
+		return Optional.ofNullable(getTask(lockedId)).map(task -> {
+			checkNotFinished(task);
 			task.setEnd(new Date());
 			task.setFailed(failed);
 			finalizer.accept(task);
 
 			// Save now the new state
-			getTaskRepository().saveAndFlush(task);
-		});
+			return getTaskRepository().saveAndFlush(task);
+		}).orElse(null);
 	}
 
 	/**
@@ -199,9 +202,23 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T nextStep(final I lockedId, final Consumer<T> stepper) {
 		final T task = Optional.ofNullable(getTask(lockedId)).orElseThrow(() -> new EntityNotFoundException(lockedId.toString()));
+		checkNotFinished(task);
 		stepper.accept(task);
 		getTaskRepository().saveAndFlush(task);
 		return task;
+	}
+
+	/**
+	 * Check the given task is not finished.
+	 * 
+	 * @param task
+	 *            The task to check.
+	 */
+	default void checkNotFinished(final T task) {
+		if (task.isFinished()) {
+			// Request a next step but is already finished (canceled?)
+			throw new BusinessException("Already finished");
+		}
 	}
 
 }
