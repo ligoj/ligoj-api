@@ -36,11 +36,6 @@ public class Project extends AbstractDescribedAuditedEntity<Integer> {
 	public static final String PKEY_PATTERN = "^([a-z]|[0-9]+-?[a-z])[a-z0-9\\-]*$";
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * Unique technical and yet readable name.
 	 */
 	@NotNull

@@ -486,7 +486,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		resource.update(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:6");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
@@ -523,7 +523,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
@@ -544,7 +544,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		value.setText("secret");
 		node.setParameters(Collections.singletonList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:some-7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:some-7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:some-7");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
@@ -583,7 +583,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Initial node
 		node.setParameters(Arrays.asList(value, value3, value4));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
 
 		// Don't touch the first secured parameter
 		value.setUntouched(true);
@@ -652,7 +652,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Initial node
 		node.setParameters(Arrays.asList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
 
 		// Don't touch the first secured parameter
 		node.setUntouchedParameters(true);
@@ -771,7 +771,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setName("New Service");
 		node.setMode(mode);
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:some"));
+		Assert.assertTrue(repository.existsById("service:some"));
 		final NodeVo nodeVo = resource.findAll().get("service:some");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("New Service", nodeVo.getName());
@@ -804,14 +804,14 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test(expected = BusinessException.class)
 	public void deleteHasSubscription() throws Exception {
-		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
 		em.clear();
 		resource.delete("service:bt:jira:6");
 	}
 
 	@Test
 	public void delete() throws Exception {
-		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
 		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6").forEach(s -> {
 			eventRepository.deleteAllBy("subscription.id", s.getId());
 			parameterValueRepository.deleteAllBy("subscription.id", s.getId());
@@ -820,7 +820,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		em.flush();
 		em.clear();
 		resource.delete("service:bt:jira:6");
-		Assert.assertFalse(repository.exists("service:bt:jira:6"));
+		Assert.assertFalse(repository.existsById("service:bt:jira:6"));
 	}
 
 	@Test

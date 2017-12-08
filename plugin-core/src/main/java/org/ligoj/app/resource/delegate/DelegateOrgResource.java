@@ -346,7 +346,7 @@ public class DelegateOrgResource {
 		validateWriteAccess(id);
 
 		// Perform the deletion
-		repository.delete(id);
+		repository.deleteById(id);
 	}
 
 	private void validateWriteAccess(final int id) {

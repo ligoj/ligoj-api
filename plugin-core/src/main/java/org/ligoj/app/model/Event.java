@@ -28,11 +28,6 @@ import lombok.Setter;
 public class Event extends AbstractPersistable<Integer> implements NodeScoped {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = -5645832399885139130L;
-
-	/**
 	 * Type of event : status, ...
 	 */
 	@Enumerated(EnumType.STRING)

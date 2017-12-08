@@ -25,8 +25,6 @@ import lombok.Setter;
 @Table(name = "LIGOJ_PARAMETER")
 public class Parameter extends AbstractBusinessEntity<String> {
 
-	private static final long serialVersionUID = 1L;
-
 	/**
 	 * Type
 	 */

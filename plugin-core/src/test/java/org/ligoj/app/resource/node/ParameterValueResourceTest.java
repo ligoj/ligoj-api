@@ -657,9 +657,9 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	@Test
 	public void deleteMandatoryUnused() {
 		final ParameterValue value = newParameterValue();
-		Assert.assertTrue(repository.exists(value.getId()));
+		Assert.assertTrue(repository.existsById(value.getId()));
 		resource.delete(value.getId());
-		Assert.assertFalse(repository.exists(value.getId()));
+		Assert.assertFalse(repository.existsById(value.getId()));
 	}
 
 	/**
@@ -685,9 +685,9 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	@Test
 	public void deleteNotMandatory() {
 		final Integer id = repository.findBy("parameter.id", "service:id:ldap:quarantine-dn").getId();
-		Assert.assertTrue(repository.exists(id));
+		Assert.assertTrue(repository.existsById(id));
 		resource.delete(id);
-		Assert.assertFalse(repository.exists(id));
+		Assert.assertFalse(repository.existsById(id));
 	}
 
 	@Test

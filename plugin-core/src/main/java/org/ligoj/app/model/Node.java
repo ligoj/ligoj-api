@@ -27,11 +27,6 @@ import lombok.Setter;
 public class Node extends AbstractNamedBusinessEntity<String> implements Refining<Node> {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * Instance of tool proving the expected service.
 	 */
 	@ManyToOne

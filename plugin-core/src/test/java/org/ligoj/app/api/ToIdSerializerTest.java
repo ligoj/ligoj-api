@@ -29,21 +29,11 @@ public class ToIdSerializerTest {
 	}
 
 	public class BeanA extends AbstractPersistable<Integer> {
-
-		/**
-		 * SID
-		 */
-		private static final long serialVersionUID = 1L;
-
+		// Only a template class implementation
 	}
 
 	public class BeanB extends AbstractPersistable<String> {
-
-		/**
-		 * SID
-		 */
-		private static final long serialVersionUID = 1L;
-
+		// Only a template class implementation
 	}
 
 	@Test

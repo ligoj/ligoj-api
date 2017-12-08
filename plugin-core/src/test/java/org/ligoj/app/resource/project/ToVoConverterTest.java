@@ -3,11 +3,11 @@ package org.ligoj.app.resource.project;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.joda.time.DateTime;
 import org.junit.Assert;
 import org.junit.Test;
 import org.ligoj.app.api.NodeStatus;
@@ -120,9 +120,9 @@ public class ToVoConverterTest {
 		entity.setName("N");
 		entity.setDescription("D");
 		entity.setLastModifiedBy("U1");
-		entity.setLastModifiedDate(new DateTime());
+		entity.setLastModifiedDate(new Date());
 		entity.setCreatedBy("U2");
-		entity.setCreatedDate(new DateTime());
+		entity.setCreatedDate(new Date());
 		entity.setPkey("PK");
 		entity.setTeamLeader("U3");
 		entity.setSubscriptions(Arrays.asList(new Subscription[] { subscription, subscription2 }));

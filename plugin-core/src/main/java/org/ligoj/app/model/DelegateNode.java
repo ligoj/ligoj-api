@@ -21,11 +21,6 @@ import lombok.Setter;
 public class DelegateNode extends AbstractDelegate {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * Can subscribe projects to any node within the scope of this delegate.
 	 */
 	private boolean canSubscribe;

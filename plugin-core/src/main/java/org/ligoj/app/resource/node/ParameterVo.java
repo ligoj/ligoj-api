@@ -19,11 +19,6 @@ import lombok.Setter;
 public class ParameterVo extends AbstractBusinessEntity<String> {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * Type
 	 */
 	@NotNull

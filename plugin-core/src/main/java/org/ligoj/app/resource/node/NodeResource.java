@@ -335,7 +335,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 		pvResource.deleteByNode(id);
 		parameterRepository.deleteByNode(id);
 		eventRepository.deleteByNode(id);
-		repository.delete(id);
+		repository.deleteById(id);
 	}
 
 	/**

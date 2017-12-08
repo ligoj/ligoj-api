@@ -17,8 +17,6 @@ import lombok.Setter;
 @MappedSuperclass
 public abstract class AbstractLongTaskSubscription extends AbstractLongTask<Subscription, Integer> {
 
-	private static final long serialVersionUID = 1L;
-
 	@ManyToOne
 	@JsonIgnore
 	@NotNull

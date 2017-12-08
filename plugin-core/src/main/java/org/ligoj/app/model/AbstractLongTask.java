@@ -28,8 +28,6 @@ import lombok.Setter;
 @MappedSuperclass
 public abstract class AbstractLongTask<L extends Persistable<I>, I extends Serializable> extends AbstractPersistable<Integer> {
 
-	private static final long serialVersionUID = 1L;
-
 	@NotNull
 	private Date start;
 

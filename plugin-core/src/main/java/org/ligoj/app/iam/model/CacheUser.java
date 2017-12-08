@@ -21,11 +21,6 @@ import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
 public class CacheUser extends AbstractBusinessEntity<String> {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * User first name.
 	 */
 	private String firstName;

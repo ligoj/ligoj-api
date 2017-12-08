@@ -11,11 +11,6 @@ import lombok.Setter;
 @Entity
 public class TaskSampleSubscription extends AbstractLongTaskSubscription {
 
-	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@Getter
 	@Setter
 	private String data;
