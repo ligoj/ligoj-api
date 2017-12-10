@@ -97,6 +97,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T endTask(final I lockedId, final boolean failed) {
 		return endTask(lockedId, failed, t -> {
+			// Nothing to do by default
 		});
 	}
 
