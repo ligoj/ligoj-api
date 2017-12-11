@@ -149,7 +149,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T startTask(final I lockedId, final Consumer<T> initializer) {
-		synchronized (lockedId) {
+		synchronized (getLockedRepository()) {
 
 			// Check there is no running task on the same node
 			Optional.ofNullable(getTaskRepository().findNotFinishedByLocked(lockedId)).ifPresent(t -> {
