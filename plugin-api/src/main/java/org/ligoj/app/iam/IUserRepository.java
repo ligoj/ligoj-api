@@ -294,5 +294,13 @@ public interface IUserRepository {
 	 * @return the DN from the given user. May be different from the {@link UserOrg#getDn()}
 	 */
 	String toDn(UserOrg newUser);
+	
+	/**
+	 * PwdPolicy: unlock an user.
+	 * 
+	 * @param user
+	 *            The LDAP user to unlock.
+	 */
+	void pwdPolicyUnlock(UserOrg user);
 
 }
