@@ -35,6 +35,10 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * 
 	 * @param configured
 	 *            The requested configured entity.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @return The formal entity parameter.
 	 */
 	protected <K extends Serializable, T extends Configurable<C, K>> T checkConfiguredVisibility(final T configured) {
@@ -53,6 +57,10 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 *            The repository holding the configured entity.
 	 * @param id
 	 *            The requested configured identifier.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @return The entity where the related subscription if visible.
 	 */
 	public <K extends Serializable, T extends Configurable<C, K>> T findConfigured(final RestRepository<T, K> repository, final K id) {
@@ -86,6 +94,10 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * 
 	 * @param repository
 	 *            The repository holding the configured entity.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @param id
 	 *            The requested configured identifier.
 	 */
