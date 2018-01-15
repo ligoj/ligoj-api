@@ -112,4 +112,10 @@ class MockUserRepository implements IUserRepository {
 		return null;
 	}
 
+	@Override
+	public void pwdPolicyUnlock(UserOrg user) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
