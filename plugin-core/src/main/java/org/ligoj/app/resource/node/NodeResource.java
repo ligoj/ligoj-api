@@ -390,7 +390,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check the status of a node.
+	 * Check the status of a node. This method need to be public for the CGLIB
+	 * proxying.
 	 * 
 	 * @param node
 	 *            The node identifier.
@@ -398,7 +399,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 *            Node parameters used to check the status.
 	 * @return The node status.
 	 */
-	private NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
+	public NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
 		boolean isUp = false;
 		log.info("Check status of node {}", node);
 		try {
