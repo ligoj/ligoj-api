@@ -19,11 +19,6 @@ import lombok.Setter;
 @Table(name = "LIGOJ_CACHE_PROJECT_GROUP")
 public class CacheProjectGroup extends AbstractPersistable<Integer> {
 
-	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@ManyToOne
 	private Project project;
 

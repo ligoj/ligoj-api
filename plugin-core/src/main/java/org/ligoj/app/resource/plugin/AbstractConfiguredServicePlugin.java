@@ -21,7 +21,8 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @param <C>
  *            The configuration entity type.
  */
-public abstract class AbstractConfiguredServicePlugin<C extends PluginConfiguration> extends AbstractServicePlugin implements ConfigurablePlugin {
+public abstract class AbstractConfiguredServicePlugin<C extends PluginConfiguration> extends AbstractServicePlugin
+		implements ConfigurablePlugin {
 
 	@Autowired
 	protected ProjectRepository projectRepository;
@@ -32,11 +33,15 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	/**
 	 * Check the visibility of a configured entity.
 	 * 
-	 * @param entity
+	 * @param configured
 	 *            The requested configured entity.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @return The formal entity parameter.
 	 */
-	private <K extends Serializable, T extends Configurable<C, K>> T checkConfiguredVisibility(final T configured) {
+	protected <K extends Serializable, T extends Configurable<C, K>> T checkConfiguredVisibility(final T configured) {
 		final Subscription entity = subscriptionRepository.findOneExpected(configured.getConfiguration().getSubscription().getId());
 		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
 			// Associated project is not visible, reject the configuration access
@@ -48,17 +53,24 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	/**
 	 * Check the visibility of a configured entity.
 	 * 
+	 * @param repository
+	 *            The repository holding the configured entity.
 	 * @param id
 	 *            The requested configured identifier.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @return The entity where the related subscription if visible.
 	 */
-	protected <K extends Serializable, T extends Configurable<C, K>> T findConfigured(final RestRepository<T, K> repository, final K id) {
+	public <K extends Serializable, T extends Configurable<C, K>> T findConfigured(final RestRepository<T, K> repository, final K id) {
 		return checkConfiguredVisibility(repository.findOneExpected(id));
 	}
 
 	/**
-	 * Check the node scoped object is related to the given node. Will fail with a {@link EntityNotFoundException} if
-	 * the related node if not a sub node of the required node.
+	 * Check the node scoped object is related to the given node. Will fail with a
+	 * {@link EntityNotFoundException} if the related node if not a sub node of the
+	 * required node.
 	 * 
 	 * @param nodeScoped
 	 *            The object related to a node.
@@ -66,7 +78,7 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 *            The widest accepted node relationship.
 	 * @return the formal node coped object when the visibility has been checked.
 	 */
-	protected <T extends NodeScoped> T checkVisibility(final T nodeScoped, final String requiredNode) {
+	public <T extends NodeScoped> T checkVisibility(final T nodeScoped, final String requiredNode) {
 		// Compare the node against the scoped entity
 		if (!nodeScoped.getNode().getId().matches("^" + requiredNode + "(:.+)?$")) {
 			// The expected node does not exists in the expected node scope
@@ -80,10 +92,17 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	/**
 	 * Delete the configured entity if the related subscription is visible.
 	 * 
+	 * @param repository
+	 *            The repository holding the configured entity.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @param id
 	 *            The requested configured identifier.
 	 */
-	protected <K extends Serializable, T extends Configurable<C, K>> void deletedConfigured(final RestRepository<T, K> repository, final K id) {
+	public <K extends Serializable, T extends Configurable<C, K>> void deletedConfigured(final RestRepository<T, K> repository,
+			final K id) {
 		repository.delete(checkConfiguredVisibility(repository.findOneExpected(id)));
 	}
 

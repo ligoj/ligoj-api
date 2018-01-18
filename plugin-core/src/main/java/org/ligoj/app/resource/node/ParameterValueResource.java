@@ -342,7 +342,7 @@ public class ParameterValueResource {
 		checkUnusedValue(value);
 
 		// Deletion can be performed
-		repository.delete(id);
+		repository.deleteById(id);
 	}
 
 	/**

@@ -11,4 +11,5 @@ API plugin used for compatibility check
 [![Quality Gate](https://sonarcloud.io/api/badges/gate?key=org.ligoj.api:root)](https://sonarcloud.io/dashboard/index/org.ligoj.api:root)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/abf810c094e44c0691f71174c707d6ed)](https://www.codacy.com/app/ligoj/ligoj-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ligoj/ligoj-api&amp;utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/ligoj/ligoj-api/badge)](https://www.codefactor.io/repository/github/ligoj/ligoj-api)
+[![Maintainability](https://api.codeclimate.com/v1/badges/df4f5f5fc210a3e77b1e/maintainability)](https://codeclimate.com/github/ligoj/ligoj-api/maintainability)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://gus.mit-license.org/)

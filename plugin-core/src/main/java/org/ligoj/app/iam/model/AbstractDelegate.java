@@ -22,11 +22,6 @@ import lombok.Setter;
 public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Integer> {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * The resource receiving the delegation.
 	 */
 	@NotBlank

@@ -27,6 +27,7 @@ import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
+import org.ligoj.app.dao.TaskSampleNodeRepository;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
@@ -35,6 +36,7 @@ import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.TaskSampleNode;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.BuildResource;
@@ -89,6 +91,9 @@ public class NodeResourceTest extends AbstractAppTest {
 	private ParameterValueRepository parameterValueRepository;
 
 	@Autowired
+	private TaskSampleNodeRepository taskSampleRepository;
+
+	@Autowired
 	private EventRepository eventRepository;
 
 	@Before
@@ -105,7 +110,6 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@SuppressWarnings("unchecked")
-	@Before
 	public void mockApplicationContext() {
 		final NodeResource resource = new NodeResource();
 		super.applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
@@ -113,10 +117,16 @@ public class NodeResourceTest extends AbstractAppTest {
 		SpringUtils.setSharedApplicationContext(applicationContext);
 		final ServicePluginLocator servicePluginLocator = Mockito.mock(ServicePluginLocator.class);
 
-		// Replace the plugin locator
-		resource.servicePluginLocator = servicePluginLocator;
+		// Replace the plug-in locator
+		resource.locator = servicePluginLocator;
 		Mockito.when(applicationContext.getBean(ArgumentMatchers.any(Class.class))).thenAnswer(invocation -> {
-			return resource;
+			if (invocation.getArgument(0).equals(ServicePluginLocator.class)) {
+				return servicePluginLocator;
+			}
+			if (invocation.getArgument(0).equals(NodeResource.class)) {
+				return resource;
+			}
+			return super.applicationContext.getBean((Class<?>) invocation.getArgument(0));
 		});
 		this.resourceMock = resource;
 	}
@@ -125,6 +135,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void checkNodesStatusFiltered() throws Exception {
 
 		// This users sees only Jenkins nodes
+		mockApplicationContext();
 		initSpringSecurityContext("user1");
 		final NodeResource resource = resourceMock;
 
@@ -135,12 +146,11 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP
-		 * <br> Expected count 6 changes for subscriptions :<br> +1 :
-		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN
-		 * <br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node
-		 * implies one subscription) less the already know nodes<br> =
-		 * nbPreviousEvents + nbNodes x2<br>
+		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br>
+		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription gStack -
+		 * Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription)
+		 * less the already know nodes<br> = nbPreviousEvents + nbNodes x2<br>
 		 */
 		Assert.assertEquals(eventsCount + 2, eventRepository.count());
 	}
@@ -149,6 +159,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void checkNodesStatus() throws Exception {
 
 		// This users sees all nodes
+		mockApplicationContext();
 		initSpringSecurityContext(DEFAULT_USER);
 		final NodeResource resource = resourceMock;
 
@@ -159,12 +170,11 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP
-		 * <br> Expected count 6 changes for subscriptions :<br> +1 :
-		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN
-		 * <br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node
-		 * implies one subscription) less the already know nodes<br> =
-		 * nbPreviousEvents + nbNodes x2<br>
+		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br>
+		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription gStack -
+		 * Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription)
+		 * less the already know nodes<br> = nbPreviousEvents + nbNodes x2<br>
 		 */
 		Assert.assertEquals(eventsCount + 23, eventRepository.count());
 	}
@@ -173,6 +183,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void checkNodeStatusNotVisible() throws Exception {
 
 		// This users sees only Jenkins nodes
+		mockApplicationContext();
 		initSpringSecurityContext("user1");
 		final NodeResource resource = resourceMock;
 
@@ -189,6 +200,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void checkNodeStatus() throws Exception {
+		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 
 		// Mock the servers
@@ -204,6 +216,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void getNodeStatusSingleNode() throws Exception {
+		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 
 		// Mock the servers
@@ -223,7 +236,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * Mock the servers for event test
 	 */
 	private int prepareEvent() throws Exception {
-		final ServicePluginLocator servicePluginLocator = resourceMock.servicePluginLocator;
+		final ServicePluginLocator servicePluginLocator = resourceMock.locator;
 
 		// 1 : service is down
 		final JiraPluginResource jira = Mockito.mock(JiraPluginResource.class);
@@ -258,10 +271,25 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void checkNodesStatusScheduler() throws Exception {
+		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 
 		// data
 		final Node jiraNode = repository.findByName("JIRA 4");
+		Assert.assertFalse(jiraNode.isService());
+		Assert.assertFalse(jiraNode.isTool());
+		Assert.assertTrue(jiraNode.isInstance());
+		Assert.assertSame(jiraNode.getRefined(), jiraNode.getTool());
+
+		Assert.assertFalse(jiraNode.getRefined().isService());
+		Assert.assertTrue(jiraNode.getRefined().isTool());
+		Assert.assertFalse(jiraNode.getRefined().isInstance());
+		Assert.assertSame(jiraNode.getRefined(), jiraNode.getRefined().getTool());
+
+		Assert.assertTrue(jiraNode.getRefined().getRefined().isService());
+		Assert.assertFalse(jiraNode.getRefined().getRefined().isTool());
+		Assert.assertFalse(jiraNode.getRefined().getRefined().isInstance());
+		Assert.assertNull(jiraNode.getRefined().getRefined().getTool());
 
 		// Mock the servers
 		final int nbNodes = prepareEvent();
@@ -270,26 +298,24 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatusScheduler();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered
-		 * <br> +1 : Jenkins DOWN, was UP <br> +1 : Jira 4 was UP <br> +1 :
-		 * Confluence DOWN, discovered <br> +1 : Fortify DOWN, discovered <br>
-		 * +1 : vCloud DOWN, discovered <br> +1 : LDAP DOWN, discovered <br> +1
-		 * : Git DOWN, discovered <br> +1 : Subversion DOWN, discovered <br>
-		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription
-		 * MDA - JIRA4, DOWN, was UP<br> +0 : Subscription gStack - JIRA6 - node
-		 * has not changed, subscription is not checked<br> +1 : Subscription
-		 * gStack - Jenkins, discovered, DOWN since node is DOWN <br> +0 :
-		 * Subscription gStack - Sonar, discovered, node is UP, but subscription
-		 * has not been checked <br> +2 : Subscription gStack - OpenLDAP,
-		 * discovered <br> +1 : Subscription gStack - Confluence, discovered
-		 * <br> +1 : Subscription gStack - Fortify, discovered <br> +1 :
-		 * Subscription gStack - vCloud, discovered <br> +1 : Subscription
-		 * gStack - Git, discovered <br> +1 : Subscription gStack - Subversion,
-		 * discovered <br> +1 : Subscription gStack ...<br> Nb events =
-		 * nbPreviousEvents + nbNodes x2 (Because one node implies one
-		 * subscription + jira4/6 case) less the already know nodes<br> =
-		 * nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents +
-		 * nbNodes x2 - 1<br>
+		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered <br> +1 :
+		 * Jenkins DOWN, was UP <br> +1 : Jira 4 was UP <br> +1 : Confluence DOWN,
+		 * discovered <br> +1 : Fortify DOWN, discovered <br> +1 : vCloud DOWN,
+		 * discovered <br> +1 : LDAP DOWN, discovered <br> +1 : Git DOWN, discovered
+		 * <br> +1 : Subversion DOWN, discovered <br> Expected count 6 changes for
+		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +0 :
+		 * Subscription gStack - JIRA6 - node has not changed, subscription is not
+		 * checked<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node
+		 * is DOWN <br> +0 : Subscription gStack - Sonar, discovered, node is UP, but
+		 * subscription has not been checked <br> +2 : Subscription gStack - OpenLDAP,
+		 * discovered <br> +1 : Subscription gStack - Confluence, discovered <br> +1 :
+		 * Subscription gStack - Fortify, discovered <br> +1 : Subscription gStack -
+		 * vCloud, discovered <br> +1 : Subscription gStack - Git, discovered <br> +1 :
+		 * Subscription gStack - Subversion, discovered <br> +1 : Subscription gStack
+		 * ...<br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node implies
+		 * one subscription + jira4/6 case) less the already know nodes<br> =
+		 * nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents + nbNodes x2
+		 * - 1<br>
 		 */
 		Assert.assertEquals(eventsCount + nbNodes * 2 - 1, eventRepository.count());
 		final Event jiraEvent = eventRepository.findFirstByNodeAndTypeOrderByIdDesc(jiraNode, EventType.STATUS);
@@ -301,6 +327,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void checkSubscriptionsStatus() throws Exception {
+		mockApplicationContext();
 
 		// This users sees only Jenkins nodes
 		initSpringSecurityContext("user1");
@@ -309,9 +336,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.checkSubscriptionsStatus();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br>
-		 * Expected changes for subscriptions :<br> +1 : Subscription Jenkins -
-		 * was UP<br>
+		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> Expected
+		 * changes for subscriptions :<br> +1 : Subscription Jenkins - was UP<br>
 		 */
 		long expectedCount = eventsCount; // Initial amount
 
@@ -327,7 +353,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		Assert.assertEquals(5, eventsCount);
 
-		final ServicePluginLocator servicePluginLocator = resourceMock.servicePluginLocator;
+		final ServicePluginLocator servicePluginLocator = resourceMock.locator;
 
 		// Service is up --> SONAR
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
@@ -362,18 +388,19 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void checkSubscriptionsStatusScheduler() throws Exception {
+		mockApplicationContext();
 		initSpringSecurityContext(DEFAULT_USER);
 		final NodeResource resource = resourceMock;
 		final long eventsCount = prepareSubscriptionsEvent();
 		resource.checkSubscriptionsStatusScheduler();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1
-		 * : Jira 4 DOWN, was UP <br> +0 : Jira 6 DOWN, was already DOWN <br> +x
-		 * ... other services are discovered and UP<br> Expected changes for
-		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br>
-		 * +1 : Subscription gStack - JIRA6 - DOWN, was UP<br> +1 : Subscription
-		 * Jenkins - was UP<br> +x ... other services <br>
+		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1 : Jira
+		 * 4 DOWN, was UP <br> +0 : Jira 6 DOWN, was already DOWN <br> +x ... other
+		 * services are discovered and UP<br> Expected changes for subscriptions :<br>
+		 * +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +1 : Subscription gStack -
+		 * JIRA6 - DOWN, was UP<br> +1 : Subscription Jenkins - was UP<br> +x ... other
+		 * services <br>
 		 */
 		long expectedCount = eventsCount; // Initial amount
 
@@ -390,8 +417,9 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void checkSubscriptionStatusException() throws Exception {
+		mockApplicationContext();
 		final NodeResource resource = resourceMock;
-		final ServicePluginLocator servicePluginLocator = resourceMock.servicePluginLocator;
+		final ServicePluginLocator servicePluginLocator = resourceMock.locator;
 
 		// data
 		final Node jiraNode = repository.findByName("JIRA 4");
@@ -458,7 +486,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		resource.update(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:6");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
@@ -495,7 +523,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
@@ -516,7 +544,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		value.setText("secret");
 		node.setParameters(Collections.singletonList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:some-7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:some-7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:some-7");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("Jira 7", nodeVo.getName());
@@ -555,7 +583,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Initial node
 		node.setParameters(Arrays.asList(value, value3, value4));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
 
 		// Don't touch the first secured parameter
 		value.setUntouched(true);
@@ -624,7 +652,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Initial node
 		node.setParameters(Arrays.asList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:bt:jira:7"));
+		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
 
 		// Don't touch the first secured parameter
 		node.setUntouchedParameters(true);
@@ -642,8 +670,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * The relationship is valid regarding the syntax but the parent does not
-	 * exist.
+	 * The relationship is valid regarding the syntax but the parent does not exist.
 	 */
 	@Test(expected = BusinessException.class)
 	public void createNotExistRefined() {
@@ -710,8 +737,8 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Cannot create sub node of a parent node having different subscription
-	 * mode different from "ALL".
+	 * Cannot create sub node of a parent node having different subscription mode
+	 * different from "ALL".
 	 */
 	@Test(expected = ValidationJsonException.class)
 	public void createOnParentDifferentMode() {
@@ -744,7 +771,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		node.setName("New Service");
 		node.setMode(mode);
 		resource.create(node);
-		Assert.assertTrue(repository.exists("service:some"));
+		Assert.assertTrue(repository.existsById("service:some"));
 		final NodeVo nodeVo = resource.findAll().get("service:some");
 		Assert.assertNotNull(nodeVo);
 		Assert.assertEquals("New Service", nodeVo.getName());
@@ -764,21 +791,27 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assert.assertTrue(nodeVo2.isRefining());
 	}
 
-	@Test(expected = JpaObjectRetrievalFailureException.class)
-	public void deleteNotExist() {
+	@Test(expected = BusinessException.class)
+	public void deleteNotExist() throws Exception {
 		resource.delete("service:bt:jira:any");
 	}
 
 	@Test(expected = BusinessException.class)
-	public void deleteHasSubscription() {
-		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+	public void deleteNotVisible() throws Exception {
+		initSpringSecurityContext("any");
+		delete();
+	}
+
+	@Test(expected = BusinessException.class)
+	public void deleteHasSubscription() throws Exception {
+		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
 		em.clear();
 		resource.delete("service:bt:jira:6");
 	}
 
 	@Test
-	public void delete() {
-		Assert.assertTrue(repository.exists("service:bt:jira:6"));
+	public void delete() throws Exception {
+		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
 		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6").forEach(s -> {
 			eventRepository.deleteAllBy("subscription.id", s.getId());
 			parameterValueRepository.deleteAllBy("subscription.id", s.getId());
@@ -787,7 +820,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		em.flush();
 		em.clear();
 		resource.delete("service:bt:jira:6");
-		Assert.assertFalse(repository.exists("service:bt:jira:6"));
+		Assert.assertFalse(repository.existsById("service:bt:jira:6"));
 	}
 
 	@Test
@@ -1007,5 +1040,35 @@ public class NodeResourceTest extends AbstractAppTest {
 	@Test(expected = JpaObjectRetrievalFailureException.class)
 	public void findByIdInternalNotExists() {
 		resource.findByIdInternal("any");
+	}
+
+	@Test
+	public void deleteTasks() throws Exception {
+		final TaskSampleNodeResource sampleResource = registerSingleton("taskSampleResource",
+				applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleNodeResource.class));
+
+		try {
+			final TaskSampleNode entity = sampleResource.startTask("service:bt:jira:4", task -> task.setData("init"));
+			Assert.assertEquals("service:bt:jira:4", taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4").getLocked().getId());
+
+			try {
+				sampleResource.startTask("service:bt:jira:4", task -> task.setData("init"));
+				Assert.fail();
+			} catch (BusinessException e) {
+				// ignore, as expected
+			}
+
+			sampleResource.endTask("service:bt:jira:4", false);
+			taskSampleRepository.saveAndFlush(entity);
+			Assert.assertNull(taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4"));
+			em.flush();
+			em.clear();
+			Assert.assertEquals(1, taskSampleRepository.count());
+			resource.deleteTasks(sampleResource, "service:bt:jira:4");
+			Assert.assertNull(taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4"));
+			Assert.assertEquals(0, taskSampleRepository.count());
+		} finally {
+			destroySingleton("taskSampleResource");
+		}
 	}
 }

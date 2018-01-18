@@ -27,11 +27,6 @@ import lombok.ToString;
 public class ParameterValue extends AbstractAudited<Integer> implements NodeScoped {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * Parameter definition
 	 */
 	@NotNull

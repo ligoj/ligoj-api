@@ -12,6 +12,8 @@ import javax.validation.constraints.NotNull;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.model.AbstractNamedBusinessEntity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,11 +25,6 @@ import lombok.Setter;
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
 public class Node extends AbstractNamedBusinessEntity<String> implements Refining<Node> {
-
-	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Instance of tool proving the expected service.
@@ -57,4 +54,47 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 	 * Optional CSS classes used to render the tag.
 	 */
 	private String tagUiClasses;
+
+	/**
+	 * Return <code>true</code> when this node is a service level.
+	 * 
+	 * @return <code>true</code> when this node is a service level.
+	 */
+	@JsonIgnore
+	public boolean isService() {
+		return getId().split(":").length == 2;
+	}
+
+	/**
+	 * Return <code>true</code> when this node is a service level.
+	 * 
+	 * @return <code>true</code> when this node is a service level.
+	 */
+	@JsonIgnore
+	public boolean isTool() {
+		return getId().split(":").length == 3;
+	}
+
+	/**
+	 * Return <code>true</code> when this node is a node/instance level.
+	 * 
+	 * @return <code>true</code> when this node is a node/instance level.
+	 */
+	@JsonIgnore
+	public boolean isInstance() {
+		return getId().split(":").length == 4;
+	}
+
+	/**
+	 * Return the tool instance if is an instance.
+	 * 
+	 * @return The tool instance if is an instance.
+	 */
+	@JsonIgnore
+	public Node getTool() {
+		if (isService()) {
+			return null;
+		}
+		return isInstance() ? getRefined() : this;
+	}
 }

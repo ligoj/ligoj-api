@@ -10,7 +10,11 @@ import org.ligoj.bootstrap.model.system.SystemAuthorization.AuthorizationType;
 import org.ligoj.bootstrap.model.system.SystemRole;
 import org.ligoj.bootstrap.model.system.SystemRoleAssignment;
 import org.ligoj.bootstrap.model.system.SystemUser;
+import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.config.SingletonBeanRegistry;
+import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.context.ConfigurableApplicationContext;
 
 /**
  * Base test class for JPA tests.
@@ -69,17 +73,53 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	}
 
 	/**
-	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
+	 * Return the subscription identifier of MDA. Assumes there is only one
+	 * subscription for a service.
 	 * 
 	 * @param project
 	 *            The project name of the subscription to return.
 	 * @param service
-	 *            The subscribed service of the project. May be a service or a tool or an instance. <code>LIKE</code>
-	 *            is used.
+	 *            The subscribed service of the project. May be a service or a tool
+	 *            or an instance. <code>LIKE</code> is used.
 	 * @return The subscription identifier.
 	 */
 	protected int getSubscription(final String project, final String service) {
 		return em.createQuery("SELECT id FROM Subscription WHERE project.name = ?1 AND node.id LIKE CONCAT(?2,'%')", Integer.class)
 				.setParameter(1, project).setParameter(2, service).setMaxResults(1).getResultList().get(0);
+	}
+
+	/**
+	 * Destroy the given bean instance (usually a prototype instance obtained from
+	 * this factory) according to its bean definition.
+	 * <p>
+	 * Any exception that arises during destruction should be caught and logged
+	 * instead of propagated to the caller of this method.
+	 * 
+	 * @param beanName
+	 *            the name of the bean definition
+	 */
+	protected void destroySingleton(final String beanName) {
+		try {
+			((DefaultSingletonBeanRegistry) ((ConfigurableApplicationContext) applicationContext).getBeanFactory())
+					.destroySingleton(beanName);
+		} catch (NoSuchBeanDefinitionException e) {
+			// Ignore
+		}
+	}
+
+	/**
+	 * Register a singleton within the current application context. Don't forget to
+	 * destroy this singleton with a try-finally at the end of your tests.
+	 * 
+	 * @param beanName
+	 *            the name of the bean definition.
+	 * @param singleton
+	 *            the bean instance to register
+	 * @return The given instance.
+	 * @see #destroySingleton(String)
+	 */
+	protected <T> T registerSingleton(final String beanName, final T singleton) {
+		((SingletonBeanRegistry) applicationContext.getAutowireCapableBeanFactory()).registerSingleton(beanName, singleton);
+		return singleton;
 	}
 }

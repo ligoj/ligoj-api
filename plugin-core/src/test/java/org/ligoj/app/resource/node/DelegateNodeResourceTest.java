@@ -203,14 +203,14 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	public void deleteSubNode() {
 		final int user1Delegate = repository.findBy("receiver", "user1").getId();
 		resource.delete(user1Delegate);
-		Assert.assertFalse(repository.exists(user1Delegate));
+		Assert.assertFalse(repository.existsById(user1Delegate));
 	}
 
 	@Test
 	public void deleteSameLevel() {
 		final int user1Delegate = repository.findBy("receiver", "fdaugan").getId();
 		resource.delete(user1Delegate);
-		Assert.assertFalse(repository.exists(user1Delegate));
+		Assert.assertFalse(repository.existsById(user1Delegate));
 	}
 
 	@Test(expected = NotFoundException.class)

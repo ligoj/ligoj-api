@@ -23,11 +23,6 @@ import lombok.ToString;
 public class Subscription extends AbstractAudited<Integer> implements NodeScoped {
 
 	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * The subscribed service.
 	 */
 	@ManyToOne

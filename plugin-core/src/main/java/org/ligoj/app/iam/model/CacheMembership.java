@@ -19,11 +19,6 @@ import org.ligoj.bootstrap.core.model.AbstractPersistable;
 @Table(name = "LIGOJ_CACHE_MEMBERSHIP", uniqueConstraints = @UniqueConstraint(columnNames = { "user", "sub_group", "group" }))
 public class CacheMembership extends AbstractPersistable<Integer> {
 
-	/**
-	 * SID
-	 */
-	private static final long serialVersionUID = 1L;
-
 	@ManyToOne
 	private CacheUser user;
 
