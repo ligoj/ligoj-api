@@ -133,10 +133,4 @@ public class EmptyUserRepository implements IUserRepository {
 	public String toDn(UserOrg newUser) {
 		return "";
 	}
-
-	@Override
-	public void pwdPolicyUnlock(UserOrg user) {
-		// Nothing managed here
-		
-	}
 }

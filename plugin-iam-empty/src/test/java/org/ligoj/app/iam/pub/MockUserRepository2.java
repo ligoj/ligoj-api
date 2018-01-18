@@ -115,10 +115,4 @@ class MockUserRepository2 implements IUserRepository {
 		// Nothing to do
 		return null;
 	}
-
-	@Override
-	public void pwdPolicyUnlock(UserOrg user) {
-		// Nothing to do
-	}
-
 }
