@@ -111,11 +111,4 @@ class MockUserRepository implements IUserRepository {
 	public String toDn(UserOrg newUser) {
 		return null;
 	}
-
-	@Override
-	public void pwdPolicyUnlock(UserOrg user) {
-		// TODO Auto-generated method stub
-		
-	}
-
 }
