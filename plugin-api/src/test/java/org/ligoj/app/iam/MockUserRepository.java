@@ -111,5 +111,4 @@ class MockUserRepository implements IUserRepository {
 	public String toDn(UserOrg newUser) {
 		return null;
 	}
-
 }
