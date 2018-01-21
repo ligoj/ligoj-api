@@ -241,7 +241,7 @@ public class ProjectResource {
 	 * Delete entity. Should be protected with RBAC.
 	 * 
 	 * @param id
-	 *            the entity identifier.
+	 *            The entity identifier.
 	 */
 	@DELETE
 	@Path("{id:\\d+}")

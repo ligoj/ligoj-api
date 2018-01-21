@@ -18,8 +18,8 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * for the given node or its parent. The parameters are filtered by the
 	 * requested mode. Also check the node is visible for the given user.
 	 * 
-	 * @param parent
-	 *            the parent node identifier.
+	 * @param node
+	 *            The parent node identifier.
 	 * @param mode
 	 *            Expected mode.
 	 * @param user
@@ -39,8 +39,8 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * returned. This is the sole difference with
 	 * {@link #getOrphanParameters(String, SubscriptionMode, String)}
 	 * 
-	 * @param parent
-	 *            the parent node identifier.
+	 * @param node
+	 *            The parent node identifier.
 	 * @param mode
 	 *            Expected mode.
 	 * @param user

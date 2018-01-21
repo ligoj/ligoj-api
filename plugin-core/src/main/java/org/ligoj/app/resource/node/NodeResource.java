@@ -200,7 +200,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	/**
 	 * Create a new {@link Node}.
 	 * 
-	 * @param node
+	 * @param vo
 	 *            The new node definition.
 	 */
 	@POST
@@ -222,7 +222,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	/**
 	 * Update an existing {@link Node}.
 	 * 
-	 * @param node
+	 * @param vo
 	 *            The new node definition to replace.
 	 */
 	@PUT
@@ -318,6 +318,10 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 * 
 	 * @param id
 	 *            The node identifier.
+	 * @throws Exception
+	 *             When the related plug-in implementation throws an exception
+	 *             during the deletion.
+	 * 
 	 */
 	@DELETE
 	@Path("{id:service:.+:.+:.*}")
@@ -644,7 +648,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 *            pagination data.
 	 * @param criteria
 	 *            the optional criteria to match.
-	 * @param parent
+	 * @param refined
 	 *            The optional parent identifier to be like. Special attention for
 	 *            'service' value corresponding to the root.
 	 * @param mode
@@ -685,6 +689,10 @@ public class NodeResource extends AbstractLockedResource<String> {
 	/**
 	 * Check the parameters that are being attached to this node : overrides,
 	 * mandatory and ownerships.
+	 * 
+	 * @param vo
+	 *            The parameterized object.
+	 * @return The corresponding and also validated {@link Parameter} entities.
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
 		final List<Parameter> acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
@@ -714,9 +722,13 @@ public class NodeResource extends AbstractLockedResource<String> {
 	/**
 	 * Check the related node can be updated by the current principal.
 	 * 
-	 * @param The
-	 *            node to check.
-	 * @return the checked writable node.
+	 * @param id
+	 *            The node identifier to check.
+	 * @param checker
+	 *            The function checking the node from its identifier (first
+	 *            parameter) for a given user (second parameter) and return the
+	 *            check {@link Node} identity.
+	 * @return the checked node.
 	 */
 	public Node checkNode(final String id, final BiFunction<String, String, Node> checker) {
 		final Node node = checker.apply(id, securityHelper.getLogin());
@@ -730,8 +742,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	/**
 	 * Check the related node can be updated by the current principal.
 	 * 
-	 * @param The
-	 *            node to check.
+	 * @param id
+	 *            The node identifier to check.
 	 * @return the checked writable node.
 	 */
 	public Node checkWritableNode(final String id) {
@@ -741,8 +753,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	/**
 	 * Check the related node can be deleted by the current principal.
 	 * 
-	 * @param The
-	 *            node to check.
+	 * @param id
+	 *            The node identifier to check.
 	 * @return the checked administerable node.
 	 */
 	public Node checkAdministerable(final String id) {

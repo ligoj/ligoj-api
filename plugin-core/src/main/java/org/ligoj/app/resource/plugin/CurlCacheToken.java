@@ -33,11 +33,12 @@ public class CurlCacheToken {
 	 *            The amount of retries until the provider returns a not <code>null</code> value.
 	 * @param exceptionSupplier
 	 *            The exception used when the token cannot be retrieved.
+	 *            @param <X>
 	 * @return The token value either from the cache, either from the fresh computed one.
 	 */
 	@CacheResult(cacheName = "curl-tokens")
-	public <X extends RuntimeException> String getTokenCache(@CacheKey @NotNull final String key, final Function<String, String> function,
-			final int retries, final Supplier<? extends X> exceptionSupplier) {
+	public String getTokenCache(@CacheKey @NotNull final String key, final Function<String, String> function,
+			final int retries, final Supplier<? extends RuntimeException> exceptionSupplier) {
 		// First access to this function
 		return IntStream.range(0, retries).mapToObj(i -> function.apply(key)).filter(Objects::nonNull).findFirst().orElseThrow(exceptionSupplier);
 	}
@@ -57,8 +58,8 @@ public class CurlCacheToken {
 	 *            The exception used when the token cannot be retrieved.
 	 * @return The token value either from the cache, either from the fresh computed one.
 	 */
-	public <X extends RuntimeException> String getTokenCache(@NotNull final Object synchronizeObject, @NotNull final String key,
-			final Function<String, String> function, final int retries, final Supplier<? extends X> exceptionSupplier) {
+	public String getTokenCache(@NotNull final Object synchronizeObject, @NotNull final String key,
+			final Function<String, String> function, final int retries, final Supplier<? extends RuntimeException> exceptionSupplier) {
 		synchronized (synchronizeObject) {
 			// Use the jcache API to get the token
 			return applicationContext.getBean(CurlCacheToken.class).getTokenCache(key, function, retries, exceptionSupplier);

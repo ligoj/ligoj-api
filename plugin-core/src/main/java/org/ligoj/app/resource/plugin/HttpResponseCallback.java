@@ -18,6 +18,7 @@ public interface HttpResponseCallback {
 	 * @param response
 	 *            the received response.
 	 * @return <code>true</code> to proceed the next request. <code>false</code> otherwise.
+	 * @throws IOException When response cannot be read.
 	 */
 	boolean onResponse(CurlRequest request, CloseableHttpResponse response) throws IOException;
 }

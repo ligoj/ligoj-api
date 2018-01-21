@@ -216,8 +216,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Check the data constraints and return the associated parameter
-	 * definition.
+	 * Check the data constraints and return the associated parameter definition.
 	 */
 	private void checkConstraints(final BasicParameterValueVo vo, final Parameter parameter) {
 		typeToChecker.get(parameter.getType()).accept(vo, parameter);
@@ -323,8 +322,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Delete a {@link ParameterValue}. A value can be deleted only where there
-	 * is no subscription on the related node, or the related parameter is not
+	 * Delete a {@link ParameterValue}. A value can be deleted only where there is
+	 * no subscription on the related node, or the related parameter is not
 	 * mandatory.
 	 * 
 	 * @param id
@@ -346,14 +345,12 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Update a {@link ParameterValue}. Visibility of value and related
-	 * parameter is checked. Only value attached to a {@link Node} can be
-	 * updated. The related node cannot be updated. A parameter used in a
-	 * subscription cannot be updated.
+	 * Update a {@link ParameterValue}. Visibility of value and related parameter is
+	 * checked. Only value attached to a {@link Node} can be updated. The related
+	 * node cannot be updated. A parameter used in a subscription cannot be updated.
 	 * 
 	 * @param vo
-	 *            {@link ParameterValueCreateVo} to update. Identifier is
-	 *            required.
+	 *            {@link ParameterValueCreateVo} to update. Identifier is required.
 	 */
 	public void update(final ParameterValueNodeUpdateVo vo) {
 		final ParameterValue entity = findOneExpected(vo.getId());
@@ -397,8 +394,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Check the parameter value is not used in a subscription when the target
-	 * value becomes <code>null</code> or empty.
+	 * Check the parameter value is not used in a subscription when the target value
+	 * becomes <code>null</code> or empty.
 	 * 
 	 * @param entity
 	 *            The {@link ParameterValue} entity to check.
@@ -440,15 +437,14 @@ public class ParameterValueResource {
 	 * Check transition and convert to entity.
 	 * 
 	 * @param vo
-	 *            new {@link ParameterValueCreateVo} to be merged into the
-	 *            entity.
+	 *            new {@link ParameterValueCreateVo} to be merged into the entity.
 	 * @param parameter
 	 *            The resolved parameter related to the {@link ParameterValue}
 	 * @param entity
 	 *            The entity to update.
-	 * @return corresponding entity when accepted for update. <code>null</code>
-	 *         when all constraints are checked, but the target operation should
-	 *         be a deletion because of the empty value.
+	 * @return corresponding entity when accepted for update. <code>null</code> when
+	 *         all constraints are checked, but the target operation should be a
+	 *         deletion because of the empty value.
 	 */
 	private ParameterValue checkSaveOrUpdate(final ParameterValueCreateVo vo, final Parameter parameter, final ParameterValue entity) {
 		checkConstraints(vo, parameter);
@@ -505,8 +501,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Return all parameters values related to the subscription. Secured
-	 * (encrypted) parameters are decrypted.
+	 * Return all parameters values related to the subscription. Secured (encrypted)
+	 * parameters are decrypted.
 	 * 
 	 * @param subscription
 	 *            The subscription identifier.
@@ -519,8 +515,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Create the given subscription parameter values. Value validity is
-	 * checked.
+	 * Create the given subscription parameter values. Value validity is checked.
 	 * 
 	 * @param values
 	 *            the parameter values to persist.
@@ -608,10 +603,11 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Delete all parameter values associated to given node.
+	 * Delete all parameter values associated to given node. This includes the
+	 * related subscriptions parameter values.
 	 * 
-	 * @param subscription
-	 *            the associated subscription to delete.
+	 * @param node
+	 *            The parent node.
 	 */
 	@CacheRemove(cacheName = "node-parameters")
 	public void deleteByNode(@CacheKey final String node) {
@@ -648,11 +644,15 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Transform {@link List} to {@link Map} where K is the item's identifier,
-	 * and VALUE is the original item.
+	 * Transform {@link List} to {@link Map} where K is the item's identifier, and
+	 * VALUE is the original item.
 	 * 
 	 * @param items
 	 *            The items list.
+	 * @param <K>
+	 *            The entity's identifier type.
+	 * @param <V>
+	 *            The entity type.
 	 * @return the corresponding map.
 	 */
 	public <K extends Serializable, V extends Persistable<K>> Map<K, V> toMap(final Iterable<V> items) {
@@ -662,8 +662,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Return the parameters of given node. Not exposed as web-service since
-	 * secured data are clearly exposed. The result is cached.
+	 * Return the parameters of given node. Not exposed as web-service since secured
+	 * data are clearly exposed. The result is cached.
 	 * 
 	 * @param node
 	 *            the node identifier.
@@ -685,8 +685,8 @@ public class ParameterValueResource {
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be
-	 *         attached to the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be attached to
+	 *         the final subscription in given mode.
 	 */
 	@GET
 	@Path("{node:.+:.*}/parameter-value/{mode}")

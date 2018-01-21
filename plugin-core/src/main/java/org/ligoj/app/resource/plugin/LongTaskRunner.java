@@ -194,9 +194,9 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	/**
 	 * Move forward the next step of given import status.
 	 * 
-	 * @param task
-	 *            The task to update.
-	 * @param steper
+	 * @param lockedId
+	 *            The locked resource identifier.
+	 * @param stepper
 	 *            The function to call to update the task for this next step.
 	 * @return The updated task.
 	 */

@@ -1,0 +1,12 @@
+org.ligoj.app.api
+org.ligoj.app.dao
+org.ligoj.app.dao.task
+org.ligoj.app.iam.dao
+org.ligoj.app.iam.model
+org.ligoj.app.model
+org.ligoj.app.resource
+org.ligoj.app.resource.delegate
+org.ligoj.app.resource.node
+org.ligoj.app.resource.plugin
+org.ligoj.app.resource.project
+org.ligoj.app.resource.subscription

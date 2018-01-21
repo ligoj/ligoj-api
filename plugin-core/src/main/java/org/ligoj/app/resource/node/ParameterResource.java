@@ -108,6 +108,9 @@ public class ParameterResource {
 
 	/**
 	 * Managed JSON writer
+	 * 
+	 * @param any
+	 *            Any object to serialize.
 	 */
 	public static String toJSon(final Object any) {
 		try {
@@ -119,6 +122,13 @@ public class ParameterResource {
 
 	/**
 	 * Build parameter configuration from the string definition.
+	 * 
+	 * @param content
+	 *            The content JSON string configuration.
+	 * @param valueTypeRef
+	 *            The type reference to fix the return type.
+	 * @param <T>
+	 *            The return type.
 	 */
 	public static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
 		try {
@@ -174,8 +184,8 @@ public class ParameterResource {
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be
-	 *         attached to the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be attached to
+	 *         the final subscription in given mode.
 	 */
 	@GET
 	@Path("{node:.+:.*}/parameter/{mode}")
@@ -193,8 +203,8 @@ public class ParameterResource {
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be
-	 *         attached to the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be attached to
+	 *         the final subscription in given mode.
 	 */
 	public List<ParameterVo> getNotProvidedAndAssociatedParameters(final String node, final SubscriptionMode mode) {
 		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)

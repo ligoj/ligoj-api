@@ -128,13 +128,13 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
 	 * </ul>
 	 * 
-	 * @see org.ligoj.app.iam.model.AbstractDelegate#isCanAdmin()
-	 * @param user
-	 *            The current user name.
 	 * @param project
 	 *            The project's identifier to match.
+	 * @param user
+	 *            The current user name.
 	 * @return Non <code>null</code> project's identifier if the user can manage the
 	 *         subscriptions of this project.
+	 * @see org.ligoj.app.iam.model.AbstractDelegate#isCanAdmin()
 	 */
 	@Query("SELECT p.id FROM Project AS p WHERE p.id = :project AND (p.teamLeader = :user OR "
 			+ DelegateOrgRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE"

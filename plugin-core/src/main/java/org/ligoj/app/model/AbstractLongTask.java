@@ -51,6 +51,8 @@ public abstract class AbstractLongTask<L extends Persistable<I>, I extends Seria
 
 	/**
 	 * Indicates the current task is finished.
+	 * 
+	 * @return <code>true</code> when this task is finished.
 	 */
 	@JsonIgnore
 	public boolean isFinished() {

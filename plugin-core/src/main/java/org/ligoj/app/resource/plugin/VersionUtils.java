@@ -29,14 +29,18 @@ public class VersionUtils {
 	 * @param project
 	 *            The JIRA project identifier.
 	 * @return <code>null</code> or latest version
+	 * @throws IOException
+	 *             When version cannot be read from the remote URL.
 	 */
 	public AtlassianVersion getLatestReleasedVersion(final String serverUrl, final String project) throws IOException {
 		// Get the download index
 		final CurlProcessor processor = new CurlProcessor();
-		final String versionsAsJson = ObjectUtils.defaultIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"), "[]");
-		final List<AtlassianVersion> versionsRaw = new ObjectMapper().readValue(versionsAsJson, new TypeReference<List<AtlassianVersion>>() {
-			// Nothing to override
-		});
+		final String versionsAsJson = ObjectUtils.defaultIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"),
+				"[]");
+		final List<AtlassianVersion> versionsRaw = new ObjectMapper().readValue(versionsAsJson,
+				new TypeReference<List<AtlassianVersion>>() {
+					// Nothing to override
+				});
 
 		// Find the last download link
 		AtlassianVersion lastVersion = null;
@@ -77,6 +81,8 @@ public class VersionUtils {
 	 * @param project
 	 *            The JIRA project identifier.
 	 * @return <code>null</code> or latest version name.
+	 * @throws IOException
+	 *             When version cannot be read from the remote URL.
 	 */
 	public String getLatestReleasedVersionName(final String serverUrl, final String project) throws IOException {
 		final AtlassianVersion version = getLatestReleasedVersion(serverUrl, project);
