@@ -57,7 +57,7 @@ public abstract class AbstractXmlApiToolPluginResource extends AbstractToolPlugi
 	 */
 	public NodeList getXpath(final String input, final String expression)
 			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
-		return xml.getTags(input, expression);
+		return xml.getXpath(input, expression);
 	}
 
 	/**
