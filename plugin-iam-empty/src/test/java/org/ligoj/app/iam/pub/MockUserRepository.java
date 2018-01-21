@@ -119,5 +119,4 @@ class MockUserRepository implements IUserRepository {
 		// Nothing to do
 		return null;
 	}
-
 }

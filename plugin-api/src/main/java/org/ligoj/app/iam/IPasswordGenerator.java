@@ -7,10 +7,13 @@ package org.ligoj.app.iam;
 public interface IPasswordGenerator {
 
 	/**
-	 * Set a generated password to given user. The password may be generated and sent to user and may requires additional steps to be fully available to this user.
+	 * Set a generated password to given user. The password may be generated and
+	 * sent to user and may require additional steps to be fully available to
+	 * this user.
 	 * 
 	 * @param user
 	 *            The user identifier.
+	 * @return The generated password.
 	 */
-	void generate(String user);
+	String generate(String user);
 }
