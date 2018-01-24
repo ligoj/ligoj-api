@@ -69,7 +69,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	default void deleteTask(final I lockedId) {
 		// Check there is no running import
 		Optional.ofNullable(getTask(lockedId)).filter(t -> !t.isFinished()).ifPresent(t -> {
-			throw new BusinessException("Running import not finished", t.getAuthor(), t.getStart(), t.getLocked().getId());
+			throw new BusinessException("Running import not finished", t.getAuthor(), t.getStart(), lockedId);
 		});
 
 		// We can safely delete the tasks
@@ -155,7 +155,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 			// Check there is no running task on the same node
 			Optional.ofNullable(getTaskRepository().findNotFinishedByLocked(lockedId)).ifPresent(t -> {
 				// On this service, there is already a running import
-				throw new BusinessException("concurrent-task", t.getAuthor(), t.getStart(), t.getLocked());
+				throw new BusinessException("concurrent-task", t.getAuthor(), t.getStart(), lockedId);
 			});
 
 			// Build a new task as needed

@@ -38,11 +38,11 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 	SubscriptionRepository getSubscriptionRepository();
 
 	/**
-	 * Return status of import.
+	 * Return status of the task.
 	 * 
 	 * @param subscription
 	 *            The locked subscription identifier.
-	 * @return status of import. May <code>null</code> when there is no previous
+	 * @return status of task. May <code>null</code> when there is no previous
 	 *         task.
 	 */
 	@Override
