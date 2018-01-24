@@ -4,7 +4,9 @@ import javax.persistence.ManyToOne;
 import javax.persistence.MappedSuperclass;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.ligoj.bootstrap.core.model.ToIdSerializer;
+
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +20,8 @@ import lombok.Setter;
 public abstract class AbstractLongTaskSubscription extends AbstractLongTask<Subscription, Integer> {
 
 	@ManyToOne
-	@JsonIgnore
 	@NotNull
+	@JsonSerialize(using = ToIdSerializer.class)
 	private Subscription locked;
 
 }
