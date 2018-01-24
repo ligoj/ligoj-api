@@ -28,6 +28,11 @@ import org.xml.sax.SAXException;
 public class XmlUtils {
 
 	/**
+	 * The shared XPATH factory
+	 */
+	public final XPathFactory xpathFactory = XPathFactory.newInstance();
+
+	/**
 	 * Build and return a secured document builder.
 	 * 
 	 * @param input
@@ -80,7 +85,7 @@ public class XmlUtils {
 	 */
 	public NodeList getXpath(final String input, final String expression)
 			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
-		final XPath xPath = XPathFactory.newInstance().newXPath();
+		final XPath xPath = xpathFactory.newXPath();
 		return (NodeList) xPath.compile(expression).evaluate(
 				parse(IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, ""), StandardCharsets.UTF_8)), XPathConstants.NODESET);
 	}
