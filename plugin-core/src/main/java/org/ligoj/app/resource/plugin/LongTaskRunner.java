@@ -68,7 +68,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	default void deleteTask(final I lockedId) {
 		// Check there is no running import
-		Optional.ofNullable(getTask(lockedId)).filter(t -> !t.isFinished()).ifPresent(t -> {
+		Optional.ofNullable(getTask(lockedId)).filter(t -> !isFinished(t)).ifPresent(t -> {
 			throw new BusinessException("Running import not finished", t.getAuthor(), t.getStart(), lockedId);
 		});
 
@@ -170,6 +170,19 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
+	 * When <code>true</code> the task is really finished. Can be overridden to
+	 * update the real finished state stored in database. For sample, a task can be
+	 * finished from the client side, but not fully executed at the server side.
+	 * 
+	 * @param task
+	 *            The not <code>null</code> task to evaluate.
+	 * @return <code>true</code> when the task is finished.
+	 */
+	default boolean isFinished(final T task) {
+		return task.isFinished();
+	}
+
+	/**
 	 * Get or create a new task associated to given subscription.
 	 * 
 	 * @param lockedId
@@ -177,7 +190,14 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @return The task, never <code>null</code>.
 	 */
 	default T createAsNeeded(final I lockedId) {
-		final T task = Optional.ofNullable(getTask(lockedId)).orElseGet(() -> {
+		final T task = Optional.ofNullable(getTask(lockedId)).map(t -> {
+			// Additional remote check (optional)
+			if (!isFinished(t)) {
+				// On this service, there is already a running remote task
+				throw new BusinessException("concurrent-task-remote", t.getAuthor(), t.getStart(), lockedId);
+			}
+			return t;
+		}).orElseGet(() -> {
 			final T newTask = newTask().get();
 			newTask.setLocked(getLockedRepository().findOneExpected(lockedId));
 			return newTask;
@@ -216,7 +236,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 *            The task to check.
 	 */
 	default void checkNotFinished(final T task) {
-		if (task.isFinished()) {
+		if (isFinished(task)) {
 			// Request a next step but is already finished (canceled?)
 			throw new BusinessException("Already finished");
 		}

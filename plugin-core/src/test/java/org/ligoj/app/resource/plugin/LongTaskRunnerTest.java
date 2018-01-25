@@ -194,6 +194,25 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		repository.saveAndFlush(newTaskSample);
 		resource.startTask(subscription, task -> task.setData("init"));
 	}
+	/**
+	 * Task is locally finished, but not from the external system view.
+	 */
+	@Test(expected = BusinessException.class)
+	public void startTaskRunningRemote() {
+		resource = new TaskSampleSubscriptionResource() {
+			
+			@Override
+			public boolean isFinished(final TaskSampleSubscription task) {
+				// Never remotely finished
+				return false;
+			}
+		};
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
+		
+		final TaskSampleSubscription newTaskSample = newTaskSample();
+		repository.saveAndFlush(newTaskSample);
+		resource.startTask(subscription, task -> task.setData("init"));
+	}
 
 	private void assertTask(TaskSampleSubscription task) {
 		assertTask(task, "custom");
