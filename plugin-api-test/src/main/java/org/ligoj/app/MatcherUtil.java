@@ -59,11 +59,11 @@ public class MatcherUtil {
 			errorsS.add(StringUtils.defaultIfBlank(v.getMessageTemplate(), null));
 		});
 		final List<String> errorsS2 = errorsS.stream().filter(e -> e != null).map(String::toLowerCase).collect(Collectors.toList());
-		Assertions.assertEquals(errors.isEmpty() ? field : message,
-				errorsS2.stream().filter(message::equals).findAny().orElseGet(
+		Assertions.assertEquals(errors.isEmpty() ? field : message.toLowerCase(),
+				errorsS2.stream().filter(message::equalsIgnoreCase).findAny().orElseGet(
 						() -> errors.isEmpty()
-								? ex.getConstraintViolations().stream().map(v -> v.getPropertyPath().toString())
-										.collect(Collectors.toList()).toString()
+								? ex.getConstraintViolations().stream().map(v -> v.getPropertyPath().toString()).collect(Collectors.toSet())
+										.toString()
 								: errorsS2.stream().findFirst().orElse(null)));
 	}
 
