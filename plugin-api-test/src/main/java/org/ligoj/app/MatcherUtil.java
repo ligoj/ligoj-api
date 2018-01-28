@@ -1,65 +1,70 @@
 package org.ligoj.app;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.regex.Matcher;
+import java.util.stream.Collectors;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.opentest4j.AssertionFailedError;
 
 /**
- * {@link Matcher} utilities
+ * {@link ConstraintViolationException} and {@link ValidationJsonException}
+ * utilities
  */
 public class MatcherUtil {
 
 	/**
-	 * Generate a {@link Matcher} checking a {@link ValidationJsonException}
-	 * error: field and message.
+	 * Check the exception for a property and a specific associated message.
 	 * 
 	 * @param ex
 	 *            The exception to check.
 	 * @param field
-	 *            the error field name.
+	 *            The error property name.
 	 * @param message
-	 *            the unique error message
-	 * @return the built matcher.
+	 *            The unique error message
 	 */
 	public static void assertThrows(final ValidationJsonException ex, final String field, final String message) {
 		final Collection<Map<String, Serializable>> errors = CollectionUtils.emptyIfNull(ex.getErrors().get(field));
-		Assertions.assertTrue(errors.stream().anyMatch(e -> message.equals(e.get("rule"))), "Expected " + field + "='" + message
-				+ "' but was '" + errors.stream().findFirst().map(e -> e.get("rule")).orElse(null) + "'");
+		Assertions.assertEquals(errors.isEmpty() ? field : message,
+				errors.stream().map(e -> e.get("rule")).filter(message::equals).findAny()
+						.orElseGet(() -> errors.isEmpty() ? ex.getErrors().keySet().toString()
+								: errors.stream().findFirst().map(e -> e.get("rule")).orElse(null)));
 	}
 
 	/**
-	 * Generate a {@link Matcher} checking a {@link ValidationJsonException}
-	 * error: field and message.
+	 * Check the exception for a property and a specific associated message.
 	 * 
+	 * @param ex
+	 *            The exception to check.
 	 * @param field
-	 *            the error field name.
+	 *            The error property name.
 	 * @param message
-	 *            the unique error message
-	 * @return the built matcher.
+	 *            The unique error message
 	 */
 	public static void assertThrows(final ConstraintViolationException ex, final String field, final String message) {
-		String closest = null;
-		for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
-			if (field.equals(violation.getPropertyPath().toString())) {
-				closest = violation.getMessageTemplate();
-				if (Objects.equals(message, violation.getMessageTemplate()) || message
-						.equalsIgnoreCase(ClassUtils.getShortClassName(ClassUtils.getPackageName(violation.getMessageTemplate())))) {
-					return;
-				}
-			}
-		}
-		throw new AssertionFailedError("Expected " + field + "='" + message + "' but was '" + closest + "'");
+		final List<ConstraintViolation<?>> errors = ex.getConstraintViolations().stream()
+				.filter(v -> field.equals(v.getPropertyPath().toString())).collect(Collectors.toList());
+		final List<String> errorsS = new ArrayList<>();
+		errors.forEach(v -> {
+			errorsS.add(StringUtils.defaultIfBlank(ClassUtils.getShortClassName(ClassUtils.getPackageName(v.getMessageTemplate())), null));
+			errorsS.add(StringUtils.defaultIfBlank(v.getMessageTemplate(), null));
+		});
+		final List<String> errorsS2 = errorsS.stream().filter(e -> e != null).map(String::toLowerCase).collect(Collectors.toList());
+		Assertions.assertEquals(errors.isEmpty() ? field : message,
+				errorsS2.stream().filter(message::equals).findAny().orElseGet(
+						() -> errors.isEmpty()
+								? ex.getConstraintViolations().stream().map(v -> v.getPropertyPath().toString())
+										.collect(Collectors.toList()).toString()
+								: errorsS2.stream().findFirst().orElse(null)));
 	}
 
 }
