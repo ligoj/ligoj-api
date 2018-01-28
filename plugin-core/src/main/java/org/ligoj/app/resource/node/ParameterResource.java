@@ -43,17 +43,17 @@ public class ParameterResource {
 	@Autowired
 	private SecurityHelper securityHelper;
 
-	private static final TypeReference<List<Integer>> LIST_INTEGER_TYPE = new TypeReference<List<Integer>>() {
+	private static final TypeReference<List<Integer>> LIST_INTEGER_TYPE = new TypeReference<>() {
 		// Nothing to do
 	};
 
-	private static final TypeReference<List<String>> LIST_STRING_TYPE = new TypeReference<List<String>>() {
+	private static final TypeReference<List<String>> LIST_STRING_TYPE = new TypeReference<>() {
 		// Nothing to do
 	};
-	private static final TypeReference<Map<String, Integer>> MAP_STRING_TYPE = new TypeReference<Map<String, Integer>>() {
+	private static final TypeReference<Map<String, Integer>> MAP_STRING_TYPE = new TypeReference<>() {
 		// Nothing to do
 	};
-	private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE = new TypeReference<Map<String, String>>() {
+	private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE = new TypeReference<>() {
 		// Nothing to do
 	};
 
@@ -184,8 +184,8 @@ public class ParameterResource {
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be attached to
-	 *         the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be
+	 *         attached to the final subscription in given mode.
 	 */
 	@GET
 	@Path("{node:.+:.*}/parameter/{mode}")
@@ -203,8 +203,8 @@ public class ParameterResource {
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be attached to
-	 *         the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be
+	 *         attached to the final subscription in given mode.
 	 */
 	public List<ParameterVo> getNotProvidedAndAssociatedParameters(final String node, final SubscriptionMode mode) {
 		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)

@@ -1,8 +1,7 @@
 package org.ligoj.app.resource.node.sample;
 
-import org.springframework.stereotype.Component;
-
 import org.ligoj.app.resource.plugin.AbstractServicePlugin;
+import org.springframework.stereotype.Component;
 
 
 

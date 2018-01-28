@@ -1,7 +1,7 @@
 package org.ligoj.app;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
 
@@ -17,21 +17,21 @@ public class DefaultVerificationModeTest {
 		ApplicationContext context = Mockito.mock(ApplicationContext.class);
 		context.getBean("some");
 		Mockito.verify(context, new DefaultVerificationMode(data -> {
-			Assert.assertEquals(1, data.getAllInvocations().size());
+			Assertions.assertEquals(1, data.getAllInvocations().size());
 			setChecked(true);
 		})).getBean("some");
-		Assert.assertTrue(this.checked);
+		Assertions.assertTrue(this.checked);
 	}
 
 	@Test
 	public void testNotCall() {
 		ApplicationContext context = Mockito.mock(ApplicationContext.class);
 		DefaultVerificationMode mode = new DefaultVerificationMode(data -> {
-			Assert.assertEquals(0, data.getAllInvocations().size());
+			Assertions.assertEquals(0, data.getAllInvocations().size());
 			setChecked(true);
 		});
 		Mockito.verify(context, mode).getBean("some");
-		Assert.assertNotNull(mode.description("some"));
+		Assertions.assertNotNull(mode.description("some"));
 	}
 
 	private final void setChecked(final boolean checked) {

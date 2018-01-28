@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.AbstractServerTest;
 import org.ligoj.app.MatcherUtil;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -34,13 +34,15 @@ public class CurlProcessorTest extends AbstractServerTest {
 		final CurlProcessor.TrustedX509TrustManager x509TrustManager = new CurlProcessor.TrustedX509TrustManager();
 		x509TrustManager.checkClientTrusted(null, null);
 		x509TrustManager.checkServerTrusted(null, null);
-		Assert.assertEquals(0, x509TrustManager.getAcceptedIssuers().length);
-		Assert.assertNotNull(new CurlProcessor().getHttpClient());
+		Assertions.assertEquals(0, x509TrustManager.getAcceptedIssuers().length);
+		Assertions.assertNotNull(new CurlProcessor().getHttpClient());
 	}
 
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void testX509Failed() {
-		CurlProcessor.newSslContext("none");
+		Assertions.assertThrows(IllegalStateException.class, () -> {
+			CurlProcessor.newSslContext("none");
+		});
 	}
 
 	@Test
@@ -50,7 +52,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 		final CurlProcessor processor = new CurlProcessor();
 		final String downloadPage = processor.get("http://localhost:" + MOCK_PORT);
-		Assert.assertEquals("CONTENT", downloadPage);
+		Assertions.assertEquals("CONTENT", downloadPage);
 	}
 
 	@Test
@@ -63,13 +65,12 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void validateFail() {
-		thrown.expect(ValidationJsonException.class);
-		thrown.expect(MatcherUtil.validationMatcher("parameter", "value"));
-
 		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_BAD_REQUEST)));
 		httpServer.start();
 
-		CurlProcessor.validateAndClose("http://localhost:" + MOCK_PORT, "parameter", "value");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
+			CurlProcessor.validateAndClose("http://localhost:" + MOCK_PORT, "parameter", "value");
+		}), "parameter", "value");
 	}
 
 	@Test
@@ -78,10 +79,10 @@ public class CurlProcessorTest extends AbstractServerTest {
 		final CurlRequest curlRequest = new CurlRequest(null, "http://localhost:" + MOCK_PORT);
 		curlRequest.setSaveResponse(true);
 		processor.process(curlRequest);
-		Assert.assertNull(curlRequest.getResponse());
-		
+		Assertions.assertNull(curlRequest.getResponse());
+
 		// Request has not been sent
-		Assert.assertEquals(0, curlRequest.getStatus());
+		Assertions.assertEquals(0, curlRequest.getStatus());
 	}
 
 	@Test
@@ -92,9 +93,9 @@ public class CurlProcessorTest extends AbstractServerTest {
 		final CurlProcessor processor = new CurlProcessor();
 		final CurlRequest curlRequest = new CurlRequest("POST", "http://localhost:" + MOCK_PORT, "CONTENT");
 		curlRequest.setSaveResponse(true);
-		Assert.assertTrue(processor.process(curlRequest));
-		Assert.assertEquals("CONTENT", curlRequest.getResponse());
-		Assert.assertEquals(200, curlRequest.getStatus());
+		Assertions.assertTrue(processor.process(curlRequest));
+		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+		Assertions.assertEquals(200, curlRequest.getStatus());
 	}
 
 	@Test
@@ -117,16 +118,16 @@ public class CurlProcessorTest extends AbstractServerTest {
 		curlRequest3.setSaveResponse(true);
 
 		// Process
-		Assert.assertFalse(processor.process(curlRequest1, curlRequest2, curlRequest3));
-		Assert.assertEquals("CONTENT", curlRequest1.getResponse());
-		Assert.assertEquals(200, curlRequest1.getStatus());
-		Assert.assertNull(curlRequest2.getResponse());
-		Assert.assertEquals(404, curlRequest2.getStatus());
-		Assert.assertNull(curlRequest3.getResponse());
-		Assert.assertEquals(0, curlRequest3.getStatus());
-		Assert.assertSame(processor, curlRequest1.getProcessor());
-		Assert.assertSame(processor, curlRequest2.getProcessor());
-		Assert.assertNull(curlRequest3.getProcessor());
+		Assertions.assertFalse(processor.process(curlRequest1, curlRequest2, curlRequest3));
+		Assertions.assertEquals("CONTENT", curlRequest1.getResponse());
+		Assertions.assertEquals(200, curlRequest1.getStatus());
+		Assertions.assertNull(curlRequest2.getResponse());
+		Assertions.assertEquals(404, curlRequest2.getStatus());
+		Assertions.assertNull(curlRequest3.getResponse());
+		Assertions.assertEquals(0, curlRequest3.getStatus());
+		Assertions.assertSame(processor, curlRequest1.getProcessor());
+		Assertions.assertSame(processor, curlRequest2.getProcessor());
+		Assertions.assertNull(curlRequest3.getProcessor());
 	}
 
 	@Test
@@ -150,10 +151,10 @@ public class CurlProcessorTest extends AbstractServerTest {
 		curlRequest2.setSaveResponse(true);
 
 		// Process
-		Assert.assertFalse(processor.process(curlRequest1, curlRequest2));
-		Assert.assertEquals("CONTENT", curlRequest1.getResponse());
-		Assert.assertNull(curlRequest2.getResponse());
-		Assert.assertTrue(System.currentTimeMillis() - start <= 1000);
+		Assertions.assertFalse(processor.process(curlRequest1, curlRequest2));
+		Assertions.assertEquals("CONTENT", curlRequest1.getResponse());
+		Assertions.assertNull(curlRequest2.getResponse());
+		Assertions.assertTrue(System.currentTimeMillis() - start <= 1000);
 	}
 
 	@Test
@@ -162,7 +163,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
-		Assert.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "Content-Type:text/html"));
+		Assertions.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "Content-Type:text/html"));
 	}
 
 	@Test
@@ -172,7 +173,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
-		Assert.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "ACCEPT-charset:utf-8"));
+		Assertions.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "ACCEPT-charset:utf-8"));
 	}
 
 	@Test
@@ -183,7 +184,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 		final CurlProcessor processor = new CurlProcessor();
 		final String downloadPage = processor.get("http://localhost:" + MOCK_PORT);
-		Assert.assertNull(downloadPage);
+		Assertions.assertNull(downloadPage);
 	}
 
 	@Test
@@ -198,13 +199,13 @@ public class CurlProcessorTest extends AbstractServerTest {
 		curlRequest.setSaveResponse(true);
 		requests.add(curlRequest);
 		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
-		Assert.assertTrue(processor.process(requests));
-		Assert.assertEquals("CONTENT", curlRequest.getResponse());
+		Assertions.assertTrue(processor.process(requests));
+		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
 
 		// Continue the execution
 		processor.setCallback(new DefaultHttpResponseCallback());
-		Assert.assertTrue(processor.process(curlRequest));
-		Assert.assertEquals("CONTENT", curlRequest.getResponse());
+		Assertions.assertTrue(processor.process(curlRequest));
+		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
 	}
 
 	@Test
@@ -223,7 +224,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 		// launch request
 		final CurlProcessor processor = new CurlProcessor();
 		final String downloadPage = processor.get("http://localhost:" + PROXY_PORT);
-		Assert.assertEquals("CONTENT", downloadPage);
+		Assertions.assertEquals("CONTENT", downloadPage);
 		// clean proxy configuration
 		System.clearProperty("https.proxyHost");
 		System.clearProperty("https.proxyPort");

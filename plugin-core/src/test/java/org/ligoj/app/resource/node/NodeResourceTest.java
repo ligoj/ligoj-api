@@ -10,13 +10,11 @@ import java.util.Map;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriInfo;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
@@ -60,18 +58,17 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import net.sf.ehcache.CacheManager;
 
 /**
  * {@link NodeResource} test cases.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class NodeResourceTest extends AbstractAppTest {
 
 	@Autowired
@@ -96,15 +93,15 @@ public class NodeResourceTest extends AbstractAppTest {
 	@Autowired
 	private EventRepository eventRepository;
 
-	@Before
+	@BeforeEach
 	public void prepare() throws IOException {
 		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class,
 				Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
 	}
 
-	@Before
-	@After
+	@BeforeEach
+	@AfterEach
 	public void cleanNodeCache() {
 		CacheManager.getInstance().clearAll();
 	}
@@ -146,13 +143,14 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br>
-		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription gStack -
-		 * Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
-		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription)
-		 * less the already know nodes<br> = nbPreviousEvents + nbNodes x2<br>
+		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP
+		 * <br> Expected count 6 changes for subscriptions :<br> +1 :
+		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN
+		 * <br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node
+		 * implies one subscription) less the already know nodes<br> =
+		 * nbPreviousEvents + nbNodes x2<br>
 		 */
-		Assert.assertEquals(eventsCount + 2, eventRepository.count());
+		Assertions.assertEquals(eventsCount + 2, eventRepository.count());
 	}
 
 	@Test
@@ -170,13 +168,14 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br>
-		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription gStack -
-		 * Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
-		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription)
-		 * less the already know nodes<br> = nbPreviousEvents + nbNodes x2<br>
+		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP
+		 * <br> Expected count 6 changes for subscriptions :<br> +1 :
+		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN
+		 * <br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node
+		 * implies one subscription) less the already know nodes<br> =
+		 * nbPreviousEvents + nbNodes x2<br>
 		 */
-		Assert.assertEquals(eventsCount + 23, eventRepository.count());
+		Assertions.assertEquals(eventsCount + 23, eventRepository.count());
 	}
 
 	@Test
@@ -194,8 +193,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 
 		// Not visible node
-		Assert.assertNull(resource.checkNodeStatus("service:id:ldap:dig"));
-		Assert.assertEquals(eventsCount, eventRepository.count());
+		Assertions.assertNull(resource.checkNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(eventsCount, eventRepository.count());
 	}
 
 	@Test
@@ -210,8 +209,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 
 		// Visible and down node
-		Assert.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
-		Assert.assertEquals(eventsCount + 3, eventRepository.count());
+		Assertions.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(eventsCount + 3, eventRepository.count());
 	}
 
 	@Test
@@ -223,13 +222,13 @@ public class NodeResourceTest extends AbstractAppTest {
 		prepareEvent();
 
 		// Visible node, but without event/check
-		Assert.assertNull(resource.getNodeStatus("service:id:ldap:dig"));
+		Assertions.assertNull(resource.getNodeStatus("service:id:ldap:dig"));
 
 		// First check to create the event
-		Assert.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
 
 		// Visible and down node
-		Assert.assertEquals(NodeStatus.DOWN, resource.getNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(NodeStatus.DOWN, resource.getNodeStatus("service:id:ldap:dig"));
 	}
 
 	/**
@@ -264,8 +263,9 @@ public class NodeResourceTest extends AbstractAppTest {
 				.thenThrow(new TechnicalException("junit"));
 
 		final int nbNodes = repository.findAllInstance().size();
-		Assert.assertTrue(nbNodes >= 6); // Jirax2, Confluence, LDAP, Jenkins,
-											// SonarQube
+		Assertions.assertTrue(nbNodes >= 6); // Jirax2, Confluence, LDAP,
+												// Jenkins,
+												// SonarQube
 		return nbNodes;
 	}
 
@@ -276,20 +276,20 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// data
 		final Node jiraNode = repository.findByName("JIRA 4");
-		Assert.assertFalse(jiraNode.isService());
-		Assert.assertFalse(jiraNode.isTool());
-		Assert.assertTrue(jiraNode.isInstance());
-		Assert.assertSame(jiraNode.getRefined(), jiraNode.getTool());
+		Assertions.assertFalse(jiraNode.isService());
+		Assertions.assertFalse(jiraNode.isTool());
+		Assertions.assertTrue(jiraNode.isInstance());
+		Assertions.assertSame(jiraNode.getRefined(), jiraNode.getTool());
 
-		Assert.assertFalse(jiraNode.getRefined().isService());
-		Assert.assertTrue(jiraNode.getRefined().isTool());
-		Assert.assertFalse(jiraNode.getRefined().isInstance());
-		Assert.assertSame(jiraNode.getRefined(), jiraNode.getRefined().getTool());
+		Assertions.assertFalse(jiraNode.getRefined().isService());
+		Assertions.assertTrue(jiraNode.getRefined().isTool());
+		Assertions.assertFalse(jiraNode.getRefined().isInstance());
+		Assertions.assertSame(jiraNode.getRefined(), jiraNode.getRefined().getTool());
 
-		Assert.assertTrue(jiraNode.getRefined().getRefined().isService());
-		Assert.assertFalse(jiraNode.getRefined().getRefined().isTool());
-		Assert.assertFalse(jiraNode.getRefined().getRefined().isInstance());
-		Assert.assertNull(jiraNode.getRefined().getRefined().getTool());
+		Assertions.assertTrue(jiraNode.getRefined().getRefined().isService());
+		Assertions.assertFalse(jiraNode.getRefined().getRefined().isTool());
+		Assertions.assertFalse(jiraNode.getRefined().getRefined().isInstance());
+		Assertions.assertNull(jiraNode.getRefined().getRefined().getTool());
 
 		// Mock the servers
 		final int nbNodes = prepareEvent();
@@ -298,31 +298,33 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatusScheduler();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered <br> +1 :
-		 * Jenkins DOWN, was UP <br> +1 : Jira 4 was UP <br> +1 : Confluence DOWN,
-		 * discovered <br> +1 : Fortify DOWN, discovered <br> +1 : vCloud DOWN,
-		 * discovered <br> +1 : LDAP DOWN, discovered <br> +1 : Git DOWN, discovered
-		 * <br> +1 : Subversion DOWN, discovered <br> Expected count 6 changes for
-		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +0 :
-		 * Subscription gStack - JIRA6 - node has not changed, subscription is not
-		 * checked<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node
-		 * is DOWN <br> +0 : Subscription gStack - Sonar, discovered, node is UP, but
-		 * subscription has not been checked <br> +2 : Subscription gStack - OpenLDAP,
-		 * discovered <br> +1 : Subscription gStack - Confluence, discovered <br> +1 :
-		 * Subscription gStack - Fortify, discovered <br> +1 : Subscription gStack -
-		 * vCloud, discovered <br> +1 : Subscription gStack - Git, discovered <br> +1 :
-		 * Subscription gStack - Subversion, discovered <br> +1 : Subscription gStack
-		 * ...<br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node implies
-		 * one subscription + jira4/6 case) less the already know nodes<br> =
-		 * nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents + nbNodes x2
-		 * - 1<br>
+		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered
+		 * <br> +1 : Jenkins DOWN, was UP <br> +1 : Jira 4 was UP <br> +1 :
+		 * Confluence DOWN, discovered <br> +1 : Fortify DOWN, discovered <br>
+		 * +1 : vCloud DOWN, discovered <br> +1 : LDAP DOWN, discovered <br> +1
+		 * : Git DOWN, discovered <br> +1 : Subversion DOWN, discovered <br>
+		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription
+		 * MDA - JIRA4, DOWN, was UP<br> +0 : Subscription gStack - JIRA6 - node
+		 * has not changed, subscription is not checked<br> +1 : Subscription
+		 * gStack - Jenkins, discovered, DOWN since node is DOWN <br> +0 :
+		 * Subscription gStack - Sonar, discovered, node is UP, but subscription
+		 * has not been checked <br> +2 : Subscription gStack - OpenLDAP,
+		 * discovered <br> +1 : Subscription gStack - Confluence, discovered
+		 * <br> +1 : Subscription gStack - Fortify, discovered <br> +1 :
+		 * Subscription gStack - vCloud, discovered <br> +1 : Subscription
+		 * gStack - Git, discovered <br> +1 : Subscription gStack - Subversion,
+		 * discovered <br> +1 : Subscription gStack ...<br> Nb events =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one
+		 * subscription + jira4/6 case) less the already know nodes<br> =
+		 * nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents +
+		 * nbNodes x2 - 1<br>
 		 */
-		Assert.assertEquals(eventsCount + nbNodes * 2 - 1, eventRepository.count());
+		Assertions.assertEquals(eventsCount + nbNodes * 2 - 1, eventRepository.count());
 		final Event jiraEvent = eventRepository.findFirstByNodeAndTypeOrderByIdDesc(jiraNode, EventType.STATUS);
-		Assert.assertEquals(jiraNode, jiraEvent.getNode());
-		Assert.assertEquals(EventType.STATUS, jiraEvent.getType());
-		Assert.assertEquals(NodeStatus.DOWN.name(), jiraEvent.getValue());
-		Assert.assertNull(jiraEvent.getSubscription());
+		Assertions.assertEquals(jiraNode, jiraEvent.getNode());
+		Assertions.assertEquals(EventType.STATUS, jiraEvent.getType());
+		Assertions.assertEquals(NodeStatus.DOWN.name(), jiraEvent.getValue());
+		Assertions.assertNull(jiraEvent.getSubscription());
 	}
 
 	@Test
@@ -336,8 +338,9 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.checkSubscriptionsStatus();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> Expected
-		 * changes for subscriptions :<br> +1 : Subscription Jenkins - was UP<br>
+		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br>
+		 * Expected changes for subscriptions :<br> +1 : Subscription Jenkins -
+		 * was UP<br>
 		 */
 		long expectedCount = eventsCount; // Initial amount
 
@@ -345,13 +348,13 @@ public class NodeResourceTest extends AbstractAppTest {
 		// visible
 		expectedCount += 2;
 
-		Assert.assertEquals(expectedCount, eventRepository.count());
+		Assertions.assertEquals(expectedCount, eventRepository.count());
 	}
 
 	private long prepareSubscriptionsEvent() throws Exception {
 		// Check previous status
 		final long eventsCount = eventRepository.count();
-		Assert.assertEquals(5, eventsCount);
+		Assertions.assertEquals(5, eventsCount);
 
 		final ServicePluginLocator servicePluginLocator = resourceMock.locator;
 
@@ -395,12 +398,12 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.checkSubscriptionsStatusScheduler();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1 : Jira
-		 * 4 DOWN, was UP <br> +0 : Jira 6 DOWN, was already DOWN <br> +x ... other
-		 * services are discovered and UP<br> Expected changes for subscriptions :<br>
-		 * +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +1 : Subscription gStack -
-		 * JIRA6 - DOWN, was UP<br> +1 : Subscription Jenkins - was UP<br> +x ... other
-		 * services <br>
+		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1
+		 * : Jira 4 DOWN, was UP <br> +0 : Jira 6 DOWN, was already DOWN <br> +x
+		 * ... other services are discovered and UP<br> Expected changes for
+		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br>
+		 * +1 : Subscription gStack - JIRA6 - DOWN, was UP<br> +1 : Subscription
+		 * Jenkins - was UP<br> +x ... other services <br>
 		 */
 		long expectedCount = eventsCount; // Initial amount
 
@@ -412,7 +415,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// All subscriptions changed (1* nb services) + 1 (LDAP*2) + 1(Source*2)
 		// +1(BT*2)
 		expectedCount += nbServices + 1 + 1 + 1;
-		Assert.assertEquals(expectedCount, eventRepository.count());
+		Assertions.assertEquals(expectedCount, eventRepository.count());
 	}
 
 	@Test
@@ -438,102 +441,106 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.checkSubscriptionStatus(jiraNode, NodeStatus.UP);
 
 		// 1 subscription
-		Assert.assertEquals(eventsCount + 1, eventRepository.count());
+		Assertions.assertEquals(eventsCount + 1, eventRepository.count());
 	}
 
 	@Test
 	public void getServices() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, "service", null, -1).getData();
-		Assert.assertEquals(10, resources.size());
+		Assertions.assertEquals(10, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals(BugTrackerResource.SERVICE_KEY, service.getId());
-		Assert.assertEquals("Bug Tracker", service.getName());
-		Assert.assertNull(service.getRefined());
-		Assert.assertEquals(SubscriptionMode.LINK, service.getMode());
-		Assert.assertEquals("fa fa-bug", service.getUiClasses());
+		Assertions.assertEquals(BugTrackerResource.SERVICE_KEY, service.getId());
+		Assertions.assertEquals("Bug Tracker", service.getName());
+		Assertions.assertNull(service.getRefined());
+		Assertions.assertEquals(SubscriptionMode.LINK, service.getMode());
+		Assertions.assertEquals("fa fa-bug", service.getUiClasses());
 
 		final NodeVo service2 = resources.get(1);
-		Assert.assertEquals(BuildResource.SERVICE_KEY, service2.getId());
-		Assert.assertEquals("Build", service2.getName());
-		Assert.assertNull(service2.getRefined());
-		Assert.assertEquals(SubscriptionMode.LINK, service2.getMode());
+		Assertions.assertEquals(BuildResource.SERVICE_KEY, service2.getId());
+		Assertions.assertEquals("Build", service2.getName());
+		Assertions.assertNull(service2.getRefined());
+		Assertions.assertEquals(SubscriptionMode.LINK, service2.getMode());
 
 		final NodeVo service3 = resources.get(2);
-		Assert.assertEquals(IdentityResource.SERVICE_KEY, service3.getId());
-		Assert.assertEquals("Identity management", service3.getName());
-		Assert.assertEquals("fa fa-key", service3.getUiClasses());
-		Assert.assertNull(service3.getRefined());
-		Assert.assertEquals(SubscriptionMode.CREATE, service3.getMode());
+		Assertions.assertEquals(IdentityResource.SERVICE_KEY, service3.getId());
+		Assertions.assertEquals("Identity management", service3.getName());
+		Assertions.assertEquals("fa fa-key", service3.getUiClasses());
+		Assertions.assertNull(service3.getRefined());
+		Assertions.assertEquals(SubscriptionMode.CREATE, service3.getMode());
 
 		final NodeVo service4 = resources.get(3);
-		Assert.assertEquals(KmResource.SERVICE_KEY, service4.getId());
-		Assert.assertNull(service4.getRefined());
-		Assert.assertEquals(SubscriptionMode.LINK, service4.getMode());
+		Assertions.assertEquals(KmResource.SERVICE_KEY, service4.getId());
+		Assertions.assertNull(service4.getRefined());
+		Assertions.assertEquals(SubscriptionMode.LINK, service4.getMode());
 
 		final NodeVo service5 = resources.get(4);
-		Assert.assertEquals(KpiResource.SERVICE_KEY, service5.getId());
-		Assert.assertEquals("KPI Collection", service5.getName());
-		Assert.assertNull(service5.getRefined());
-		Assert.assertEquals(SubscriptionMode.LINK, service5.getMode());
+		Assertions.assertEquals(KpiResource.SERVICE_KEY, service5.getId());
+		Assertions.assertEquals("KPI Collection", service5.getName());
+		Assertions.assertNull(service5.getRefined());
+		Assertions.assertEquals(SubscriptionMode.LINK, service5.getMode());
 	}
 
 	@Test
 	public void update() {
-		Assert.assertNotNull(resource.findAll().get("service:bt:jira:6"));
+		Assertions.assertNotNull(resource.findAll().get("service:bt:jira:6"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:6");
 		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		resource.update(node);
-		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:6");
-		Assert.assertNotNull(nodeVo);
-		Assert.assertEquals("Jira 7", nodeVo.getName());
-		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
-		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
+		Assertions.assertNotNull(nodeVo);
+		Assertions.assertEquals("Jira 7", nodeVo.getName());
+		Assertions.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
+		Assertions.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createOverflowMode() {
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.CREATE);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
-		resource.create(node);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.create(node);
+		});
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createOverflowModeAll() {
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.ALL);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
-		resource.create(node);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.create(node);
+		});
 	}
 
 	@Test
 	public void createNoParameter() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.LINK);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		resource.create(node);
-		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:7");
-		Assert.assertNotNull(nodeVo);
-		Assert.assertEquals("Jira 7", nodeVo.getName());
-		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
-		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
+		Assertions.assertNotNull(nodeVo);
+		Assertions.assertEquals("Jira 7", nodeVo.getName());
+		Assertions.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
+		Assertions.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
 	}
 
 	@Test
 	public void create() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:some-7"));
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:some-7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:some-7");
 		node.setMode(SubscriptionMode.LINK);
@@ -544,21 +551,21 @@ public class NodeResourceTest extends AbstractAppTest {
 		value.setText("secret");
 		node.setParameters(Collections.singletonList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.existsById("service:bt:jira:some-7"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:some-7"));
 		final NodeVo nodeVo = resource.findAll().get("service:bt:jira:some-7");
-		Assert.assertNotNull(nodeVo);
-		Assert.assertEquals("Jira 7", nodeVo.getName());
-		Assert.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
-		Assert.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
-		Assert.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:some-7").get("service:bt:jira:password"));
+		Assertions.assertNotNull(nodeVo);
+		Assertions.assertEquals("Jira 7", nodeVo.getName());
+		Assertions.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
+		Assertions.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
+		Assertions.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:some-7").get("service:bt:jira:password"));
 
 		// Secured data
-		Assert.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:some-7").get(0).getData());
+		Assertions.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:some-7").get(0).getData());
 	}
 
 	@Test
 	public void updateParameters() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.LINK);
@@ -583,7 +590,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Initial node
 		node.setParameters(Arrays.asList(value, value3, value4));
 		resource.create(node);
-		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:7"));
 
 		// Don't touch the first secured parameter
 		value.setUntouched(true);
@@ -603,41 +610,41 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.update(node);
 
 		final Map<String, String> parameters = pvResource.getNodeParameters("service:bt:jira:7");
-		Assert.assertEquals("secret", parameters.get("service:bt:jira:password"));
-		Assert.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
-		Assert.assertEquals("secret2", parameters.get("service:bt:jira:jdbc-password"));
-		Assert.assertEquals(3, parameters.size());
+		Assertions.assertEquals("secret", parameters.get("service:bt:jira:password"));
+		Assertions.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
+		Assertions.assertEquals("secret2", parameters.get("service:bt:jira:jdbc-password"));
+		Assertions.assertEquals(3, parameters.size());
 		final List<ParameterValue> parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
-		Assert.assertNotNull(parameterValues.get(0).getData());
-		Assert.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
-		Assert.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
-		Assert.assertEquals("http://remote", parameterValues.get(1).getData());
-		Assert.assertEquals("service:bt:jira:url", parameterValues.get(1).getParameter().getId());
-		Assert.assertNotNull(parameterValues.get(2).getData());
-		Assert.assertEquals("service:bt:jira:jdbc-password", parameterValues.get(2).getParameter().getId());
-		Assert.assertEquals(3, parameterValues.size());
+		Assertions.assertNotNull(parameterValues.get(0).getData());
+		Assertions.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
+		Assertions.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
+		Assertions.assertEquals("http://remote", parameterValues.get(1).getData());
+		Assertions.assertEquals("service:bt:jira:url", parameterValues.get(1).getParameter().getId());
+		Assertions.assertNotNull(parameterValues.get(2).getData());
+		Assertions.assertEquals("service:bt:jira:jdbc-password", parameterValues.get(2).getParameter().getId());
+		Assertions.assertEquals(3, parameterValues.size());
 
 		final List<ParameterNodeVo> nodeParameters = pvResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
-		Assert.assertEquals(32, nodeParameters.size());
-		Assert.assertEquals("-secured-", nodeParameters.get(24).getText());
-		Assert.assertEquals("service:bt:jira:jdbc-password", nodeParameters.get(24).getParameter().getId());
-		Assert.assertTrue(nodeParameters.get(24).getParameter().isSecured());
-		Assert.assertEquals("-secured-", nodeParameters.get(27).getText());
-		Assert.assertEquals("service:bt:jira:password", nodeParameters.get(27).getParameter().getId());
-		Assert.assertTrue(nodeParameters.get(27).getParameter().isSecured());
-		Assert.assertEquals("http://remote", nodeParameters.get(30).getText());
-		Assert.assertEquals("service:bt:jira:url", nodeParameters.get(30).getParameter().getId());
-		Assert.assertFalse(nodeParameters.get(30).getParameter().isSecured());
+		Assertions.assertEquals(32, nodeParameters.size());
+		Assertions.assertEquals("-secured-", nodeParameters.get(24).getText());
+		Assertions.assertEquals("service:bt:jira:jdbc-password", nodeParameters.get(24).getParameter().getId());
+		Assertions.assertTrue(nodeParameters.get(24).getParameter().isSecured());
+		Assertions.assertEquals("-secured-", nodeParameters.get(27).getText());
+		Assertions.assertEquals("service:bt:jira:password", nodeParameters.get(27).getParameter().getId());
+		Assertions.assertTrue(nodeParameters.get(27).getParameter().isSecured());
+		Assertions.assertEquals("http://remote", nodeParameters.get(30).getText());
+		Assertions.assertEquals("service:bt:jira:url", nodeParameters.get(30).getParameter().getId());
+		Assertions.assertFalse(nodeParameters.get(30).getParameter().isSecured());
 
 		// Deleted secured (value3) is not set
-		Assert.assertNull(nodeParameters.get(31).getText());
-		Assert.assertEquals("service:bt:jira:user", nodeParameters.get(31).getParameter().getId());
-		Assert.assertTrue(nodeParameters.get(31).getParameter().isSecured());
+		Assertions.assertNull(nodeParameters.get(31).getText());
+		Assertions.assertEquals("service:bt:jira:user", nodeParameters.get(31).getParameter().getId());
+		Assertions.assertTrue(nodeParameters.get(31).getParameter().isSecured());
 	}
 
 	@Test
 	public void updateUntouchParameters() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.LINK);
@@ -652,7 +659,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Initial node
 		node.setParameters(Arrays.asList(value));
 		resource.create(node);
-		Assert.assertTrue(repository.existsById("service:bt:jira:7"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:7"));
 
 		// Don't touch the first secured parameter
 		node.setUntouchedParameters(true);
@@ -661,50 +668,57 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.update(node);
 
 		final Map<String, String> parameters = pvResource.getNodeParameters("service:bt:jira:7");
-		Assert.assertEquals("secret", parameters.get("service:bt:jira:password"));
-		Assert.assertEquals(1, parameters.size());
+		Assertions.assertEquals("secret", parameters.get("service:bt:jira:password"));
+		Assertions.assertEquals(1, parameters.size());
 		final List<ParameterValue> parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
-		Assert.assertNotNull(parameterValues.get(0).getData());
-		Assert.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
-		Assert.assertEquals(1, parameterValues.size());
+		Assertions.assertNotNull(parameterValues.get(0).getData());
+		Assertions.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
+		Assertions.assertEquals(1, parameterValues.size());
 	}
 
 	/**
-	 * The relationship is valid regarding the syntax but the parent does not exist.
+	 * The relationship is valid regarding the syntax but the parent does not
+	 * exist.
 	 */
-	@Test(expected = BusinessException.class)
+	@Test
 	public void createNotExistRefined() {
-		Assert.assertNull(resource.findAll().get("service:bt:some:instance"));
+		Assertions.assertNull(resource.findAll().get("service:bt:some:instance"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:some:instance");
 		node.setName("Any");
 		node.setNode("service:bt:some");
-		resource.create(node);
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.create(node);
+		});
 	}
 
 	/**
 	 * The relationship is not valid regarding the identifier syntax.
 	 */
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createNotInvalidRefined() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setName("Any");
 		node.setNode("service:build:jenkins");
-		resource.create(node);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.create(node);
+		});
 	}
 
 	/**
 	 * The identifier does not match to a service.
 	 */
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createNotInvalidRoot() {
-		Assert.assertNull(resource.findAll().get("service:bt:jira:7"));
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setName("Any");
-		resource.create(node);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.create(node);
+		});
 	}
 
 	@Test
@@ -737,45 +751,51 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Cannot create sub node of a parent node having different subscription mode
-	 * different from "ALL".
+	 * Cannot create sub node of a parent node having different subscription
+	 * mode different from "ALL".
 	 */
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createOnParentDifferentMode() {
 		newNode(SubscriptionMode.CREATE);
-		newSubNode(SubscriptionMode.LINK);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			newSubNode(SubscriptionMode.LINK);
+		});
 	}
 
 	/**
 	 * Cannot create sub node of a parent node having subscription mode "NONE".
 	 */
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createOnParentDifferentMode2() {
 		newNode(SubscriptionMode.NONE);
-		newSubNode(SubscriptionMode.CREATE);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			newSubNode(SubscriptionMode.CREATE);
+		});
 	}
 
 	/**
 	 * Cannot create sub node of a parent node having subscription mode "NONE".
 	 */
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void createOnParentNoneMode() {
 		newNode(SubscriptionMode.NONE);
-		newSubNode(SubscriptionMode.NONE);
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			newSubNode(SubscriptionMode.NONE);
+		});
 	}
 
 	private void newNode(final SubscriptionMode mode) {
-		Assert.assertNull(resource.findAll().get("service:some"));
+		Assertions.assertNull(resource.findAll().get("service:some"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:some");
 		node.setName("New Service");
 		node.setMode(mode);
 		resource.create(node);
-		Assert.assertTrue(repository.existsById("service:some"));
+		Assertions.assertTrue(repository.existsById("service:some"));
 		final NodeVo nodeVo = resource.findAll().get("service:some");
-		Assert.assertNotNull(nodeVo);
-		Assert.assertEquals("New Service", nodeVo.getName());
-		Assert.assertFalse(nodeVo.isRefining());
+		Assertions.assertNotNull(nodeVo);
+		Assertions.assertEquals("New Service", nodeVo.getName());
+		Assertions.assertFalse(nodeVo.isRefining());
 	}
 
 	private void newSubNode(SubscriptionMode mode) {
@@ -786,32 +806,38 @@ public class NodeResourceTest extends AbstractAppTest {
 		node2.setNode("service:some");
 		resource.create(node2);
 		final NodeVo nodeVo2 = resource.findAll().get("service:some:tool");
-		Assert.assertNotNull(nodeVo2);
-		Assert.assertEquals("New Tool", nodeVo2.getName());
-		Assert.assertTrue(nodeVo2.isRefining());
+		Assertions.assertNotNull(nodeVo2);
+		Assertions.assertEquals("New Tool", nodeVo2.getName());
+		Assertions.assertTrue(nodeVo2.isRefining());
 	}
 
-	@Test(expected = BusinessException.class)
+	@Test
 	public void deleteNotExist() throws Exception {
-		resource.delete("service:bt:jira:any");
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.delete("service:bt:jira:any");
+		});
 	}
 
-	@Test(expected = BusinessException.class)
+	@Test
 	public void deleteNotVisible() throws Exception {
 		initSpringSecurityContext("any");
-		delete();
+		Assertions.assertThrows(BusinessException.class, () -> {
+			delete();
+		});
 	}
 
-	@Test(expected = BusinessException.class)
+	@Test
 	public void deleteHasSubscription() throws Exception {
-		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		em.clear();
-		resource.delete("service:bt:jira:6");
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.delete("service:bt:jira:6");
+		});
 	}
 
 	@Test
 	public void delete() throws Exception {
-		Assert.assertTrue(repository.existsById("service:bt:jira:6"));
+		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6").forEach(s -> {
 			eventRepository.deleteAllBy("subscription.id", s.getId());
 			parameterValueRepository.deleteAllBy("subscription.id", s.getId());
@@ -820,18 +846,18 @@ public class NodeResourceTest extends AbstractAppTest {
 		em.flush();
 		em.clear();
 		resource.delete("service:bt:jira:6");
-		Assert.assertFalse(repository.existsById("service:bt:jira:6"));
+		Assertions.assertFalse(repository.existsById("service:bt:jira:6"));
 	}
 
 	@Test
 	public void findAllByParent() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, null, -1).getData();
-		Assert.assertEquals(1, resources.size());
+		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals("service:bt:jira", service.getId());
-		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertEquals("service:bt", service.getRefined().getId());
-		Assert.assertNull(service.getUiClasses());
+		Assertions.assertEquals("service:bt:jira", service.getId());
+		Assertions.assertEquals("JIRA", service.getName());
+		Assertions.assertEquals("service:bt", service.getRefined().getId());
+		Assertions.assertNull(service.getUiClasses());
 	}
 
 	@Test
@@ -840,131 +866,131 @@ public class NodeResourceTest extends AbstractAppTest {
 		newUriInfo.getQueryParameters().putSingle("length", "100");
 
 		// Service only
-		Assert.assertEquals(10, resource.findAll(newUriInfo, null, null, null, 0).getData().size());
+		Assertions.assertEquals(10, resource.findAll(newUriInfo, null, null, null, 0).getData().size());
 
 		// Tools + Services only
-		Assert.assertEquals(21, resource.findAll(newUriInfo, null, null, null, 1).getData().size());
+		Assertions.assertEquals(21, resource.findAll(newUriInfo, null, null, null, 1).getData().size());
 
 		// No limit : Instances + Services + instances
-		Assert.assertEquals(33, resource.findAll(newUriInfo, null, null, null, 2).getData().size());
+		Assertions.assertEquals(33, resource.findAll(newUriInfo, null, null, null, 2).getData().size());
 	}
 
 	@Test
 	public void findAllByParentFilterModeCreate() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.CREATE, -1).getData();
-		Assert.assertEquals(1, resources.size());
+		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals("service:id:ldap:dig", service.getId());
-		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertEquals("service:id:ldap", service.getRefined().getId());
+		Assertions.assertEquals("service:id:ldap:dig", service.getId());
+		Assertions.assertEquals("OpenLDAP", service.getName());
+		Assertions.assertEquals("service:id:ldap", service.getRefined().getId());
 
 		// This node accept creation
-		Assert.assertEquals(SubscriptionMode.CREATE, service.getMode());
+		Assertions.assertEquals(SubscriptionMode.CREATE, service.getMode());
 	}
 
 	@Test
 	public void findAllByParentFilterModeLinkAcceptNoCreate() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.CREATE, 0)
 				.getData();
-		Assert.assertEquals(0, resources.size());
+		Assertions.assertEquals(0, resources.size());
 	}
 
 	@Test
 	public void findAllByParentFilterModeLinkStrict() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 2)
 				.getData();
-		Assert.assertEquals(1, resources.size());
+		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals("service:bt:jira", service.getId());
-		Assert.assertEquals("JIRA", service.getName());
-		Assert.assertEquals("service:bt", service.getRefined().getId());
-		Assert.assertNull(service.getUiClasses());
+		Assertions.assertEquals("service:bt:jira", service.getId());
+		Assertions.assertEquals("JIRA", service.getName());
+		Assertions.assertEquals("service:bt", service.getRefined().getId());
+		Assertions.assertNull(service.getUiClasses());
 	}
 
 	@Test
 	public void findAllByParentFilterModeAkkAcceptLink() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, "service:scm:git", SubscriptionMode.LINK, -1).getData();
-		Assert.assertEquals(1, resources.size());
+		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals("service:scm:git:dig", service.getId());
-		Assert.assertEquals("git DIG", service.getName());
-		Assert.assertEquals("service:scm:git", service.getRefined().getId());
-		Assert.assertEquals("fa fa-git", service.getUiClasses());
+		Assertions.assertEquals("service:scm:git:dig", service.getId());
+		Assertions.assertEquals("git DIG", service.getName());
+		Assertions.assertEquals("service:scm:git", service.getRefined().getId());
+		Assertions.assertEquals("fa fa-git", service.getUiClasses());
 	}
 
 	@Test
 	public void findAllByParentCreateMode() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, null, -1).getData();
-		Assert.assertEquals(1, resources.size());
+		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
-		Assert.assertEquals("service:id:ldap:dig", service.getId());
-		Assert.assertEquals("OpenLDAP", service.getName());
-		Assert.assertEquals("service:id:ldap", service.getRefined().getId());
+		Assertions.assertEquals("service:id:ldap:dig", service.getId());
+		Assertions.assertEquals("OpenLDAP", service.getName());
+		Assertions.assertEquals("service:id:ldap", service.getRefined().getId());
 
 		// This node accept creation
-		Assert.assertEquals(SubscriptionMode.CREATE, service.getMode());
+		Assertions.assertEquals(SubscriptionMode.CREATE, service.getMode());
 	}
 
 	@Test
 	public void findAllByParentMutiple() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, JiraBaseResource.KEY, null, -1).getData();
-		Assert.assertEquals(2, resources.size());
-		Assert.assertEquals("service:bt:jira:4", resources.get(0).getId());
-		Assert.assertEquals("service:bt:jira:6", resources.get(1).getId());
+		Assertions.assertEquals(2, resources.size());
+		Assertions.assertEquals("service:bt:jira:4", resources.get(0).getId());
+		Assertions.assertEquals("service:bt:jira:6", resources.get(1).getId());
 	}
 
 	@Test
 	public void getNodeStatus() throws Exception {
 		final List<EventVo> nodes = resource.getNodeStatus();
-		Assert.assertEquals(2, nodes.size());
-		Assert.assertTrue(nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
+		Assertions.assertEquals(2, nodes.size());
+		Assertions.assertTrue(nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
 				|| NodeStatus.DOWN.name().equals(nodes.get(0).getValue()));
-		Assert.assertTrue(nodes.get(1).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
+		Assertions.assertTrue(nodes.get(1).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
 				|| NodeStatus.DOWN.name().equals(nodes.get(1).getValue()));
-		Assert.assertEquals(EventType.STATUS, nodes.get(0).getType());
+		Assertions.assertEquals(EventType.STATUS, nodes.get(0).getType());
 	}
 
 	@Test
 	public void nodeStatus() throws Exception {
 		// dummy test : used to cover enum methods.
-		Assert.assertEquals(NodeStatus.UP, NodeStatus.valueOf("UP"));
-		Assert.assertEquals(2, NodeStatus.values().length);
+		Assertions.assertEquals(NodeStatus.UP, NodeStatus.valueOf("UP"));
+		Assertions.assertEquals(2, NodeStatus.values().length);
 	}
 
 	@Test
 	public void getNodeStatistics() throws Exception {
 		final List<NodeStatisticsVo> nodes = resource.getNodeStatistics();
 		// +2 Since there are 2 nodes for JIRA and 2 for source
-		Assert.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2, nodes.size());
+		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2, nodes.size());
 	}
 
 	@Test
 	public void findSubscriptionsWithParams() {
 		final Map<Subscription, Map<String, String>> result = resource.findSubscriptionsWithParams("service:bt:jira:4");
-		Assert.assertEquals(1, result.size());
-		Assert.assertEquals(2, result.values().iterator().next().size());
+		Assertions.assertEquals(1, result.size());
+		Assertions.assertEquals(2, result.values().iterator().next().size());
 	}
 
 	@Test
 	public void findAll() {
 		final Map<String, NodeVo> result = resource.findAll();
-		Assert.assertTrue(result.size() > 30);
+		Assertions.assertTrue(result.size() > 30);
 		// Check SonarQube
-		Assert.assertEquals("service:kpi:sonar", result.get("service:kpi:sonar").getId());
-		Assert.assertEquals("SonarQube", result.get("service:kpi:sonar").getName());
-		Assert.assertEquals("service:kpi", result.get("service:kpi:sonar").getRefined().getId());
-		Assert.assertEquals("KPI Collection", result.get("service:kpi:sonar").getRefined().getName());
+		Assertions.assertEquals("service:kpi:sonar", result.get("service:kpi:sonar").getId());
+		Assertions.assertEquals("SonarQube", result.get("service:kpi:sonar").getName());
+		Assertions.assertEquals("service:kpi", result.get("service:kpi:sonar").getRefined().getId());
+		Assertions.assertEquals("KPI Collection", result.get("service:kpi:sonar").getRefined().getName());
 
 		// Check JIRA
-		Assert.assertEquals("service:bt:jira:6", result.get("service:bt:jira:6").getId());
-		Assert.assertEquals("JIRA 6", result.get("service:bt:jira:6").getName());
-		Assert.assertEquals(7, result.get("service:bt:jira:6").getParameters().size());
-		Assert.assertEquals("service:bt:jira", result.get("service:bt:jira:6").getRefined().getId());
-		Assert.assertEquals("JIRA", result.get("service:bt:jira:6").getRefined().getName());
-		Assert.assertEquals("service:bt", result.get("service:bt:jira:6").getRefined().getRefined().getId());
-		Assert.assertEquals("Bug Tracker", result.get("service:bt:jira:6").getRefined().getRefined().getName());
-		Assert.assertEquals("functional", result.get("service:bt:jira:6").getRefined().getRefined().getTag());
-		Assert.assertEquals("fa fa-suitcase", result.get("service:bt:jira:6").getRefined().getRefined().getTagUiClasses());
+		Assertions.assertEquals("service:bt:jira:6", result.get("service:bt:jira:6").getId());
+		Assertions.assertEquals("JIRA 6", result.get("service:bt:jira:6").getName());
+		Assertions.assertEquals(7, result.get("service:bt:jira:6").getParameters().size());
+		Assertions.assertEquals("service:bt:jira", result.get("service:bt:jira:6").getRefined().getId());
+		Assertions.assertEquals("JIRA", result.get("service:bt:jira:6").getRefined().getName());
+		Assertions.assertEquals("service:bt", result.get("service:bt:jira:6").getRefined().getRefined().getId());
+		Assertions.assertEquals("Bug Tracker", result.get("service:bt:jira:6").getRefined().getRefined().getName());
+		Assertions.assertEquals("functional", result.get("service:bt:jira:6").getRefined().getRefined().getTag());
+		Assertions.assertEquals("fa fa-suitcase", result.get("service:bt:jira:6").getRefined().getRefined().getTagUiClasses());
 	}
 
 	private UriInfo newFindAllParameters() {
@@ -980,66 +1006,74 @@ public class NodeResourceTest extends AbstractAppTest {
 	@Test
 	public void findAllCriteria() {
 		final List<NodeVo> result = resource.findAll(newFindAllParameters(), "sonar", null, null, -1).getData();
-		Assert.assertEquals(2, result.size());
+		Assertions.assertEquals(2, result.size());
 		// Check SonarQube
-		Assert.assertEquals("service:kpi:sonar", result.get(0).getId());
-		Assert.assertEquals("SonarQube", result.get(0).getName());
-		Assert.assertEquals("service:kpi", result.get(0).getRefined().getId());
-		Assert.assertEquals("KPI Collection", result.get(0).getRefined().getName());
+		Assertions.assertEquals("service:kpi:sonar", result.get(0).getId());
+		Assertions.assertEquals("SonarQube", result.get(0).getName());
+		Assertions.assertEquals("service:kpi", result.get(0).getRefined().getId());
+		Assertions.assertEquals("KPI Collection", result.get(0).getRefined().getName());
 
-		Assert.assertEquals("service:kpi:sonar:bpr", result.get(1).getId());
-		Assert.assertEquals("SonarQube DIG", result.get(1).getName());
+		Assertions.assertEquals("service:kpi:sonar:bpr", result.get(1).getId());
+		Assertions.assertEquals("SonarQube DIG", result.get(1).getName());
 	}
 
 	@Test
 	public void findAllNoCriteria() {
 		final TableItem<NodeVo> findAll = resource.findAll(newFindAllParameters(), null, null, null, 2);
 		final List<NodeVo> result = findAll.getData();
-		Assert.assertEquals(10, result.size());
-		Assert.assertTrue(findAll.getRecordsTotal() > 30);
-		Assert.assertEquals("service:bt", result.get(0).getId());
-		Assert.assertEquals("Bug Tracker", result.get(0).getName());
+		Assertions.assertEquals(10, result.size());
+		Assertions.assertTrue(findAll.getRecordsTotal() > 30);
+		Assertions.assertEquals("service:bt", result.get(0).getId());
+		Assertions.assertEquals("Bug Tracker", result.get(0).getName());
 	}
 
 	@Test
 	public void findByIdExpected() {
-		Assert.assertEquals("service:kpi:sonar", resource.findById("service:kpi:sonar").getId());
+		Assertions.assertEquals("service:kpi:sonar", resource.findById("service:kpi:sonar").getId());
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void findByIdExpectedNotExists() {
-		resource.findById("service:any");
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.findById("service:any");
+		});
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void findByIdExpectedNoDelegate() {
 		initSpringSecurityContext("any");
-		resource.findById("service:kpi:sonar");
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.findById("service:kpi:sonar");
+		});
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void findByIdExpectedNoValidDelegate() {
 		initSpringSecurityContext("user1");
-		resource.findById("service:kpi:sonar");
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			resource.findById("service:kpi:sonar");
+		});
 	}
 
 	@Test
 	public void findByIdExpectedSubNodes() {
 		initSpringSecurityContext("user1");
-		Assert.assertEquals("service:build:jenkins:bpr", resource.findById("service:build:jenkins:bpr").getId());
-		Assert.assertEquals("service:build:jenkins", resource.findById("service:build:jenkins").getId());
+		Assertions.assertEquals("service:build:jenkins:bpr", resource.findById("service:build:jenkins:bpr").getId());
+		Assertions.assertEquals("service:build:jenkins", resource.findById("service:build:jenkins").getId());
 	}
 
 	@Test
 	public void findByIdInternal() {
 		initSpringSecurityContext("any");
-		Assert.assertEquals("service:build:jenkins:bpr", resource.findByIdInternal("service:build:jenkins:bpr").getId());
-		Assert.assertEquals("service:build:jenkins", resource.findByIdInternal("service:build:jenkins").getId());
+		Assertions.assertEquals("service:build:jenkins:bpr", resource.findByIdInternal("service:build:jenkins:bpr").getId());
+		Assertions.assertEquals("service:build:jenkins", resource.findByIdInternal("service:build:jenkins").getId());
 	}
 
-	@Test(expected = JpaObjectRetrievalFailureException.class)
+	@Test
 	public void findByIdInternalNotExists() {
-		resource.findByIdInternal("any");
+		Assertions.assertThrows(JpaObjectRetrievalFailureException.class, () -> {
+			resource.findByIdInternal("any");
+		});
 	}
 
 	@Test
@@ -1049,24 +1083,22 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		try {
 			final TaskSampleNode entity = sampleResource.startTask("service:bt:jira:4", task -> task.setData("init"));
-			Assert.assertEquals("service:bt:jira:4", taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4").getLocked().getId());
+			Assertions.assertEquals("service:bt:jira:4",
+					taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4").getLocked().getId());
 
-			try {
+			Assertions.assertThrows(BusinessException.class, () -> {
 				sampleResource.startTask("service:bt:jira:4", task -> task.setData("init"));
-				Assert.fail();
-			} catch (BusinessException e) {
-				// ignore, as expected
-			}
+			});
 
 			sampleResource.endTask("service:bt:jira:4", false);
 			taskSampleRepository.saveAndFlush(entity);
-			Assert.assertNull(taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4"));
+			Assertions.assertNull(taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4"));
 			em.flush();
 			em.clear();
-			Assert.assertEquals(1, taskSampleRepository.count());
+			Assertions.assertEquals(1, taskSampleRepository.count());
 			resource.deleteTasks(sampleResource, "service:bt:jira:4");
-			Assert.assertNull(taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4"));
-			Assert.assertEquals(0, taskSampleRepository.count());
+			Assertions.assertNull(taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4"));
+			Assertions.assertEquals(0, taskSampleRepository.count());
 		} finally {
 			destroySingleton("taskSampleResource");
 		}

@@ -1,8 +1,8 @@
 package org.ligoj.app.resource.plugin;
 
 import org.apache.http.auth.AUTH;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class of {@link AuthCurlProcessor}
@@ -22,10 +22,10 @@ public class AuthCurlProcessorTest {
 			}
 		};
 		processor.process(request);
-		Assert.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
+		Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
 		request = new CurlRequest("", "", "");
 		processor.process(request);
-		Assert.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
+		Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class AuthCurlProcessorTest {
 			}
 		};
 		processor.process(request);
-		Assert.assertFalse(request.getHeaders().containsKey(AUTH.WWW_AUTH_RESP));
+		Assertions.assertFalse(request.getHeaders().containsKey(AUTH.WWW_AUTH_RESP));
 	}
 
 }

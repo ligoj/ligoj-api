@@ -1,16 +1,19 @@
 package org.ligoj.app;
 
+import java.io.Serializable;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Objects;
+import java.util.regex.Matcher;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ClassUtils;
-import org.hamcrest.BaseMatcher;
-import org.hamcrest.Description;
-import org.hamcrest.Matcher;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * {@link Matcher} utilities
@@ -18,33 +21,26 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 public class MatcherUtil {
 
 	/**
-	 * Generate a {@link Matcher} checking a {@link ValidationJsonException} error: field and message.
+	 * Generate a {@link Matcher} checking a {@link ValidationJsonException}
+	 * error: field and message.
 	 * 
+	 * @param ex
+	 *            The exception to check.
 	 * @param field
 	 *            the error field name.
 	 * @param message
 	 *            the unique error message
 	 * @return the built matcher.
 	 */
-	public static Matcher<ValidationJsonException> validationMatcher(final String field, final String message) {
-		return new BaseMatcher<ValidationJsonException>() {
-
-			@Override
-			public boolean matches(final Object item) {
-				final ValidationJsonException exception = (ValidationJsonException) item;
-				return exception.getErrors().get(field) != null
-						&& exception.getErrors().get(field).stream().anyMatch(e -> message.equals(e.get("rule")));
-			}
-
-			@Override
-			public void describeTo(final Description description) {
-				description.appendText(field + " : " + message);
-			}
-		};
+	public static void assertThrows(final ValidationJsonException ex, final String field, final String message) {
+		final Collection<Map<String, Serializable>> errors = CollectionUtils.emptyIfNull(ex.getErrors().get(field));
+		Assertions.assertTrue(errors.stream().anyMatch(e -> message.equals(e.get("rule"))), "Expected " + field + "='" + message
+				+ "' but was '" + errors.stream().findFirst().map(e -> e.get("rule")).orElse(null) + "'");
 	}
 
 	/**
-	 * Generate a {@link Matcher} checking a {@link ValidationJsonException} error: field and message.
+	 * Generate a {@link Matcher} checking a {@link ValidationJsonException}
+	 * error: field and message.
 	 * 
 	 * @param field
 	 *            the error field name.
@@ -52,41 +48,18 @@ public class MatcherUtil {
 	 *            the unique error message
 	 * @return the built matcher.
 	 */
-	public static Matcher<ConstraintViolationException> constraintMatcher(final String field, final String message) {
-		return new BaseMatcher<ConstraintViolationException>() {
-
-			@Override
-			public boolean matches(final Object item) {
-				final ConstraintViolationException exception = (ConstraintViolationException) item;
-				for (final ConstraintViolation<?> violation : exception.getConstraintViolations()) {
-					if (field.equals(violation.getPropertyPath().toString()) && (Objects.equals(message, violation.getMessageTemplate())
-							|| message.equalsIgnoreCase(ClassUtils.getShortClassName(ClassUtils.getPackageName(violation.getMessageTemplate()))))) {
-						return true;
-					}
+	public static void assertThrows(final ConstraintViolationException ex, final String field, final String message) {
+		String closest = null;
+		for (final ConstraintViolation<?> violation : ex.getConstraintViolations()) {
+			if (field.equals(violation.getPropertyPath().toString())) {
+				closest = violation.getMessageTemplate();
+				if (Objects.equals(message, violation.getMessageTemplate()) || message
+						.equalsIgnoreCase(ClassUtils.getShortClassName(ClassUtils.getPackageName(violation.getMessageTemplate())))) {
+					return;
 				}
-				return false;
 			}
-
-			@Override
-			public void describeTo(final Description description) {
-				description.appendText(field + " : " + message);
-			}
-		};
-	}
-
-	/**
-	 * Add a check : {@link ValidationJsonException} exception must be thrown for a field with a message.
-	 * 
-	 * @param thrown
-	 *            Rule manager for exception.
-	 * @param field
-	 *            the error field name.
-	 * @param message
-	 *            the unique error message
-	 */
-	public static void expectValidationException(final ExpectedException thrown, final String field, final String message) {
-		thrown.expect(ValidationJsonException.class);
-		thrown.expect(validationMatcher(field, message));
+		}
+		throw new AssertionFailedError("Expected " + field + "='" + message + "' but was '" + closest + "'");
 	}
 
 }

@@ -5,8 +5,8 @@ import java.util.Collections;
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
 import org.mockito.ArgumentMatchers;
@@ -40,7 +40,7 @@ public class TestAbstractAppTest extends AbstractAppTest {
 		Mockito.when(typeQuery.setMaxResults(1)).thenReturn(typeQuery);
 		Mockito.when(typeQuery.getResultList()).thenReturn(Collections.singletonList(3));
 		Mockito.when(em.createQuery(ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(typeQuery);
-		Assert.assertEquals(3, getSubscription("some", "service"));
+		Assertions.assertEquals(3, getSubscription("some", "service"));
 	}
 
 }

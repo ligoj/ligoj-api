@@ -1,6 +1,6 @@
 package org.ligoj.app.api;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.SimpleUser;
 import org.ligoj.bootstrap.model.AbstractBusinessEntityTest;
 

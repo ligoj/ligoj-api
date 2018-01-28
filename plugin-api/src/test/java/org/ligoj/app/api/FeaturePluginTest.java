@@ -1,7 +1,7 @@
 package org.ligoj.app.api;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class of {@link FeaturePlugin}
@@ -18,22 +18,22 @@ public class FeaturePluginTest {
 
 	@Test
 	public void getName() throws Exception {
-		Assert.assertEquals("T2", plugin.getName());
+		Assertions.assertEquals("T2", plugin.getName());
 	}
 
 	@Test
 	public void getVendor() throws Exception {
-		Assert.assertNull(plugin.getVendor());
+		Assertions.assertNull(plugin.getVendor());
 	}
 
 	@Test
 	public void getVersion() throws Exception {
-		Assert.assertNull(plugin.getVersion());
+		Assertions.assertNull(plugin.getVersion());
 	}
 
 	@Test
 	public void getInstalledEntities() {
-		Assert.assertTrue(plugin.getInstalledEntities().isEmpty());
+		Assertions.assertTrue(plugin.getInstalledEntities().isEmpty());
 	}
 
 	@Test
@@ -50,6 +50,6 @@ public class FeaturePluginTest {
 
 	@Test
 	public void compareTo() throws Exception {
-		Assert.assertEquals(0, plugin.compareTo(plugin));
+		Assertions.assertEquals(0, plugin.compareTo(plugin));
 	}
 }

@@ -6,8 +6,8 @@ import java.nio.charset.StandardCharsets;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpStatus;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 
@@ -21,9 +21,10 @@ public class TestAbstractServerTest extends AbstractServerTest {
 	 */
 	@Test
 	public void startAutoStop() throws IOException {
-		httpServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
+		httpServer.stubFor(
+				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
-		Assert.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
 	}
 
 	/**
@@ -31,9 +32,10 @@ public class TestAbstractServerTest extends AbstractServerTest {
 	 */
 	@Test
 	public void startStop() throws IOException {
-		httpServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
+		httpServer.stubFor(
+				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
-		Assert.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
 		httpServer.stop();
 		httpServer = null;
 	}
@@ -43,17 +45,20 @@ public class TestAbstractServerTest extends AbstractServerTest {
 	 */
 	@Test
 	public void startStop2() throws IOException {
-		httpServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
+		httpServer.stubFor(
+				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
-		Assert.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
 		httpServer.stop();
 	}
 
 	/**
 	 * Only there fore coverage, no Spring involved.
 	 */
-	@Test(expected = IllegalStateException.class)
+	@Test
 	public void prepareMockServerDuplicate() {
-		prepareMockServer();
+		Assertions.assertThrows(IllegalStateException.class, () -> {
+			prepareMockServer();
+		});
 	}
 }

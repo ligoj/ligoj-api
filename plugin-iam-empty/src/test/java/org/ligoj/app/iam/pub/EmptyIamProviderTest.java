@@ -1,7 +1,7 @@
 package org.ligoj.app.iam.pub;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.empty.EmptyIamProvider;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -20,46 +20,48 @@ public class EmptyIamProviderTest {
 	@Test
 	public void authenticate() {
 		final Authentication mock = Mockito.mock(Authentication.class);
-		Assert.assertSame(mock, provider.authenticate(mock));
+		Assertions.assertSame(mock, provider.authenticate(mock));
 	}
 
 	@Test
 	public void getConfiguration() {
 		final IamConfiguration configuration = provider.getConfiguration();
-		Assert.assertNotNull(configuration);
-		Assert.assertNotNull(configuration.getCompanyRepository());
-		Assert.assertNotNull(configuration.getUserRepository());
-		Assert.assertNotNull(configuration.getGroupRepository());
-		Assert.assertEquals("login", configuration.getUserRepository().toUser("login").getId());
+		Assertions.assertNotNull(configuration);
+		Assertions.assertNotNull(configuration.getCompanyRepository());
+		Assertions.assertNotNull(configuration.getUserRepository());
+		Assertions.assertNotNull(configuration.getGroupRepository());
+		Assertions.assertEquals("login", configuration.getUserRepository().toUser("login").getId());
 	}
 
 	@Test
 	public void getConfigurationFindById() {
 		final IamConfiguration configuration = provider.getConfiguration();
-		Assert.assertEquals("any", configuration.getUserRepository().findById("any").getId());
-		Assert.assertNull(configuration.getGroupRepository().findById("any"));
-		Assert.assertNull(configuration.getCompanyRepository().findById("any"));
-		Assert.assertNull(new MockUserRepository2().findById("any"));
+		Assertions.assertEquals("any", configuration.getUserRepository().findById("any").getId());
+		Assertions.assertNull(configuration.getGroupRepository().findById("any"));
+		Assertions.assertNull(configuration.getCompanyRepository().findById("any"));
+		Assertions.assertNull(new MockUserRepository2().findById("any"));
 	}
 
 	@Test
 	public void getConfigurationFindByIdExpected() {
 		final IamConfiguration configuration = provider.getConfiguration();
-		Assert.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
+		Assertions.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void getConfigurationFindByIdDefault() {
-		Assert.assertNotNull(new MockUserRepository().findByIdExpected("some"));
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			Assertions.assertNotNull(new MockUserRepository().findByIdExpected("some"));
+		});
 	}
 
 	@Test
 	public void getConfigurationFindOneByDefault() {
-		Assert.assertNotNull(new MockUserRepository().findOneBy("attribute1", "value1"));
+		Assertions.assertNotNull(new MockUserRepository().findOneBy("attribute1", "value1"));
 	}
 
 	@Test
 	public void getKey() {
-		Assert.assertEquals("feature:iam:empty", provider.getKey());
+		Assertions.assertEquals("feature:iam:empty", provider.getKey());
 	}
 }

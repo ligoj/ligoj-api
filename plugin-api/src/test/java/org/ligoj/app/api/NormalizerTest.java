@@ -6,8 +6,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 
 /**
@@ -22,26 +22,26 @@ public class NormalizerTest extends AbstractDataGeneratorTest {
 		strings.add("C");
 		strings.add(" c ");
 		final Set<String> result = Normalizer.normalize(strings);
-		Assert.assertEquals(1, result.size());
-		Assert.assertTrue(result.contains("c"));
+		Assertions.assertEquals(1, result.size());
+		Assertions.assertTrue(result.contains("c"));
 	}
 
 	@Test
 	public void normalizeSetNull() {
 		final Set<String> result = Normalizer.normalize((Collection<String>) null);
-		Assert.assertEquals(0, result.size());
+		Assertions.assertEquals(0, result.size());
 	}
 
 	@Test
 	public void normalize() {
-		Assert.assertEquals("c", Normalizer.normalize(" C "));
-		Assert.assertEquals("c", Normalizer.normalize("c"));
+		Assertions.assertEquals("c", Normalizer.normalize(" C "));
+		Assertions.assertEquals("c", Normalizer.normalize("c"));
 	}
 
 	@Test
 	public void normalizDiacritic() {
-		Assert.assertEquals("c", Normalizer.normalize("ç"));
-		Assert.assertEquals("aaiconeeeuuaaiconeeeuu", Normalizer.normalize("àâîçôñéêèûùÂÀÎÇÔÑÊÉÈÛÙ"));
+		Assertions.assertEquals("c", Normalizer.normalize("ç"));
+		Assertions.assertEquals("aaiconeeeuuaaiconeeeuu", Normalizer.normalize("àâîçôñéêèûùÂÀÎÇÔÑÊÉÈÛÙ"));
 	}
 
 	@Test

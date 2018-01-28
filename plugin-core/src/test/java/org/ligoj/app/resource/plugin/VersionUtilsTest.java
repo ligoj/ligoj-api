@@ -2,8 +2,8 @@ package org.ligoj.app.resource.plugin;
 
 import java.util.Date;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class of {@link VersionUtils}
@@ -13,9 +13,9 @@ public class VersionUtilsTest {
 	@Test
 	public void getLatestReleasedVersion() throws Exception {
 		final AtlassianVersion releasedVersion = new VersionUtils().getLatestReleasedVersion("https://jira.atlassian.com", "JRA");
-		Assert.assertNotNull(releasedVersion);
-		Assert.assertNotNull(releasedVersion.getName());
-		Assert.assertNotNull(releasedVersion.getReleaseDate());
+		Assertions.assertNotNull(releasedVersion);
+		Assertions.assertNotNull(releasedVersion.getName());
+		Assertions.assertNotNull(releasedVersion.getReleaseDate());
 	}
 
 	@Test
@@ -24,7 +24,7 @@ public class VersionUtilsTest {
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
-		Assert.assertTrue(new VersionUtils().isValidVersion(null, jiraVersion));
+		Assertions.assertTrue(new VersionUtils().isValidVersion(null, jiraVersion));
 	}
 
 	@Test
@@ -34,7 +34,7 @@ public class VersionUtilsTest {
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
-		Assert.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
+		Assertions.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
 	}
 
 	@Test
@@ -42,7 +42,7 @@ public class VersionUtilsTest {
 		final AtlassianVersion jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleaseDate(new Date());
-		Assert.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
+		Assertions.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class VersionUtilsTest {
 		jiraVersion.setArchived(false);
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
-		Assert.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
+		Assertions.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
 	}
 
 	@Test
@@ -65,7 +65,7 @@ public class VersionUtilsTest {
 		jiraVersion.setName("1.1");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
-		Assert.assertTrue(new VersionUtils().isValidVersion(previous, jiraVersion));
+		Assertions.assertTrue(new VersionUtils().isValidVersion(previous, jiraVersion));
 	}
 
 	@Test
@@ -75,7 +75,7 @@ public class VersionUtilsTest {
 		jiraVersion.setName("OLD 1.0");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
-		Assert.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
+		Assertions.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
 	}
 
 	@Test
@@ -89,18 +89,18 @@ public class VersionUtilsTest {
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
-		Assert.assertFalse(new VersionUtils().isValidVersion(previous, jiraVersion));
+		Assertions.assertFalse(new VersionUtils().isValidVersion(previous, jiraVersion));
 	}
 
 	@Test
 	public void getLatestReleasedVersionName() throws Exception {
 		final String releasedVersion = new VersionUtils().getLatestReleasedVersionName("https://jira.atlassian.com", "JRA");
-		Assert.assertNotNull(releasedVersion);
+		Assertions.assertNotNull(releasedVersion);
 	}
 
 	@Test
 	public void getLatestReleasedVersionNameFailed() throws Exception {
-		Assert.assertNull(new VersionUtils().getLatestReleasedVersionName("any:some", "0"));
+		Assertions.assertNull(new VersionUtils().getLatestReleasedVersionName("any:some", "0"));
 	}
 
 }

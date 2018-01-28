@@ -1,6 +1,6 @@
 package org.ligoj.app.api;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class of {@link ServicePlugin}

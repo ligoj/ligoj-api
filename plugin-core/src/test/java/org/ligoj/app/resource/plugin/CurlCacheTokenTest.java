@@ -2,10 +2,10 @@ package org.ligoj.app.resource.plugin;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
@@ -19,8 +19,8 @@ public class CurlCacheTokenTest {
 
 	private CurlCacheToken cacheToken;
 
-	@Before
-	@After
+	@BeforeEach
+	@AfterEach
 	public void clearCache() {
 		CacheManager.getInstance().getCache("curl-tokens").removeAll();
 		cacheToken = new CurlCacheToken();
@@ -32,35 +32,32 @@ public class CurlCacheTokenTest {
 	public void getTokenCacheFailed() {
 		final Object sync = new Object();
 		AtomicInteger counter = new AtomicInteger();
-		try {
-			Assert.assertEquals("", cacheToken.getTokenCache(sync, "key", k -> {
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			Assertions.assertEquals("", cacheToken.getTokenCache(sync, "key", k -> {
 				counter.incrementAndGet();
 				return null;
 			}, 2, () -> new ValidationJsonException()));
-			Assert.fail("Expected ValidationJsonException");
-		} catch (final ValidationJsonException ve) {
-			// Good
-		}
-		Assert.assertEquals(2, counter.get());
-		Assert.assertEquals("ok", cacheToken.getTokenCache(sync, "key", k -> {
+		});
+		Assertions.assertEquals(2, counter.get());
+		Assertions.assertEquals("ok", cacheToken.getTokenCache(sync, "key", k -> {
 			if (counter.incrementAndGet() == 4) {
 				return "ok";
 			}
 			return null;
 		}, 2, () -> new ValidationJsonException()));
-		Assert.assertEquals(4, counter.get());
+		Assertions.assertEquals(4, counter.get());
 	}
 
 	@Test
 	public void getTokenCache() {
 		final Object sync = new Object();
 		AtomicInteger counter = new AtomicInteger();
-		Assert.assertEquals("ok", cacheToken.getTokenCache(sync, "key", k -> {
+		Assertions.assertEquals("ok", cacheToken.getTokenCache(sync, "key", k -> {
 			if (counter.incrementAndGet() == 2) {
 				return "ok";
 			}
 			return null;
 		}, 2, () -> new ValidationJsonException()));
-		Assert.assertEquals(2, counter.get());
+		Assertions.assertEquals(2, counter.get());
 	}
 }

@@ -2,8 +2,8 @@ package org.ligoj.app.iam;
 
 import java.util.Collections;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 
 /**
@@ -13,7 +13,7 @@ public class GroupRepositoryTest {
 
 	@Test
 	public void findAll() {
-		Assert.assertTrue(new EmptyGroupRepository().findAll().isEmpty());
+		Assertions.assertTrue(new EmptyGroupRepository().findAll().isEmpty());
 	}
 
 	@Test
@@ -23,25 +23,27 @@ public class GroupRepositoryTest {
 
 	@Test
 	public void findByDepartment() {
-		Assert.assertNull(new EmptyGroupRepository().findByDepartment("any"));
+		Assertions.assertNull(new EmptyGroupRepository().findByDepartment("any"));
 	}
 
 	@Test
 	public void create() {
 		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
-		Assert.assertEquals("Cn=Some", groupLdap.getDn());
-		Assert.assertEquals("Name", groupLdap.getName());
-		Assert.assertEquals("name", groupLdap.getId());
+		Assertions.assertEquals("Cn=Some", groupLdap.getDn());
+		Assertions.assertEquals("Name", groupLdap.getName());
+		Assertions.assertEquals("name", groupLdap.getId());
 	}
 
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void findByIdExpectedNotExists() {
-		new EmptyGroupRepository().findByIdExpected("user1", "user2");
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			new EmptyGroupRepository().findByIdExpected("user1", "user2");
+		});
 	}
 
 	@Test
 	public void findByIdExpected() {
-		Assert.assertEquals("user2", new EmptyGroupRepository() {
+		Assertions.assertEquals("user2", new EmptyGroupRepository() {
 			@Override
 			public GroupOrg findById(String id) {
 				return new GroupOrg(id, id, Collections.emptySet());

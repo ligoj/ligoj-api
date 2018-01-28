@@ -8,8 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.iam.IUserRepository;
@@ -39,15 +39,15 @@ public class ToVoConverterTest {
 		final Project entity = new Project();
 		entity.setSubscriptions(Collections.emptyList());
 		final ProjectVo vo = converter.apply(entity);
-		Assert.assertNull(vo.getName());
-		Assert.assertNull(vo.getPkey());
-		Assert.assertNull(vo.getCreatedBy());
-		Assert.assertNull(vo.getCreatedDate());
-		Assert.assertNull(vo.getLastModifiedBy());
-		Assert.assertNull(vo.getLastModifiedDate());
-		Assert.assertNull(vo.getTeamLeader());
-		Assert.assertNull(vo.getId());
-		Assert.assertTrue(vo.getSubscriptions().isEmpty());
+		Assertions.assertNull(vo.getName());
+		Assertions.assertNull(vo.getPkey());
+		Assertions.assertNull(vo.getCreatedBy());
+		Assertions.assertNull(vo.getCreatedDate());
+		Assertions.assertNull(vo.getLastModifiedBy());
+		Assertions.assertNull(vo.getLastModifiedDate());
+		Assertions.assertNull(vo.getTeamLeader());
+		Assertions.assertNull(vo.getId());
+		Assertions.assertTrue(vo.getSubscriptions().isEmpty());
 	}
 
 	@Test
@@ -129,23 +129,23 @@ public class ToVoConverterTest {
 		final ProjectVo vo = converter.apply(entity);
 
 		// Check
-		Assert.assertEquals("N", vo.getName());
-		Assert.assertEquals("D", vo.getDescription());
-		Assert.assertEquals("PK", vo.getPkey());
-		Assert.assertEquals("U2", vo.getCreatedBy().getId());
-		Assert.assertNotNull(vo.getCreatedDate());
-		Assert.assertEquals("U1", vo.getLastModifiedBy().getId());
-		Assert.assertNotNull(vo.getLastModifiedDate());
-		Assert.assertEquals("U3", vo.getTeamLeader().getId());
-		Assert.assertEquals(1, vo.getId().intValue());
-		Assert.assertEquals(2, vo.getSubscriptions().size());
+		Assertions.assertEquals("N", vo.getName());
+		Assertions.assertEquals("D", vo.getDescription());
+		Assertions.assertEquals("PK", vo.getPkey());
+		Assertions.assertEquals("U2", vo.getCreatedBy().getId());
+		Assertions.assertNotNull(vo.getCreatedDate());
+		Assertions.assertEquals("U1", vo.getLastModifiedBy().getId());
+		Assertions.assertNotNull(vo.getLastModifiedDate());
+		Assertions.assertEquals("U3", vo.getTeamLeader().getId());
+		Assertions.assertEquals(1, vo.getId().intValue());
+		Assertions.assertEquals(2, vo.getSubscriptions().size());
 
 		// Check the statuses and their order by node
 		final List<SubscriptionVo> subscriptionsVo = vo.getSubscriptions();
-		Assert.assertNull(subscriptionsVo.get(0).getStatus());
-		Assert.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
-		Assert.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
-		Assert.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
+		Assertions.assertNull(subscriptionsVo.get(0).getStatus());
+		Assertions.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
+		Assertions.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
+		Assertions.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
 	}
 
 	private UserOrg toUser(final String login) {

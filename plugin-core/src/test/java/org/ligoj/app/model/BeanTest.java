@@ -4,8 +4,8 @@ import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.model.CacheCompany;
 import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.app.iam.model.CacheUser;
@@ -21,20 +21,20 @@ public class BeanTest {
 
 	@Test
 	public void testCacheCompany() {
-		Assert.assertTrue(new CacheCompany().isNew());
+		Assertions.assertTrue(new CacheCompany().isNew());
 
 	}
 
 	@Test
 	public void testCacheGroup() {
-		Assert.assertTrue(new CacheGroup().isNew());
+		Assertions.assertTrue(new CacheGroup().isNew());
 	}
 
 	@Test
 	public void testCacheProjectGroup() {
-		Assert.assertNull(new CacheProjectGroup().getGroup());
-		Assert.assertNull(new CacheProjectGroup().getProject());
-		Assert.assertNull(new Project().getCacheGroups());
+		Assertions.assertNull(new CacheProjectGroup().getGroup());
+		Assertions.assertNull(new CacheProjectGroup().getProject());
+		Assertions.assertNull(new Project().getCacheGroups());
 		new Project().setCacheGroups(Collections.emptyList());
 	}
 
@@ -70,6 +70,6 @@ public class BeanTest {
 
 	private <T, X> void check(X bean, BiConsumer<X, T> setter, Function<X, T> getter, T value) {
 		setter.accept(bean, value);
-		Assert.assertEquals(value, getter.apply(bean));
+		Assertions.assertEquals(value, getter.apply(bean));
 	}
 }

@@ -7,10 +7,10 @@ import java.util.List;
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriInfo;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ProjectRepository;
@@ -29,12 +29,12 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Test class of {@link ProjectResource}
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
@@ -53,7 +53,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 	private Project testProject;
 
-	@Before
+	@BeforeEach
 	public void setUpEntities2() {
 		resource = new ProjectResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
@@ -74,15 +74,15 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("fdaugan");
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, null);
-		Assert.assertEquals(2, result.getData().size());
+		Assertions.assertEquals(2, result.getData().size());
 
 		final ProjectLightVo project = result.getData().get(0);
 		checkProjectMDA(project);
 
-		Assert.assertEquals("gStack", result.getData().get(1).getName());
+		Assertions.assertEquals("gStack", result.getData().get(1).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
-		Assert.assertTrue(result.getData().get(1).getNbSubscriptions() >= 6);
+		Assertions.assertTrue(result.getData().get(1).getNbSubscriptions() >= 6);
 	}
 
 	@Test
@@ -100,12 +100,12 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("user");
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "gStack");
-		Assert.assertEquals(1, result.getData().size());
+		Assertions.assertEquals(1, result.getData().size());
 
-		Assert.assertEquals("gStack", result.getData().get(0).getName());
+		Assertions.assertEquals("gStack", result.getData().get(0).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
-		Assert.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
+		Assertions.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
 	}
 
 	@Test
@@ -114,11 +114,11 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		final UriInfo uriInfo = newFindAllParameters();
 
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, null);
-		Assert.assertEquals(1, result.getData().size());
-		Assert.assertEquals("gStack", result.getData().get(0).getName());
+		Assertions.assertEquals(1, result.getData().size());
+		Assertions.assertEquals("gStack", result.getData().get(0).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
-		Assert.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
+		Assertions.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
 	}
 
 	@Test
@@ -128,7 +128,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 		initSpringSecurityContext("any");
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "MDA");
-		Assert.assertEquals(0, result.getData().size());
+		Assertions.assertEquals(0, result.getData().size());
 	}
 
 	@Test
@@ -138,7 +138,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 		initSpringSecurityContext("fdaugan");
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "mdA");
-		Assert.assertEquals(1, result.getData().size());
+		Assertions.assertEquals(1, result.getData().size());
 
 		final ProjectLightVo project = result.getData().get(0);
 		checkProjectMDA(project);
@@ -151,22 +151,22 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 		initSpringSecurityContext("alongchu");
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "gStack");
-		Assert.assertEquals(1, result.getData().size());
+		Assertions.assertEquals(1, result.getData().size());
 
 		final ProjectLightVo project = result.getData().get(0);
-		Assert.assertEquals("gStack", project.getName());
+		Assertions.assertEquals("gStack", project.getName());
 	}
 
 	private void checkProjectMDA(final ProjectLightVo project) {
-		Assert.assertEquals("MDA", project.getName());
-		Assert.assertEquals("Model Driven Architecture implementation of Gfi", project.getDescription());
-		Assert.assertEquals("mda", project.getPkey());
-		Assert.assertNotNull(project.getCreatedDate());
-		Assert.assertNotNull(project.getLastModifiedDate());
-		Assert.assertEquals(DEFAULT_USER, project.getCreatedBy().getId());
-		Assert.assertEquals(DEFAULT_USER, project.getLastModifiedBy().getId());
-		Assert.assertEquals(1, project.getNbSubscriptions());
-		Assert.assertEquals("fdaugan", project.getTeamLeader().getId());
+		Assertions.assertEquals("MDA", project.getName());
+		Assertions.assertEquals("Model Driven Architecture implementation of Gfi", project.getDescription());
+		Assertions.assertEquals("mda", project.getPkey());
+		Assertions.assertNotNull(project.getCreatedDate());
+		Assertions.assertNotNull(project.getLastModifiedDate());
+		Assertions.assertEquals(DEFAULT_USER, project.getCreatedBy().getId());
+		Assertions.assertEquals(DEFAULT_USER, project.getLastModifiedBy().getId());
+		Assertions.assertEquals(1, project.getNbSubscriptions());
+		Assertions.assertEquals("fdaugan", project.getTeamLeader().getId());
 	}
 
 	private UriInfo newFindAllParameters() {
@@ -182,32 +182,36 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	/**
 	 * test {@link ProjectResource#findById(int)}
 	 */
-	@Test(expected = BusinessException.class)
+	@Test
 	public void findByIdInvalid() {
 		initSpringSecurityContext("alongchu");
-		Assert.assertNull(resource.findById(0));
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.findById(0);
+		});
 	}
 
 	/**
 	 * test {@link ProjectResource#findById(int)}
 	 */
-	@Test(expected = BusinessException.class)
+	@Test
 	public void findByIdNotVisible() {
 		final Project byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
-		final ProjectVo project = resource.findById(byName.getId());
-		Assert.assertNull(project);
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.findById(byName.getId());
+		});
 	}
 
 	/**
 	 * test {@link ProjectResource#findById(int)}
 	 */
-	@Test(expected = BusinessException.class)
+	@Test
 	public void findByIdVisibleSinceAdmin() {
 		initSpringSecurityContext("admin");
 		final Project byName = repository.findByName("gStack");
-		final ProjectVo project = resource.findById(byName.getId());
-		Assert.assertNull(project);
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.findById(byName.getId());
+		});
 	}
 
 	/**
@@ -222,13 +226,13 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		final ProjectVo project = resource.findById(byName.getId());
 
 		// Check subscription
-		Assert.assertTrue(project.getSubscriptions().size() >= 6);
+		Assertions.assertTrue(project.getSubscriptions().size() >= 6);
 		for (final SubscriptionVo subscription : project.getSubscriptions()) {
 			if (subscription.getStatus() != null) {
 				return;
 			}
 		}
-		Assert.fail("Subscriptions status was expected.");
+		Assertions.fail("Subscriptions status was expected.");
 	}
 
 	/**
@@ -248,7 +252,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void findByIdNoParameter() {
 		// Pre check
 		initSpringSecurityContext("fdaugan");
-		Assert.assertEquals(1, resource.findById(testProject.getId()).getSubscriptions().size());
+		Assertions.assertEquals(1, resource.findById(testProject.getId()).getSubscriptions().size());
 		em.flush();
 		em.clear();
 
@@ -261,10 +265,10 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 		// Post check
 		final List<SubscriptionVo> subscriptions = resource.findById(testProject.getId()).getSubscriptions();
-		Assert.assertEquals(2, subscriptions.size());
-		Assert.assertEquals("service:bt:jira:4", subscriptions.get(0).getNode().getId());
-		Assert.assertEquals("service:build:jenkins", subscriptions.get(1).getNode().getId());
-		Assert.assertEquals(0, subscriptions.get(1).getParameters().size());
+		Assertions.assertEquals(2, subscriptions.size());
+		Assertions.assertEquals("service:bt:jira:4", subscriptions.get(0).getNode().getId());
+		Assertions.assertEquals("service:build:jenkins", subscriptions.get(1).getNode().getId());
+		Assertions.assertEquals(0, subscriptions.get(1).getParameters().size());
 	}
 
 	/**
@@ -279,51 +283,53 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	/**
 	 * test {@link ProjectResource#findByPKey(String)}
 	 */
-	@Test(expected = ValidationJsonException.class)
+	@Test
 	public void findByPKeyNotExists() {
 		initSpringSecurityContext("any");
-		checkProject(resource.findByPKey("mda"));
+		Assertions.assertThrows(ValidationJsonException.class, () -> {
+			checkProject(resource.findByPKey("mda"));
+		});
 	}
 
 	private void checkProject(final BasicProjectVo project) {
-		Assert.assertEquals("MDA", project.getName());
-		Assert.assertEquals(testProject.getId(), project.getId());
-		Assert.assertEquals("Model Driven Architecture implementation of Gfi", project.getDescription());
-		Assert.assertNotNull(project.getCreatedDate());
-		Assert.assertNotNull(project.getLastModifiedDate());
-		Assert.assertEquals(DEFAULT_USER, project.getCreatedBy().getId());
-		Assert.assertEquals(DEFAULT_USER, project.getLastModifiedBy().getId());
-		Assert.assertEquals("mda", project.getPkey());
-		Assert.assertEquals("fdaugan", project.getTeamLeader().getId());
+		Assertions.assertEquals("MDA", project.getName());
+		Assertions.assertEquals(testProject.getId(), project.getId());
+		Assertions.assertEquals("Model Driven Architecture implementation of Gfi", project.getDescription());
+		Assertions.assertNotNull(project.getCreatedDate());
+		Assertions.assertNotNull(project.getLastModifiedDate());
+		Assertions.assertEquals(DEFAULT_USER, project.getCreatedBy().getId());
+		Assertions.assertEquals(DEFAULT_USER, project.getLastModifiedBy().getId());
+		Assertions.assertEquals("mda", project.getPkey());
+		Assertions.assertEquals("fdaugan", project.getTeamLeader().getId());
 	}
 
 	private void checkProject(final ProjectVo project) {
 		checkProject((BasicProjectVo) project);
-		Assert.assertTrue(project.isManageSubscriptions());
+		Assertions.assertTrue(project.isManageSubscriptions());
 
 		// Check subscription
-		Assert.assertEquals(1, project.getSubscriptions().size());
+		Assertions.assertEquals(1, project.getSubscriptions().size());
 		final SubscriptionVo subscription = project.getSubscriptions().iterator().next();
-		Assert.assertNotNull(subscription.getCreatedDate());
-		Assert.assertNotNull(subscription.getLastModifiedDate());
-		Assert.assertNotNull(subscription.getId());
-		Assert.assertEquals(DEFAULT_USER, subscription.getCreatedBy().getId());
-		Assert.assertEquals(DEFAULT_USER, subscription.getLastModifiedBy().getId());
+		Assertions.assertNotNull(subscription.getCreatedDate());
+		Assertions.assertNotNull(subscription.getLastModifiedDate());
+		Assertions.assertNotNull(subscription.getId());
+		Assertions.assertEquals(DEFAULT_USER, subscription.getCreatedBy().getId());
+		Assertions.assertEquals(DEFAULT_USER, subscription.getLastModifiedBy().getId());
 
 		// Check service (ordered by id)
 		final NodeVo service = subscription.getNode();
-		Assert.assertNotNull(service);
-		Assert.assertEquals("JIRA 4", service.getName());
-		Assert.assertNotNull(service.getId());
-		Assert.assertEquals("service:bt:jira", service.getRefined().getId());
-		Assert.assertEquals("service:bt", service.getRefined().getRefined().getId());
-		Assert.assertNull(service.getRefined().getRefined().getRefined());
+		Assertions.assertNotNull(service);
+		Assertions.assertEquals("JIRA 4", service.getName());
+		Assertions.assertNotNull(service.getId());
+		Assertions.assertEquals("service:bt:jira", service.getRefined().getId());
+		Assertions.assertEquals("service:bt", service.getRefined().getRefined().getId());
+		Assertions.assertNull(service.getRefined().getRefined().getRefined());
 
 		// Check subscription values
-		Assert.assertEquals(3, subscription.getParameters().size());
-		Assert.assertEquals("http://localhost:8120", subscription.getParameters().get("service:bt:jira:url"));
-		Assert.assertEquals(10074, ((Integer) subscription.getParameters().get("service:bt:jira:project")).intValue());
-		Assert.assertEquals("MDA", subscription.getParameters().get("service:bt:jira:pkey"));
+		Assertions.assertEquals(3, subscription.getParameters().size());
+		Assertions.assertEquals("http://localhost:8120", subscription.getParameters().get("service:bt:jira:url"));
+		Assertions.assertEquals(10074, ((Integer) subscription.getParameters().get("service:bt:jira:project")).intValue());
+		Assertions.assertEquals("MDA", subscription.getParameters().get("service:bt:jira:pkey"));
 	}
 
 	/**
@@ -341,10 +347,10 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		em.clear();
 
 		final Project entity = repository.findOneExpected(id);
-		Assert.assertEquals("Name", entity.getName());
-		Assert.assertEquals("Description", entity.getDescription());
-		Assert.assertEquals("artifact-id", entity.getPkey());
-		Assert.assertEquals(DEFAULT_USER, entity.getTeamLeader());
+		Assertions.assertEquals("Name", entity.getName());
+		Assertions.assertEquals("Description", entity.getDescription());
+		Assertions.assertEquals("artifact-id", entity.getPkey());
+		Assertions.assertEquals(DEFAULT_USER, entity.getTeamLeader());
 	}
 
 	/**
@@ -363,10 +369,10 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		em.clear();
 
 		final Project projFromDB = repository.findOne(testProject.getId());
-		Assert.assertEquals("Name", projFromDB.getName());
-		Assert.assertEquals("Description", projFromDB.getDescription());
-		Assert.assertEquals("mda", projFromDB.getPkey());
-		Assert.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
+		Assertions.assertEquals("Name", projFromDB.getName());
+		Assertions.assertEquals("Description", projFromDB.getDescription());
+		Assertions.assertEquals("mda", projFromDB.getPkey());
+		Assertions.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
 	}
 
 	/**
@@ -387,75 +393,105 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		em.clear();
 
 		final Project projFromDB = repository.findOne(project.getId());
-		Assert.assertEquals("Name", projFromDB.getName());
-		Assert.assertEquals("Description", projFromDB.getDescription());
-		Assert.assertEquals("artifact-id", projFromDB.getPkey());
-		Assert.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
+		Assertions.assertEquals("Name", projFromDB.getName());
+		Assertions.assertEquals("Description", projFromDB.getDescription());
+		Assertions.assertEquals("artifact-id", projFromDB.getPkey());
+		Assertions.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
 	}
 
 	/**
 	 * test update
 	 */
-	@Test(expected = BusinessException.class)
+	@Test
 	public void deleteNotVisible() throws Exception {
 		em.clear();
 		initSpringSecurityContext("mlavoine");
-		resource.delete(testProject.getId());
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.delete(testProject.getId());
+		});
 	}
 
 	/**
 	 * test update
 	 */
-	@Test(expected = BusinessException.class)
+	@Test
 	public void deleteNotExists() throws Exception {
 		em.clear();
-		resource.delete(-1);
+		Assertions.assertThrows(BusinessException.class, () -> {
+			resource.delete(-1);
+		});
 	}
 
 	@Test
 	public void delete() throws Exception {
 
 		//
-		// select distinct project0_.id as id1_11_0_, subscripti1_.id as id1_12_1_,
+		// select distinct project0_.id as id1_11_0_, subscripti1_.id as
+		// id1_12_1_,
 		// project0_.created_by as created_2_11_0_, project0_.created_date as
 		// created_3_11_0_, project0_.last_modified_by as last_mod4_11_0_,
 		// project0_.last_modified_date as last_mod5_11_0_, project0_.name as
-		// name6_11_0_, project0_.description as descript7_11_0_, project0_.pkey as
+		// name6_11_0_, project0_.description as descript7_11_0_, project0_.pkey
+		// as
 		// pkey8_11_0_, project0_.team_leader as team_lea9_11_0_,
-		// subscripti1_.created_by as created_2_12_1_, subscripti1_.created_date as
+		// subscripti1_.created_by as created_2_12_1_, subscripti1_.created_date
+		// as
 		// created_3_12_1_, subscripti1_.last_modified_by as last_mod4_12_1_,
-		// subscripti1_.last_modified_date as last_mod5_12_1_, subscripti1_.node as
-		// node6_12_1_, subscripti1_.project as project7_12_1_, subscripti1_.project as
-		// project7_12_0__, subscripti1_.id as id1_12_0__ from ligoj_project project0_
+		// subscripti1_.last_modified_date as last_mod5_12_1_, subscripti1_.node
+		// as
+		// node6_12_1_, subscripti1_.project as project7_12_1_,
+		// subscripti1_.project as
+		// project7_12_0__, subscripti1_.id as id1_12_0__ from ligoj_project
+		// project0_
 		// left outer join ligoj_subscription subscripti1_ on
-		// project0_.id=subscripti1_.project left outer join ligoj_cache_project_group
+		// project0_.id=subscripti1_.project left outer join
+		// ligoj_cache_project_group
 		// cachegroup2_ on project0_.id=cachegroup2_.project left outer join
-		// ligoj_cache_group cachegroup3_ on cachegroup2_."group"=cachegroup3_.id where
-		// project0_.id=? and (exists (select 1 from s_role_assignment systemrole4_
-		// inner join s_role systemrole5_ on systemrole4_.role=systemrole5_.id where
-		// systemrole4_."user"=? and (exists (select 1 from s_authorization systemauth6_
-		// where systemauth6_.role=systemrole5_.id and systemauth6_.pattern='.*' and
-		// systemauth6_.type=0))) or project0_.team_leader=? OR (EXISTS (SELECT 1 FROM
-		// (SELECT cmgs_cmg0.description AS dn FROM ligoj_cache_membership AS cms_cmg0
-		// LEFT JOIN ligoj_cache_group AS cmgs_cmg0 ON (cmgs_cmg0.id=cms_cmg0."group))
-		// WHERE cms_cmg0.$q(user)=?" AS s_cmg0 WHERE s_cmg0.dn=cachegroup3_.description
-		// OR cachegroup3_.description LIKE CONCAT('%,',s_cmg0.dn) )) OR (EXISTS (SELECT
+		// ligoj_cache_group cachegroup3_ on
+		// cachegroup2_."group"=cachegroup3_.id where
+		// project0_.id=? and (exists (select 1 from s_role_assignment
+		// systemrole4_
+		// inner join s_role systemrole5_ on systemrole4_.role=systemrole5_.id
+		// where
+		// systemrole4_."user"=? and (exists (select 1 from s_authorization
+		// systemauth6_
+		// where systemauth6_.role=systemrole5_.id and systemauth6_.pattern='.*'
+		// and
+		// systemauth6_.type=0))) or project0_.team_leader=? OR (EXISTS (SELECT
+		// 1 FROM
+		// (SELECT cmgs_cmg0.description AS dn FROM ligoj_cache_membership AS
+		// cms_cmg0
+		// LEFT JOIN ligoj_cache_group AS cmgs_cmg0 ON
+		// (cmgs_cmg0.id=cms_cmg0."group))
+		// WHERE cms_cmg0.$q(user)=?" AS s_cmg0 WHERE
+		// s_cmg0.dn=cachegroup3_.description
+		// OR cachegroup3_.description LIKE CONCAT('%,',s_cmg0.dn) )) OR (EXISTS
+		// (SELECT
 		// 1 FROM (SELECT s_d1.dn FROM ligoj_delegate_org AS s_d1 WHERE
 		// s_d1.receiver_type='USER' AND s_d1.receiver=?) AS s_d1 WHERE
 		// s_d1.dn=cachegroup3_.description OR cachegroup3_.description LIKE
-		// CONCAT('%,',s_d1.dn) )) OR (EXISTS (SELECT 1 FROM (SELECT s_d2.dn FROM
-		// ligoj_delegate_org AS s_d2 WHERE s_d2.receiver_type='GROUP' AND (EXISTS
-		// (SELECT 1 FROM (SELECT cmgs_cg1.description AS dn FROM ligoj_cache_membership
+		// CONCAT('%,',s_d1.dn) )) OR (EXISTS (SELECT 1 FROM (SELECT s_d2.dn
+		// FROM
+		// ligoj_delegate_org AS s_d2 WHERE s_d2.receiver_type='GROUP' AND
+		// (EXISTS
+		// (SELECT 1 FROM (SELECT cmgs_cg1.description AS dn FROM
+		// ligoj_cache_membership
 		// AS cms_cg1 LEFT JOIN ligoj_cache_group AS cmgs_cg1 ON
-		// (cmgs_cg1.id=cms_cg1."group)) WHERE cms_cg1.$q(user)=?" AS s_cg1 WHERE
-		// s_cg1.dn=s_d2.dn OR s_d2.dn LIKE CONCAT('%,',s_cg1.dn) ))) AS s_d3 WHERE
+		// (cmgs_cg1.id=cms_cg1."group)) WHERE cms_cg1.$q(user)=?" AS s_cg1
+		// WHERE
+		// s_cg1.dn=s_d2.dn OR s_d2.dn LIKE CONCAT('%,',s_cg1.dn) ))) AS s_d3
+		// WHERE
 		// s_d3.dn=cachegroup3_.description OR cachegroup3_.description LIKE
-		// CONCAT('%,',s_d3.dn) )) OR (EXISTS (SELECT 1 FROM (SELECT s_d4.dn FROM
-		// ligoj_delegate_org AS s_d4 WHERE s_d4.receiver_type='COMPANY' AND (EXISTS
-		// (SELECT 1 FROM (SELECT ccs_cc1.description AS dn FROM ligoj_cache_user AS
+		// CONCAT('%,',s_d3.dn) )) OR (EXISTS (SELECT 1 FROM (SELECT s_d4.dn
+		// FROM
+		// ligoj_delegate_org AS s_d4 WHERE s_d4.receiver_type='COMPANY' AND
+		// (EXISTS
+		// (SELECT 1 FROM (SELECT ccs_cc1.description AS dn FROM
+		// ligoj_cache_user AS
 		// cus_cc1 LEFT JOIN ligoj_cache_company AS ccs_cc1 ON
 		// (ccs_cc1.id=cus_cc1.company) WHERE cus_cc1.id=?) AS s_cc1 WHERE
-		// s_cc1.dn=s_d4.dn OR s_d4.dn LIKE CONCAT('%,',s_cc1.dn) ))) AS s_d5 WHERE
+		// s_cc1.dn=s_d4.dn OR s_d4.dn LIKE CONCAT('%,',s_cc1.dn) ))) AS s_d5
+		// WHERE
 		// s_d5.dn=cachegroup3_.description OR cachegroup3_.description LIKE
 		// CONCAT('%,',s_d5.dn) ))=true
 
@@ -465,7 +501,8 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		// project0_.id=cachegroup2_.project "
 		// + "left outer join ligoj_cache_group cachegroup3_ on
 		// cachegroup2_.\"group\"=cachegroup3_.id where project0_.id=?"
-		// + " and (exists (select 1 from s_role_assignment systemrole4_ inner join
+		// + " and (exists (select 1 from s_role_assignment systemrole4_ inner
+		// join
 		// s_role systemrole5_ on systemrole4_.role=systemrole5_.id where
 		// systemrole4_.\"user\"=?"
 		// + " and (exists (select 1 from s_authorization systemauth6_ where
@@ -474,30 +511,37 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		// + " or project0_.team_leader=? OR (EXISTS (SELECT 1 FROM (SELECT
 		// cmgs_cmg0.description AS dn FROM ligoj_cache_membership AS cms_cmg0"
 		// + " LEFT JOIN ligoj_cache_group AS cmgs_cmg0 ON
-		// (cmgs_cmg0.id=cms_cmg0.\"group\")) WHERE cms_cmg0.\"user\"=?) AS s_cmg0 WHERE
+		// (cmgs_cmg0.id=cms_cmg0.\"group\")) WHERE cms_cmg0.\"user\"=?) AS
+		// s_cmg0 WHERE
 		// s_cmg0.dn=cachegroup3_.description OR cachegroup3_.description LIKE
 		// CONCAT('%,',s_cmg0.dn) ))"
-		// + " OR (EXISTS (SELECT 1 FROM (SELECT s_d1.dn FROM ligoj_delegate_org AS s_d1
+		// + " OR (EXISTS (SELECT 1 FROM (SELECT s_d1.dn FROM ligoj_delegate_org
+		// AS s_d1
 		// WHERE s_d1.receiver_type='USER' AND s_d1.receiver=?) AS s_d1 WHERE
 		// s_d1.dn=cachegroup3_.description OR cachegroup3_.description LIKE
 		// CONCAT('%,',s_d1.dn) ))"
-		// + " OR (EXISTS (SELECT 1 FROM (SELECT s_d2.dn FROM ligoj_delegate_org AS s_d2
+		// + " OR (EXISTS (SELECT 1 FROM (SELECT s_d2.dn FROM ligoj_delegate_org
+		// AS s_d2
 		// WHERE s_d2.receiver_type='GROUP' AND (EXISTS (SELECT 1 FROM (SELECT
-		// cmgs_cg1.description AS dn FROM ligoj_cache_membership AS cms_cg1 LEFT JOIN
-		// ligoj_cache_group AS cmgs_cg1 ON (cmgs_cg1.id=cms_cg1.\"group\")) WHERE
+		// cmgs_cg1.description AS dn FROM ligoj_cache_membership AS cms_cg1
+		// LEFT JOIN
+		// ligoj_cache_group AS cmgs_cg1 ON (cmgs_cg1.id=cms_cg1.\"group\"))
+		// WHERE
 		// cms_cg1.\"user\"=?) AS s_cg1 WHERE s_cg1.dn=s_d2.dn OR s_d2.dn LIKE
-		// CONCAT('%,',s_cg1.dn) ))) AS s_d3 WHERE s_d3.dn=cachegroup3_.description OR
-		// cachegroup3_.description LIKE CONCAT('%,',s_d3.dn) )) OR (EXISTS (SELECT 1
+		// CONCAT('%,',s_cg1.dn) ))) AS s_d3 WHERE
+		// s_d3.dn=cachegroup3_.description OR
+		// cachegroup3_.description LIKE CONCAT('%,',s_d3.dn) )) OR (EXISTS
+		// (SELECT 1
 		// FROM (SELECT s_d4.dn FROM ligoj_delegate_org AS s_d4 WHERE
 		// s_d4.receiver_type='COMPANY' AND (EXISTS (SELECT 1 FROM (SELECT
 		// ccs_cc1.description AS dn FROM ligoj_cache_user AS cus_cc1 LEFT JOIN
 		// ligoj_cache_company AS ccs_cc1 ON (ccs_cc1.id=cus_cc1.company) WHERE
 		// cus_cc1.id=?) AS s_cc1 WHERE s_cc1.dn=s_d4.dn OR s_d4.dn LIKE
-		// CONCAT('%,',s_cc1.dn) ))) AS s_d5 WHERE s_d5.dn=cachegroup3_.description OR
+		// CONCAT('%,',s_cc1.dn) ))) AS s_d5 WHERE
+		// s_d5.dn=cachegroup3_.description OR
 		// cachegroup3_.description LIKE CONCAT('%,',s_d5.dn) ))=true");
 
-		em.createNativeQuery("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME = 'LIGOJ_CACHE_USER'")
-				.getResultList();
+		em.createNativeQuery("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME = 'LIGOJ_CACHE_USER'").getResultList();
 		em.createNativeQuery("SELECT * FROM LIGOJ_CACHE_USER").getResultList();
 		em.createNativeQuery("SELECT * FROM LIGOJ_CACHE_USER WHERE \"COMPANY\" IS NOT NULL").getResultList();
 		em.createNativeQuery("SELECT * FROM LIGOJ_CACHE_MEMBERSHIP WHERE \"group\" IS NOT NULL").getResultList();
@@ -508,6 +552,6 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		resource.delete(testProject.getId());
 		em.flush();
 		em.clear();
-		Assert.assertEquals(initCount - 1, repository.count());
+		Assertions.assertEquals(initCount - 1, repository.count());
 	}
 }

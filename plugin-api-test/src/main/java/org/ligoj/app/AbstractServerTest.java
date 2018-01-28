@@ -1,7 +1,7 @@
 package org.ligoj.app;
 
-import org.junit.After;
-import org.junit.Before;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 
@@ -15,7 +15,7 @@ public abstract class AbstractServerTest extends AbstractAppTest {
 	/**
 	 * Prepare the server mock and check it is not already started.
 	 */
-	@Before
+	@BeforeEach
 	public void prepareMockServer() {
 		if (httpServer != null) {
 			throw new IllegalStateException("A previous HTTP server was already created");
@@ -27,7 +27,7 @@ public abstract class AbstractServerTest extends AbstractAppTest {
 	/**
 	 * Shutdown the server and clear the keep alive settings.
 	 */
-	@After
+	@AfterEach
 	public void shutDownMockServer() {
 		System.clearProperty("http.keepAlive");
 		if (httpServer != null) {

@@ -9,8 +9,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import org.junit.Assert;
-import org.junit.Before;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.Normalizer;
 import org.ligoj.app.iam.CompanyOrg;
@@ -48,7 +48,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 	@Autowired
 	private CacheGroupRepository cacheGroupRepository;
 
-	@Before
+	@BeforeEach
 	public void setUpEntities() throws IOException {
 
 		// Prepare the standard data
@@ -77,9 +77,9 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 		csvForJpa.insert("csv", CacheProjectGroup.class, StandardCharsets.UTF_8.name());
 
 		// Coverage required here only there because of JPA bean
-		Assert.assertNotNull(cacheMembership.getGroup());
-		Assert.assertNotNull(cacheMembership.getUser());
-		Assert.assertNull(cacheMembership.getSubGroup());
+		Assertions.assertNotNull(cacheMembership.getGroup());
+		Assertions.assertNotNull(cacheMembership.getUser());
+		Assertions.assertNull(cacheMembership.getSubGroup());
 		cacheMembership.setSubGroup(null);
 
 		// Plug-in the IAMProvider to the database

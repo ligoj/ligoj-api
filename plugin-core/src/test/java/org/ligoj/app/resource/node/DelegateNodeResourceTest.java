@@ -8,20 +8,10 @@ import javax.ws.rs.NotFoundException;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.impl.MetadataMap;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.annotation.Rollback;
-import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import org.ligoj.bootstrap.AbstractJpaTest;
-import org.ligoj.bootstrap.core.json.TableItem;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.dao.DelegateNodeRepository;
 import org.ligoj.app.iam.model.ReceiverType;
 import org.ligoj.app.model.DelegateNode;
@@ -30,15 +20,21 @@ import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.bootstrap.AbstractJpaTest;
+import org.ligoj.bootstrap.core.json.TableItem;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * Test class of {@link DelegateNodeResource}
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Autowired
@@ -47,38 +43,44 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	@Autowired
 	private DelegateNodeResource resource;
 
-	@Before
+	@BeforeEach
 	public void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, DelegateNode.class },
 				StandardCharsets.UTF_8.name());
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void createNotExistsUser() {
 		initSpringSecurityContext("any");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service");
 		delegate.setReceiver("user1");
-		resource.create(delegate);
+		Assertions.assertThrows(NotFoundException.class, () -> {
+			resource.create(delegate);
+		});
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void createNoRightAtThisLevel() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build");
 		delegate.setReceiver("user1");
-		resource.create(delegate);
+		Assertions.assertThrows(NotFoundException.class, () -> {
+			resource.create(delegate);
+		});
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void createNoRightAtThisLevel2() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("");
 		delegate.setReceiver("user1");
-		resource.create(delegate);
+		Assertions.assertThrows(NotFoundException.class, () -> {
+			resource.create(delegate);
+		});
 	}
 
 	@Test
@@ -87,7 +89,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user1");
-		org.junit.Assert.assertTrue(resource.create(delegate) > 0);
+		Assertions.assertTrue(resource.create(delegate) > 0);
 	}
 
 	@Test
@@ -96,7 +98,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins:dig");
 		delegate.setReceiver("user1");
-		org.junit.Assert.assertTrue(resource.create(delegate) > 0);
+		Assertions.assertTrue(resource.create(delegate) > 0);
 	}
 
 	@Test
@@ -108,10 +110,10 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		delegate.setCanWrite(true);
 		delegate.setCanSubscribe(true);
 		delegate.setReceiver("user1");
-		Assert.assertTrue(resource.create(delegate) > 0);
+		Assertions.assertTrue(resource.create(delegate) > 0);
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void createWriteNotAdmin() {
 
 		// Add a special right on for a node
@@ -125,10 +127,12 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		final DelegateNode newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
-		resource.create(newDelegate);
+		Assertions.assertThrows(NotFoundException.class, () -> {
+			resource.create(newDelegate);
+		});
 	}
 
-	@Test(expected = javax.ws.rs.NotFoundException.class)
+	@Test
 	public void createGrantRefused() {
 
 		// Add a special right on for a node
@@ -143,7 +147,9 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanWrite(true);
-		resource.create(newDelegate);
+		Assertions.assertThrows(javax.ws.rs.NotFoundException.class, () -> {
+			resource.create(newDelegate);
+		});
 	}
 
 	@Test
@@ -161,7 +167,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanAdmin(true);
-		Assert.assertTrue(resource.create(newDelegate) > 0);
+		Assertions.assertTrue(resource.create(newDelegate) > 0);
 	}
 
 	@Test
@@ -203,52 +209,54 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	public void deleteSubNode() {
 		final int user1Delegate = repository.findBy("receiver", "user1").getId();
 		resource.delete(user1Delegate);
-		Assert.assertFalse(repository.existsById(user1Delegate));
+		Assertions.assertFalse(repository.existsById(user1Delegate));
 	}
 
 	@Test
 	public void deleteSameLevel() {
 		final int user1Delegate = repository.findBy("receiver", "fdaugan").getId();
 		resource.delete(user1Delegate);
-		Assert.assertFalse(repository.existsById(user1Delegate));
+		Assertions.assertFalse(repository.existsById(user1Delegate));
 	}
 
-	@Test(expected = NotFoundException.class)
+	@Test
 	public void deleteNotRight() {
 		final int user1Delegate = repository.findBy("receiver", "junit").getId();
 
 		initSpringSecurityContext("user1");
-		resource.delete(user1Delegate);
+		Assertions.assertThrows(NotFoundException.class, () -> {
+			resource.delete(user1Delegate);
+		});
 	}
 
 	@Test
 	public void findAllCriteriaUser() {
 		final TableItem<DelegateNode> items = resource.findAll(newUriInfo(), "junit");
-		Assert.assertEquals(1, items.getData().size());
-		Assert.assertEquals(1, items.getRecordsFiltered());
-		Assert.assertEquals(1, items.getRecordsTotal());
+		Assertions.assertEquals(1, items.getData().size());
+		Assertions.assertEquals(1, items.getRecordsFiltered());
+		Assertions.assertEquals(1, items.getRecordsTotal());
 		final DelegateNode delegateNode = items.getData().get(0);
-		Assert.assertEquals("junit", delegateNode.getReceiver());
-		Assert.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
-		Assert.assertEquals("service", delegateNode.getName());
-		Assert.assertTrue(delegateNode.isCanAdmin());
-		Assert.assertTrue(delegateNode.isCanWrite());
-		Assert.assertTrue(delegateNode.isCanSubscribe());
+		Assertions.assertEquals("junit", delegateNode.getReceiver());
+		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
+		Assertions.assertEquals("service", delegateNode.getName());
+		Assertions.assertTrue(delegateNode.isCanAdmin());
+		Assertions.assertTrue(delegateNode.isCanWrite());
+		Assertions.assertTrue(delegateNode.isCanSubscribe());
 	}
 
 	@Test
 	public void findAllCriteriaNode() {
 		final TableItem<DelegateNode> items = resource.findAll(newUriInfo(), "jenkins");
-		Assert.assertEquals(1, items.getData().size());
-		Assert.assertEquals(1, items.getRecordsFiltered());
-		Assert.assertEquals(1, items.getRecordsTotal());
+		Assertions.assertEquals(1, items.getData().size());
+		Assertions.assertEquals(1, items.getRecordsFiltered());
+		Assertions.assertEquals(1, items.getRecordsTotal());
 		final DelegateNode delegateNode = items.getData().get(0);
-		Assert.assertEquals("user1", delegateNode.getReceiver());
-		Assert.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
-		Assert.assertEquals("service:build:jenkins", delegateNode.getName());
-		Assert.assertTrue(delegateNode.isCanAdmin());
-		Assert.assertTrue(delegateNode.isCanWrite());
-		Assert.assertTrue(delegateNode.isCanSubscribe());
+		Assertions.assertEquals("user1", delegateNode.getReceiver());
+		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
+		Assertions.assertEquals("service:build:jenkins", delegateNode.getName());
+		Assertions.assertTrue(delegateNode.isCanAdmin());
+		Assertions.assertTrue(delegateNode.isCanWrite());
+		Assertions.assertTrue(delegateNode.isCanSubscribe());
 	}
 
 	@Test
@@ -263,16 +271,16 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 		uriInfo.getQueryParameters().add("order[0][dir]", "desc");
 
 		final TableItem<DelegateNode> items = resource.findAll(uriInfo, " ");
-		Assert.assertEquals(3, items.getData().size());
-		Assert.assertEquals(3, items.getRecordsFiltered());
-		Assert.assertEquals(3, items.getRecordsTotal());
+		Assertions.assertEquals(3, items.getData().size());
+		Assertions.assertEquals(3, items.getRecordsFiltered());
+		Assertions.assertEquals(3, items.getRecordsTotal());
 		final DelegateNode delegateNode = items.getData().get(1);
-		Assert.assertEquals("junit", delegateNode.getReceiver());
-		Assert.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
-		Assert.assertEquals("service", delegateNode.getName());
-		Assert.assertTrue(delegateNode.isCanAdmin());
-		Assert.assertTrue(delegateNode.isCanWrite());
-		Assert.assertTrue(delegateNode.isCanSubscribe());
+		Assertions.assertEquals("junit", delegateNode.getReceiver());
+		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
+		Assertions.assertEquals("service", delegateNode.getName());
+		Assertions.assertTrue(delegateNode.isCanAdmin());
+		Assertions.assertTrue(delegateNode.isCanWrite());
+		Assertions.assertTrue(delegateNode.isCanSubscribe());
 	}
 
 }

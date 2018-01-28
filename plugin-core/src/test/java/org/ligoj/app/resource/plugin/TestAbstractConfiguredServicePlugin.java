@@ -2,9 +2,9 @@ package org.ligoj.app.resource.plugin;
 
 import javax.persistence.EntityNotFoundException;
 
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.Configurable;
@@ -29,9 +29,9 @@ public class TestAbstractConfiguredServicePlugin {
 	private Subscription subscription;
 	private Project project;
 
-	@Before
+	@BeforeEach
 	public void prepareMock() {
-		resource = new AbstractConfiguredServicePlugin<PluginConfiguration>() {
+		resource = new AbstractConfiguredServicePlugin<>() {
 
 			@Override
 			public String getKey() {
@@ -69,25 +69,29 @@ public class TestAbstractConfiguredServicePlugin {
 		resource.deletedConfigured(repository, 1);
 
 		// Coverage
-		Assert.assertSame(configuration, resource.getConfiguration(1));
-		Assert.assertEquals("key", resource.getKey());
+		Assertions.assertSame(configuration, resource.getConfiguration(1));
+		Assertions.assertEquals("key", resource.getKey());
 	}
 
-	@Test(expected = EntityNotFoundException.class)
+	@Test
 	public void deletedConfiguredKo() {
 		project.setId(-1);
-		resource.deletedConfigured(repository, 1);
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
+			resource.deletedConfigured(repository, 1);
+		});
 	}
 
 	@Test
 	public void findConfigured() {
-		Assert.assertEquals(configurable, resource.findConfigured(repository, 1));
+		Assertions.assertEquals(configurable, resource.findConfigured(repository, 1));
 	}
 
-	@Test(expected = EntityNotFoundException.class)
+	@Test
 	public void findConfiguredKo() {
 		project.setId(-1);
-		resource.findConfigured(repository, 1);
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
+			resource.findConfigured(repository, 1);
+		});
 	}
 
 	@Test
@@ -96,18 +100,20 @@ public class TestAbstractConfiguredServicePlugin {
 		final Node node = new Node();
 		node.setId("service:s:t:i");
 		subscription.setNode(node);
-		Assert.assertSame(subscription, resource.checkVisibility(subscription, "service:s"));
-		Assert.assertSame(subscription, resource.checkVisibility(subscription, "service:s:t"));
-		Assert.assertSame(subscription, resource.checkVisibility(subscription, "service:s:t:i"));
+		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s"));
+		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s:t"));
+		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s:t:i"));
 	}
 
-	@Test(expected = EntityNotFoundException.class)
+	@Test
 	public void checkVisibilityKo() {
 		final Subscription subscription = new Subscription();
 		final Node node = new Node();
 		node.setId("service:s:t:i");
 		subscription.setNode(node);
 		subscription.setId(2000);
-		resource.checkVisibility(subscription, "any");
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
+			resource.checkVisibility(subscription, "any");
+		});
 	}
 }

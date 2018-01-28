@@ -12,13 +12,11 @@ import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 import javax.validation.Path;
 
-import org.hamcrest.Description;
-import org.junit.Assert;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.opentest4j.AssertionFailedError;
 
 /**
  * Test class of {@link MatcherUtil}
@@ -34,18 +32,9 @@ public class MatcherUtilTest {
 		Mockito.when(path.toString()).thenReturn("any");
 		violations.add(violation);
 		final ConstraintViolationException violationException = new ConstraintViolationException(violations);
-		Assert.assertFalse(MatcherUtil.constraintMatcher("firstName", "message").matches(violationException));
-	}
-
-	@Test
-	public void expectValidationException() {
-		new MatcherUtil();
-		MatcherUtil.expectValidationException(Mockito.mock(ExpectedException.class), "field", "message");
-	}
-
-	@Test
-	public void describeTo() {
-		MatcherUtil.constraintMatcher("firstName", "message").describeTo(newDescription());
+		Assertions.assertThrows(AssertionFailedError.class, () -> {
+			MatcherUtil.assertThrows(violationException, "firstName", "message");
+		});
 	}
 
 	@Test
@@ -59,7 +48,7 @@ public class MatcherUtilTest {
 		violations.add(violation);
 
 		final ConstraintViolationException violationException = new ConstraintViolationException(violations);
-		Assert.assertTrue(MatcherUtil.constraintMatcher("firstName", "message").matches(violationException));
+		MatcherUtil.assertThrows(violationException, "firstName", "message");
 	}
 
 	@Test
@@ -73,7 +62,7 @@ public class MatcherUtilTest {
 		violations.add(violation);
 
 		final ConstraintViolationException violationException = new ConstraintViolationException(violations);
-		Assert.assertTrue(MatcherUtil.constraintMatcher("firstName", "message").matches(violationException));
+		MatcherUtil.assertThrows(violationException, "firstName", "message");
 	}
 
 	@Test
@@ -87,12 +76,9 @@ public class MatcherUtilTest {
 		violations.add(violation);
 
 		final ConstraintViolationException violationException = new ConstraintViolationException(violations);
-		Assert.assertFalse(MatcherUtil.constraintMatcher("firstName", "message").matches(violationException));
-	}
-
-	@Test
-	public void validationMatcherDescribeTo() {
-		MatcherUtil.validationMatcher("firstName", "message").describeTo(newDescription());
+		Assertions.assertThrows(AssertionFailedError.class, () -> {
+			MatcherUtil.assertThrows(violationException, "firstName", "message");
+		});
 	}
 
 	@Test
@@ -103,7 +89,7 @@ public class MatcherUtilTest {
 		error.put("rule", "message");
 		errors.add(error);
 		violationException.getErrors().put("firstName", errors);
-		Assert.assertTrue(MatcherUtil.validationMatcher("firstName", "message").matches(violationException));
+		MatcherUtil.assertThrows(violationException, "firstName", "message");
 	}
 
 	@Test
@@ -114,18 +100,15 @@ public class MatcherUtilTest {
 		error.put("rule", "any");
 		errors.add(error);
 		violationException.getErrors().put("firstName", errors);
-		Assert.assertFalse(MatcherUtil.validationMatcher("firstName", "message").matches(violationException));
+		Assertions.assertThrows(AssertionFailedError.class, () -> {
+			MatcherUtil.assertThrows(violationException, "firstName", "message");
+		});
 	}
 
 	@Test
 	public void validationMatcherMatchesNoErrorForField() {
-		Assert.assertFalse(MatcherUtil.validationMatcher("firstName", "message").matches(new ValidationJsonException()));
-
-	}
-
-	private Description newDescription() {
-		Description mock = Mockito.mock(Description.class);
-		Mockito.when(mock.appendText(ArgumentMatchers.anyString())).thenReturn(mock);
-		return mock;
+		Assertions.assertThrows(AssertionFailedError.class, () -> {
+			MatcherUtil.assertThrows(new ValidationJsonException(), "firstName", "message");
+		});
 	}
 }

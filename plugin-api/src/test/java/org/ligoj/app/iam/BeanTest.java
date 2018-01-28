@@ -8,8 +8,8 @@ import java.util.function.Function;
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.DateUtils;
 import org.mockito.Mockito;
 
@@ -37,11 +37,11 @@ public class BeanTest {
 		companyLdap.getCompanyTree().contains(companyLdap);
 		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, new LdapName(""));
 		check(companyLdap, CompanyOrg::setCompanyTree, CompanyOrg::getCompanyTree, Collections.emptyList());
-		Assert.assertEquals("name".hashCode(), companyLdap.hashCode());
-		Assert.assertEquals(companyLdap, companyLdap);
-		Assert.assertFalse(companyLdap.equals(null));
-		Assert.assertFalse(companyLdap.equals(new CompanyOrg("dn", "name2")));
-		Assert.assertTrue(companyLdap.equals(new CompanyOrg("dn", "name")));
+		Assertions.assertEquals("name".hashCode(), companyLdap.hashCode());
+		Assertions.assertEquals(companyLdap, companyLdap);
+		Assertions.assertFalse(companyLdap.equals(null));
+		Assertions.assertFalse(companyLdap.equals(new CompanyOrg("dn", "name2")));
+		Assertions.assertTrue(companyLdap.equals(new CompanyOrg("dn", "name")));
 	}
 
 	@Test
@@ -50,11 +50,11 @@ public class BeanTest {
 		check(groupLdap, GroupOrg::setMembers, GroupOrg::getMembers, Collections.emptySet());
 		check(groupLdap, GroupOrg::setGroups, GroupOrg::getGroups, Collections.emptySet());
 		check(groupLdap, GroupOrg::setSubGroups, GroupOrg::getSubGroups, Collections.emptySet());
-		Assert.assertEquals("name".hashCode(), groupLdap.hashCode());
-		Assert.assertEquals(groupLdap, groupLdap);
-		Assert.assertFalse(groupLdap.equals(null));
-		Assert.assertFalse(groupLdap.equals(new GroupOrg("dn", "name2", Collections.emptySet())));
-		Assert.assertTrue(groupLdap.equals(new GroupOrg("dn", "name", Collections.emptySet())));
+		Assertions.assertEquals("name".hashCode(), groupLdap.hashCode());
+		Assertions.assertEquals(groupLdap, groupLdap);
+		Assertions.assertFalse(groupLdap.equals(null));
+		Assertions.assertFalse(groupLdap.equals(new GroupOrg("dn", "name2", Collections.emptySet())));
+		Assertions.assertTrue(groupLdap.equals(new GroupOrg("dn", "name", Collections.emptySet())));
 	}
 
 	@Test
@@ -62,8 +62,8 @@ public class BeanTest {
 		final ContainerOrg groupLdap = new ContainerOrg("dn", "name");
 		check(groupLdap, ContainerOrg::setLocked, ContainerOrg::isLocked, true);
 		check(groupLdap, ContainerOrg::setDescription, ContainerOrg::getDescription, "some");
-		Assert.assertEquals("some", groupLdap.getDescription());
-		Assert.assertEquals("name", groupLdap.getName());
+		Assertions.assertEquals("some", groupLdap.getDescription());
+		Assertions.assertEquals("name", groupLdap.getName());
 	}
 
 	@Test
@@ -94,36 +94,36 @@ public class BeanTest {
 		user.copy(user2);
 
 		// Simple user attributes
-		Assert.assertEquals("company", user2.getCompany());
-		Assert.assertEquals("department", user2.getDepartment());
-		Assert.assertEquals("first", user2.getFirstName());
-		Assert.assertEquals("last", user2.getLastName());
-		Assert.assertEquals("local", user2.getLocalId());
-		Assert.assertEquals("login", user2.getName());
-		Assert.assertEquals("login", user2.getId());
+		Assertions.assertEquals("company", user2.getCompany());
+		Assertions.assertEquals("department", user2.getDepartment());
+		Assertions.assertEquals("first", user2.getFirstName());
+		Assertions.assertEquals("last", user2.getLastName());
+		Assertions.assertEquals("local", user2.getLocalId());
+		Assertions.assertEquals("login", user2.getName());
+		Assertions.assertEquals("login", user2.getId());
 
 		// InetOrg Person attributes
-		Assert.assertEquals("quarantine", user2.getIsolated());
-		Assert.assertNotNull(user2.getLocked());
-		Assert.assertEquals("some", user2.getLockedBy());
-		Assert.assertNotNull(user2.getMails());
+		Assertions.assertEquals("quarantine", user2.getIsolated());
+		Assertions.assertNotNull(user2.getLocked());
+		Assertions.assertEquals("some", user2.getLockedBy());
+		Assertions.assertNotNull(user2.getMails());
 
 		// Password status and groups are not replicated
-		Assert.assertFalse(user2.isSecured());
+		Assertions.assertFalse(user2.isSecured());
 
-		Assert.assertEquals("SimpleUser(id=login)", user.toString());
+		Assertions.assertEquals("SimpleUser(id=login)", user.toString());
 
-		Assert.assertEquals(user2.hashCode(), user.hashCode());
-		Assert.assertEquals(user, user);
-		Assert.assertEquals(user, user2);
-		Assert.assertFalse(user.equals(null));
-		Assert.assertFalse(user.equals(new SimpleUserOrg()));
-		Assert.assertTrue(new SimpleUserOrg().equals(new SimpleUserOrg()));
+		Assertions.assertEquals(user2.hashCode(), user.hashCode());
+		Assertions.assertEquals(user, user);
+		Assertions.assertEquals(user, user2);
+		Assertions.assertFalse(user.equals(null));
+		Assertions.assertFalse(user.equals(new SimpleUserOrg()));
+		Assertions.assertTrue(new SimpleUserOrg().equals(new SimpleUserOrg()));
 
 	}
 
 	private <T, X> void check(X bean, BiConsumer<X, T> setter, Function<X, T> getter, T value) {
 		setter.accept(bean, value);
-		Assert.assertEquals(value, getter.apply(bean));
+		Assertions.assertEquals(value, getter.apply(bean));
 	}
 }

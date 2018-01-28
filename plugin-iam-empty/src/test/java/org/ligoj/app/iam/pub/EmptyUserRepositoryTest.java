@@ -1,7 +1,7 @@
 package org.ligoj.app.iam.pub;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.iam.empty.EmptyIamProvider;
 import org.ligoj.app.iam.empty.EmptyUserRepository;
@@ -14,42 +14,42 @@ public class EmptyUserRepositoryTest {
 	@Test
 	public void findAll() {
 		new EmptyUserRepository().setPassword(null, null);
-		Assert.assertTrue(new EmptyUserRepository().findAll().isEmpty());
+		Assertions.assertTrue(new EmptyUserRepository().findAll().isEmpty());
 	}
 
 	@Test
 	public void findAll2() {
-		Assert.assertTrue(new EmptyUserRepository().findAll(null, null, null, null).getContent().isEmpty());
+		Assertions.assertTrue(new EmptyUserRepository().findAll(null, null, null, null).getContent().isEmpty());
 	}
 
 	@Test
 	public void findAllBy() {
-		Assert.assertTrue(new EmptyUserRepository().findAllBy("any", "any").isEmpty());
+		Assertions.assertTrue(new EmptyUserRepository().findAllBy("any", "any").isEmpty());
 	}
 
 	@Test
 	public void authenticate() {
-		Assert.assertTrue(new EmptyUserRepository().authenticate("any", "any"));
+		Assertions.assertTrue(new EmptyUserRepository().authenticate("any", "any"));
 	}
 
 	@Test
 	public void findByIdNoCache() {
-		Assert.assertEquals("some", new EmptyUserRepository().findByIdNoCache("some").getId());
+		Assertions.assertEquals("some", new EmptyUserRepository().findByIdNoCache("some").getId());
 	}
 
 	@Test
 	public void getToken() {
-		Assert.assertEquals("some", new EmptyUserRepository().getToken("some"));
+		Assertions.assertEquals("some", new EmptyUserRepository().getToken("some"));
 	}
 
 	@Test
 	public void getCompanyRepository() {
-		Assert.assertNotNull(new EmptyIamProvider().getConfiguration().getUserRepository().getCompanyRepository());
+		Assertions.assertNotNull(new EmptyIamProvider().getConfiguration().getUserRepository().getCompanyRepository());
 	}
 
 	@Test
 	public void getPeopleInternalBaseDn() {
-		Assert.assertEquals("", new EmptyUserRepository().getPeopleInternalBaseDn());
+		Assertions.assertEquals("", new EmptyUserRepository().getPeopleInternalBaseDn());
 	}
 
 	@Test
@@ -95,11 +95,11 @@ public class EmptyUserRepositoryTest {
 	@Test
 	public void create() {
 		final UserOrg entry = new UserOrg();
-		Assert.assertSame(entry, new EmptyUserRepository().create(entry));
+		Assertions.assertSame(entry, new EmptyUserRepository().create(entry));
 	}
 
 	@Test
 	public void toDn() {
-		Assert.assertEquals("", new EmptyUserRepository().toDn(null));
+		Assertions.assertEquals("", new EmptyUserRepository().toDn(null));
 	}
 }

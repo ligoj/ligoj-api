@@ -7,12 +7,10 @@ import java.util.Date;
 import javax.transaction.Transactional;
 
 import org.apache.commons.lang.time.DateUtils;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.dao.EventRepository;
@@ -27,16 +25,15 @@ import org.ligoj.app.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 /**
  * {@link NodeResource} test cases.
  */
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class EventResourceTest extends AbstractAppTest {
 
 	@Autowired
@@ -48,7 +45,7 @@ public class EventResourceTest extends AbstractAppTest {
 	@Autowired
 	private ProjectRepository projectRepository;
 
-	@Before
+	@BeforeEach
 	public void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, Event.class },
@@ -63,15 +60,15 @@ public class EventResourceTest extends AbstractAppTest {
 		em.persist(node);
 
 		long count = repository.count();
-		Assert.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.UP.name()));
-		Assert.assertEquals(++count, repository.count());
-		Assert.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
-		Assert.assertEquals(++count, repository.count());
+		Assertions.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.UP.name()));
+		Assertions.assertEquals(++count, repository.count());
+		Assertions.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
+		Assertions.assertEquals(++count, repository.count());
 		final Event lastEvent = repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS);
-		Assert.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
-		Assert.assertFalse(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
-		Assert.assertEquals(count, repository.count());
-		Assert.assertEquals(lastEvent, repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS));
+		Assertions.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
+		Assertions.assertFalse(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
+		Assertions.assertEquals(count, repository.count());
+		Assertions.assertEquals(lastEvent, repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS));
 	}
 
 	@Test
@@ -81,14 +78,14 @@ public class EventResourceTest extends AbstractAppTest {
 		subscription.setNode(em.find(Node.class, "service:build:jenkins:bpr"));
 		em.persist(subscription);
 		long count = repository.count();
-		Assert.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.UP.name()));
-		Assert.assertEquals(++count, repository.count());
-		Assert.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
-		Assert.assertEquals(++count, repository.count());
+		Assertions.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.UP.name()));
+		Assertions.assertEquals(++count, repository.count());
+		Assertions.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
+		Assertions.assertEquals(++count, repository.count());
 		final Event lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS);
-		Assert.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
-		Assert.assertFalse(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
-		Assert.assertEquals(count, repository.count());
-		Assert.assertEquals(lastEvent, repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS));
+		Assertions.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
+		Assertions.assertFalse(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
+		Assertions.assertEquals(count, repository.count());
+		Assertions.assertEquals(lastEvent, repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS));
 	}
 }

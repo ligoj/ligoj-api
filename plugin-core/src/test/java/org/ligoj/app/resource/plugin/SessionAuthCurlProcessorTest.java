@@ -1,8 +1,8 @@
 package org.ligoj.app.resource.plugin;
 
 import org.apache.http.auth.AUTH;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
  * Test class of {@link SessionAuthCurlProcessor}
@@ -15,13 +15,13 @@ public class SessionAuthCurlProcessorTest {
 	@Test
 	public void processFirstRequest() {
 		final CurlRequest request = new CurlRequest("", "", "");
-		Assert.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
+		Assertions.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
 			@Override
 			protected boolean call(final CurlRequest request, final String url) throws Exception {
 				return true;
 			}
 		}.process(request));
-		Assert.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
+		Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
 	}
 
 	/**
@@ -31,13 +31,13 @@ public class SessionAuthCurlProcessorTest {
 	public void process() {
 		final CurlRequest request = new CurlRequest("", "", "");
 		request.counter = 1;
-		Assert.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
+		Assertions.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
 			@Override
 			protected boolean call(final CurlRequest request, final String url) throws Exception {
 				return true;
 			}
 		}.process(request));
-		Assert.assertTrue(request.getHeaders().isEmpty());
+		Assertions.assertTrue(request.getHeaders().isEmpty());
 	}
 
 }

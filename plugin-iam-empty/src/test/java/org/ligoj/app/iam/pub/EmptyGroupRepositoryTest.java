@@ -2,8 +2,8 @@ package org.ligoj.app.iam.pub;
 
 import java.util.Collections;
 
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.GroupOrg;
 import org.ligoj.app.iam.empty.EmptyGroupRepository;
 
@@ -14,7 +14,7 @@ public class EmptyGroupRepositoryTest {
 
 	@Test
 	public void findAll() {
-		Assert.assertTrue(new EmptyGroupRepository().findAll().isEmpty());
+		Assertions.assertTrue(new EmptyGroupRepository().findAll().isEmpty());
 	}
 
 	@Test
@@ -24,25 +24,25 @@ public class EmptyGroupRepositoryTest {
 
 	@Test
 	public void findByDepartment() {
-		Assert.assertNull(new EmptyGroupRepository().findByDepartment("any"));
+		Assertions.assertNull(new EmptyGroupRepository().findByDepartment("any"));
 	}
 
 	@Test
 	public void getTypeName() {
-		Assert.assertEquals("group", new EmptyGroupRepository().getTypeName());
+		Assertions.assertEquals("group", new EmptyGroupRepository().getTypeName());
 	}
 
 	@Test
 	public void create() {
 		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
-		Assert.assertEquals("Cn=Some", groupLdap.getDn());
-		Assert.assertEquals("Name", groupLdap.getName());
-		Assert.assertEquals("name", groupLdap.getId());
+		Assertions.assertEquals("Cn=Some", groupLdap.getDn());
+		Assertions.assertEquals("Name", groupLdap.getName());
+		Assertions.assertEquals("name", groupLdap.getId());
 	}
 
 	@Test
 	public void findAllPage() {
-		Assert.assertEquals(0, new EmptyGroupRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
+		Assertions.assertEquals(0, new EmptyGroupRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
 	}
 
 	@Test
