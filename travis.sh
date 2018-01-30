@@ -8,33 +8,33 @@ set -euo pipefail
 # at each build.
 #
 function installJdk8 {
-  echo "Setup JDK 1.8u131"
+  echo "Setup JDK 9.0.4"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
-  if [ ! -d "jdk1.8.0_131" ]; then
-    echo "Download JDK8"
-    wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/8u131-b11/d54c1d3a095b4ff2b6607d096fa80163/jdk-8u131-linux-x64.tar.gz
-    tar xzf jdk-8u131-linux-x64.tar.gz
-    rm jdk-8u131-linux-x64.tar.gz
+  if [ ! -d "jdk-9.0.4" ]; then
+    echo "Download JDK9"
+    wget --no-check-certificate -c --header "Cookie: oraclelicense=accept-securebackup-cookie" http://download.oracle.com/otn-pub/java/jdk/9.0.4+11/c2514751926b4512b076cc82f959763f/jdk-9.0.4-linux-x64.tar.gz
+    tar xzf jdk-9.0.4-linux-x64.tar.gz
+    rm jdk-9.0.4-linux-x64.tar.gz
   fi
   popd > /dev/null
-  export JAVA_HOME=~/jvm/jdk1.8.0_131
+  export JAVA_HOME=~/jvm/jdk-9.0.4
   export PATH=$JAVA_HOME/bin:$PATH
 }
 
 #
-# Maven 3.2.5 is installed by default on Travis. Maven 3.3.9 is preferred.
+# Maven 3.5.2 is installed by default on Travis. Maven 3.5.2 is preferred.
 #
 function installMaven {
   echo "Setup Maven"
   mkdir -p ~/maven
   pushd ~/maven > /dev/null
-  if [ ! -d "apache-maven-3.3.9" ]; then
-    echo "Download Maven 3.3.9"
-    curl -sSL http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz | tar zx -C ~/maven
+  if [ ! -d "apache-maven-3.5.2" ]; then
+    echo "Download Maven 3.5.2"
+    curl -sSL http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/3.5.2/binaries/apache-maven-3.5.2-bin.tar.gz | tar zx -C ~/maven
   fi
   popd > /dev/null
-  export M2_HOME=~/maven/apache-maven-3.3.9
+  export M2_HOME=~/maven/apache-maven-3.5.2
   export PATH=$M2_HOME/bin:$PATH
 }
 
