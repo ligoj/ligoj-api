@@ -14,8 +14,8 @@ function installJdk {
   if [ ! -d "jdk-9.0.4" ]; then
     echo "Download JDK9"
     wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F; oraclelicense=accept-securebackup-cookie" "http://download.oracle.com/otn-pub/java/jdk/9.0.4+11/c2514751926b4512b076cc82f959763f/jdk-9.0.4_linux-x64_bin.tar.gz"
-    tar xzf jdk-9.0.4-linux-x64.tar.gz
-    rm jdk-9.0.4-linux-x64.tar.gz
+    tar xzf jdk-9.0.4_linux-x64_bin.tar.gz
+    rm jdk-9.0.4_linux-x64_bin.tar.gz
   fi
   popd > /dev/null
   export JAVA_HOME=~/jvm/jdk-9.0.4
