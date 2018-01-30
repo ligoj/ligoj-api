@@ -90,7 +90,6 @@ function fixBuildVersion {
   if [[ "${INITIAL_VERSION}" == *"-SNAPSHOT" ]]; then
     # SNAPSHOT
     export PROJECT_VERSION=$BUILD_VERSION
-    echo "Replacing Initial version '$INITIAL_VERSION' by '$PROJECT_VERSION'"
     grep --include={*.properties,pom.xml} -rnl './' -e "$INITIAL_VERSION" | xargs -i@ sed -i "s/$INITIAL_VERSION/$PROJECT_VERSION/g" @
   else
     # not a SNAPSHOT: milestone, RC or GA
@@ -121,6 +120,7 @@ BUILD)
 
   # Minimal Maven settings
   export MAVEN_OPTS="-Xmx1G -Xms128m"
+  export DISPLAY=:0.0
   MAVEN_ARGS="-Dmaven.test.redirectTestOutputToFile=false -Djava.net.preferIPv4Stack=true -Dsurefire.useFile=false -B -e -V -DbuildVersion=$BUILD_VERSION -Dskip-sonarsource-repo=true"
 
   if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
@@ -143,7 +143,8 @@ BUILD)
           -Dsonar.github.repository=$TRAVIS_REPO_SLUG \
           -Dsonar.github.oauth=$GITHUB_TOKEN \
           -Dmaven.javadoc.skip=true \
-          -Dmaven.ut.reuseForks=true -Dmaven.it.reuseForks=false
+          -Dmaven.ut.reuseForks=true -Dmaven.it.reuseForks=false \
+          -Djava.awt.headless=true
 
 	MAVEN_OPTS="$MAVEN_OPTS -noverify --add-modules java.xml.bind"
     mvn coveralls:report \
@@ -171,7 +172,7 @@ BUILD)
   else
     echo 'Build feature branch or external pull request'
 
-    mvn install $MAVEN_ARGS
+    mvn install $MAVEN_ARGS -Dsource.skip=true
   fi
 
   ;;
