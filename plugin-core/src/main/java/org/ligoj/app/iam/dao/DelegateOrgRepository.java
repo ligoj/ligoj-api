@@ -93,7 +93,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 
 	/**
 	 * Return <code>true</code> when there is at least one {@link DelegateOrg}
-	 * granting the administration right for given user to modify something
+	 * granting the write right for given principal user to modify something
 	 * within the given DN.
 	 * 
 	 * @param user
@@ -106,13 +106,13 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 *         user.
 	 * @Deprecated Use {@link #canAdmin(String, String, DelegateType)}
 	 */
-	@Query("SELECT COUNT(d)>0 FROM DelegateOrg d WHERE (" + IS_ADMIN + " OR canAdmin=true) AND " + MATCH_DELEGATE_DN)
+	@Query("SELECT COUNT(d)>0 FROM DelegateOrg d WHERE " + IS_ADMIN + " OR (canWrite=true AND " + MATCH_DELEGATE_DN + ")")
 	@Deprecated
 	boolean isAdmin(String user, String dn, DelegateType type);
 
 	/**
 	 * Return <code>true</code> when there is at least one {@link DelegateOrg}
-	 * granting the administration right for given user to modify something
+	 * granting the write right for given principal user to modify something
 	 * within the given DN.
 	 * 
 	 * @param user
@@ -124,8 +124,8 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * @return <code>true</code> when the given DN can be created by the given
 	 *         user.
 	 */
-	@Query("SELECT COUNT(d)>0 FROM DelegateOrg d WHERE (" + IS_ADMIN + " OR canAdmin=true) AND " + MATCH_DELEGATE_DN)
-	boolean canAdmin(String user, String dn, DelegateType type);
+	@Query("SELECT COUNT(d)>0 FROM DelegateOrg d WHERE " + IS_ADMIN + " OR (canWrite=true AND " + MATCH_DELEGATE_DN + ")")
+	boolean canCreate(String user, String dn, DelegateType type);
 
 	/**
 	 * Return all {@link DelegateOrg} objects regarding the given criteria.
