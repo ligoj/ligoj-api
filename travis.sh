@@ -39,7 +39,7 @@ function installMaven {
   export M2_HOME=~/maven/apache-maven-3.5.2
   export PATH=$M2_HOME/bin:$PATH
   echo '<settings><profiles><profile><id>spring-milestone</id><repositories>' > $M2_HOME/conf/settings.xml
-  echo '<repository><url>http://repo.spring.io/milestone/</url></repository>' >> $M2_HOME/conf/settings.xml
+  echo '<repository><id>spring-milestone</id><url>http://repo.spring.io/milestone/</url></repository>' >> $M2_HOME/conf/settings.xml
   echo '</repositories></profile></profiles><activeProfiles><activeProfile>spring-milestone</activeProfile></activeProfiles></settings>' >> $M2_HOME/conf/settings.xml
 }
 
