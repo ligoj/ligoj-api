@@ -2,12 +2,12 @@
 set -euo pipefail
 
 #
-# A (too) old version of JDK8 is installed by default on Travis.
-# This method is preferred over Travis apt oracle-java8-installer because
+# A (too) old version of JDK may be installed by default on Travis.
+# This method is preferred over Travis apt installer because
 # JDK is kept in cache. It does not need to be downloaded from Oracle
 # at each build.
 #
-function installJdk8 {
+function installJdk {
   echo "Setup JDK 9.0.4"
   mkdir -p ~/jvm
   pushd ~/jvm > /dev/null
@@ -23,7 +23,9 @@ function installJdk8 {
 }
 
 #
-# Maven 3.5.2 is installed by default on Travis. Maven 3.5.2 is preferred.
+# A (too) old version of Maven may be installed by default on Travis.
+# This method is preferred over Travis apt installer because
+# JDK is kept in cache.
 #
 function installMaven {
   echo "Setup Maven"
@@ -110,7 +112,7 @@ case "$TARGET" in
 
 BUILD)
 
-  installJdk8
+  installJdk
   installMaven
   fixBuildVersion
 
