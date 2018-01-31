@@ -29,4 +29,9 @@ public class ServicePluginTest {
 	public void link() throws Exception {
 		plugin.link(3);
 	}
+
+	@Test
+	public void deleteNode() throws Exception {
+		plugin.delete("service:s1:t2:n3", true);
+	}
 }
