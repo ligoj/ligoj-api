@@ -102,25 +102,6 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 *            The DN user wants to create.
 	 * @param type
 	 *            The involved {@link DelegateType}.
-	 * @return A positive number if the given DN can be created by the given
-	 *         user.
-	 * @Deprecated Use {@link #canAdmin(String, String, DelegateType)}
-	 */
-	@Query("SELECT COUNT(d)>0 FROM DelegateOrg d WHERE " + IS_ADMIN + " OR (canWrite=true AND " + MATCH_DELEGATE_DN + ")")
-	@Deprecated
-	boolean isAdmin(String user, String dn, DelegateType type);
-
-	/**
-	 * Return <code>true</code> when there is at least one {@link DelegateOrg}
-	 * granting the write right for given principal user to modify something
-	 * within the given DN.
-	 * 
-	 * @param user
-	 *            The user name requesting the operation.
-	 * @param dn
-	 *            The DN user wants to create.
-	 * @param type
-	 *            The involved {@link DelegateType}.
 	 * @return <code>true</code> when the given DN can be created by the given
 	 *         user.
 	 */

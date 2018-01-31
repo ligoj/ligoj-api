@@ -18,6 +18,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
+import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
@@ -101,7 +102,7 @@ public class XmlUtils {
 	 */
 	public String getTagText(final Element element, final String tag) {
 		return Optional.ofNullable(
-				Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0)).map(n -> n.getTextContent()).orElse(null))
+				Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0)).map(Node::getTextContent).orElse(null))
 				.orElse(null);
 	}
 

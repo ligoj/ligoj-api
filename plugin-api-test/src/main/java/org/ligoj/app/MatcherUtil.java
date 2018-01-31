@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import javax.validation.ConstraintViolation;
@@ -58,7 +59,7 @@ public class MatcherUtil {
 			errorsS.add(StringUtils.defaultIfBlank(ClassUtils.getShortClassName(ClassUtils.getPackageName(v.getMessageTemplate())), null));
 			errorsS.add(StringUtils.defaultIfBlank(v.getMessageTemplate(), null));
 		});
-		final List<String> errorsS2 = errorsS.stream().filter(e -> e != null).map(String::toLowerCase).collect(Collectors.toList());
+		final List<String> errorsS2 = errorsS.stream().filter(Objects::nonNull).map(String::toLowerCase).collect(Collectors.toList());
 		Assertions.assertEquals(errors.isEmpty() ? field : message.toLowerCase(),
 				errorsS2.stream().filter(message::equalsIgnoreCase).findAny().orElseGet(
 						() -> errors.isEmpty()
