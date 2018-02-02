@@ -1,7 +1,7 @@
 package org.ligoj.app.iam.model;
 
 /**
- * Delegate type.
+ * Delegate resource type.
  */
 public enum DelegateType {
 
