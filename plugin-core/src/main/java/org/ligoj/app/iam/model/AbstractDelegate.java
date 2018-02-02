@@ -38,13 +38,13 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 	private ReceiverType receiverType = ReceiverType.USER;
 
 	/**
-	 * Can write, create or update elements.
+	 * Receiver can create, delete or update the related resource.
 	 */
 	private boolean canWrite;
 
 	/**
-	 * Can manage all delegations within the same scope and propagate this right to another user. This flag is required
-	 * to update, create or delete any delegate.
+	 * Receiver can create, delete or update all delegates within the same scope and propagate this right to another
+	 * receiver. This include this delegate. The 'canWrite' attribute cannot be augmented.
 	 */
 	private boolean canAdmin;
 
