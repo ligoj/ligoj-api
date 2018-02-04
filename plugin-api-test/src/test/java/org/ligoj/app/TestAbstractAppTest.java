@@ -38,6 +38,7 @@ public class TestAbstractAppTest extends AbstractAppTest {
 	@Test
 	public void getSubscription() {
 		em = Mockito.mock(EntityManager.class);
+		@SuppressWarnings("unchecked")
 		final TypedQuery<Object> typeQuery = Mockito.mock(TypedQuery.class);
 		Mockito.when(typeQuery.setParameter(ArgumentMatchers.anyInt(), ArgumentMatchers.any())).thenReturn(typeQuery);
 		Mockito.when(typeQuery.setMaxResults(1)).thenReturn(typeQuery);

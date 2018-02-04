@@ -26,7 +26,7 @@ public class MatcherUtilTest {
 	
 	@Test
 	public void coverage() {
-		new MatcherUtil();
+		new MatcherUtil().toString();
 	}
 
 	@Test
