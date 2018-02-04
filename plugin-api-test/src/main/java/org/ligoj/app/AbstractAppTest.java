@@ -102,7 +102,7 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 		try {
 			((DefaultSingletonBeanRegistry) ((ConfigurableApplicationContext) applicationContext).getBeanFactory())
 					.destroySingleton(beanName);
-		} catch (@SuppressWarnings("unused") final NoSuchBeanDefinitionException e) {
+		} catch (final NoSuchBeanDefinitionException e) {
 			// Ignore
 		}
 	}
