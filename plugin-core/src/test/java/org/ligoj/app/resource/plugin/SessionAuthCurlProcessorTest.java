@@ -17,7 +17,7 @@ public class SessionAuthCurlProcessorTest {
 		final CurlRequest request = new CurlRequest("", "", "");
 		Assertions.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
 			@Override
-			protected boolean call(final CurlRequest request, final String url) throws Exception {
+			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
 		}.process(request));
@@ -33,7 +33,7 @@ public class SessionAuthCurlProcessorTest {
 		request.counter = 1;
 		Assertions.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
 			@Override
-			protected boolean call(final CurlRequest request, final String url) throws Exception {
+			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
 		}.process(request));

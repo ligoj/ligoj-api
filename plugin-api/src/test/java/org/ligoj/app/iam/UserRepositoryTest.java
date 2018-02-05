@@ -76,7 +76,7 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	public void findByIdExpected() throws Exception {
+	public void findByIdExpected() {
 		final EmptyUserRepository emptyUserRepository = new EmptyUserRepository();
 		final ICompanyRepository companyRepository = Mockito.mock(ICompanyRepository.class);
 		Mockito.when(companyRepository.findById("user1", "company")).thenReturn(new CompanyOrg("", ""));

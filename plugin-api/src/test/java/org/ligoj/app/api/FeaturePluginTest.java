@@ -17,17 +17,17 @@ public class FeaturePluginTest {
 	};
 
 	@Test
-	public void getName() throws Exception {
+	public void getName() {
 		Assertions.assertEquals("T2", plugin.getName());
 	}
 
 	@Test
-	public void getVendor() throws Exception {
+	public void getVendor() {
 		Assertions.assertNull(plugin.getVendor());
 	}
 
 	@Test
-	public void getVersion() throws Exception {
+	public void getVersion() {
 		Assertions.assertNull(plugin.getVersion());
 	}
 
@@ -49,7 +49,7 @@ public class FeaturePluginTest {
 	}
 
 	@Test
-	public void compareTo() throws Exception {
+	public void compareTo() {
 		Assertions.assertEquals(0, plugin.compareTo(plugin));
 	}
 }

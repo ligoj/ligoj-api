@@ -51,7 +51,7 @@ public class ToVoConverterTest {
 	}
 
 	@Test
-	public void apply() throws Exception {
+	public void apply() {
 
 		// Sub user repository
 		final IamProvider iamProvider = Mockito.mock(IamProvider.class);

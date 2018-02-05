@@ -40,7 +40,7 @@ public class TestAbstractConfiguredServicePlugin {
 			}
 
 			@Override
-			public Object getConfiguration(int subscription) throws Exception {
+			public Object getConfiguration(int subscription) {
 				return configuration;
 			}
 		};
