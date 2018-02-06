@@ -13,6 +13,7 @@ public class UserRepositoryTest {
 	@Test
 	public void findAll() {
 		new EmptyUserRepository().setPassword(null, null);
+		new EmptyUserRepository().setPassword(null, null, null);
 		Assertions.assertTrue(new EmptyUserRepository().findAll().isEmpty());
 	}
 

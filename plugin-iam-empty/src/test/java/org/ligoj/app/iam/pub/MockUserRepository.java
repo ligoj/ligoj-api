@@ -119,4 +119,10 @@ class MockUserRepository implements IUserRepository {
 		// Nothing to do
 		return null;
 	}
+
+	@Override
+	public void setPassword(UserOrg userLdap, String password, String newPassword) {
+		// Nothing to do
+		
+	}
 }
