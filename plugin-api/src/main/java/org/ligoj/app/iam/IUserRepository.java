@@ -341,4 +341,13 @@ public interface IUserRepository {
 	 *         {@link UserOrg#getDn()}
 	 */
 	String toDn(UserOrg newUser);
+
+	/**
+	 * Check and update the user lock status without using cache. This will check
+	 * only <code>pwdAccountLockedTime</code>, PPolicy attribute.
+	 * 
+	 * @param user
+	 *            Target user to check.
+	 */
+	void checkLockStatus(UserOrg user);
 }
