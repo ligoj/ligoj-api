@@ -1,5 +1,7 @@
 package org.ligoj.app.resource.plugin;
 
+import java.util.Collections;
+
 import javax.persistence.EntityNotFoundException;
 
 import org.junit.jupiter.api.Assertions;
@@ -12,6 +14,7 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.PluginConfiguration;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.mockito.Mockito;
@@ -21,11 +24,15 @@ import org.mockito.Mockito;
  */
 public class TestAbstractConfiguredServicePlugin {
 
+	private static interface NamedConfigurable
+			extends Configurable<PluginConfiguration, Integer>, INamableBean<Integer> {
+	}
+
 	private AbstractConfiguredServicePlugin<PluginConfiguration> resource;
 
 	private RestRepository<Configurable<PluginConfiguration, Integer>, Integer> repository;
 	private PluginConfiguration configuration;
-	private Configurable<PluginConfiguration, Integer> configurable;
+	private NamedConfigurable configurable;
 	private Subscription subscription;
 	private Project project;
 
@@ -50,7 +57,7 @@ public class TestAbstractConfiguredServicePlugin {
 
 		repository = Mockito.mock(RestRepository.class);
 		configuration = Mockito.mock(PluginConfiguration.class);
-		configurable = Mockito.mock(Configurable.class);
+		configurable = Mockito.mock(NamedConfigurable.class);
 		subscription = new Subscription();
 		subscription.setId(33);
 		project = new Project();
@@ -59,10 +66,13 @@ public class TestAbstractConfiguredServicePlugin {
 		Mockito.when(resource.securityHelper.getLogin()).thenReturn("junit");
 		Mockito.when(configurable.getConfiguration()).thenReturn(configuration);
 		Mockito.when(configurable.getId()).thenReturn(1);
+		Mockito.when(configurable.getName()).thenReturn("my-name");
 		Mockito.when(configuration.getSubscription()).thenReturn(subscription);
 		Mockito.when(resource.subscriptionRepository.findOneExpected(33)).thenReturn(subscription);
 		Mockito.when(resource.projectRepository.findOneVisible(44, "junit")).thenReturn(project);
 		Mockito.when(repository.findOneExpected(1)).thenReturn(configurable);
+		Mockito.when(repository.findAllBy("configuration.subscription.id", subscription.getId()))
+				.thenReturn(Collections.singletonList(configurable));
 	}
 
 	@Test
@@ -85,6 +95,20 @@ public class TestAbstractConfiguredServicePlugin {
 	@Test
 	public void findConfigured() {
 		Assertions.assertEquals(configurable, resource.findConfigured(repository, 1));
+	}
+
+	@Test
+	public void findConfiguredByName() {
+		Assertions.assertEquals(configurable,
+				resource.findConfiguredByName(repository, "my-name", subscription.getId()));
+	}
+
+	@Test
+	public void findConfiguredByNameNotFound() {
+		Assertions.assertEquals("not-found", Assertions.assertThrows(EntityNotFoundException.class, () -> {
+			Assertions.assertEquals(configurable,
+					resource.findConfiguredByName(repository, "not-found", subscription.getId()));
+		}).getMessage());
 	}
 
 	@Test
