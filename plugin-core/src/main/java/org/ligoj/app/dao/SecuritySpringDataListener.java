@@ -22,14 +22,14 @@ import org.springframework.stereotype.Component;
 import lombok.Getter;
 
 /**
- * Register the project native SQL functions for security.
+ * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation. An human readable form is available on GitHub wiki page.
+ * @see <a href="https://github.com/ligoj/ligoj/wiki/Security">Security</a>
  */
 @Component
 public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListener {
-	private static final String VISIBLE_GROUP = "$exists $memberR($arg,s_cmg0,$cm,$cg,$q(group),$q(user)) $end OR ";
+	private static final String VISIBLE_GROUP   = "$exists $memberR($arg,s_cmg0,$cm,$cg,$q(group),$q(user)) $end OR ";
 	private static final String VISIBLE_COMPANY = "$exists $memberR($arg,s_cc0,$cu,$cc,company,id) $end OR ";
-	private static final String IS_TEAM_LEADER = "$project.team_leader=$user OR ";
-	private static final String VISIBLE_PROJECT = IS_TEAM_LEADER + VISIBLE_GROUP;
+	private static final String VISIBLE_PROJECT = "$project.team_leader=$user OR " + VISIBLE_GROUP;
 	private static final String DELEGATED = "$exists ($select_do(s_d1,USER)    AND s_d1.receiver=$user)               AS s_d1 WHERE $parent_dn(s_d1.dn,$arg) $end"
 			+ " OR $exists ($select_do(s_d2,GROUP)   AND $exists $member(s_d2,s_cg1,$cm,$cg,$q(group),$q(user)) $end) AS s_d3 WHERE $parent_dn(s_d3.dn,$arg) $end"
 			+ " OR $exists ($select_do(s_d4,COMPANY) AND $exists $member(s_d4,s_cc1,$cu,$cc,company,id) $end)         AS s_d5 WHERE $parent_dn(s_d5.dn,$arg) $end";
