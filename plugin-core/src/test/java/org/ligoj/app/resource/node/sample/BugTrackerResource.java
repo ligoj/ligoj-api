@@ -30,7 +30,7 @@ public class BugTrackerResource extends AbstractServicePlugin implements Configu
 	}
 
 	@Override
-	public Object getConfiguration(final int subscription) throws Exception {
+	public Object getConfiguration(final int subscription) {
 		return 0;
 	}
 

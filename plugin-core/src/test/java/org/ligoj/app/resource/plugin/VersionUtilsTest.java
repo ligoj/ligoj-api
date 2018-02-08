@@ -1,5 +1,6 @@
 package org.ligoj.app.resource.plugin;
 
+import java.io.IOException;
 import java.util.Date;
 
 import org.junit.jupiter.api.Assertions;
@@ -11,7 +12,7 @@ import org.junit.jupiter.api.Test;
 public class VersionUtilsTest {
 
 	@Test
-	public void getLatestReleasedVersion() throws Exception {
+	public void getLatestReleasedVersion() throws IOException {
 		final AtlassianVersion releasedVersion = new VersionUtils().getLatestReleasedVersion("https://jira.atlassian.com", "JRA");
 		Assertions.assertNotNull(releasedVersion);
 		Assertions.assertNotNull(releasedVersion.getName());
@@ -19,7 +20,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionFirst() throws Exception {
+	public void isValidVersionFirst() {
 		final AtlassianVersion jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
@@ -28,7 +29,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionArchived() throws Exception {
+	public void isValidVersionArchived() {
 		final AtlassianVersion jiraVersion = new AtlassianVersion();
 		jiraVersion.setArchived(true);
 		jiraVersion.setName("1.0");
@@ -38,7 +39,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionUnreleased() throws Exception {
+	public void isValidVersionUnreleased() {
 		final AtlassianVersion jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleaseDate(new Date());
@@ -46,7 +47,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionNoReleaseDate() throws Exception {
+	public void isValidVersionNoReleaseDate() {
 		final AtlassianVersion jiraVersion = new AtlassianVersion();
 		jiraVersion.setArchived(false);
 		jiraVersion.setName("1.0");
@@ -55,7 +56,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionNewer() throws Exception {
+	public void isValidVersionNewer() {
 		final AtlassianVersion previous = new AtlassianVersion();
 		previous.setName("1.0");
 		previous.setReleased(true);
@@ -69,7 +70,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionInvalidName() throws Exception {
+	public void isValidVersionInvalidName() {
 		final AtlassianVersion jiraVersion = new AtlassianVersion();
 		jiraVersion.setArchived(false);
 		jiraVersion.setName("OLD 1.0");
@@ -79,7 +80,7 @@ public class VersionUtilsTest {
 	}
 
 	@Test
-	public void isValidVersionOlder() throws Exception {
+	public void isValidVersionOlder() {
 		final AtlassianVersion previous = new AtlassianVersion();
 		previous.setName("1.1");
 		previous.setReleased(true);

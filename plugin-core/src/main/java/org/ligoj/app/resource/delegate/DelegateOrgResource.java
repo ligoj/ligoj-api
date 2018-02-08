@@ -138,10 +138,10 @@ public class DelegateOrgResource {
 
 	/**
 	 * Indicate this delegate is managed : so can be updated by the current
-	 * user.
+	 * user. <br>
+	 * Is managed when 'canAdmin' flag is set, or this delegate is directly involving the principal user.
 	 */
 	private boolean isManagedDelegate(final DelegateOrg entity) {
-		// Managed if : is administrator, or
 		return entity.isCanAdmin() || entity.getReceiverType() != ReceiverType.USER
 				|| !securityHelper.getLogin().equals(entity.getReceiver());
 	}

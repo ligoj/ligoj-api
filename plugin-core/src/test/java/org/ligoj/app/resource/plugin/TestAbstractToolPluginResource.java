@@ -27,7 +27,7 @@ public class TestAbstractToolPluginResource {
 		resource = new AbstractToolPluginResource() {
 
 			@Override
-			public String getVersion(Map<String, String> parameters) throws Exception {
+			public String getVersion(Map<String, String> parameters) {
 				return "1.0.0";
 			}
 
@@ -39,7 +39,7 @@ public class TestAbstractToolPluginResource {
 	}
 
 	@Test
-	public void create() throws Exception {
+	public void create() {
 		Assertions.assertThrows(NotImplementedException.class, () -> {
 			resource.create(55);
 		});
@@ -60,7 +60,7 @@ public class TestAbstractToolPluginResource {
 	}
 
 	@Test
-	public void download() throws Exception {
+	public void download() {
 		Assertions.assertNotNull(AbstractToolPluginResource.download(Mockito.mock(StreamingOutput.class), "file"));
 	}
 

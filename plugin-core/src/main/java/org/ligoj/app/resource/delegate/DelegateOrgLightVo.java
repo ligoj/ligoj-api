@@ -36,7 +36,7 @@ public class DelegateOrgLightVo extends NamedAuditedBean<SimpleUserOrg, Integer>
 	private boolean canWrite;
 
 	/**
-	 * Can manage all delegation within the same scope.
+	 * Can manage all delegates within the same scope.
 	 */
 	private boolean canAdmin;
 

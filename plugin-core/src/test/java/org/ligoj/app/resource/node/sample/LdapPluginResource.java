@@ -108,7 +108,7 @@ public class LdapPluginResource extends AbstractToolPluginResource {
 	}
 
 	@Override
-	public void create(final int subscription) throws Exception {
+	public void create(final int subscription) {
 		// Nothing to do
 	}
 }

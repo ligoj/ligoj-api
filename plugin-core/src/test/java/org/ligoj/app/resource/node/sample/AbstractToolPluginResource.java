@@ -10,7 +10,7 @@ import org.ligoj.app.api.SubscriptionStatusWithData;
 public abstract class AbstractToolPluginResource extends org.ligoj.app.resource.plugin.AbstractToolPluginResource {
 
 	@Override
-	public String getVersion(final Map<String, String> parameters) throws Exception {
+	public String getVersion(final Map<String, String> parameters) {
 		return "1";
 	}
 
@@ -20,20 +20,19 @@ public abstract class AbstractToolPluginResource extends org.ligoj.app.resource.
 	}
 
 	@Override
-	public boolean checkStatus(final Map<String, String> parameters) throws Exception {
+	public boolean checkStatus(final Map<String, String> parameters) {
 		return true;
 	}
 
 	@Override
-	public SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters)
-			throws Exception {
+	public SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters) {
 		final SubscriptionStatusWithData status = new SubscriptionStatusWithData();
 		status.put("property", "value");
 		return status;
 	}
 
 	@Override
-	public void link(final int subscription) throws Exception {
+	public void link(final int subscription) {
 		// Validate the project key
 	}
 }

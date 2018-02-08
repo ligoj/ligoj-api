@@ -403,7 +403,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test update
 	 */
 	@Test
-	public void deleteNotVisible() throws Exception {
+	public void deleteNotVisible() {
 		em.clear();
 		initSpringSecurityContext("mlavoine");
 		Assertions.assertThrows(BusinessException.class, () -> {
@@ -415,7 +415,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test update
 	 */
 	@Test
-	public void deleteNotExists() throws Exception {
+	public void deleteNotExists() {
 		em.clear();
 		Assertions.assertThrows(BusinessException.class, () -> {
 			resource.delete(-1);

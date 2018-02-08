@@ -812,14 +812,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteNotExist() throws Exception {
+	public void deleteNotExist() {
 		Assertions.assertThrows(BusinessException.class, () -> {
 			resource.delete("service:bt:jira:any");
 		});
 	}
 
 	@Test
-	public void deleteNotVisible() throws Exception {
+	public void deleteNotVisible() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(BusinessException.class, () -> {
 			delete();
@@ -827,7 +827,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteHasSubscription() throws Exception {
+	public void deleteHasSubscription() {
 		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		em.clear();
 		Assertions.assertThrows(BusinessException.class, () -> {
@@ -940,7 +940,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNodeStatus() throws Exception {
+	public void getNodeStatus() {
 		final List<EventVo> nodes = resource.getNodeStatus();
 		Assertions.assertEquals(2, nodes.size());
 		Assertions.assertTrue(nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
@@ -951,14 +951,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void nodeStatus() throws Exception {
+	public void nodeStatus() {
 		// dummy test : used to cover enum methods.
 		Assertions.assertEquals(NodeStatus.UP, NodeStatus.valueOf("UP"));
 		Assertions.assertEquals(2, NodeStatus.values().length);
 	}
 
 	@Test
-	public void getNodeStatistics() throws Exception {
+	public void getNodeStatistics() {
 		final List<NodeStatisticsVo> nodes = resource.getNodeStatistics();
 		// +2 Since there are 2 nodes for JIRA and 2 for source
 		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2, nodes.size());

@@ -11,6 +11,7 @@ import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.model.Configurable;
 import org.ligoj.app.model.PluginConfiguration;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +43,8 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * @return The formal entity parameter.
 	 */
 	protected <K extends Serializable, T extends Configurable<C, K>> T checkConfiguredVisibility(final T configured) {
-		final Subscription entity = subscriptionRepository.findOneExpected(configured.getConfiguration().getSubscription().getId());
+		final Subscription entity = subscriptionRepository
+				.findOneExpected(configured.getConfiguration().getSubscription().getId());
 		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
 			// Associated project is not visible, reject the configuration access
 			throw new EntityNotFoundException(configured.getId().toString());
@@ -63,14 +65,39 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 *            The {@link Configurable} type.
 	 * @return The entity where the related subscription if visible.
 	 */
-	public <K extends Serializable, T extends Configurable<C, K>> T findConfigured(final RestRepository<T, K> repository, final K id) {
+	public <K extends Serializable, T extends Configurable<C, K>> T findConfigured(
+			final RestRepository<T, K> repository, final K id) {
 		return checkConfiguredVisibility(repository.findOneExpected(id));
 	}
 
 	/**
-	 * Check the node scoped object is related to the given node. Will fail with a
-	 * {@link EntityNotFoundException} if the related node if not a sub node of the
-	 * required node.
+	 * Check the visibility of a configured entity by its name.
+	 * 
+	 * @param repository
+	 *            The repository holding the configured entity.
+	 * @param id
+	 *            The requested configured identifier.
+	 * @param subscription
+	 *            The required subscription owner.
+	 * @param <K>
+	 *            The {@link Configurable} identifier type.
+	 * @param <T>
+	 *            The {@link Configurable} type.
+	 * @return The entity where the related subscription if visible.
+	 * @since 2.1.1
+	 */
+	@SuppressWarnings("unchecked")
+	public <K extends Serializable, T extends Configurable<C, K>> T findConfiguredByName(
+			final RestRepository<T, K> repository, final String name, final int subscription) {
+		// TODO Replace by RestRepository#findAllBy with bootstrap 2.1.1+
+		return checkConfiguredVisibility(repository.findAllBy("configuration.subscription.id", subscription).stream()
+				.filter(c -> name.equals(((INamableBean<K>) c).getName())).findFirst()
+				.orElseThrow(() -> new EntityNotFoundException(name)));
+	}
+
+	/**
+	 * Check the node scoped object is related to the given node. Will fail with a {@link EntityNotFoundException} if
+	 * the related node if not a sub node of the required node.
 	 * 
 	 * @param nodeScoped
 	 *            The object related to a node.
@@ -101,8 +128,8 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * @param id
 	 *            The requested configured identifier.
 	 */
-	public <K extends Serializable, T extends Configurable<C, K>> void deletedConfigured(final RestRepository<T, K> repository,
-			final K id) {
+	public <K extends Serializable, T extends Configurable<C, K>> void deletedConfigured(
+			final RestRepository<T, K> repository, final K id) {
 		repository.delete(checkConfiguredVisibility(repository.findOneExpected(id)));
 	}
 

@@ -163,7 +163,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void getParameters() throws Exception {
+	public void getParameters() {
 		final Map<String, String> parameters = resource.getParameters(subscription);
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-user"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-password"));
@@ -203,7 +203,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void getNonSecuredParameters() throws Exception {
+	public void getNonSecuredParameters() {
 		final Map<String, String> parameters = resource.getNonSecuredParameters(getSubscription("gStack"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-user"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-password"));
@@ -217,7 +217,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void getParametersNotVisibleProject() throws Exception {
+	public void getParametersNotVisibleProject() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.getParameters(subscription);
@@ -228,7 +228,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * Not a {@link LongTaskRunner} implementation -> does nothing
 	 */
 	@Test
-	public void deleteTasksNoTaskRunner() throws Exception {
+	public void deleteTasksNoTaskRunner() {
 		resource.deleteTasks(Mockito.mock(ServicePlugin.class), 0);
 	}
 
@@ -277,7 +277,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void deleteNotVisibleProject() throws Exception {
+	public void deleteNotVisibleProject() {
 		final Subscription one = repository.findOne(subscription);
 		final int project = one.getProject().getId();
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
@@ -289,7 +289,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void createNotVisibleProject() throws Exception {
+	public void createNotVisibleProject() {
 
 		// Test a creation by another user than the team leader and a manager
 		initSpringSecurityContext("any");
@@ -327,7 +327,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * group "gfi-gstack".
 	 */
 	@Test
-	public void createNotManagedProject() throws Exception {
+	public void createNotManagedProject() {
 		initSpringSecurityContext("alongchu");
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
 		vo.setParameters(new ArrayList<>());
@@ -343,7 +343,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void createNotSubscribeRight() throws Exception {
+	public void createNotSubscribeRight() {
 		// This users sees only Jenkins nodes
 		initSpringSecurityContext("user1");
 
@@ -368,7 +368,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void createCreateModeNotSupported() throws Exception {
+	public void createCreateModeNotSupported() {
 		final SubscriptionEditionVo vo = newCreateVo();
 		vo.setMode(SubscriptionMode.CREATE);
 		Assertions.assertThrows(NotImplementedException.class, () -> {
@@ -453,7 +453,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void createNotAcceptedParameter() throws Exception {
+	public void createNotAcceptedParameter() {
 		final SubscriptionEditionVo vo = newCreateVoBadParameters();
 		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter("service:bt:jira:pkey");
@@ -471,7 +471,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void createMissingParameter() throws Exception {
+	public void createMissingParameter() {
 		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
 			resource.create(newCreateVoBadParameters());
 		}), "service:bt:jira:pkey", "NotNull");
@@ -589,7 +589,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void checkSubscriptionStatus() throws Exception {
+	public void checkSubscriptionStatus() {
 		JiraPluginResource service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
 		final SubscriptionStatusWithData status = service.checkSubscriptionStatus(null);
 		Assertions.assertNotNull(status);
@@ -597,7 +597,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void servicePlugin() throws Exception {
+	public void servicePlugin() {
 		JiraPluginResource service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
 		Assertions.assertEquals("Jira", service.getName());
 		Assertions.assertNull(service.getVendor());
@@ -606,7 +606,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void checkStatus() throws Exception {
+	public void checkStatus() {
 		Assertions.assertTrue(servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class).checkStatus(null));
 	}
 

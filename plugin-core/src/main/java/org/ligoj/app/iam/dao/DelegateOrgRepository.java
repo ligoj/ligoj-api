@@ -16,6 +16,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 
 	/**
 	 * Current user is an administrator.
+	 * TODO Remove with Bootstrap 2.1.1+
 	 */
 	String IS_ADMIN = "(EXISTS(SELECT 1 FROM SystemRoleAssignment ra INNER JOIN ra.role r WHERE ra.user.id = :user"
 			+ "     AND EXISTS(SELECT 1 FROM SystemAuthorization a WHERE a.role = r AND a.pattern = '.*'"

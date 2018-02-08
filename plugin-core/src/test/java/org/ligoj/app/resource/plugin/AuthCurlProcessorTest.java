@@ -17,7 +17,7 @@ public class AuthCurlProcessorTest {
 		CurlRequest request = new CurlRequest("", "", "");
 		final CurlProcessor processor = new AuthCurlProcessor("junit", "passwd") {
 			@Override
-			protected boolean call(final CurlRequest request, final String url) throws Exception {
+			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
 		};
@@ -36,7 +36,7 @@ public class AuthCurlProcessorTest {
 		final CurlRequest request = new CurlRequest("", "", "");
 		final CurlProcessor processor = new AuthCurlProcessor("", "any") {
 			@Override
-			protected boolean call(final CurlRequest request, final String url) throws Exception {
+			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
 		};
