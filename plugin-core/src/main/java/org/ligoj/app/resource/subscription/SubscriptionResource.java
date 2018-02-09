@@ -330,6 +330,11 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 		repository.delete(entity);
 	}
 
+	@Override
+	protected void delete(final ServicePlugin plugin, final Integer id, final boolean deleteRemoteData) throws Exception {
+		plugin.delete(id, deleteRemoteData);
+	}
+
 	/**
 	 * Check the associated project is managed for current user. Currently, a
 	 * managed project is a project where subscription can be managed.
@@ -536,11 +541,6 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 
 		// Return the fresh statuses
 		return statusWithData;
-	}
-
-	@Override
-	protected void delete(final ServicePlugin plugin, final Integer id, final boolean deleteRemoteData) throws Exception {
-		plugin.delete(id, deleteRemoteData);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

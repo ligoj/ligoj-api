@@ -363,6 +363,30 @@ public class ParameterValueResource {
 	}
 
 	/**
+	 * Update the given node parameter values. The old not updated values are
+	 * deleted.
+	 * 
+	 * @param values
+	 *            the parameter values to persist.
+	 * @param node
+	 *            The related node.
+	 */
+	public void update(final List<ParameterValueCreateVo> values, final Node node) {
+		// Build the old parameter values
+		final List<ParameterValue> oldList = repository.findAllBy("node", node);
+		final Map<String, ParameterValue> oldMap = oldList.stream()
+				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
+
+		// Build the target parameter values
+		final Set<String> newParam = values.stream().map(v -> saveOrUpdate(oldMap, v)).filter(Objects::nonNull).peek(v -> v.setNode(node))
+				.map(repository::saveAndFlush).map(v -> v.getParameter().getId()).collect(Collectors.toSet());
+
+		// Delete the existing but not provided values
+		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
+		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
+	}
+
+	/**
 	 * Create a new {@link ParameterValue} to a node. The related node must be
 	 * visible and writable for the current user.
 	 * 
@@ -379,6 +403,41 @@ public class ParameterValueResource {
 		value.setNode(nodeResource.checkWritableNode(vo.getNode()));
 		repository.saveAndFlush(value);
 		return value.getId();
+	}
+
+	/**
+	 * Create the given subscription parameter values. Value validity is checked.
+	 * 
+	 * @param values
+	 *            the parameter values to persist.
+	 * @param subscription
+	 *            The related subscription.
+	 */
+	public void create(final List<ParameterValueCreateVo> values, final Subscription subscription) {
+		create(values, v -> v.setSubscription(subscription));
+		CacheManager.getInstance().getCache("subscription-parameters").remove(subscription.getId());
+	}
+
+	/**
+	 * Create the given node parameter values.
+	 * 
+	 * @param values
+	 *            the parameter values to persist.
+	 * @param node
+	 *            The related node.
+	 */
+	public void create(final List<ParameterValueCreateVo> values, final Node node) {
+		create(values, v -> v.setNode(node));
+		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
+	}
+
+	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {
+		// Persist each not blank parameter
+		values.stream().map(this::createInternal).filter(Objects::nonNull).forEach(v -> {
+			// Link this value to the subscription
+			presave.accept(v);
+			repository.saveAndFlush(v);
+		});
 	}
 
 	/**
@@ -512,65 +571,6 @@ public class ParameterValueResource {
 	@CacheResult(cacheName = "subscription-parameters")
 	public Map<String, String> getSubscriptionParameters(@CacheKey final int subscription) {
 		return toMapValues(repository.findAllBySubscription(subscription));
-	}
-
-	/**
-	 * Create the given subscription parameter values. Value validity is checked.
-	 * 
-	 * @param values
-	 *            the parameter values to persist.
-	 * @param subscription
-	 *            The related subscription.
-	 */
-	public void create(final List<ParameterValueCreateVo> values, final Subscription subscription) {
-		create(values, v -> v.setSubscription(subscription));
-		CacheManager.getInstance().getCache("subscription-parameters").remove(subscription.getId());
-	}
-
-	/**
-	 * Create the given node parameter values.
-	 * 
-	 * @param values
-	 *            the parameter values to persist.
-	 * @param node
-	 *            The related node.
-	 */
-	public void create(final List<ParameterValueCreateVo> values, final Node node) {
-		create(values, v -> v.setNode(node));
-		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
-	}
-
-	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {
-		// Persist each not blank parameter
-		values.stream().map(this::createInternal).filter(Objects::nonNull).forEach(v -> {
-			// Link this value to the subscription
-			presave.accept(v);
-			repository.saveAndFlush(v);
-		});
-	}
-
-	/**
-	 * Update the given node parameter values. The old not updated values are
-	 * deleted.
-	 * 
-	 * @param values
-	 *            the parameter values to persist.
-	 * @param node
-	 *            The related node.
-	 */
-	public void update(final List<ParameterValueCreateVo> values, final Node node) {
-		// Build the old parameter values
-		final List<ParameterValue> oldList = repository.findAllBy("node", node);
-		final Map<String, ParameterValue> oldMap = oldList.stream()
-				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
-
-		// Build the target parameter values
-		final Set<String> newParam = values.stream().map(v -> saveOrUpdate(oldMap, v)).filter(Objects::nonNull).peek(v -> v.setNode(node))
-				.map(repository::saveAndFlush).map(v -> v.getParameter().getId()).collect(Collectors.toSet());
-
-		// Delete the existing but not provided values
-		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
-		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
 	}
 
 	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing, final ParameterValueCreateVo value) {

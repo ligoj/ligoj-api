@@ -353,6 +353,16 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
+	 * Check status of each node.
+	 * 
+	 * @param nodes
+	 *            The nodes to check.
+	 */
+	private void checkNodesStatus(final List<Node> nodes) {
+		nodes.forEach(this::checkNodeStatus);
+	}
+
+	/**
 	 * Check status of a specific node instance. Only visible node from the current
 	 * user is checked.
 	 * 
@@ -365,16 +375,6 @@ public class NodeResource extends AbstractLockedResource<String> {
 	@OnNullReturn404
 	public NodeStatus checkNodeStatus(@PathParam("id") final String id) {
 		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(this::checkNodeStatus).orElse(null);
-	}
-
-	/**
-	 * Check status of each node.
-	 * 
-	 * @param nodes
-	 *            The nodes to check.
-	 */
-	private void checkNodesStatus(final List<Node> nodes) {
-		nodes.forEach(this::checkNodeStatus);
 	}
 
 	/**
@@ -508,24 +508,6 @@ public class NodeResource extends AbstractLockedResource<String> {
 			subscriptions.entrySet().forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
 		}
 	}
-
-	/**
-	 * Check the subscriptions of each subscription related to given node.
-	 */
-	private void checkNodeSubscriptions(final Node node, final Map<String, String> nodeParameters,
-			final Map<Subscription, Map<String, String>> subscriptions, final NodeResource thisProxy) {
-		int counter = 0;
-		for (final Entry<Subscription, Map<String, String>> subscription : subscriptions.entrySet()) {
-			// For each subscription, check status
-			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
-			final Map<String, String> parameters = new HashMap<>(nodeParameters);
-			parameters.putAll(subscription.getValue());
-			final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
-			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
-			counter++;
-		}
-	}
-
 	/**
 	 * Check status for a subscription.
 	 * 
@@ -555,6 +537,23 @@ public class NodeResource extends AbstractLockedResource<String> {
 			log.warn("Check status of a subscription attached to {} failed : {}", node, e.getMessage());
 		}
 		return new SubscriptionStatusWithData(false);
+	}
+
+	/**
+	 * Check the subscriptions of each subscription related to given node.
+	 */
+	private void checkNodeSubscriptions(final Node node, final Map<String, String> nodeParameters,
+			final Map<Subscription, Map<String, String>> subscriptions, final NodeResource thisProxy) {
+		int counter = 0;
+		for (final Entry<Subscription, Map<String, String>> subscription : subscriptions.entrySet()) {
+			// For each subscription, check status
+			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
+			final Map<String, String> parameters = new HashMap<>(nodeParameters);
+			parameters.putAll(subscription.getValue());
+			final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
+			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
+			counter++;
+		}
 	}
 
 	/**
