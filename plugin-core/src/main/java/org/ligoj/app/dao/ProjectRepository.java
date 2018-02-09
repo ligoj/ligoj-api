@@ -30,10 +30,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	/**
 	 * Return all {@link Project} objects with the given name.The other constraints are :
 	 * <ul>
-	 * <li>The given user is the team leader</li>
-	 * <li>Or, the given user is member of the group associated to this project via the service:id subscription</li>
-	 * <li>Or, the given user can see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
+	 * <li>The given user is a system administrator</li>
+	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 * 
 	 * @param user
@@ -55,10 +54,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Return all {@link Project} objects having at least one subscription and with light information. The visibility is
 	 * checked :
 	 * <ul>
-	 * <li>The given user is the team leader</li>
-	 * <li>Or, the given user is member of the group associated to this project via the service:id subscription</li>
-	 * <li>Or, the given user can see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
+	 * <li>The given user is a system administrator</li>
+	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 * 
 	 * @param user
@@ -72,10 +70,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	/**
 	 * Return a project by its identifier. The other constraints are :
 	 * <ul>
-	 * <li>The given user is the team leader</li>
-	 * <li>Or, the given user is member of the group associated to this project via the service:id subscription</li>
-	 * <li>Or, the given user can see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
+	 * <li>The given user is a system administrator</li>
+	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 * 
 	 * @param id
@@ -91,10 +88,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	/**
 	 * Return a project by its pkey. The other constraints are :
 	 * <ul>
-	 * <li>The given user is the team leader</li>
-	 * <li>Or, the given user is member of the group associated to this project via the service:id subscription</li>
-	 * <li>Or, the given user can see the the group associated to this project via the service:id subscription and
-	 * {@link org.ligoj.app.iam.model.DelegateOrg}</li>
+	 * <li>The given user is a system administrator</li>
+	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 * 
 	 * @param pkey
@@ -110,10 +106,11 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	/**
 	 * Indicate the given user can manage the subscriptions of the given project. The other constraints are :
 	 * <ul>
-	 * <li>The given user is the team leader</li>
-	 * <li>Or, the given user is an administrator
-	 * <li>Or, the given user <strong>canWrite</strong> the group associated to this project via the
-	 * <code>service:id</code> subscription and {@link org.ligoj.app.iam.model.DelegateOrg}</li>
+	 * <li>The given user is a system administrator</li>
+	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the project is visible by given user and also the given user has a
+	 * {@link org.ligoj.app.iam.model.DelegateOrg} with <code>canWrite</code> and <code>canAdmin</code> relating to the
+	 * group associated to this project</li>
 	 * </ul>
 	 * 
 	 * @param project
@@ -123,11 +120,11 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @return Non <code>null</code> project's identifier if the user can manage the subscriptions of this project.
 	 * @see org.ligoj.app.iam.model.AbstractDelegate#isCanWrite()
 	 */
-	@Query("SELECT p.id FROM Project AS p WHERE p.id = :project AND (p.teamLeader = :user OR "
-			+ DelegateOrgRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM ParameterValue AS pv, CacheGroup g WHERE"
-			+ "      pv.parameter.id = 'service:id:group' AND pv.subscription.project = p AND g.id = pv.data"
-			+ "  AND (EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ "   AND d.canWrite=true AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.dn=g.description) OR"
-			+ "    (d.type=org.ligoj.app.iam.model.DelegateType.TREE AND (g.description LIKE CONCAT('%,',d.dn) OR d.dn=g.description)))))))")
+	@Query("SELECT p.id FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND (p.teamLeader = :user OR "
+			+ DelegateOrgRepository.IS_ADMIN + " OR (EXISTS(SELECT 1 FROM DelegateOrg d WHERE "
+			+ DelegateOrgRepository.ASSIGNED_DELEGATE
+			+ " AND d.canWrite=true AND d.canAdmin=true                        "
+			+ " AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.name=cg.id) OR"
+			+ "      (d.type=org.ligoj.app.iam.model.DelegateType.TREE  AND (cg.description LIKE CONCAT('%,',d.dn) OR d.dn=cg.description))))))")
 	Integer isManageSubscription(int project, String user);
 }

@@ -29,6 +29,14 @@ import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.dao.TaskSampleSubscriptionRepository;
+import org.ligoj.app.iam.dao.DelegateOrgRepository;
+import org.ligoj.app.iam.model.CacheGroup;
+import org.ligoj.app.iam.model.CacheMembership;
+import org.ligoj.app.iam.model.CacheUser;
+import org.ligoj.app.iam.model.DelegateOrg;
+import org.ligoj.app.iam.model.DelegateType;
+import org.ligoj.app.iam.model.ReceiverType;
+import org.ligoj.app.model.CacheProjectGroup;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.Parameter;
@@ -72,6 +80,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	private SubscriptionRepository repository;
 
 	@Autowired
+	private DelegateOrgRepository delegateOrgRepository;
+
+	@Autowired
 	private ParameterValueRepository parameterValueRepository;
 
 	@Autowired
@@ -85,8 +96,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Return the subscription identifier of MDA. Assumes there is only one
-	 * subscription for a service.
+	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
 	 */
 	protected int getSubscription(final String project) {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);
@@ -94,17 +104,18 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void getSubscriptionParameterValue() {
-		Assertions.assertEquals("10074",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
+		Assertions.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(subscription,
+				JiraBaseResource.PARAMETER_PROJECT));
 	}
 
 	@Test
 	public void toStringTest() {
 		final Subscription subscription = repository.findOneExpected(this.subscription);
 		final String subscriptionStr = subscription.toString();
-		Assertions.assertTrue(subscriptionStr.startsWith("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: "));
-		Assertions.assertTrue(
-				subscriptionStr.endsWith(", node=AbstractNamedBusinessEntity(name=JIRA 4), project=AbstractNamedAuditedEntity(name=MDA))"));
+		Assertions.assertTrue(subscriptionStr
+				.startsWith("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: "));
+		Assertions.assertTrue(subscriptionStr.endsWith(
+				", node=AbstractNamedBusinessEntity(name=JIRA 4), project=AbstractNamedAuditedEntity(name=MDA))"));
 		Assertions.assertEquals(
 				"Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: null, node=null, project=null)",
 				new Subscription().toString());
@@ -262,8 +273,126 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
+	public void deleteNotVisibleProject() {
+		final Subscription one = repository.findOne(subscription);
+		final int project = one.getProject().getId();
+		Assertions.assertEquals(1, repository.findAllByProject(project).size());
+		em.clear();
+		initSpringSecurityContext("any");
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
+			resource.delete(subscription);
+		});
+	}
+
+	@Test
 	public void delete() throws Exception {
 		initSpringSecurityContext("fdaugan");
+		assertDelete();
+	}
+
+	/**
+	 * Can delete since team leader
+	 */
+	@Test
+	public void deleteBecauseTeamLeader() throws Exception {
+		initSpringSecurityContext("fdaugan");
+		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader("fdaugan"));
+		assertDelete();
+	}
+
+	/**
+	 * Delete since manage the main group
+	 */
+	@Test
+	public void deleteBecauseManageGroup() throws Exception {
+		initSpringSecurityContext("fdaugan");
+		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+
+		// Persist the delegate and the related group to the project
+		final DelegateOrg delegate = prepareDelegate();
+		delegate.setCanAdmin(true);
+		delegate.setCanWrite(true);
+		em.flush();
+
+		assertDelete();
+	}
+
+	/**
+	 * Visible but not admin
+	 */
+	@Test
+	public void deleteNotAdminGroup() throws Exception {
+		initSpringSecurityContext("fdaugan");
+		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		// Persist the delegate and the related group to the project
+		final DelegateOrg delegate = prepareDelegate();
+		delegate.setCanWrite(true);
+		em.flush();
+		em.clear();
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.delete(subscription));
+	}
+
+	/**
+	 * Visible but not write
+	 */
+	@Test
+	public void deleteNotWriteGroup() throws Exception {
+		initSpringSecurityContext("fdaugan");
+		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		// Persist the delegate and the related group to the project
+		final DelegateOrg delegate = prepareDelegate();
+		delegate.setCanAdmin(true);
+		em.flush();
+		em.clear();
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.delete(subscription));
+	}
+
+	private DelegateOrg prepareDelegate() {
+
+		// Persist the delegate and the related group to the project
+		final CacheProjectGroup projectGroup = new CacheProjectGroup();
+		final CacheGroup group = new CacheGroup();
+		group.setId("group-project");
+		group.setName("group-project");
+		group.setDescription("cn=group-project,ou=parent");
+		em.persist(group);
+		final CacheMembership membership = new CacheMembership();
+		membership.setGroup(group);
+		membership.setUser(em.find(CacheUser.class, "fdaugan"));
+		em.persist(membership);
+		projectGroup.setGroup(group);
+		projectGroup.setProject(repository.findOne(subscription).getProject());
+		em.persist(projectGroup);
+
+		final DelegateOrg delegate = new DelegateOrg();
+		delegate.setReceiver("fdaugan");
+		delegate.setReceiverType(ReceiverType.USER);
+		delegate.setReceiverDn("uid=fdaugan,ou=company");
+		delegate.setType(DelegateType.GROUP);
+		delegate.setName("group-project");
+		delegate.setDn("cn=group-project,ou=parent");
+		em.persist(delegate);
+		em.flush();
+
+		return delegate;
+	}
+
+	/**
+	 * Visible since team leader
+	 */
+	@Test
+	public void deleteBecauseManageTheGroup() throws Exception {
+		initSpringSecurityContext("fdaugan");
+		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		assertDelete();
+	}
+
+	private void assertDelete() throws Exception {
 		final Subscription one = repository.findOne(subscription);
 		final int project = one.getProject().getId();
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
@@ -277,18 +406,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void deleteNotVisibleProject() {
-		final Subscription one = repository.findOne(subscription);
-		final int project = one.getProject().getId();
-		Assertions.assertEquals(1, repository.findAllByProject(project).size());
-		em.clear();
-		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(subscription);
-		});
-	}
-
-	@Test
 	public void createNotVisibleProject() {
 
 		// Test a creation by another user than the team leader and a manager
@@ -299,8 +416,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Test a creation by another user than the team leader. The current user is
-	 * administrator, can see all projects.
+	 * Test a creation by another user than the team leader. The current user is administrator, can see all projects.
 	 */
 	@Test
 	public void createByAdmin() throws Exception {
@@ -314,17 +430,16 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		Assertions.assertEquals("10074",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PROJECT));
+		Assertions.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(subscription,
+				JiraBaseResource.PARAMETER_PROJECT));
 		Assertions.assertEquals("MDA",
 				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
 	}
 
 	/**
-	 * The project is visible for user "alongchu" since he is in the main group
-	 * "gfi-gstack" of the project "gfi-gstack", however he is neither the team
-	 * leader of this project, neither an administrator, neither a manger of the
-	 * group "gfi-gstack".
+	 * The project is visible for user "alongchu" since he is in the main group "gfi-gstack" of the project
+	 * "gfi-gstack", however he is neither the team leader of this project, neither an administrator, neither a manger
+	 * of the group "gfi-gstack".
 	 */
 	@Test
 	public void createNotManagedProject() {
@@ -403,8 +518,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	public void createCreateMode() throws Exception {
 		// Prepare data
 		final int subscription = createCreateBase("gfi-gstack", "gfi-gstack-client");
-		Assertions.assertEquals("gfi-gstack",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_PARENT_GROUP));
+		Assertions.assertEquals("gfi-gstack", parameterValueRepository.getSubscriptionParameterValue(subscription,
+				IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
 	private int createCreateBase(final String parent, final String group) throws Exception {
@@ -438,7 +553,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 		Assertions.assertEquals(group,
 				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
-		Assertions.assertEquals("gfi", parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_OU));
+		Assertions.assertEquals("gfi",
+				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_OU));
 		return subscription;
 	}
 
@@ -448,8 +564,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void createCreateModeBlank() throws Exception {
 		final int subscription = createCreateBase("", "gfi-gstack-client2");
-		Assertions
-				.assertNull(parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_PARENT_GROUP));
+		Assertions.assertNull(parameterValueRepository.getSubscriptionParameterValue(subscription,
+				IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
 	@Test
@@ -531,15 +647,15 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final SubscriptionLightVo subscription0 = subscriptions.get(0);
 		Assertions.assertTrue(subscription0.getId() > 0);
 		Assertions.assertTrue(subscription0.getProject() > 0);
-		Assertions.assertEquals("gStack", subscriptionList.getProjects().stream().filter(p -> p.getId().equals(subscription0.getProject()))
-				.findFirst().get().getName());
+		Assertions.assertEquals("gStack", subscriptionList.getProjects().stream()
+				.filter(p -> p.getId().equals(subscription0.getProject())).findFirst().get().getName());
 
 		// MDA Project (last subscription), only JIRA4 subscription
 		final SubscriptionLightVo subscription = subscriptions.get(subscriptions.size() - 1);
 		Assertions.assertTrue(subscription.getId() > 0);
 		Assertions.assertTrue(subscription.getProject() > 0);
-		Assertions.assertEquals("MDA", subscriptionList.getProjects().stream().filter(p -> p.getId().equals(subscription.getProject()))
-				.findFirst().get().getName());
+		Assertions.assertEquals("MDA", subscriptionList.getProjects().stream()
+				.filter(p -> p.getId().equals(subscription.getProject())).findFirst().get().getName());
 		Assertions.assertEquals("service:bt:jira:4", subscription.getNode());
 
 		// Check projects
@@ -547,13 +663,14 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(2, projects.size());
 
 		// Check subscription project
-		final SubscribingProjectVo projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), subscription.getProject()))
-				.findFirst().get();
+		final SubscribingProjectVo projectVo = projects.stream()
+				.filter(p -> Objects.equals(p.getId(), subscription.getProject())).findFirst().get();
 		Assertions.assertEquals("MDA", projectVo.getName());
 		Assertions.assertEquals("mda", projectVo.getPkey());
 
 		// Check subscription node
-		final SubscribedNodeVo nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), subscription.getNode())).findFirst().get();
+		final SubscribedNodeVo nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), subscription.getNode()))
+				.findFirst().get();
 		Assertions.assertEquals("JIRA 4", nodeVo.getName());
 		Assertions.assertEquals("service:bt:jira:4", nodeVo.getId());
 
@@ -565,7 +682,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final int projectId = projectRepository.findByName("MDA").getId();
 		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
-		final Map<Integer, SubscriptionStatusWithData> statuses = resource.refreshStatuses(Collections.singleton(subscription));
+		final Map<Integer, SubscriptionStatusWithData> statuses = resource
+				.refreshStatuses(Collections.singleton(subscription));
 		Assertions.assertEquals(1, statuses.size());
 		final SubscriptionStatusWithData status = statuses.get(subscription);
 		Assertions.assertEquals(subscription, status.getId().intValue());
@@ -607,7 +725,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void checkStatus() {
-		Assertions.assertTrue(servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class).checkStatus(null));
+		Assertions.assertTrue(
+				servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class).checkStatus(null));
 	}
 
 }
