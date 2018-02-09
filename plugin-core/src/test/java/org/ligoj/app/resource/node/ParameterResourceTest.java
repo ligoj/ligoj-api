@@ -13,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
@@ -36,6 +37,9 @@ public class ParameterResourceTest extends AbstractAppTest {
 	@Autowired
 	private ParameterResource resource;
 
+	@Autowired
+	private ParameterRepository repository;
+
 	@BeforeEach
 	public void prepare() throws IOException {
 		persistEntities("csv",
@@ -46,12 +50,13 @@ public class ParameterResourceTest extends AbstractAppTest {
 
 	@Test
 	public void getNotProvidedParameters() {
+		repository.findOneExpected("service:bt:jira:pkey").setDefaultValue("DEFAULT_VALUE1");
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6",
 				SubscriptionMode.LINK);
 		Assertions.assertEquals(25, parameters.size());
 		final int nonDummyStartIndex = 23;
 		Assertions.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex).getId());
-		Assertions.assertEquals("DEFAULT_VALUE", parameters.get(nonDummyStartIndex).getDefaultValue());
+		Assertions.assertEquals("DEFAULT_VALUE1", parameters.get(nonDummyStartIndex).getDefaultValue());
 		Assertions.assertFalse(parameters.get(nonDummyStartIndex).isSecured());
 		Assertions.assertEquals("service:bt:jira:project", parameters.get(nonDummyStartIndex + 1).getId());
 		Assertions.assertNull(parameters.get(nonDummyStartIndex + 1).getDefaultValue());
