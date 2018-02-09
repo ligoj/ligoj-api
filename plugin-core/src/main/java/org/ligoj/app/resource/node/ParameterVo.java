@@ -48,4 +48,9 @@ public class ParameterVo extends AbstractBusinessEntity<String> {
 
 	private boolean secured;
 
+	/**
+	 * The optional default value of this parameter. May be <code>null</code>.
+	 */
+	private String defaultValue;
+
 }

@@ -153,6 +153,7 @@ public class ParameterResource {
 		vo.setMandatory(entity.isMandatory());
 		vo.setSecured(entity.isSecured());
 		vo.setOwner(NodeResource.toVo(entity.getOwner()));
+		vo.setDefaultValue(entity.getDefaultValue());
 
 		// Map constraint data
 		if (entity.getType().isArray()) {
@@ -173,41 +174,40 @@ public class ParameterResource {
 	 * @return The parameter from its identifier. May be <code>null</code>.
 	 */
 	public Parameter findByIdInternal(final String id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).orElseThrow(EntityNotFoundException::new);
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
+				.orElseThrow(EntityNotFoundException::new);
 	}
 
 	/**
-	 * Return all node parameter definitions where a value is expected to be
-	 * provided to the final subscription.
+	 * Return all node parameter definitions where a value is expected to be provided to the final subscription.
 	 * 
 	 * @param node
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be
-	 *         attached to the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
+	 *         mode.
 	 */
 	@GET
 	@Path("{node:.+:.*}/parameter/{mode}")
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
-		return repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
-				.collect(Collectors.toList());
+		return repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream()
+				.map(ParameterResource::toVo).collect(Collectors.toList());
 	}
 
 	/**
-	 * Return all node parameter definitions where a value is expected to be
-	 * provided to the final subscription.
+	 * Return all node parameter definitions where a value is expected to be provided to the final subscription.
 	 * 
 	 * @param node
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be
-	 *         attached to the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
+	 *         mode.
 	 */
 	public List<ParameterVo> getNotProvidedAndAssociatedParameters(final String node, final SubscriptionMode mode) {
-		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
-				.collect(Collectors.toList());
+		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream()
+				.map(ParameterResource::toVo).collect(Collectors.toList());
 	}
 }

@@ -18,7 +18,7 @@
 	<description>API Parent pom for all plugin components</description>
 
 	<properties>
-		<api.version>2.1.0</api.version>
+		<api.version>2.1.1-SNAPSHOT</api.version>
 		<jackson.version>2.9.4</jackson.version>
 	</properties>
 

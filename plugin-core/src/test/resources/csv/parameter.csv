@@ -1,11 +1,11 @@
-id;owner.id;data;mandatory;type;mode;secured
+id;owner.id;data;mandatory;type;mode;secured;defaultValue
 service:bt:jira:jdbc-url;service:bt:jira;;true;TEXT;;true
 service:bt:jira:jdbc-driver;service:bt:jira;;true;TEXT;;true
 service:bt:jira:jdbc-user;service:bt:jira;;true;TEXT;;true
 service:bt:jira:jdbc-password;service:bt:jira;;true;TEXT;;true
 service:bt:jira:url;service:bt:jira;;true;TEXT;;
 service:bt:jira:project;service:bt:jira;"{""min"":1}";true;INTEGER;;
-service:bt:jira:pkey;service:bt:jira;;true;TEXT;;
+service:bt:jira:pkey;service:bt:jira;;true;TEXT;;;DEFAULT_VALUE
 service:bt:jira:user;service:bt:jira;;false;TEXT;;true
 service:bt:jira:password;service:bt:jira;;false;TEXT;;true
 service:build:jenkins:url;service:build:jenkins;;true;TEXT;;
