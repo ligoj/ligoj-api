@@ -15,7 +15,7 @@ public interface IPasswordGenerator {
 	 *            The user identifier.
 	 * @param quiet
 	 *            Flag to turn-off the possible notification such as mail.
-	 * @return The generated password.
+	 * @return The generated password. never <code>null</code>.
 	 */
 	String generate(String user, boolean quiet);
 }
