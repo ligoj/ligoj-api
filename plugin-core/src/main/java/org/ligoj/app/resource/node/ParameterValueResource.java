@@ -689,7 +689,7 @@ public class ParameterValueResource {
 	 *         the final subscription in given mode.
 	 */
 	@GET
-	@Path("{node:.+:.*}/parameter-value/{mode}")
+	@Path("{node:service:.+}/parameter-value/{mode}")
 	public List<ParameterNodeVo> getNodeParameters(@PathParam("node") final String node, @PathParam("mode") final SubscriptionMode mode) {
 		final List<ParameterVo> parameters = parameterResource.getNotProvidedAndAssociatedParameters(node, mode);
 		final Map<String, ParameterValue> vmap = repository.getParameterValues(node).stream()

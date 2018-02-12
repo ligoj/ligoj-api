@@ -189,7 +189,7 @@ public class ParameterResource {
 	 *         mode.
 	 */
 	@GET
-	@Path("{node:.+:.*}/parameter/{mode}")
+	@Path("{node:service:.+}/parameter/{mode}")
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
 		return repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream()
