@@ -126,8 +126,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 * 
 	 * @param entity
 	 *            Source entity.
-	 * @return The corresponding VO object with resources and without recursive
-	 *         parent reference.
+	 * @return The corresponding VO object with resources and without recursive parent reference.
 	 */
 	private static NodeVo toVoParameter(final Node entity) {
 		final NodeVo vo = toVoLight(entity);
@@ -153,8 +152,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * JPA {@link Node} associated to {@link ParameterValue} to detailed
-	 * {@link NodeVo} converter. This not a one to one {@link Function}.
+	 * JPA {@link Node} associated to {@link ParameterValue} to detailed {@link NodeVo} converter. This not a one to one
+	 * {@link Function}.
 	 * 
 	 * @param nodesAndValues
 	 *            Nodes with values.
@@ -174,8 +173,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 			});
 
 			// Copy the parameter value if present
-			Optional.ofNullable((ParameterValue) resultSet[1]).ifPresent(
-					v -> vo.getParameters().put(v.getParameter().getId(), ParameterValueResource.parseValue(v, new ParameterValueVo())));
+			Optional.ofNullable((ParameterValue) resultSet[1]).ifPresent(v -> vo.getParameters()
+					.put(v.getParameter().getId(), ParameterValueResource.parseValue(v, new ParameterValueVo())));
 		}
 
 		// Complete the hierarchy
@@ -260,24 +259,15 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check the desired mode is a subset of allowed modes. Accepted couples
-	 * (parent, node) are :
+	 * Check the desired mode is a subset of allowed modes. Accepted couples (parent, node) are :
 	 * <ul>
-	 * <li>ALL,*
-	 * <li>
-	 * <li>CREATE,CREATE
-	 * <li>
-	 * <li>CREATE,NONE
-	 * <li>
-	 * <li>LINK,LINK
-	 * <li>
-	 * <li>LINK,NONE
-	 * <li>
+	 * <li>ALL,*</li>
+	 * <li>X,X</li>
+	 * <li>*,NONE</li>
 	 * </ul>
 	 */
 	private SubscriptionMode checkMode(final SubscriptionMode parentMode, final SubscriptionMode nodeMode) {
-		if (parentMode != SubscriptionMode.NONE
-				&& (parentMode == SubscriptionMode.ALL || nodeMode == SubscriptionMode.NONE || parentMode == nodeMode)) {
+		if (nodeMode == SubscriptionMode.NONE || parentMode == nodeMode || parentMode == SubscriptionMode.ALL) {
 			// Checked node's mode
 			return nodeMode;
 		}
@@ -286,8 +276,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check the desired refined and the naming convention. Return the resolved and
-	 * validated refined of <code>null</code> when is root.
+	 * Check the desired refined and the naming convention. Return the resolved and validated refined of
+	 * <code>null</code> when is root.
 	 */
 	private Node checkRefined(final NodeEditionVo node) {
 		if (node.isRefining()) {
@@ -311,16 +301,14 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Delete an existing {@link Node} from its identifier. The whole cache of nodes
-	 * is invalidated. The deletion can only succeed if there are no related
-	 * subscription. They need to be previously deleted. The administrator rights
+	 * Delete an existing {@link Node} from its identifier. The whole cache of nodes is invalidated. The deletion can
+	 * only succeed if there are no related subscription. They need to be previously deleted. The administrator rights
 	 * are also checked.
 	 * 
 	 * @param id
 	 *            The node identifier.
 	 * @throws Exception
-	 *             When the related plug-in implementation throws an exception
-	 *             during the deletion.
+	 *             When the related plug-in implementation throws an exception during the deletion.
 	 * 
 	 */
 	@DELETE
@@ -343,8 +331,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check status of each node instance. Only visible nodes from the current user
-	 * are checked.
+	 * Check status of each node instance. Only visible nodes from the current user are checked.
 	 */
 	@POST
 	@Path("status/refresh")
@@ -363,8 +350,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check status of a specific node instance. Only visible node from the current
-	 * user is checked.
+	 * Check status of a specific node instance. Only visible node from the current user is checked.
 	 * 
 	 * @param id
 	 *            The node identifier to check.
@@ -374,7 +360,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	@Path("status/refresh/{id:.+:.*}")
 	@OnNullReturn404
 	public NodeStatus checkNodeStatus(@PathParam("id") final String id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(this::checkNodeStatus).orElse(null);
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(this::checkNodeStatus)
+				.orElse(null);
 	}
 
 	/**
@@ -394,8 +381,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check the status of a node. This method need to be public for the CGLIB
-	 * proxying.
+	 * Check the status of a node. This method need to be public for the CGLIB proxying.
 	 * 
 	 * @param node
 	 *            The node identifier.
@@ -429,8 +415,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check status of each subscription. Only visible nodes from the current user
-	 * are checked.
+	 * Check status of each subscription. Only visible nodes from the current user are checked.
 	 */
 	@POST
 	@Path("status/subscription/refresh")
@@ -466,7 +451,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 		final Map<Subscription, Map<String, String>> result = new HashMap<>();
 		for (final Object[] entityTab : subscriptionRepository.findAllWithValuesByNode(id)) {
 			final ParameterValue value = (ParameterValue) entityTab[1];
-			result.computeIfAbsent((Subscription) entityTab[0], s -> new HashMap<>()).put(value.getParameter().getId(), value.getData());
+			result.computeIfAbsent((Subscription) entityTab[0], s -> new HashMap<>()).put(value.getParameter().getId(),
+					value.getData());
 		}
 		return result;
 	}
@@ -505,9 +491,11 @@ public class NodeResource extends AbstractLockedResource<String> {
 		} else {
 			// All subscription of this are marked as DOWN
 			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptions.size());
-			subscriptions.entrySet().forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
+			subscriptions.entrySet()
+					.forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
 		}
 	}
+
 	/**
 	 * Check status for a subscription.
 	 * 
@@ -517,7 +505,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 *            Parameters of a subscription.
 	 * @return status of given subscription.
 	 */
-	public SubscriptionStatusWithData checkSubscriptionStatus(final Subscription subscription, final Map<String, String> parameters) {
+	public SubscriptionStatusWithData checkSubscriptionStatus(final Subscription subscription,
+			final Map<String, String> parameters) {
 		final String node = subscription.getNode().getId();
 		try {
 			log.info("Check status of a subscription attached to {}...", node);
@@ -526,7 +515,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 			final ToolPlugin toolPlugin = locator.getResourceExpected(node, ToolPlugin.class);
 
 			// Call service which check status
-			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node, parameters);
+			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node,
+					parameters);
 			status.setNode(node);
 			log.info("Check status of a subscription attached to {} succeed", node);
 			return status;
@@ -550,7 +540,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
 			final Map<String, String> parameters = new HashMap<>(nodeParameters);
 			parameters.putAll(subscription.getValue());
-			final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
+			final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters)
+					.getStatus();
 			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
 			counter++;
 		}
@@ -572,8 +563,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 * 
 	 * @param id
 	 *            The node to check.
-	 * @return Status of a single node. Many be <code>null</code> when node is not
-	 *         found or when there is not known status.
+	 * @return Status of a single node. Many be <code>null</code> when node is not found or when there is not known
+	 *         status.
 	 */
 	@GET
 	@Path("status/{id:.+:.*}")
@@ -592,7 +583,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	@Path("status/subscription")
 	public List<NodeStatisticsVo> getNodeStatistics() {
 		final Map<String, NodeStatisticsVo> results = new HashMap<>();
-		final List<Object[]> subscriptionsSpecificEvents = eventRepository.countSubscriptionsEvents(securityHelper.getLogin());
+		final List<Object[]> subscriptionsSpecificEvents = eventRepository
+				.countSubscriptionsEvents(securityHelper.getLogin());
 		final List<Object[]> totalSubscriptions = repository.countNodeSubscriptions(securityHelper.getLogin());
 
 		// Map node and amount of subscriptions
@@ -604,7 +596,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 
 		// Map status of each subscription
 		for (final Object[] subscriptionsSpecificEvent : subscriptionsSpecificEvents) {
-			final NodeStatisticsVo result = results.computeIfAbsent((String) subscriptionsSpecificEvent[0], NodeStatisticsVo::new);
+			final NodeStatisticsVo result = results.computeIfAbsent((String) subscriptionsSpecificEvent[0],
+					NodeStatisticsVo::new);
 			result.getValues().put((String) subscriptionsSpecificEvent[1], (Long) subscriptionsSpecificEvent[2]);
 		}
 
@@ -622,13 +615,13 @@ public class NodeResource extends AbstractLockedResource<String> {
 	@Path("{id:.+:.*}")
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public NodeVo findById(@PathParam("id") final String id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(NodeResource::toVoLight)
-				.orElseThrow(() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "node", "1", id));
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
+				.map(NodeResource::toVoLight).orElseThrow(
+						() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "node", "1", id));
 	}
 
 	/**
-	 * Return a specific node details. The visibility is not checked, and the cache
-	 * is not involved.
+	 * Return a specific node details. The visibility is not checked, and the cache is not involved.
 	 * 
 	 * @param id
 	 *            The node identifier.
@@ -640,35 +633,32 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Return all visible nodes for current user. The hierarchy data is returned but
-	 * without UI data.
+	 * Return all visible nodes for current user. The hierarchy data is returned but without UI data.
 	 * 
 	 * @param uriInfo
 	 *            pagination data.
 	 * @param criteria
 	 *            the optional criteria to match.
 	 * @param refined
-	 *            The optional parent identifier to be like. Special attention for
-	 *            'service' value corresponding to the root.
+	 *            The optional parent identifier to be like. Special attention for 'service' value corresponding to the
+	 *            root.
 	 * @param mode
-	 *            Expected subscription mode. When <code>null</code>, the node's
-	 *            mode is not checked.
+	 *            Expected subscription mode. When <code>null</code>, the node's mode is not checked.
 	 * @param depth
-	 *            The maximal depth. When <code>0</code> means no refined, so
-	 *            basically services only. <code>1</code> means refined is a
-	 *            service, so nodes are basically tool only. <code>2</code> means
-	 *            refined is a tool, so nodes are basically instances only. For the
-	 *            other cases, there is no limit, and corresponds to the default
-	 *            behavior.
+	 *            The maximal depth. When <code>0</code> means no refined, so basically services only. <code>1</code>
+	 *            means refined is a service, so nodes are basically tool only. <code>2</code> means refined is a tool,
+	 *            so nodes are basically instances only. For the other cases, there is no limit, and corresponds to the
+	 *            default behavior.
 	 * @return All visible nodes with the hierarchy but without UI data.
 	 */
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
-	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo, @QueryParam(DataTableAttributes.SEARCH) final String criteria,
-			@QueryParam("refined") final String refined, @QueryParam("mode") final SubscriptionMode mode,
-			@QueryParam("depth") @DefaultValue("-1") final int depth) {
-		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToEmpty(criteria), refined, mode,
-				depth, paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
+	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo,
+			@QueryParam(DataTableAttributes.SEARCH) final String criteria, @QueryParam("refined") final String refined,
+			@QueryParam("mode") final SubscriptionMode mode, @QueryParam("depth") @DefaultValue("-1") final int depth) {
+		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(),
+				StringUtils.trimToEmpty(criteria), refined, mode, depth,
+				paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, NodeResource::toVo);
@@ -686,8 +676,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	/**
-	 * Check the parameters that are being attached to this node : overrides,
-	 * mandatory and ownerships.
+	 * Check the parameters that are being attached to this node : overrides, mandatory and ownerships.
 	 * 
 	 * @param vo
 	 *            The parameterized object.
@@ -712,9 +701,9 @@ public class NodeResource extends AbstractLockedResource<String> {
 	private void checkOverrides(final List<String> acceptedParameters, final List<String> parameters) {
 		final Collection<String> overrides = CollectionUtils.removeAll(parameters, acceptedParameters);
 		if (!overrides.isEmpty()) {
-			// A non acceptable parameter. An attempt to override a secured
-			// data?
-			throw ValidationJsonException.newValidationJsonException("not-accepted-parameter", overrides.iterator().next());
+			// A non acceptable parameter. An attempt to override a secured data?
+			throw ValidationJsonException.newValidationJsonException("not-accepted-parameter",
+					overrides.iterator().next());
 		}
 	}
 
@@ -724,9 +713,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 * @param id
 	 *            The node identifier to check.
 	 * @param checker
-	 *            The function checking the node from its identifier (first
-	 *            parameter) for a given user (second parameter) and return the
-	 *            check {@link Node} identity.
+	 *            The function checking the node from its identifier (first parameter) for a given user (second
+	 *            parameter) and return the check {@link Node} identity.
 	 * @return the checked node.
 	 */
 	public Node checkNode(final String id, final BiFunction<String, String, Node> checker) {
@@ -761,7 +749,8 @@ public class NodeResource extends AbstractLockedResource<String> {
 	}
 
 	@Override
-	protected void delete(final ServicePlugin plugin, final String id, final boolean deleteRemoteData) throws Exception {
+	protected void delete(final ServicePlugin plugin, final String id, final boolean deleteRemoteData)
+			throws Exception {
 		plugin.delete(id, deleteRemoteData);
 	}
 

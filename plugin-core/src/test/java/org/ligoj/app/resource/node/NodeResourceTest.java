@@ -23,6 +23,7 @@ import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
+import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.dao.TaskSampleNodeRepository;
@@ -80,12 +81,15 @@ public class NodeResourceTest extends AbstractAppTest {
 	private NodeResource resource;
 
 	@Autowired
-	private ParameterValueResource pvResource;
+	private ParameterValueResource parameterValueResource;
 
 	private NodeResource resourceMock;
 
 	@Autowired
 	private ParameterValueRepository parameterValueRepository;
+
+	@Autowired
+	private ParameterRepository parameterRepository;
 
 	@Autowired
 	private TaskSampleNodeRepository taskSampleRepository;
@@ -95,8 +99,8 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@BeforeEach
 	public void prepare() throws IOException {
-		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class,
-				Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
+				ParameterValue.class, Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
 	}
 
@@ -143,11 +147,9 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP
-		 * <br> Expected count 6 changes for subscriptions :<br> +1 :
-		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN
-		 * <br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node
-		 * implies one subscription) less the already know nodes<br> =
+		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
+		 * subscriptions :<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already know nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
 		Assertions.assertEquals(eventsCount + 2, eventRepository.count());
@@ -168,11 +170,9 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP
-		 * <br> Expected count 6 changes for subscriptions :<br> +1 :
-		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN
-		 * <br> Nb events = nbPreviousEvents + nbNodes x2 (Because one node
-		 * implies one subscription) less the already know nodes<br> =
+		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
+		 * subscriptions :<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already know nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
 		Assertions.assertEquals(eventsCount + 23, eventRepository.count());
@@ -239,26 +239,26 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// 1 : service is down
 		final JiraPluginResource jira = Mockito.mock(JiraPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith(":jira"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith(":jira"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jira);
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith(":jira"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith(":jira"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
 		Mockito.when(jira.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(false);
 
 		// 2 : service is up
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":sonar"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(sonar);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":sonar"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(sonar);
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":sonar"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":sonar"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
 		// 3 : service throw an exception (down)
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
 		Mockito.when(jenkins.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenThrow(new TechnicalException("junit"));
 
@@ -298,26 +298,18 @@ public class NodeResourceTest extends AbstractAppTest {
 		final long eventsCount = eventRepository.count();
 		resource.checkNodesStatusScheduler();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered
-		 * <br> +1 : Jenkins DOWN, was UP <br> +1 : Jira 4 was UP <br> +1 :
-		 * Confluence DOWN, discovered <br> +1 : Fortify DOWN, discovered <br>
-		 * +1 : vCloud DOWN, discovered <br> +1 : LDAP DOWN, discovered <br> +1
-		 * : Git DOWN, discovered <br> +1 : Subversion DOWN, discovered <br>
-		 * Expected count 6 changes for subscriptions :<br> +1 : Subscription
-		 * MDA - JIRA4, DOWN, was UP<br> +0 : Subscription gStack - JIRA6 - node
-		 * has not changed, subscription is not checked<br> +1 : Subscription
-		 * gStack - Jenkins, discovered, DOWN since node is DOWN <br> +0 :
-		 * Subscription gStack - Sonar, discovered, node is UP, but subscription
-		 * has not been checked <br> +2 : Subscription gStack - OpenLDAP,
-		 * discovered <br> +1 : Subscription gStack - Confluence, discovered
-		 * <br> +1 : Subscription gStack - Fortify, discovered <br> +1 :
-		 * Subscription gStack - vCloud, discovered <br> +1 : Subscription
-		 * gStack - Git, discovered <br> +1 : Subscription gStack - Subversion,
-		 * discovered <br> +1 : Subscription gStack ...<br> Nb events =
-		 * nbPreviousEvents + nbNodes x2 (Because one node implies one
-		 * subscription + jira4/6 case) less the already know nodes<br> =
-		 * nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents +
-		 * nbNodes x2 - 1<br>
+		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered <br> +1 : Jenkins DOWN, was UP <br> +1 :
+		 * Jira 4 was UP <br> +1 : Confluence DOWN, discovered <br> +1 : Fortify DOWN, discovered <br> +1 : vCloud DOWN,
+		 * discovered <br> +1 : LDAP DOWN, discovered <br> +1 : Git DOWN, discovered <br> +1 : Subversion DOWN,
+		 * discovered <br> Expected count 6 changes for subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was
+		 * UP<br> +0 : Subscription gStack - JIRA6 - node has not changed, subscription is not checked<br> +1 :
+		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> +0 : Subscription gStack - Sonar,
+		 * discovered, node is UP, but subscription has not been checked <br> +2 : Subscription gStack - OpenLDAP,
+		 * discovered <br> +1 : Subscription gStack - Confluence, discovered <br> +1 : Subscription gStack - Fortify,
+		 * discovered <br> +1 : Subscription gStack - vCloud, discovered <br> +1 : Subscription gStack - Git, discovered
+		 * <br> +1 : Subscription gStack - Subversion, discovered <br> +1 : Subscription gStack ...<br> Nb events =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription + jira4/6 case) less the already
+		 * know nodes<br> = nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents + nbNodes x2 - 1<br>
 		 */
 		Assertions.assertEquals(eventsCount + nbNodes * 2 - 1, eventRepository.count());
 		final Event jiraEvent = eventRepository.findFirstByNodeAndTypeOrderByIdDesc(jiraNode, EventType.STATUS);
@@ -338,9 +330,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.checkSubscriptionsStatus();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br>
-		 * Expected changes for subscriptions :<br> +1 : Subscription Jenkins -
-		 * was UP<br>
+		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> Expected changes for subscriptions :<br>
+		 * +1 : Subscription Jenkins - was UP<br>
 		 */
 		long expectedCount = eventsCount; // Initial amount
 
@@ -360,31 +351,32 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// Service is up --> SONAR
 		final SonarPluginResource sonar = Mockito.mock(SonarPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
+		Mockito.when(
+				servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(sonar);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(sonar);
-		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
-				.thenReturn(new SubscriptionStatusWithData());
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
+		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyMap())).thenReturn(new SubscriptionStatusWithData());
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
 		// Service is down --> JIRA
 		final JiraPluginResource jira = Mockito.mock(JiraPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jira"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jira"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jira);
-		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
-				.thenReturn(new SubscriptionStatusWithData(false));
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jira"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jira"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
+		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyMap())).thenReturn(new SubscriptionStatusWithData(false));
 
 		// Service throw an exception --> JENKINS
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jenkins);
-		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
-				.thenThrow(new TechnicalException("junit"));
+		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
+		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
+				ArgumentMatchers.anyMap())).thenThrow(new TechnicalException("junit"));
 
 		return eventsCount;
 	}
@@ -398,12 +390,10 @@ public class NodeResourceTest extends AbstractAppTest {
 		resource.checkSubscriptionsStatusScheduler();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1
-		 * : Jira 4 DOWN, was UP <br> +0 : Jira 6 DOWN, was already DOWN <br> +x
-		 * ... other services are discovered and UP<br> Expected changes for
-		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br>
-		 * +1 : Subscription gStack - JIRA6 - DOWN, was UP<br> +1 : Subscription
-		 * Jenkins - was UP<br> +x ... other services <br>
+		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1 : Jira 4 DOWN, was UP <br> +0 : Jira 6
+		 * DOWN, was already DOWN <br> +x ... other services are discovered and UP<br> Expected changes for
+		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +1 : Subscription gStack - JIRA6 - DOWN,
+		 * was UP<br> +1 : Subscription Jenkins - was UP<br> +x ... other services <br>
 		 */
 		long expectedCount = eventsCount; // Initial amount
 
@@ -429,10 +419,11 @@ public class NodeResourceTest extends AbstractAppTest {
 
 		// subscription throw an exception
 		final JenkinsPluginResource jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
+		Mockito.when(
+				servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
-				.thenReturn(jenkins);
+		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
+				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
 		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenThrow(new TechnicalException("junit"));
 
@@ -557,10 +548,33 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("Jira 7", nodeVo.getName());
 		Assertions.assertEquals(SubscriptionMode.LINK, nodeVo.getMode());
 		Assertions.assertEquals("service:bt:jira", nodeVo.getRefined().getId());
-		Assertions.assertEquals("secret", pvResource.getNodeParameters("service:bt:jira:some-7").get("service:bt:jira:password"));
+		Assertions.assertEquals("secret",
+				parameterValueResource.getNodeParameters("service:bt:jira:some-7").get("service:bt:jira:password"));
 
 		// Secured data
-		Assertions.assertNotEquals("secret", parameterValueRepository.getParameterValues("service:bt:jira:some-7").get(0).getData());
+		Assertions.assertNotEquals("secret",
+				parameterValueRepository.getParameterValues("service:bt:jira:some-7").get(0).getData());
+	}
+
+	@Test
+	public void createOverrideParameter() {
+		final ParameterValue nodeParameter = new ParameterValue();
+		nodeParameter.setParameter(parameterRepository.findOneExpected("service:bt:jira:url"));
+		nodeParameter.setNode(repository.findOneExpected("service:bt:jira"));
+		nodeParameter.setData("http://localhost");
+		parameterValueRepository.saveAndFlush(nodeParameter);
+
+		Assertions.assertNull(resource.findAll().get("service:bt:jira:some-7"));
+		final NodeEditionVo node = new NodeEditionVo();
+		node.setId("service:bt:jira:some-7");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		final ParameterValueCreateVo value = new ParameterValueCreateVo();
+		value.setParameter("service:bt:jira:url");
+		value.setText("any");
+		node.setParameters(Collections.singletonList(value));
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(node));
 	}
 
 	@Test
@@ -609,7 +623,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Update the node : 1 untouched, 1 new, 1 added, 1 updated
 		resource.update(node);
 
-		final Map<String, String> parameters = pvResource.getNodeParameters("service:bt:jira:7");
+		final Map<String, String> parameters = parameterValueResource.getNodeParameters("service:bt:jira:7");
 		Assertions.assertEquals("secret", parameters.get("service:bt:jira:password"));
 		Assertions.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
 		Assertions.assertEquals("secret2", parameters.get("service:bt:jira:jdbc-password"));
@@ -624,7 +638,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("service:bt:jira:jdbc-password", parameterValues.get(2).getParameter().getId());
 		Assertions.assertEquals(3, parameterValues.size());
 
-		final List<ParameterNodeVo> nodeParameters = pvResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
+		final List<ParameterNodeVo> nodeParameters = parameterValueResource.getNodeParameters("service:bt:jira:7",
+				SubscriptionMode.LINK);
 		Assertions.assertEquals(32, nodeParameters.size());
 		Assertions.assertEquals("-secured-", nodeParameters.get(24).getText());
 		Assertions.assertEquals("service:bt:jira:jdbc-password", nodeParameters.get(24).getParameter().getId());
@@ -667,7 +682,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		// Update the node without providing parameters
 		resource.update(node);
 
-		final Map<String, String> parameters = pvResource.getNodeParameters("service:bt:jira:7");
+		final Map<String, String> parameters = parameterValueResource.getNodeParameters("service:bt:jira:7");
 		Assertions.assertEquals("secret", parameters.get("service:bt:jira:password"));
 		Assertions.assertEquals(1, parameters.size());
 		final List<ParameterValue> parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
@@ -677,8 +692,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * The relationship is valid regarding the syntax but the parent does not
-	 * exist.
+	 * The relationship is valid regarding the syntax but the parent does not exist.
 	 */
 	@Test
 	public void createNotExistRefined() {
@@ -751,8 +765,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Cannot create sub node of a parent node having different subscription
-	 * mode different from "ALL".
+	 * Cannot create sub node of a parent node having different subscription mode different from "ALL".
 	 */
 	@Test
 	public void createOnParentDifferentMode() {
@@ -774,14 +787,12 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Cannot create sub node of a parent node having subscription mode "NONE".
+	 * Create sub node of a parent node having subscription mode "NONE".
 	 */
 	@Test
 	public void createOnParentNoneMode() {
 		newNode(SubscriptionMode.NONE);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			newSubNode(SubscriptionMode.NONE);
-		});
+		newSubNode(SubscriptionMode.NONE);
 	}
 
 	private void newNode(final SubscriptionMode mode) {
@@ -851,7 +862,8 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParent() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, null, -1).getData();
+		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, null, -1)
+				.getData();
 		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assertions.assertEquals("service:bt:jira", service.getId());
@@ -877,7 +889,8 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParentFilterModeCreate() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.CREATE, -1).getData();
+		final List<NodeVo> resources = resource
+				.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.CREATE, -1).getData();
 		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assertions.assertEquals("service:id:ldap:dig", service.getId());
@@ -890,15 +903,15 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParentFilterModeLinkAcceptNoCreate() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.CREATE, 0)
-				.getData();
+		final List<NodeVo> resources = resource
+				.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.CREATE, 0).getData();
 		Assertions.assertEquals(0, resources.size());
 	}
 
 	@Test
 	public void findAllByParentFilterModeLinkStrict() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 2)
-				.getData();
+		final List<NodeVo> resources = resource
+				.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 2).getData();
 		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assertions.assertEquals("service:bt:jira", service.getId());
@@ -909,7 +922,8 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	public void findAllByParentFilterModeAkkAcceptLink() {
-		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, "service:scm:git", SubscriptionMode.LINK, -1).getData();
+		final List<NodeVo> resources = resource
+				.findAll(newUriInfo(), null, "service:scm:git", SubscriptionMode.LINK, -1).getData();
 		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
 		Assertions.assertEquals("service:scm:git:dig", service.getId());
@@ -943,10 +957,12 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void getNodeStatus() {
 		final List<EventVo> nodes = resource.getNodeStatus();
 		Assertions.assertEquals(2, nodes.size());
-		Assertions.assertTrue(nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
-				|| NodeStatus.DOWN.name().equals(nodes.get(0).getValue()));
-		Assertions.assertTrue(nodes.get(1).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
-				|| NodeStatus.DOWN.name().equals(nodes.get(1).getValue()));
+		Assertions.assertTrue(
+				nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
+						|| NodeStatus.DOWN.name().equals(nodes.get(0).getValue()));
+		Assertions.assertTrue(
+				nodes.get(1).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
+						|| NodeStatus.DOWN.name().equals(nodes.get(1).getValue()));
 		Assertions.assertEquals(EventType.STATUS, nodes.get(0).getType());
 	}
 
@@ -961,7 +977,8 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void getNodeStatistics() {
 		final List<NodeStatisticsVo> nodes = resource.getNodeStatistics();
 		// +2 Since there are 2 nodes for JIRA and 2 for source
-		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2, nodes.size());
+		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2,
+				nodes.size());
 	}
 
 	@Test
@@ -990,7 +1007,8 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("service:bt", result.get("service:bt:jira:6").getRefined().getRefined().getId());
 		Assertions.assertEquals("Bug Tracker", result.get("service:bt:jira:6").getRefined().getRefined().getName());
 		Assertions.assertEquals("functional", result.get("service:bt:jira:6").getRefined().getRefined().getTag());
-		Assertions.assertEquals("fa fa-suitcase", result.get("service:bt:jira:6").getRefined().getRefined().getTagUiClasses());
+		Assertions.assertEquals("fa fa-suitcase",
+				result.get("service:bt:jira:6").getRefined().getRefined().getTagUiClasses());
 	}
 
 	private UriInfo newFindAllParameters() {
@@ -1065,7 +1083,8 @@ public class NodeResourceTest extends AbstractAppTest {
 	@Test
 	public void findByIdInternal() {
 		initSpringSecurityContext("any");
-		Assertions.assertEquals("service:build:jenkins:bpr", resource.findByIdInternal("service:build:jenkins:bpr").getId());
+		Assertions.assertEquals("service:build:jenkins:bpr",
+				resource.findByIdInternal("service:build:jenkins:bpr").getId());
 		Assertions.assertEquals("service:build:jenkins", resource.findByIdInternal("service:build:jenkins").getId());
 	}
 

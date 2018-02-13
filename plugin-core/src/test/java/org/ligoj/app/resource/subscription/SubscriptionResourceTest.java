@@ -25,6 +25,7 @@ import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
+import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
@@ -75,6 +76,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Autowired
 	private SubscriptionResource resource;
+
+	@Autowired
+	private NodeRepository nodeRepository;
 
 	@Autowired
 	private SubscriptionRepository repository;
@@ -477,18 +481,22 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(vo);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo));
 	}
 
 	@Test
 	public void createCreateModeNotSupported() {
 		final SubscriptionEditionVo vo = newCreateVo();
 		vo.setMode(SubscriptionMode.CREATE);
-		Assertions.assertThrows(NotImplementedException.class, () -> {
-			resource.create(vo);
-		});
+		Assertions.assertThrows(NotImplementedException.class, () -> resource.create(vo));
+	}
+
+	@Test
+	public void createNoneModeNotAllowed() {
+		final SubscriptionEditionVo vo = newCreateVo();
+		nodeRepository.findOne("service:bt:jira:4").setMode(SubscriptionMode.NONE);
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo)),
+				"node", "invalid-mode");
 	}
 
 	private SubscriptionEditionVo newCreateVo() {
