@@ -138,9 +138,4 @@ public class EmptyUserRepository implements IUserRepository {
 	public void setPassword(UserOrg userLdap, String password, String newPassword) {
 		// Nothing to do		
 	}
-	
-	@Override
-	public void checkLockStatus(UserOrg user) {
-		// Nothing to do
-	}
 }

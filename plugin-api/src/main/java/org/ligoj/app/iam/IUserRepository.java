@@ -349,5 +349,7 @@ public interface IUserRepository {
 	 * @param user
 	 *            Target user to check.
 	 */
-	void checkLockStatus(UserOrg user);
+	default void checkLockStatus(UserOrg user) {
+		// By default not supported
+	}
 }

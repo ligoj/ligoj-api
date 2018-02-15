@@ -121,9 +121,4 @@ class MockUserRepository2 implements IUserRepository {
 		// Nothing to do
 		
 	}
-	
-	@Override
-	public void checkLockStatus(UserOrg user) {
-		// Nothing to do
-	}
 }

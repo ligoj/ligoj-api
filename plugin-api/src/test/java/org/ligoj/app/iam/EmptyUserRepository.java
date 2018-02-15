@@ -136,8 +136,4 @@ public class EmptyUserRepository implements IUserRepository {
 		
 	}
 
-	@Override
-	public void checkLockStatus(UserOrg user) {
-		// Nothing to do
-	}
 }
