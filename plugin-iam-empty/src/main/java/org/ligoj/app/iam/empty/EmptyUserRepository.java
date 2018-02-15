@@ -133,4 +133,14 @@ public class EmptyUserRepository implements IUserRepository {
 	public String toDn(UserOrg newUser) {
 		return "";
 	}
+
+	@Override
+	public void setPassword(UserOrg userLdap, String password, String newPassword) {
+		// Nothing to do		
+	}
+	
+	@Override
+	public void checkLockStatus(UserOrg user) {
+		// Nothing to do
+	}
 }
