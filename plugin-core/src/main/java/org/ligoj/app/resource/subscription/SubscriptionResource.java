@@ -345,7 +345,7 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 * subscription can be managed.
 	 */
 	private void checkManagedProject(final int project) {
-		if (null == projectRepository.isManageSubscription(project, securityHelper.getLogin())) {
+		if (!projectRepository.isManageSubscription(project, securityHelper.getLogin())) {
 			// Not managed associated project
 			log.warn("Attempt to manage a project '{}' out of scope", project);
 			throw new ForbiddenException();

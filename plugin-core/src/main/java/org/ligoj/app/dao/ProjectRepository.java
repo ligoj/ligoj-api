@@ -117,14 +117,14 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The project's identifier to match.
 	 * @param user
 	 *            The current user name.
-	 * @return Non <code>null</code> project's identifier if the user can manage the subscriptions of this project.
+	 * @return <code>true</code> when the user can manage the subscriptions of this project.
 	 * @see org.ligoj.app.iam.model.AbstractDelegate#isCanWrite()
 	 */
-	@Query("SELECT p.id FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND (p.teamLeader = :user OR "
+	@Query("SELECT COUNT(DISTINCT p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND (p.teamLeader = :user OR "
 			+ DelegateOrgRepository.IS_ADMIN + " OR (EXISTS(SELECT 1 FROM DelegateOrg d WHERE "
 			+ DelegateOrgRepository.ASSIGNED_DELEGATE
 			+ " AND d.canWrite=true AND d.canAdmin=true                        "
 			+ " AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.name=cg.id) OR"
 			+ "      (d.type=org.ligoj.app.iam.model.DelegateType.TREE  AND (cg.description LIKE CONCAT('%,',d.dn) OR d.dn=cg.description))))))")
-	Integer isManageSubscription(int project, String user);
+	boolean isManageSubscription(int project, String user);
 }

@@ -83,8 +83,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Converter from {@link Project} to {@link ProjectVo} with the associated
-	 * subscriptions.
+	 * Converter from {@link Project} to {@link ProjectVo} with the associated subscriptions.
 	 * 
 	 * @param project
 	 *            Entity to convert.
@@ -94,8 +93,6 @@ public class ProjectResource {
 		// Get subscriptions
 		final List<Object[]> subscriptionsResultSet = subscriptionRepository
 				.findAllWithValuesSecureByProject(project.getId());
-		final boolean manageSubscriptions = null != repository.isManageSubscription(project.getId(),
-				securityHelper.getLogin());
 
 		// Get subscriptions status
 		final Map<Integer, EventVo> subscriptionStatus = subscriptionResource.getStatusByProject(project.getId());
@@ -103,7 +100,7 @@ public class ProjectResource {
 		// Convert users, project and subscriptions
 		final ProjectVo projectVo = new ToVoConverter(toUser(), subscriptionsResultSet, subscriptionStatus)
 				.apply(project);
-		projectVo.setManageSubscriptions(manageSubscriptions);
+		projectVo.setManageSubscriptions(repository.isManageSubscription(project.getId(), securityHelper.getLogin()));
 		return projectVo;
 	}
 
@@ -112,8 +109,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription
-	 * count.
+	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription count.
 	 * 
 	 * @param resultset
 	 *            Entity to convert and the associated subscription count.
@@ -126,8 +122,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription
-	 * count.
+	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription count.
 	 * 
 	 * @param entity
 	 *            Entity to convert.
@@ -157,8 +152,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Retrieve all project with pagination, and filtered. A visible project is
-	 * attached to a visible group.
+	 * Retrieve all project with pagination, and filtered. A visible project is attached to a visible group.
 	 * 
 	 * @param uriInfo
 	 *            pagination data.
@@ -190,8 +184,8 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Return a project with all subscription parameters and their status. The
-	 * security is checked regarding the current user.
+	 * Return a project with all subscription parameters and their status. The security is checked regarding the current
+	 * user.
 	 * 
 	 * @param pkey
 	 *            Project pkey.
