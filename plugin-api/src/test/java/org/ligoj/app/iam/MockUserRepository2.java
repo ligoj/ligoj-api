@@ -43,7 +43,7 @@ class MockUserRepository2 implements IUserRepository {
 	}
 
 	@Override
-	public void setPassword(UserOrg userLdap, String password) {
+	public void setPassword(UserOrg user, String password) {
 		// Nothing to do
 	}
 
@@ -108,7 +108,7 @@ class MockUserRepository2 implements IUserRepository {
 	}
 
 	@Override
-	public void setPassword(UserOrg userLdap, String password, String newPassword) {
+	public void setPassword(UserOrg user, String password, String newPassword) {
 		// Nothing to do
 		
 	}

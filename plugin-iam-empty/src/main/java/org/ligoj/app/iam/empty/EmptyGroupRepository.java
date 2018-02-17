@@ -67,12 +67,12 @@ public class EmptyGroupRepository implements IGroupRepository {
 	}
 
 	@Override
-	public void addUser(UserOrg userLdap, String id) {
+	public void addUser(UserOrg user, String id) {
 		// Nothing to do
 	}
 
 	@Override
-	public void removeUser(UserOrg userLdap, String id) {
+	public void removeUser(UserOrg user, String id) {
 		// Nothing to do
 	}
 

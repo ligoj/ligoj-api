@@ -35,13 +35,13 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public UserOrg findById(final String login) {
 		// Always found
-		final UserOrg userLdap = new UserOrg();
-		userLdap.setId(login);
-		userLdap.setFirstName("First");
-		userLdap.setLastName("Last");
-		userLdap.setMails(Collections.singletonList(login + "@sample.com"));
-		userLdap.setDn("CN=" + login);
-		return userLdap;
+		final UserOrg user = new UserOrg();
+		user.setId(login);
+		user.setFirstName("First");
+		user.setLastName("Last");
+		user.setMails(Collections.singletonList(login + "@sample.com"));
+		user.setDn("CN=" + login);
+		return user;
 	}
 
 	@Override
@@ -75,7 +75,7 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void setPassword(UserOrg userLdap, String password) {
+	public void setPassword(UserOrg user, String password) {
 		// Nothing to do
 	}
 
@@ -135,7 +135,7 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void setPassword(UserOrg userLdap, String password, String newPassword) {
+	public void setPassword(UserOrg user, String password, String newPassword) {
 		// Nothing to do		
 	}
 }

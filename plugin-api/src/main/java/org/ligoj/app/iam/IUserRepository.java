@@ -117,12 +117,12 @@ public interface IUserRepository {
 	 */
 	default UserOrg findByIdExpected(final String principal, final String id) {
 		// Check the user exists
-		final UserOrg rawUserLdap = findByIdExpected(id);
-		if (getCompanyRepository().findById(principal, rawUserLdap.getCompany()) == null) {
+		final UserOrg rawUser = findByIdExpected(id);
+		if (getCompanyRepository().findById(principal, rawUser.getCompany()) == null) {
 			// No available delegation -> no result
 			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "user", "1", principal);
 		}
-		return rawUserLdap;
+		return rawUser;
 	}
 
 	/**
@@ -170,12 +170,12 @@ public interface IUserRepository {
 	 * inside the given {@link UserOrg} instance, but only in the remote storage,
 	 * and in an hashed form.
 	 * 
-	 * @param userLdap
+	 * @param user
 	 *            The user to update.
 	 * @param password
 	 *            The raw new password. Will be hashed.
 	 */
-	void setPassword(UserOrg userLdap, String password);
+	void setPassword(UserOrg user, String password);
 
 	/**
 	 * Reset user password to the given value. The given password is not stored
@@ -185,14 +185,14 @@ public interface IUserRepository {
 	 * performing any change. Some LDAP modules such as PPOLICY requires a fully
 	 * authenticated of the target user to apply the password policy.
 	 * 
-	 * @param userLdap
+	 * @param user
 	 *            The user to update.
 	 * @param password
 	 *            The user current password.
 	 * @param newPassword
 	 *            The raw new password. Will be hashed.
 	 */
-	void setPassword(UserOrg userLdap, @Nullable String password, String newPassword);
+	void setPassword(UserOrg user, @Nullable String password, String newPassword);
 
 	/**
 	 * Return a safe {@link UserOrg} instance, even if the user is not in LDAP

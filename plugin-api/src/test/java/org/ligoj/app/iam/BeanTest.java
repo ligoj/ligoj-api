@@ -67,7 +67,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testSimpleUserLdap() {
+	public void testSimpleUserOrg() {
 		final UserOrg user = new UserOrg();
 
 		// Simple user attributes
