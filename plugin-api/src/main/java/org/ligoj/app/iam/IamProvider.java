@@ -20,7 +20,7 @@ public interface IamProvider {
 	/**
 	 * IAM global configuration.
 	 * 
-	 * @return IAM global configuration.
+	 * @return IAM global configuration. Never <code>null</code> and must handle default to empty provider.
 	 */
 	IamConfiguration getConfiguration();
 }
