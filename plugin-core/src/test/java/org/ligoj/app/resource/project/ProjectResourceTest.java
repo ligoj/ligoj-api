@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 import javax.transaction.Transactional;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.UriInfo;
 
 import org.junit.jupiter.api.Assertions;
@@ -245,8 +246,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Test {@link ProjectResource#findById(int)} when a subscription has no
-	 * parameter.
+	 * Test {@link ProjectResource#findById(int)} when a subscription has no parameter.
 	 */
 	@Test
 	public void findByIdNoParameter() {
@@ -328,7 +328,8 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		// Check subscription values
 		Assertions.assertEquals(3, subscription.getParameters().size());
 		Assertions.assertEquals("http://localhost:8120", subscription.getParameters().get("service:bt:jira:url"));
-		Assertions.assertEquals(10074, ((Integer) subscription.getParameters().get("service:bt:jira:project")).intValue());
+		Assertions.assertEquals(10074,
+				((Integer) subscription.getParameters().get("service:bt:jira:project")).intValue());
 		Assertions.assertEquals("MDA", subscription.getParameters().get("service:bt:jira:pkey"));
 	}
 
@@ -343,7 +344,6 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
 		final int id = resource.create(vo);
-		em.flush();
 		em.clear();
 
 		final Project entity = repository.findOneExpected(id);
@@ -385,18 +385,50 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		final ProjectEditionVo vo = new ProjectEditionVo();
 		vo.setId(project.getId());
 		vo.setName("Name");
-		vo.setDescription("Description");
+		vo.setDescription("D<small>e</small>s<a href=\"#/\">cription</a>");
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
 		resource.update(vo);
-		em.flush();
 		em.clear();
 
 		final Project projFromDB = repository.findOne(project.getId());
 		Assertions.assertEquals("Name", projFromDB.getName());
-		Assertions.assertEquals("Description", projFromDB.getDescription());
+		Assertions.assertEquals("D<small>e</small>s<a href=\"#/\">cription</a>", projFromDB.getDescription());
 		Assertions.assertEquals("artifact-id", projFromDB.getPkey());
 		Assertions.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
+	}
+	/**
+	 * Create with invalid HTML content.
+	 */
+	@Test
+	public void updateInvalidDescription() {
+		create();
+		final Project project = repository.findByName("Name");
+		final ProjectEditionVo vo = new ProjectEditionVo();
+		vo.setId(project.getId());
+		vo.setName("Name");
+		vo.setDescription("Description<script some=\"..\">Bad there</script>");
+		vo.setPkey("artifact-id");
+		vo.setTeamLeader(DEFAULT_USER);
+		Assertions.assertThrows(ConstraintViolationException.class, () -> resource.update(vo));
+		vo.setDescription("Description<script >Bad there</script>");
+		Assertions.assertThrows(ConstraintViolationException.class, () -> resource.update(vo));
+	}
+
+	/**
+	 * Create with invalid HTML content.
+	 */
+	@Test
+	public void updateInvalidDescription2() {
+		create();
+		final Project project = repository.findByName("Name");
+		final ProjectEditionVo vo = new ProjectEditionVo();
+		vo.setId(project.getId());
+		vo.setName("Name");
+		vo.setDescription("Description<script >Bad there</script>");
+		vo.setPkey("artifact-id");
+		vo.setTeamLeader(DEFAULT_USER);
+		Assertions.assertThrows(ConstraintViolationException.class, () -> resource.update(vo));
 	}
 
 	/**
@@ -541,7 +573,8 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		// s_d5.dn=cachegroup3_.description OR
 		// cachegroup3_.description LIKE CONCAT('%,',s_d5.dn) ))=true");
 
-		em.createNativeQuery("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME = 'LIGOJ_CACHE_USER'").getResultList();
+		em.createNativeQuery("SELECT * FROM INFORMATION_SCHEMA.SYSTEM_COLUMNS where TABLE_NAME = 'LIGOJ_CACHE_USER'")
+				.getResultList();
 		em.createNativeQuery("SELECT * FROM LIGOJ_CACHE_USER").getResultList();
 		em.createNativeQuery("SELECT * FROM LIGOJ_CACHE_USER WHERE \"COMPANY\" IS NOT NULL").getResultList();
 		em.createNativeQuery("SELECT * FROM LIGOJ_CACHE_MEMBERSHIP WHERE \"group\" IS NOT NULL").getResultList();

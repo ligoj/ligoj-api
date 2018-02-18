@@ -19,7 +19,10 @@
 
 	<properties>
 		<api.version>2.2.2-SNAPSHOT</api.version>
+
+		<!-- TODO Remove with Bootstrap 2.2.1+ -->
 		<jackson.version>2.9.4</jackson.version>
+		<jsoup.version>1.11.2</jsoup.version>
 	</properties>
 
 	<profiles>
@@ -38,4 +41,21 @@
 		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
 		<url>https://github.com/ligoj/ligoj-api.git</url>
 	</scm>
+
+	<!-- TODO Remove with Bootstrap 2.2.1+ -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.jsoup</groupId>
+				<artifactId>jsoup</artifactId>
+				<version>${jsoup.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<dependencies>
+		<dependency>
+			<groupId>org.jsoup</groupId>
+			<artifactId>jsoup</artifactId>
+		</dependency>
+	</dependencies>
 </project>

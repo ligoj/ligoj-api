@@ -7,6 +7,7 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
+import org.hibernate.validator.constraints.SafeHtml;
 import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.bootstrap.core.IDescribableBean;
 import org.ligoj.bootstrap.core.NamedAuditedBean;
@@ -40,6 +41,7 @@ public class BasicProjectVo extends NamedAuditedBean<SimpleUserOrg, Integer> imp
 	private String pkey;
 
 	@Length(max = 1024)
+	@SafeHtml
 	private String description;
 
 }
