@@ -12,7 +12,9 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
-import org.ligoj.bootstrap.core.model.AbstractDescribedAuditedEntity;
+import org.hibernate.validator.constraints.Length;
+import org.ligoj.bootstrap.core.IDescribableBean;
+import org.ligoj.bootstrap.core.model.AbstractNamedAuditedEntity;
 import org.ligoj.bootstrap.core.validation.LowerCase;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -28,7 +30,7 @@ import lombok.Setter;
 @Entity
 @Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name"),
 		@UniqueConstraint(columnNames = "pkey") }, name = "LIGOJ_PROJECT")
-public class Project extends AbstractDescribedAuditedEntity<Integer> {
+public class Project extends AbstractNamedAuditedEntity<Integer> implements IDescribableBean<Integer> {
 
 	/**
 	 * Project PKEY pattern.
@@ -47,6 +49,12 @@ public class Project extends AbstractDescribedAuditedEntity<Integer> {
 
 	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	private List<Subscription> subscriptions;
+
+	/**
+	 * Human readable description.
+	 */
+	@Length(max = 1024)
+	private String description;
 
 	/**
 	 * Team Leader user name

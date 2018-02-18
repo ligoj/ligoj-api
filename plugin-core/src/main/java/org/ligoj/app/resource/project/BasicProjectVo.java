@@ -6,8 +6,10 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
+import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.iam.SimpleUserOrg;
-import org.ligoj.bootstrap.core.DescribedAuditedBean;
+import org.ligoj.bootstrap.core.IDescribableBean;
+import org.ligoj.bootstrap.core.NamedAuditedBean;
 import org.ligoj.bootstrap.core.validation.LowerCase;
 
 import lombok.Getter;
@@ -18,7 +20,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class BasicProjectVo extends DescribedAuditedBean<SimpleUserOrg, Integer> {
+public class BasicProjectVo extends NamedAuditedBean<SimpleUserOrg, Integer> implements IDescribableBean<Integer> {
 
 	/**
 	 * team leader
@@ -36,5 +38,8 @@ public class BasicProjectVo extends DescribedAuditedBean<SimpleUserOrg, Integer>
 	@Size(max = 100)
 	@Pattern(regexp = "^[a-z0-9\\-]+$")
 	private String pkey;
+
+	@Length(max = 1024)
+	private String description;
 
 }
