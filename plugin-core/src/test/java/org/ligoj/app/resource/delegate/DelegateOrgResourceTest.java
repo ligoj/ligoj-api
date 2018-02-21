@@ -23,7 +23,6 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectRetrievalFailureException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -61,13 +60,11 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("someone");
 
-		Mockito.when(SecurityContextHolder.getContext().getAuthentication().getName()).thenReturn("someone");
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(4, result.getData().size());
 		Assertions.assertEquals(4, result.getRecordsTotal());
 
-		// someone;group;dig rha;false;false;cn=dig rha,cn=dig
-		// as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+		// someone;group;dig rha;false;false;cn=dig rha,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
 		DelegateOrgLightVo entity = result.getData().get(2);
 		Assertions.assertEquals("DIG RHA", entity.getName());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
@@ -134,7 +131,6 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		// mlavoine;tree;cn=biz agency,ou=tools,dc=sample,dc=com
 		Assertions.assertEquals(DelegateType.TREE, result.getData().get(0).getType());
 		Assertions.assertEquals("cn=biz agency,ou=tools,dc=sample,dc=com", result.getData().get(0).getName());
-
 	}
 
 	@Test
@@ -163,6 +159,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsTotal());
+
 		final DelegateOrgLightVo vo = result.getData().get(0);
 		Assertions.assertEquals("ing", vo.getName());
 		Assertions.assertEquals(DelegateType.COMPANY, vo.getType());
