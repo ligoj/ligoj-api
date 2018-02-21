@@ -102,8 +102,7 @@ public class DelegateOrgResource {
 	 * 
 	 * @param entity
 	 *            The entity to convert.
-	 * @return The initialized bean corresponding to the entity with fetched
-	 *         description for related user and group.
+	 * @return The initialized bean corresponding to the entity with fetched description for related user and group.
 	 */
 	public DelegateOrgLightVo toVo(final DelegateOrg entity) {
 		final DelegateOrgLightVo vo = new DelegateOrgLightVo();
@@ -121,7 +120,7 @@ public class DelegateOrgResource {
 		vo.setCanWrite(entity.isCanWrite());
 		vo.setCanAdmin(entity.isCanAdmin());
 
-		// Flag to indicate the current user can manage this entry
+		// Flag to indicate the principal user can manage this entry
 		vo.setManaged(isManagedDelegate(entity));
 		if (entity.getType() == DelegateType.GROUP) {
 			final Map<String, GroupOrg> groups = getGroup().findAll();
@@ -137,8 +136,7 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Indicate this delegate is managed : so can be updated by the current
-	 * user. <br>
+	 * Indicate this delegate is managed : so can be updated by the current user. <br>
 	 * Is managed when 'canAdmin' flag is set, or this delegate is directly involving the principal user.
 	 */
 	private boolean isManagedDelegate(final DelegateOrg entity) {
@@ -156,13 +154,14 @@ public class DelegateOrgResource {
 	 * @return all elements with pagination.
 	 */
 	@GET
-	public TableItem<DelegateOrgLightVo> findAll(@Context final UriInfo uriInfo, @QueryParam("type") final DelegateType typeSearch) {
+	public TableItem<DelegateOrgLightVo> findAll(@Context final UriInfo uriInfo,
+			@QueryParam("type") final DelegateType typeSearch) {
 		// Trigger cache loading
 		getUser().findAll();
 
 		final PageRequest pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
-		final Page<DelegateOrg> findAll = repository.findAll(securityHelper.getLogin(), DataTableAttributes.getSearch(uriInfo), typeSearch,
-				pageRequest);
+		final Page<DelegateOrg> findAll = repository.findAll(securityHelper.getLogin(),
+				DataTableAttributes.getSearch(uriInfo), typeSearch, pageRequest);
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, this::toVo);
@@ -171,12 +170,10 @@ public class DelegateOrgResource {
 	/**
 	 * Create a delegate. Rules are :
 	 * <ul>
-	 * <li>Related company, group or tree must be managed by the current user,
-	 * directly or via a another parent delegate.</li>
-	 * <li>'write' flag cannot be <code>true</code> without already owning an
-	 * applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an
-	 * applicable delegate with this flag.</li>
+	 * <li>Related company, group or tree must be managed by the current user, directly or via a another parent
+	 * delegate.</li>
+	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
+	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
 	 * 
 	 * @param vo
@@ -189,22 +186,17 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Validate the user changes regarding the current user's right. The
-	 * associated DN and the real CN will stored in database.<br>
+	 * Validate the user changes regarding the current user's right. The associated DN and the real CN will stored in
+	 * database.<br>
 	 * Rules, order is important :
 	 * <ul>
-	 * <li>Related company must be managed by the current user, directly or via
-	 * a another parent delegate tree/company, or act as if the company does not
-	 * exist.</li>
-	 * <li>Related group must be managed by the current user, directly or via a
-	 * another parent delegate group/tree, or act as if the group does not
-	 * exist.</li>
-	 * <li>Related tree must be managed by the current user, directly or via a
-	 * another parent delegate tree.</li>
-	 * <li>'write' flag cannot be <code>true</code> without already owning an
-	 * applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an
-	 * applicable delegate with this flag.</li>
+	 * <li>Related company must be managed by the current user, directly or via a another parent delegate tree/company,
+	 * or act as if the company does not exist.</li>
+	 * <li>Related group must be managed by the current user, directly or via a another parent delegate group/tree, or
+	 * act as if the group does not exist.</li>
+	 * <li>Related tree must be managed by the current user, directly or via a another parent delegate tree.</li>
+	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
+	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
 	 * Attention, DN is case sensitive.
 	 * 
@@ -292,7 +284,8 @@ public class DelegateOrgResource {
 	/**
 	 * Validate and clean the group name, and return the corresponding DN.
 	 */
-	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupOrg> allGroups, final String dn) {
+	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupOrg> allGroups,
+			final String dn) {
 		final String normalizedCN = Normalizer.normalize(importEntry.getName());
 		final GroupOrg group = allGroups.get(normalizedCN);
 		if (group != null) {
@@ -305,7 +298,8 @@ public class DelegateOrgResource {
 	/**
 	 * Validate, clean the company name, and return the corresponding DN.
 	 */
-	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyOrg> allCompanies, final String dn) {
+	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyOrg> allCompanies,
+			final String dn) {
 		final String normalizedCN = Normalizer.normalize(importEntry.getName());
 		if (allCompanies.containsKey(normalizedCN)) {
 			importEntry.setName(normalizedCN);
@@ -329,9 +323,8 @@ public class DelegateOrgResource {
 	 * Delete entity. Rules, order is important :
 	 * <ul>
 	 * <li>Related delegate must exist</li>
-	 * <li>Related delegate must be managed by the current user with 'admin'
-	 * right, directly or via a another parent delegate tree/company/.., or act
-	 * as if the delegate does not exist.</li>
+	 * <li>Related delegate must be managed by the principal user with 'canAdmin' right, directly or via a another
+	 * parent delegate tree/company/.., or act as if the delegate does not exist.</li>
 	 * </ul>
 	 * Attention, DN is case sensitive.
 	 * 
@@ -349,6 +342,12 @@ public class DelegateOrgResource {
 		repository.deleteById(id);
 	}
 
+	/**
+	 * Check the principal user can delete this delegate. 'canAdmin' flag must be enbaled.
+	 * 
+	 * @param id
+	 *            the entity identifier.
+	 */
 	private void validateWriteAccess(final int id) {
 
 		// Get the related delegate
@@ -356,7 +355,8 @@ public class DelegateOrgResource {
 
 		// Check the related DN
 		final String dn = delegate.getDn();
-		final List<Integer> ids = repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn, delegate.getType());
+		final List<Integer> ids = repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn,
+				delegate.getType());
 		if (ids.isEmpty()) {
 			throw new ForbiddenException();
 		}
