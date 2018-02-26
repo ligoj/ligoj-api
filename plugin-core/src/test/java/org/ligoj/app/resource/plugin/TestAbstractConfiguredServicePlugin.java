@@ -71,8 +71,8 @@ public class TestAbstractConfiguredServicePlugin {
 		Mockito.when(resource.subscriptionRepository.findOneExpected(33)).thenReturn(subscription);
 		Mockito.when(resource.projectRepository.findOneVisible(44, "junit")).thenReturn(project);
 		Mockito.when(repository.findOneExpected(1)).thenReturn(configurable);
-		Mockito.when(repository.findAllBy("configuration.subscription.id", subscription.getId()))
-				.thenReturn(Collections.singletonList(configurable));
+		Mockito.when(repository.findAllBy("configuration.subscription.id", subscription.getId(),
+				new String[] { "name" }, "my-name")).thenReturn(Collections.singletonList(configurable));
 	}
 
 	@Test
