@@ -6,6 +6,7 @@ import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.ligoj.bootstrap.dao.system.SystemUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -20,7 +21,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Visible nodes condition.
 	 */
-	String VISIBLE_NODES_PART = "(" + DelegateOrgRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM DelegateNode d WHERE " + MATCH_DELEGATE;
+	String VISIBLE_NODES_PART = "(" + SystemUserRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM DelegateNode d WHERE " + MATCH_DELEGATE;
 
 	/**
 	 * Visible nodes condition.

@@ -2,13 +2,13 @@ package org.ligoj.app.dao;
 
 import java.util.List;
 
+import org.ligoj.app.iam.dao.DelegateOrgRepository;
+import org.ligoj.app.model.Project;
+import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.ligoj.bootstrap.dao.system.SystemUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
-
-import org.ligoj.bootstrap.core.dao.RestRepository;
-import org.ligoj.app.iam.dao.DelegateOrgRepository;
-import org.ligoj.app.model.Project;
 
 /**
  * {@link Project} repository
@@ -24,7 +24,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	/**
 	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
-	String VISIBLE_PROJECTS = "(" + DelegateOrgRepository.IS_ADMIN
+	String VISIBLE_PROJECTS = "(" + SystemUserRepository.IS_ADMIN
 			+ " OR visibleproject(p, cg.description, :user, :user, :user, :user, :user) = true)";
 
 	/**
@@ -121,7 +121,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @see org.ligoj.app.iam.model.AbstractDelegate#isCanWrite()
 	 */
 	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND (p.teamLeader = :user OR "
-			+ DelegateOrgRepository.IS_ADMIN + " OR (EXISTS(SELECT 1 FROM DelegateOrg d WHERE "
+			+ SystemUserRepository.IS_ADMIN + " OR (EXISTS(SELECT 1 FROM DelegateOrg d WHERE "
 			+ DelegateOrgRepository.ASSIGNED_DELEGATE
 			+ " AND d.canWrite=true AND d.canAdmin=true                        "
 			+ " AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.name=cg.id) OR"

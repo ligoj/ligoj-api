@@ -11,7 +11,6 @@ import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.model.Configurable;
 import org.ligoj.app.model.PluginConfiguration;
 import org.ligoj.app.model.Subscription;
-import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,13 +85,11 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * @return The entity where the related subscription if visible.
 	 * @since 2.1.1
 	 */
-	@SuppressWarnings("unchecked")
 	public <K extends Serializable, T extends Configurable<C, K>> T findConfiguredByName(
 			final RestRepository<T, K> repository, final String name, final int subscription) {
-		// TODO Replace by RestRepository#findAllBy with bootstrap 2.1.1+
-		return checkConfiguredVisibility(repository.findAllBy("configuration.subscription.id", subscription).stream()
-				.filter(c -> name.equals(((INamableBean<K>) c).getName())).findFirst()
-				.orElseThrow(() -> new EntityNotFoundException(name)));
+		return checkConfiguredVisibility(
+				repository.findAllBy("configuration.subscription.id", subscription, new String[] { "name" }, name)
+						.stream().findFirst().orElseThrow(() -> new EntityNotFoundException(name)));
 	}
 
 	/**
