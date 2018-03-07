@@ -1,6 +1,8 @@
 package org.ligoj.app.resource.node;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +24,7 @@ import org.ligoj.app.model.ParameterType;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,6 +39,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/node")
 public class ParameterResource {
+
+	/**
+	 * Node parameter comparator.
+	 */
+	private static final DependencyComparator COMPARATOR = new DependencyComparator();
 
 	@Autowired
 	private ParameterRepository repository;
@@ -154,6 +162,7 @@ public class ParameterResource {
 		vo.setSecured(entity.isSecured());
 		vo.setOwner(NodeResource.toVo(entity.getOwner()));
 		vo.setDefaultValue(entity.getDefaultValue());
+		vo.setDepends(entity.getDepends().stream().map(Persistable::getId).collect(Collectors.toSet()));
 
 		// Map constraint data
 		if (entity.getType().isArray()) {
@@ -179,7 +188,8 @@ public class ParameterResource {
 	}
 
 	/**
-	 * Return all node parameter definitions where a value is expected to be provided to the final subscription.
+	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. The
+	 * parameters are ordered by dependencies, root first.
 	 * 
 	 * @param node
 	 *            The node identifier.
@@ -192,8 +202,23 @@ public class ParameterResource {
 	@Path("{node:service:.+}/parameter/{mode}")
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
-		return repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream()
-				.map(ParameterResource::toVo).collect(Collectors.toList());
+		// Build the parameters map
+		final Map<String, ParameterVo> parameters = new HashMap<>();
+		repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
+				.forEach(v -> parameters.put(v.getId(), v));
+
+		// Complete the dependencies graph
+		boolean updated = true;
+		while (updated) {
+			updated = parameters.values().stream()
+					.map(p -> p.getDepends().addAll(p.getDepends().stream()
+							.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())))
+					.filter(Boolean::booleanValue).count() > 0;
+		}
+		final List<ParameterVo> clone = new ArrayList<>(parameters.values());
+		clone.sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
+		clone.sort(COMPARATOR);
+		return clone;
 	}
 
 	/**

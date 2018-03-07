@@ -1,10 +1,14 @@
 package org.ligoj.app.model;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -12,6 +16,8 @@ import javax.validation.constraints.NotNull;
 import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -81,4 +87,15 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	 * be encrypted.
 	 */
 	private boolean secured;
+
+	/**
+	 * Parameters this parameter is depending on. This relationship is used :
+	 * <ul>
+	 * <li>To order the displayed parameters, from the root ones to the most depending ones</li>
+	 * <li>To invalidate the child parameters when a parent one is updated</li>
+	 * <ul>
+	 */
+	@ManyToMany(cascade = CascadeType.REMOVE)
+	@JsonIgnore
+	private List<Parameter> depends;
 }

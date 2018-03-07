@@ -1,6 +1,7 @@
 package org.ligoj.app.resource.node;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
@@ -52,5 +53,10 @@ public class ParameterVo extends AbstractBusinessEntity<String> {
 	 * The optional default value of this parameter. May be <code>null</code>.
 	 */
 	private String defaultValue;
+
+	/**
+	 * Parameters this one is depending on.
+	 */
+	private Set<String> depends;
 
 }

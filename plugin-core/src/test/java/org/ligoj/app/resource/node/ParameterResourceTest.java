@@ -3,7 +3,9 @@ package org.ligoj.app.resource.node;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.IntStream;
 
 import javax.transaction.Transactional;
 
@@ -60,6 +62,43 @@ public class ParameterResourceTest extends AbstractAppTest {
 		Assertions.assertFalse(parameters.get(nonDummyStartIndex).isSecured());
 		Assertions.assertEquals("service:bt:jira:project", parameters.get(nonDummyStartIndex + 1).getId());
 		Assertions.assertNull(parameters.get(nonDummyStartIndex + 1).getDefaultValue());
+	}
+
+	@Test
+	public void getNotProvidedParametersWithDependencies() {
+
+		// c_16->[c_10], c_10->[c_15, c8,c2], c8->c2, c2->[c7], c7->[c14]
+		repository.findOneExpected("c_16").getDepends().add(repository.findOneExpected("c_10"));
+		repository.findOneExpected("c_10").getDepends().add(repository.findOneExpected("c_15"));
+		repository.findOneExpected("c_10").getDepends().add(repository.findOneExpected("c_8"));
+		repository.findOneExpected("c_10").getDepends().add(repository.findOneExpected("c_2"));
+		repository.findOneExpected("c_8").getDepends().add(repository.findOneExpected("c_2"));
+		repository.findOneExpected("c_2").getDepends().add(repository.findOneExpected("c_7"));
+		repository.findOneExpected("c_7").getDepends().add(repository.findOneExpected("c_14"));
+		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6",
+				SubscriptionMode.LINK);
+
+		// Dependency order check
+		Assertions.assertTrue(indexOf("c_16", parameters) > indexOf("c_10", parameters));
+		Assertions.assertTrue(indexOf("c_10", parameters) > indexOf("c_15", parameters));
+		Assertions.assertTrue(indexOf("c_10", parameters) > indexOf("c_8", parameters));
+		Assertions.assertTrue(indexOf("c_10", parameters) > indexOf("c_2", parameters));
+		Assertions.assertTrue(indexOf("c_8", parameters) > indexOf("c_2", parameters));
+		Assertions.assertTrue(indexOf("c_7", parameters) > indexOf("c_14", parameters));
+		Assertions.assertTrue(indexOf("c_2", parameters) > indexOf("c_7", parameters));
+		Assertions.assertTrue(indexOf("c_8", parameters) > indexOf("c_2", parameters));
+
+		// Natural order check
+		Assertions.assertTrue(indexOf("c_12", parameters) > indexOf("c_11", parameters));
+		Assertions.assertTrue(indexOf("c_18", parameters) > indexOf("c_17", parameters));
+
+		// Coverage only
+		new Parameter().setDepends(Collections.emptyList());
+	}
+
+	private int indexOf(final String parameter, final List<ParameterVo> result) {
+		return IntStream.range(0, result.size()).filter(idx -> result.get(idx).getId().equals(parameter)).findFirst()
+				.getAsInt();
 	}
 
 	@Test
