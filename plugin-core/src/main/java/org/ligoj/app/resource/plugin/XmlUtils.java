@@ -15,6 +15,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -58,7 +59,8 @@ public class XmlUtils {
 	 * @return Not <code>null</code> root element.
 	 */
 	public Element parse(final String input) throws SAXException, IOException, ParserConfigurationException {
-		final InputStream jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"), StandardCharsets.UTF_8);
+		final InputStream jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"),
+				StandardCharsets.UTF_8);
 		return (Element) parse(jobsAsInput).getFirstChild();
 	}
 
@@ -71,7 +73,8 @@ public class XmlUtils {
 	 *            The tags to return.
 	 * @return Not <code>null</code> tag list.
 	 */
-	public NodeList getTags(final String input, final String tag) throws SAXException, IOException, ParserConfigurationException {
+	public NodeList getTags(final String input, final String tag)
+			throws SAXException, IOException, ParserConfigurationException {
 		return parse(input).getElementsByTagName(tag);
 	}
 
@@ -88,22 +91,22 @@ public class XmlUtils {
 			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 		final XPath xPath = xpathFactory.newXPath();
 		return (NodeList) xPath.compile(expression).evaluate(
-				parse(IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, ""), StandardCharsets.UTF_8)), XPathConstants.NODESET);
+				parse(IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, ""), StandardCharsets.UTF_8)),
+				XPathConstants.NODESET);
 	}
 
 	/**
-	 * Return XML tag text content.
+	 * Return XML tag text content. Empty content is considered as <code>null</code>.
 	 * 
 	 * @param element
-	 *            Optional element. Null is accepted.
+	 *            Optional element. <code>null</code> is accepted.
 	 * @param tag
 	 *            The tag name.
-	 * @return The tag value when tag is found of <code>null</code>.
+	 * @return The trimmed tag value when tag is found of <code>null</code>.
 	 */
 	public String getTagText(final Element element, final String tag) {
-		return Optional.ofNullable(
-				Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0)).map(Node::getTextContent).orElse(null))
-				.orElse(null);
+		return Optional.ofNullable(Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0))
+				.map(Node::getTextContent).map(StringUtils::trimToNull).orElse(null)).orElse(null);
 	}
 
 }

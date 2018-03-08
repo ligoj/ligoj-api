@@ -32,8 +32,8 @@ public class XmlUtilsTest {
 
 	@Test
 	public void getTags() throws SAXException, IOException, ParserConfigurationException {
-		final NodeList tags = resource.getTags("<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>",
-				"tag1");
+		final NodeList tags = resource.getTags(
+				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>", "tag1");
 		Assertions.assertEquals(2, tags.getLength());
 		Assertions.assertEquals("tag1", tags.item(0).getNodeName());
 		Assertions.assertEquals("value1", tags.item(0).getTextContent());
@@ -44,16 +44,19 @@ public class XmlUtilsTest {
 	@Test
 	public void getTagText() throws SAXException, IOException, ParserConfigurationException {
 		final InputStream jobsAsInput = IOUtils.toInputStream(
-				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>", StandardCharsets.UTF_8);
+				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag3>  </tag3></root>",
+				StandardCharsets.UTF_8);
 		final Document root = resource.parse(jobsAsInput);
 		Assertions.assertEquals("value2", resource.getTagText((Element) root.getFirstChild(), "tag2"));
+		Assertions.assertNull(resource.getTagText((Element) root.getFirstChild(), "tag3"));
 	}
 
 	@Test
 	public void getXpath() throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
 		Assertions.assertEquals(2,
-				resource.getXpath("<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>", "root/tag1")
-						.getLength());
+				resource.getXpath(
+						"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>",
+						"root/tag1").getLength());
 	}
 
 	@Test
