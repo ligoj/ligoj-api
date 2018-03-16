@@ -7,17 +7,24 @@ import java.util.Optional;
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheResult;
 
-import org.springframework.stereotype.Component;
-
-import org.ligoj.bootstrap.core.SpringUtils;
 import org.ligoj.app.api.PluginNotFoundException;
 import org.ligoj.app.api.ServicePlugin;
+import org.ligoj.bootstrap.core.SpringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 /**
  * Locate service resource from the plug-in key.
  */
 @Component
 public class ServicePluginLocator {
+	
+	/**
+	 * Used for "this" and forcing proxying.
+	 */
+	@Autowired
+	protected ServicePluginLocator self;
+	
 
 	/**
 	 * Return the plug-in from the service key.
@@ -69,7 +76,7 @@ public class ServicePluginLocator {
 		}
 
 		// Search the resource
-		final String name = SpringUtils.getBean(ServicePluginLocator.class).getResourceName(service);
+		final String name = self.getResourceName(service);
 		if (name == null) {
 			// Bean does not exists
 			return null;

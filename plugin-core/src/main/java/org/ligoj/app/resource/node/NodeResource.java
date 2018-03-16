@@ -48,7 +48,6 @@ import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.NamedBean;
-import org.ligoj.bootstrap.core.SpringUtils;
 import org.ligoj.bootstrap.core.json.PaginationJson;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
@@ -96,6 +95,9 @@ public class NodeResource extends AbstractLockedResource<String> {
 
 	@Autowired
 	private PaginationJson paginationJson;
+
+	@Autowired
+	protected NodeResource self;
 
 	/**
 	 * Mapped columns.
@@ -373,7 +375,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 */
 	private NodeStatus checkNodeStatus(final Node node) {
 		final Map<String, String> parameters = pvResource.getNodeParameters(node.getId());
-		final NodeStatus status = SpringUtils.getBean(NodeResource.class).checkNodeStatus(node.getId(), parameters);
+		final NodeStatus status = self.checkNodeStatus(node.getId(), parameters);
 		if (eventResource.registerEvent(node, EventType.STATUS, status.name())) {
 			checkSubscriptionStatus(node, status);
 		}
@@ -472,13 +474,10 @@ public class NodeResource extends AbstractLockedResource<String> {
 		// Other subscriptions get the node's status.
 		final Map<Subscription, Map<String, String>> subscriptions = findSubscriptionsWithParams(node.getId());
 
-		// Same instance, but with proxy to resolve inner transaction issue
-		final NodeResource thisProxy = SpringUtils.getBean(NodeResource.class);
-
 		NodeStatus newStatus = status;
 		if (status == null) {
 			// Node status is unknown for now, need a check
-			newStatus = NodeStatus.getValue(thisProxy.checkNodeStatus(node.getId(), nodeParameters).isUp());
+			newStatus = NodeStatus.getValue(self.checkNodeStatus(node.getId(), nodeParameters).isUp());
 
 			// Update the node status
 			eventResource.registerEvent(node, EventType.STATUS, newStatus.name());
@@ -487,7 +486,7 @@ public class NodeResource extends AbstractLockedResource<String> {
 		// Check the subscriptions
 		if (newStatus.isUp()) {
 			// Check only the subscription in UP nodes
-			checkNodeSubscriptions(node, nodeParameters, subscriptions, thisProxy);
+			checkNodeSubscriptions(node, nodeParameters, subscriptions);
 		} else {
 			// All subscription of this are marked as DOWN
 			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptions.size());
@@ -533,14 +532,14 @@ public class NodeResource extends AbstractLockedResource<String> {
 	 * Check the subscriptions of each subscription related to given node.
 	 */
 	private void checkNodeSubscriptions(final Node node, final Map<String, String> nodeParameters,
-			final Map<Subscription, Map<String, String>> subscriptions, final NodeResource thisProxy) {
+			final Map<Subscription, Map<String, String>> subscriptions) {
 		int counter = 0;
 		for (final Entry<Subscription, Map<String, String>> subscription : subscriptions.entrySet()) {
 			// For each subscription, check status
 			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
 			final Map<String, String> parameters = new HashMap<>(nodeParameters);
 			parameters.putAll(subscription.getValue());
-			final NodeStatus subscriptionStatus = thisProxy.checkSubscriptionStatus(subscription.getKey(), parameters)
+			final NodeStatus subscriptionStatus = self.checkSubscriptionStatus(subscription.getKey(), parameters)
 					.getStatus();
 			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
 			counter++;

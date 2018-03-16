@@ -114,6 +114,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	public void mockApplicationContext() {
 		final NodeResource resource = new NodeResource();
 		super.applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
+		resource.self = resource;
 		final ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
 		SpringUtils.setSharedApplicationContext(applicationContext);
 		final ServicePluginLocator servicePluginLocator = Mockito.mock(ServicePluginLocator.class);
