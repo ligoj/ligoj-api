@@ -930,7 +930,7 @@ public class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("service:scm:git:dig", service.getId());
 		Assertions.assertEquals("git DIG", service.getName());
 		Assertions.assertEquals("service:scm:git", service.getRefined().getId());
-		Assertions.assertEquals("fa fa-git", service.getUiClasses());
+		Assertions.assertEquals("fab fa-git", service.getUiClasses());
 	}
 
 	@Test
