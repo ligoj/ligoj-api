@@ -1,10 +1,13 @@
 package org.ligoj.app.iam.empty;
 
+import java.util.Optional;
+
 import javax.cache.annotation.CacheResult;
 
 import org.ligoj.app.api.FeaturePlugin;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -16,14 +19,29 @@ import org.springframework.stereotype.Component;
 @Order(100)
 public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
+	private IamConfiguration iamConfiguration;
+
+	@Autowired
+	private EmptyIamProvider self;
+
 	@Override
 	public Authentication authenticate(final Authentication authentication) {
 		return authentication;
 	}
 
 	@Override
-	@CacheResult(cacheName = "iam-empty-configuration")
 	public IamConfiguration getConfiguration() {
+		self.ensureCachedConfiguration();
+		return Optional.ofNullable(iamConfiguration).orElseGet(this::refreshConfiguration);
+	}
+
+	@CacheResult(cacheName = "iam-empty-configuration")
+	public boolean ensureCachedConfiguration() {
+		refreshConfiguration();
+		return true;
+	}
+
+	private IamConfiguration refreshConfiguration() {
 		final IamConfiguration configuration = new IamConfiguration();
 		final EmptyCompanyRepository companyRepository = new EmptyCompanyRepository();
 		configuration.setCompanyRepository(companyRepository);
@@ -33,7 +51,8 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
 		// Also link user/company repositories
 		userRepository.setCompanyRepository(companyRepository);
-		return configuration;
+		this.iamConfiguration = configuration;
+		return this.iamConfiguration;
 	}
 
 	@Override

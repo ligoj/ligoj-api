@@ -1,5 +1,6 @@
 package org.ligoj.app.api;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.ligoj.app.model.Refining;
@@ -12,7 +13,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
+public class NodeVo extends AbstractNodeVo implements Refining<NodeVo>{
 
 	/**
 	 * Instance of tool proving the expected service.
@@ -36,6 +37,6 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	 * fetch, and this property will stay <code>null</code>. The values of this {@link Map} are the true typed. The key
 	 * is the parameter identifier.
 	 */
-	private Map<String, Object> parameters;
+	private Map<String, Serializable> parameters;
 
 }

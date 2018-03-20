@@ -2,6 +2,7 @@ package org.ligoj.app.iam;
 
 import javax.cache.annotation.CacheResult;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 
 /**
@@ -9,14 +10,28 @@ import org.springframework.security.core.Authentication;
  */
 public class EmptyIamProvider implements IamProvider {
 
+	private IamConfiguration iamConfiguration;
+
+	@Autowired
+	private EmptyIamProvider self;
+
 	@Override
 	public Authentication authenticate(final Authentication authentication) {
 		return authentication;
 	}
 
 	@Override
-	@CacheResult(cacheName = "iam-test-configuration")
 	public IamConfiguration getConfiguration() {
+		self.refreshConfiguration();
+		return getCachedConfiguration();
+	}
+
+	public IamConfiguration getCachedConfiguration() {
+		return iamConfiguration;
+	}
+
+	@CacheResult(cacheName = "iam-test-configuration")
+	public String refreshConfiguration() {
 		final IamConfiguration configuration = new IamConfiguration();
 		final EmptyCompanyRepository companyRepository = new EmptyCompanyRepository();
 		configuration.setCompanyRepository(companyRepository);
@@ -26,7 +41,8 @@ public class EmptyIamProvider implements IamProvider {
 
 		// Also link user/company repositories
 		userRepository.setCompanyRepository(companyRepository);
-		return configuration;
+		this.iamConfiguration = configuration;
+		return "OK";
 	}
 
 }

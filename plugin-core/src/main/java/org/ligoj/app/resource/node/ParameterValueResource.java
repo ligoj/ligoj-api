@@ -50,11 +50,11 @@ import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
 
 import lombok.AllArgsConstructor;
-import net.sf.ehcache.CacheManager;
 
 /**
  * Criteria values Business Layer for entity {@link ParameterValue}
@@ -104,6 +104,10 @@ public class ParameterValueResource {
 
 	@Autowired
 	private IamProvider[] iamProvider;
+
+
+	@Autowired
+	private CacheManager cacheManager;
 
 	@AllArgsConstructor
 	private static class ParameterValueMapper<X> {
@@ -383,7 +387,7 @@ public class ParameterValueResource {
 
 		// Delete the existing but not provided values
 		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
-		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
+		cacheManager.getCache("node-parameters").evict(node.getId());
 	}
 
 	/**
@@ -415,7 +419,7 @@ public class ParameterValueResource {
 	 */
 	public void create(final List<ParameterValueCreateVo> values, final Subscription subscription) {
 		create(values, v -> v.setSubscription(subscription));
-		CacheManager.getInstance().getCache("subscription-parameters").remove(subscription.getId());
+		cacheManager.getCache("subscription-parameters").evict(subscription.getId());
 	}
 
 	/**
@@ -428,7 +432,7 @@ public class ParameterValueResource {
 	 */
 	public void create(final List<ParameterValueCreateVo> values, final Node node) {
 		create(values, v -> v.setNode(node));
-		CacheManager.getInstance().getCache("node-parameters").remove(node.getId());
+		cacheManager.getCache("node-parameters").evict(node.getId());
 	}
 
 	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {

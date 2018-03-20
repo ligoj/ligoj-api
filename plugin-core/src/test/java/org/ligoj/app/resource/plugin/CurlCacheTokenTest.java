@@ -10,8 +10,6 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationContext;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * Test class of {@link CurlCacheToken}
  */
@@ -22,7 +20,6 @@ public class CurlCacheTokenTest {
 	@BeforeEach
 	@AfterEach
 	public void clearCache() {
-		CacheManager.getInstance().getCache("curl-tokens").removeAll();
 		cacheToken = new CurlCacheToken();
 		cacheToken.applicationContext = Mockito.mock(ApplicationContext.class);
 		Mockito.when(cacheToken.applicationContext.getBean(CurlCacheToken.class)).thenReturn(cacheToken);

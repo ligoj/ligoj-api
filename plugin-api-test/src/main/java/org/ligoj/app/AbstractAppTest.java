@@ -14,6 +14,8 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.SingletonBeanRegistry;
 import org.springframework.beans.factory.support.DefaultSingletonBeanRegistry;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.ConfigurableApplicationContext;
 
 /**
@@ -23,6 +25,9 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 
 	@Autowired
 	protected IamProvider iamProvider;
+
+	@Autowired
+	protected CacheManager cacheManager;
 
 	/**
 	 * User repository provider.
@@ -86,6 +91,13 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	protected int getSubscription(final String project, final String service) {
 		return em.createQuery("SELECT id FROM Subscription WHERE project.name = ?1 AND node.id LIKE CONCAT(?2,'%')", Integer.class)
 				.setParameter(1, project).setParameter(2, service).setMaxResults(1).getResultList().get(0);
+	}
+	
+	/**
+	 * Clear all caches.
+	 */
+	protected void clearAllCache() {
+		cacheManager.getCacheNames().stream().map(cacheManager::getCache).forEach(Cache::clear);
 	}
 
 	/**

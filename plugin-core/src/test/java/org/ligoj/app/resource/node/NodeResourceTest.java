@@ -61,8 +61,6 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import net.sf.ehcache.CacheManager;
-
 /**
  * {@link NodeResource} test cases.
  */
@@ -107,7 +105,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	@BeforeEach
 	@AfterEach
 	public void cleanNodeCache() {
-		CacheManager.getInstance().clearAll();
+		super.clearAllCache();
 	}
 
 	@SuppressWarnings("unchecked")
