@@ -31,7 +31,7 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
 	@Override
 	public IamConfiguration getConfiguration() {
-		self.ensureCachedConfiguration();
+		self.refreshConfiguration();
 		return Optional.ofNullable(iamConfiguration).orElseGet(this::refreshConfiguration);
 	}
 
@@ -52,7 +52,7 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 		// Also link user/company repositories
 		userRepository.setCompanyRepository(companyRepository);
 		this.iamConfiguration = configuration;
-		return this.iamConfiguration;
+		return configuration;
 	}
 
 	@Override
