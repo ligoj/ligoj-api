@@ -79,10 +79,10 @@ public class ParameterValueResource {
 	private static final Map<ParameterType, ParameterValueMapper<?>> TO_VALUE = new EnumMap<>(ParameterType.class);
 
 	/**
-	 * A checker configuration to check a value against the contract of the
-	 * parameter.
+	 * A checker configuration to check a value against the contract of the parameter.
 	 */
-	private final Map<ParameterType, BiConsumer<BasicParameterValueVo, Parameter>> typeToChecker = new EnumMap<>(ParameterType.class);
+	private final Map<ParameterType, BiConsumer<BasicParameterValueVo, Parameter>> typeToChecker = new EnumMap<>(
+			ParameterType.class);
 
 	@Autowired
 	private ParameterValueRepository repository;
@@ -108,7 +108,6 @@ public class ParameterValueResource {
 	@Autowired
 	private IamProvider[] iamProvider;
 
-
 	@Autowired
 	private CacheManager cacheManager;
 
@@ -122,13 +121,18 @@ public class ParameterValueResource {
 
 		// To value mapping
 		TO_VALUE.put(ParameterType.BOOL, new ParameterValueMapper<>(BasicParameterValueVo::setBool, Boolean::valueOf));
-		TO_VALUE.put(ParameterType.DATE, new ParameterValueMapper<>(BasicParameterValueVo::setDate, s -> new Date(Long.parseLong(s))));
-		TO_VALUE.put(ParameterType.INTEGER, new ParameterValueMapper<>(BasicParameterValueVo::setInteger, Integer::valueOf));
+		TO_VALUE.put(ParameterType.DATE,
+				new ParameterValueMapper<>(BasicParameterValueVo::setDate, s -> new Date(Long.parseLong(s))));
+		TO_VALUE.put(ParameterType.INTEGER,
+				new ParameterValueMapper<>(BasicParameterValueVo::setInteger, Integer::valueOf));
 		TO_VALUE.put(ParameterType.MULTIPLE,
 				new ParameterValueMapper<>(BasicParameterValueVo::setSelections, ParameterResource::toListInteger));
-		TO_VALUE.put(ParameterType.SELECT, new ParameterValueMapper<>(BasicParameterValueVo::setIndex, Integer::valueOf));
-		TO_VALUE.put(ParameterType.TAGS, new ParameterValueMapper<>(BasicParameterValueVo::setTags, ParameterResource::toListString));
-		TO_VALUE.put(ParameterType.TEXT, new ParameterValueMapper<>(BasicParameterValueVo::setText, Function.identity()));
+		TO_VALUE.put(ParameterType.SELECT,
+				new ParameterValueMapper<>(BasicParameterValueVo::setIndex, Integer::valueOf));
+		TO_VALUE.put(ParameterType.TAGS,
+				new ParameterValueMapper<>(BasicParameterValueVo::setTags, ParameterResource::toListString));
+		TO_VALUE.put(ParameterType.TEXT,
+				new ParameterValueMapper<>(BasicParameterValueVo::setText, Function.identity()));
 
 		// To String mapping
 		TO_STRING.put(BasicParameterValueVo::getBool, Object::toString);
@@ -164,7 +168,8 @@ public class ParameterValueResource {
 	 */
 	public ParameterValueVo toVo(final ParameterValue entity) {
 		final ParameterValueVo vo = new ParameterValueVo();
-		vo.copyAuditData(entity, (Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
+		vo.copyAuditData(entity,
+				(Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
 		vo.setParameter(ParameterResource.toVo(entity.getParameter()));
 
@@ -191,7 +196,8 @@ public class ParameterValueResource {
 	 */
 	public static <T> T parseValue(final ParameterValue entity, final BasicParameterValueVo vo) {
 		@SuppressWarnings("unchecked")
-		final ParameterValueMapper<T> valueMapper = (ParameterValueMapper<T>) TO_VALUE.get(entity.getParameter().getType());
+		final ParameterValueMapper<T> valueMapper = (ParameterValueMapper<T>) TO_VALUE
+				.get(entity.getParameter().getType());
 		final T parsedValue = valueMapper.toValue.apply(entity.getData());
 		valueMapper.setter.accept(vo, parsedValue);
 		return parsedValue;
@@ -205,17 +211,17 @@ public class ParameterValueResource {
 	 * @return The String data to persist.
 	 */
 	public static String toData(final BasicParameterValueVo vo) {
-		return StringUtils.trimToNull(TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null).findFirst()
-				.map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText()));
+		return StringUtils.trimToNull(TO_STRING.entrySet().stream().filter(e -> e.getKey().apply(vo) != null)
+				.findFirst().map(e -> e.getValue().apply(e.getKey().apply(vo))).orElse(vo.getText()));
 	}
 
 	/**
 	 * Check optional but secure assertions.
 	 */
 	private void checkCompletude(final BasicParameterValueVo vo, final Parameter parameter) {
-		Arrays.stream(
-				new Supplier<?>[] { vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger, vo::getTags, vo::getSelections })
-				.map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst().ifPresent(e -> {
+		Arrays.stream(new Supplier<?>[] { vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger,
+				vo::getTags, vo::getSelections }).map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst()
+				.ifPresent(e -> {
 					final ValidationJsonException exception = new ValidationJsonException();
 					exception.addError(parameter.getId(), "Too many values");
 					throw exception;
@@ -306,8 +312,9 @@ public class ParameterValueResource {
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
 				final Pattern pattern = Pattern.compile(patternString);
-				assertTrue(pattern.matcher(vo.getText()).matches(), javax.validation.constraints.Pattern.class.getSimpleName(),
-						parameter.getId(), "regexp", pattern.pattern());
+				assertTrue(pattern.matcher(vo.getText()).matches(),
+						javax.validation.constraints.Pattern.class.getSimpleName(), parameter.getId(), "regexp",
+						pattern.pattern());
 			}
 		}
 	}
@@ -315,7 +322,8 @@ public class ParameterValueResource {
 	/**
 	 * Check is <code>true</code>
 	 */
-	private void assertTrue(final boolean valid, final String error, final String property, final Serializable... args) {
+	private void assertTrue(final boolean valid, final String error, final String property,
+			final Serializable... args) {
 		if (!valid) {
 			throw new ValidationJsonException(property, error, args);
 		}
@@ -329,9 +337,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Delete a {@link ParameterValue}. A value can be deleted only where there is
-	 * no subscription on the related node, or the related parameter is not
-	 * mandatory.
+	 * Delete a {@link ParameterValue}. A value can be deleted only where there is no subscription on the related node,
+	 * or the related parameter is not mandatory.
 	 * 
 	 * @param id
 	 *            The entity's identifier.
@@ -352,26 +359,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Update a {@link ParameterValue}. Visibility of value and related parameter is
-	 * checked. Only value attached to a {@link Node} can be updated. The related
-	 * node cannot be updated. A parameter used in a subscription cannot be updated.
-	 * 
-	 * @param vo
-	 *            {@link ParameterValueCreateVo} to update. Identifier is required.
-	 */
-	public void update(final ParameterValueNodeUpdateVo vo) {
-		final ParameterValue entity = findOneExpected(vo.getId());
-		nodeResource.checkWritableNode(entity.getNode().getId());
-		if (checkSaveOrUpdate(vo, parameterResource.findByIdInternal(vo.getParameter()), entity) == null) {
-			// Empty value are not accepted in update mode/method
-			throw new ValidationJsonException("invalid-method-for-empty-data");
-		}
-		repository.saveAndFlush(entity);
-	}
-
-	/**
-	 * Update the given node parameter values. The old not updated values are
-	 * deleted.
+	 * Update the given node parameter values. The old not updated values are deleted.
 	 * 
 	 * @param values
 	 *            the parameter values to persist.
@@ -380,36 +368,18 @@ public class ParameterValueResource {
 	 */
 	public void update(final List<ParameterValueCreateVo> values, final Node node) {
 		// Build the old parameter values
-		final List<ParameterValue> oldList = repository.findAllBy("node", node);
+		final List<ParameterValue> oldList = repository.getParameterValues(node.getId());
 		final Map<String, ParameterValue> oldMap = oldList.stream()
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
 
 		// Build the target parameter values
-		final Set<String> newParam = values.stream().map(v -> saveOrUpdate(oldMap, v)).filter(Objects::nonNull).peek(v -> v.setNode(node))
-				.map(repository::saveAndFlush).map(v -> v.getParameter().getId()).collect(Collectors.toSet());
+		final Set<String> newParam = values.stream().map(v -> saveOrUpdate(oldMap, v)).filter(Objects::nonNull)
+				.peek(v -> v.setNode(node)).map(repository::saveAndFlush).map(v -> v.getParameter().getId())
+				.collect(Collectors.toSet());
 
 		// Delete the existing but not provided values
 		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
 		cacheManager.getCache("node-parameters").evict(node.getId());
-	}
-
-	/**
-	 * Create a new {@link ParameterValue} to a node. The related node must be
-	 * visible and writable for the current user.
-	 * 
-	 * @param vo
-	 *            new {@link ParameterValueCreateVo} to persist.
-	 * @return The new identifier.
-	 */
-	public int create(final ParameterValueNodeVo vo) {
-		final ParameterValue value = createInternal(vo, parameterResource.findByIdInternal(vo.getParameter()));
-		if (value == null) {
-			// Empty value are not accepted in update mode/method
-			throw new ValidationJsonException("invalid-method-for-empty-data");
-		}
-		value.setNode(nodeResource.checkWritableNode(vo.getNode()));
-		repository.saveAndFlush(value);
-		return value.getId();
 	}
 
 	/**
@@ -448,20 +418,20 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Return a visible {@link ParameterValue} for the current user. Only values
-	 * associated to a node are considered as valid values.
+	 * Return a visible {@link ParameterValue} for the current user. Only values associated to a node are considered as
+	 * valid values.
 	 * 
 	 * @param id
 	 *            The entity's identifier.
 	 * @return The visible {@link ParameterValue}.
 	 */
 	private ParameterValue findOneExpected(final int id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).orElseThrow(EntityNotFoundException::new);
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
+				.orElseThrow(EntityNotFoundException::new);
 	}
 
 	/**
-	 * Check the parameter value is not used in a subscription when the target value
-	 * becomes <code>null</code> or empty.
+	 * Check the parameter value is not used in a subscription when the target value becomes <code>null</code> or empty.
 	 * 
 	 * @param entity
 	 *            The {@link ParameterValue} entity to check.
@@ -470,7 +440,8 @@ public class ParameterValueResource {
 		if (entity.getParameter().isMandatory()) {
 			final int nb = susbcriptionRepository.countByParameterValue(entity.getId());
 			if (nb > 0) {
-				throw new ValidationJsonException(entity.getParameter().getId(), "used-parameter-value", "subscriptions", nb);
+				throw new ValidationJsonException(entity.getParameter().getId(), "used-parameter-value",
+						"subscriptions", nb);
 			}
 		}
 	}
@@ -508,11 +479,11 @@ public class ParameterValueResource {
 	 *            The resolved parameter related to the {@link ParameterValue}
 	 * @param entity
 	 *            The entity to update.
-	 * @return corresponding entity when accepted for update. <code>null</code> when
-	 *         all constraints are checked, but the target operation should be a
-	 *         deletion because of the empty value.
+	 * @return corresponding entity when accepted for update. <code>null</code> when all constraints are checked, but
+	 *         the target operation should be a deletion because of the empty value.
 	 */
-	private ParameterValue checkSaveOrUpdate(final ParameterValueCreateVo vo, final Parameter parameter, final ParameterValue entity) {
+	private ParameterValue checkSaveOrUpdate(final ParameterValueCreateVo vo, final Parameter parameter,
+			final ParameterValue entity) {
 		checkConstraints(vo, parameter);
 		checkCompletude(vo, parameter);
 
@@ -545,7 +516,8 @@ public class ParameterValueResource {
 	public void checkOwnership(final Parameter parameter, final Node node) {
 		if (!equalsOrParentOf(parameter.getOwner(), node)) {
 			// This parameter is detached from the node's hierarchy
-			throw new BusinessException("invalid-parameter-node-ownership", "parameter", parameter.getId(), "node", node.getId());
+			throw new BusinessException("invalid-parameter-node-ownership", "parameter", parameter.getId(), "node",
+					node.getId());
 		}
 	}
 
@@ -554,37 +526,36 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Return non secured parameters values related to the subscription. Secured
-	 * parameters are not returned.
+	 * Return non secured parameters values related to the subscription. Secured parameters are not returned.
 	 * 
 	 * @param subscription
 	 *            The subscription identifier.
-	 * @return secured associated parameters values. Key of returned map is the
-	 *         identifier of {@link org.ligoj.app.model.Parameter}
+	 * @return secured associated parameters values. Key of returned map is the identifier of
+	 *         {@link org.ligoj.app.model.Parameter}
 	 */
 	public Map<String, String> getNonSecuredSubscriptionParameters(final int subscription) {
 		return toMapValues(repository.findAllSecureBySubscription(subscription));
 	}
 
 	/**
-	 * Return all parameters values related to the subscription. Secured (encrypted)
-	 * parameters are decrypted.
+	 * Return all parameters values related to the subscription. Secured (encrypted) parameters are decrypted.
 	 * 
 	 * @param subscription
 	 *            The subscription identifier.
-	 * @return all associated parameters values. Key of returned map is the
-	 *         identifier of {@link org.ligoj.app.model.Parameter}
+	 * @return all associated parameters values. Key of returned map is the identifier of
+	 *         {@link org.ligoj.app.model.Parameter}
 	 */
 	@CacheResult(cacheName = "subscription-parameters")
 	public Map<String, String> getSubscriptionParameters(@CacheKey final int subscription) {
 		return toMapValues(repository.findAllBySubscription(subscription));
 	}
 
-	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing, final ParameterValueCreateVo value) {
+	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing,
+			final ParameterValueCreateVo value) {
 		if (value.isUntouched()) {
 			// Untouched value, keep the previous value but must exists
-			return Optional.ofNullable(existing.get(value.getParameter()))
-					.orElseThrow(() -> new BusinessException(BusinessException.KEY_UNKNOW_ID, "parameter", value.getParameter()));
+			return Optional.ofNullable(existing.get(value.getParameter())).orElseThrow(
+					() -> new BusinessException(BusinessException.KEY_UNKNOW_ID, "parameter", value.getParameter()));
 		}
 
 		// Updated or created value
@@ -610,8 +581,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Delete all parameter values associated to given node. This includes the
-	 * related subscriptions parameter values.
+	 * Delete all parameter values associated to given node. This includes the related subscriptions parameter values.
 	 * 
 	 * @param node
 	 *            The parent node.
@@ -622,8 +592,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Transform {@link List} to {@link Map} where key is the parameter name.
-	 * Secured parameters are decrypted.
+	 * Transform {@link List} to {@link Map} where key is the parameter name. Secured parameters are decrypted.
 	 * 
 	 * @param values
 	 *            The parameters list.
@@ -651,8 +620,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Transform {@link List} to {@link Map} where K is the item's identifier, and
-	 * VALUE is the original item.
+	 * Transform {@link List} to {@link Map} where K is the item's identifier, and VALUE is the original item.
 	 * 
 	 * @param items
 	 *            The items list.
@@ -669,8 +637,8 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Return the parameters of given node. Not exposed as web-service since secured
-	 * data are clearly exposed. The result is cached.
+	 * Return the parameter values associated to the given node. Not exposed as web-service, contains secured data. The
+	 * result is cached.
 	 * 
 	 * @param node
 	 *            the node identifier.
@@ -684,20 +652,20 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Return all node parameter definitions where a value is expected to be
-	 * provided to the final subscription. When defined, the current value is
-	 * specified.
+	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. When
+	 * defined, the current value is specified.
 	 * 
 	 * @param node
 	 *            The node identifier.
 	 * @param mode
 	 *            Subscription mode.
-	 * @return All parameter definitions where a value is expected to be attached to
-	 *         the final subscription in given mode.
+	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
+	 *         mode.
 	 */
 	@GET
 	@Path("{node:service:.+}/parameter-value/{mode}")
-	public List<ParameterNodeVo> getNodeParameters(@PathParam("node") final String node, @PathParam("mode") final SubscriptionMode mode) {
+	public List<ParameterNodeVo> getNodeParameters(@PathParam("node") final String node,
+			@PathParam("mode") final SubscriptionMode mode) {
 		final List<ParameterVo> parameters = parameterResource.getNotProvidedAndAssociatedParameters(node, mode);
 		final Map<String, ParameterValue> vmap = repository.getParameterValues(node).stream()
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));

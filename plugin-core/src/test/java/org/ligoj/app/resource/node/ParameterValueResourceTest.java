@@ -23,8 +23,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
-import org.ligoj.app.iam.model.ReceiverType;
-import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
@@ -66,7 +64,8 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 
 	@BeforeEach
 	public void prepare() throws IOException {
-		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
+		persistEntities("csv",
+				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
 				StandardCharsets.UTF_8.name());
 		persistSystemEntities();
 
@@ -91,8 +90,8 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		parameterValue.setParameter(parameterRepository.findOne("service:bt:jira:jdbc-url").getId());
 		parameterValue.setText("value");
 		final ParameterValue entity = resource.createInternal(parameterValue);
-		Assertions.assertTrue(
-				entity.toString().startsWith("ParameterValue(parameter=AbstractBusinessEntity(id=service:bt:jira:jdbc-url), data="));
+		Assertions.assertTrue(entity.toString()
+				.startsWith("ParameterValue(parameter=AbstractBusinessEntity(id=service:bt:jira:jdbc-url), data="));
 		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
 		Assertions.assertNotEquals("value", entity.getData());
 		Assertions.assertEquals("value", encryptor.decrypt(entity.getData()));
@@ -617,7 +616,8 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	public void getParameters() {
-		final Map<String, String> parameters = resource.getSubscriptionParameters(getSubscription("gStack", BuildResource.SERVICE_KEY));
+		final Map<String, String> parameters = resource
+				.getSubscriptionParameters(getSubscription("gStack", BuildResource.SERVICE_KEY));
 		Assertions.assertEquals(4, parameters.size());
 		Assertions.assertEquals("junit", parameters.get("service:build:jenkins:user"));
 		Assertions.assertEquals("http://localhost:8120", parameters.get("service:build:jenkins:url"));
@@ -638,7 +638,8 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		// Check there are only 5 parameters, and only from the node
 		final List<ParameterValue> parameters = repository.findAllBySubscription(subscription);
 		Assertions.assertEquals(5, parameters.size());
-		Assertions.assertEquals(5, parameters.stream().map(ParameterValue::getSubscription).filter(Objects::isNull).count());
+		Assertions.assertEquals(5,
+				parameters.stream().map(ParameterValue::getSubscription).filter(Objects::isNull).count());
 	}
 
 	@Test
@@ -706,8 +707,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Create a new {@link ParameterValue} linked to a new {@link Node} without
-	 * subscription.
+	 * Create a new {@link ParameterValue} linked to a new {@link Node} without subscription.
 	 */
 	private ParameterValue newParameterValue() {
 		final Node node = new Node();
@@ -733,135 +733,8 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertFalse(repository.existsById(id));
 	}
 
-	@Test
-	public void create() {
-		repository.delete(repository.findBy("parameter.id", "service:id:ldap:quarantine-dn"));
-		em.flush();
-		em.clear();
-		final ParameterValueNodeVo parameterValue = new ParameterValueNodeVo();
-		parameterValue.setParameter("service:id:ldap:quarantine-dn");
-		parameterValue.setText("ou=quarantine2,dc=sample,dc=com");
-		parameterValue.setNode("service:id:ldap:dig");
-		final int id = resource.create(parameterValue);
-
-		final ParameterValue value = repository.findOneExpected(id);
-		Assertions.assertEquals("service:id:ldap:quarantine-dn", value.getParameter().getId());
-		Assertions.assertEquals("ou=quarantine2,dc=sample,dc=com", value.getData());
-		Assertions.assertEquals("service:id:ldap:dig", value.getNode().getId());
-	}
-
-	@Test
-	public void createNotVisible() {
-		initSpringSecurityContext("any");
-		final ParameterValueNodeVo parameterValue = new ParameterValueNodeVo();
-		parameterValue.setParameter("service:id:ldap:quarantine-dn");
-		parameterValue.setText("ou=quarantine2,dc=sample,dc=com");
-		parameterValue.setNode("service:id:ldap:dig");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.create(parameterValue);
-		});
-	}
-
-	@Test
-	public void createNotWritable() {
-		DelegateNode delegateNode = new DelegateNode();
-		delegateNode.setReceiver("user2");
-		delegateNode.setReceiverType(ReceiverType.USER);
-		delegateNode.setNode("service:id:ldap");
-		em.persist(delegateNode);
-		initSpringSecurityContext("user2"); // Read only user
-		final ParameterValueNodeVo parameterValue = new ParameterValueNodeVo();
-		parameterValue.setParameter("service:id:ldap:quarantine-dn");
-		parameterValue.setText("ou=quarantine2,dc=sample,dc=com");
-		parameterValue.setNode("service:id:ldap:dig");
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.create(parameterValue);
-		});
-	}
-
-	@Test
-	public void createEmpty() {
-		repository.delete(repository.findBy("parameter.id", "service:id:ldap:quarantine-dn"));
-		em.flush();
-		em.clear();
-		final ParameterValueNodeVo parameterValue = new ParameterValueNodeVo();
-		parameterValue.setParameter("service:id:ldap:quarantine-dn");
-		parameterValue.setText("  ");
-		parameterValue.setNode("service:id:ldap:dig");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(parameterValue);
-		});
-	}
-
-	@Test
-	public void update() {
-		ParameterValue value = newParameterValue();
-		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
-		String parameter = value.getParameter().getId();
-		parameterValue.setParameter(parameter);
-		parameterValue.setText("user2");
-		parameterValue.setId(value.getId());
-		Assertions.assertEquals("ParameterValueCreateVo(parameter=service:kpi:sonar:user)", parameterValue.toString());
-		resource.update(parameterValue);
-
-		value = repository.findOneExpected(value.getId());
-		Assertions.assertEquals(parameter, value.getParameter().getId());
-		Assertions.assertEquals("user2", encryptor.decrypt(value.getData()));
-		Assertions.assertNotEquals("user2", value.getData());
-	}
-
-	@Test
-	public void updateNotVisible() {
-		initSpringSecurityContext("any");
-		ParameterValue value = repository.findBy("parameter.id", "service:id:ldap:quarantine-dn");
-		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
-		parameterValue.setParameter(value.getParameter().getId());
-		parameterValue.setIndex(1);
-		parameterValue.setId(value.getId());
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.update(parameterValue);
-		});
-	}
-
-	@Test
-	public void updateNotExists() {
-		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
-		parameterValue.setParameter("service:id:ldap:quarantine-dn");
-		parameterValue.setIndex(1);
-		parameterValue.setId(-1);
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.update(parameterValue);
-		});
-	}
-
-	@Test
-	public void updateSubscriptionValue() {
-		final ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:project");
-		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
-		parameterValue.setParameter("service:kpi:sonar:project");
-		parameterValue.setInteger(10);
-		parameterValue.setId(value.getId());
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.update(parameterValue);
-		});
-	}
-
-	@Test
-	public void updateToBlank() {
-		final ParameterValue value = repository.findBy("parameter.id", "service:kpi:sonar:user");
-		value.getParameter().setMandatory(true);
-		final ParameterValueNodeUpdateVo parameterValue = new ParameterValueNodeUpdateVo();
-		parameterValue.setParameter("service:kpi:sonar:user");
-		parameterValue.setText("  ");
-		parameterValue.setId(value.getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.update(parameterValue);
-		});
-	}
-
 	/**
-	 * Return the subscription identifier of MDA. Assumes there is only one
-	 * subscription for a service.
+	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
 	 */
 	protected int getSubscription(final String project) {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);
