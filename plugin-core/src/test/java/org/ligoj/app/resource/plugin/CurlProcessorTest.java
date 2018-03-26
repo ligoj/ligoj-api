@@ -50,7 +50,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void testGet() {
-		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
@@ -60,7 +61,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void validate() {
-		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		CurlProcessor.validateAndClose("http://localhost:" + MOCK_PORT, "any", "any");
@@ -90,7 +92,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void testPost() {
-		httpServer.stubFor(post(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				post(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
@@ -103,7 +106,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void process() {
-		httpServer.stubFor(post(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				post(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
@@ -135,7 +139,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void processTimeout() {
-		httpServer.stubFor(post(urlPathEqualTo("/success")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(post(urlPathEqualTo("/success"))
+				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.stubFor(post(urlPathEqualTo("/timeout"))
 				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT").withFixedDelay(4000)));
 		httpServer.start();
@@ -144,12 +149,14 @@ public class CurlProcessorTest extends AbstractServerTest {
 		final CurlProcessor processor = new CurlProcessor();
 
 		// Would succeed
-		final CurlRequest curlRequest1 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/success", "CONTENT");
+		final CurlRequest curlRequest1 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/success",
+				"CONTENT");
 		curlRequest1.setTimeout(500);
 		curlRequest1.setSaveResponse(true);
 
 		// Would fail timeout
-		final CurlRequest curlRequest2 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/timeout", "CONTENT");
+		final CurlRequest curlRequest2 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/timeout",
+				"CONTENT");
 		curlRequest2.setTimeout(500);
 		curlRequest2.setSaveResponse(true);
 
@@ -162,7 +169,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void testHeaders() {
-		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
@@ -181,8 +189,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void testGetRedirected() {
-		httpServer.stubFor(get(urlPathEqualTo("/"))
-				.willReturn(aResponse().withStatus(HttpStatus.SC_MOVED_TEMPORARILY).withHeader("Location", "http://www.google.fr")));
+		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_MOVED_TEMPORARILY)
+				.withHeader("Location", "http://www.google.fr")));
 		httpServer.start();
 
 		final CurlProcessor processor = new CurlProcessor();
@@ -192,7 +200,8 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void testProcessNext() {
-		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final List<CurlRequest> requests = new ArrayList<>();
@@ -212,16 +221,41 @@ public class CurlProcessorTest extends AbstractServerTest {
 	}
 
 	@Test
+	public void processCallbackFails() {
+		httpServer.stubFor(
+				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.start();
+
+		final List<CurlRequest> requests = new ArrayList<>();
+
+		final CurlProcessor processor = new CurlProcessor();
+		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+		curlRequest.setSaveResponse(true);
+		requests.add(curlRequest);
+		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+		Assertions.assertTrue(processor.process(requests));
+		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+
+		// Continue the execution
+		processor.setCallback((req, resp) -> {
+			throw new IllegalStateException();
+		});
+		Assertions.assertFalse(processor.process(curlRequest));
+	}
+
+	@Test
 	public void testProxy() {
 		// set proxy configuration and proxy server
 		System.setProperty("https.proxyHost", "localhost");
 		System.setProperty("https.proxyPort", String.valueOf(8121));
 		final WireMockServer proxyServer = new WireMockServer(8121);
-		proxyServer.stubFor(get(WireMock.urlMatching(".*")).willReturn(aResponse().proxiedFrom("http://localhost:" + MOCK_PORT)));
+		proxyServer.stubFor(
+				get(WireMock.urlMatching(".*")).willReturn(aResponse().proxiedFrom("http://localhost:" + MOCK_PORT)));
 		proxyServer.start();
 
 		// set main http server
-		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(
+				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		// launch request

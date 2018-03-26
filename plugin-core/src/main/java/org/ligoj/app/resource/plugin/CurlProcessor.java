@@ -108,8 +108,8 @@ public class CurlProcessor {
 		// Initialize connection manager
 		final HttpClientConnectionManager connectionManager = new BasicHttpClientConnectionManager(newSslContext());
 		clientBuilder.setConnectionManager(connectionManager);
-		clientBuilder.setDefaultRequestConfig(
-				RequestConfig.custom().setCookieSpec(CookieSpecs.DEFAULT).setRedirectsEnabled(false).setSocketTimeout(20000).setProxy(proxy).build());
+		clientBuilder.setDefaultRequestConfig(RequestConfig.custom().setCookieSpec(CookieSpecs.DEFAULT)
+				.setRedirectsEnabled(false).setSocketTimeout(20000).setProxy(proxy).build());
 
 		// Initialize cookie strategy
 		final CookieStore cookieStore = new BasicCookieStore();
@@ -248,7 +248,8 @@ public class CurlProcessor {
 		try {
 			return call(request, url);
 		} catch (final Exception e) { // NOSONAR - This exception can be dropped
-			log.error("Request execution ' [{}] {} {}' failed : {}", request.getCounter(), url, request.getMethod(), e.getMessage());
+			log.error("Request execution ' [{}] {} {}' failed : {}", request.getCounter(), request.getMethod(), url,
+					e.getMessage());
 		}
 		return false;
 	}
@@ -263,7 +264,8 @@ public class CurlProcessor {
 	 * @return <code>true</code> when the call succeed.
 	 */
 	protected boolean call(final CurlRequest request, final String url) throws Exception { // NOSONAR - Many Exception
-		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod()).getConstructor(String.class).newInstance(url);
+		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod())
+				.getConstructor(String.class).newInstance(url);
 		addHeaders(request, request.getContent(), httpRequest);
 
 		// Timeout management
@@ -281,12 +283,17 @@ public class CurlProcessor {
 
 		// Execute the request
 		final CloseableHttpResponse response = httpClient.execute(httpRequest);
-		
-		// Save the status
-		request.setStatus(response.getStatusLine().getStatusCode());
+		boolean result = false;
+		try {
+			// Save the status
+			request.setStatus(response.getStatusLine().getStatusCode());
 
-		// Ask for the callback a flow control
-		return ObjectUtils.defaultIfNull(request.getCallback(), callback).onResponse(request, response);
+			// Ask for the callback a flow control
+			result = ObjectUtils.defaultIfNull(request.getCallback(), callback).onResponse(request, response);
+		} finally {
+			IOUtils.closeQuietly(response);
+		}
+		return result;
 	}
 
 	/**
@@ -322,8 +329,8 @@ public class CurlProcessor {
 	 * @param defaultHeader
 	 *            The default value of header to add.
 	 */
-	private void addSingleValuedHeader(final CurlRequest request, final HttpRequestBase httpRequest, final String header,
-			final String defaultHeader) {
+	private void addSingleValuedHeader(final CurlRequest request, final HttpRequestBase httpRequest,
+			final String header, final String defaultHeader) {
 		// Look the headers, ignoring case for the header to add
 		if (request.getHeaders().keySet().stream().noneMatch(header::equalsIgnoreCase)) {
 			// Default header
@@ -369,8 +376,9 @@ public class CurlProcessor {
 		try {
 			final SSLContext sslContext = SSLContext.getInstance(protocol);
 			sslContext.init(null, allCerts, new SecureRandom());
-			final SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext, NoopHostnameVerifier.INSTANCE);
-			return RegistryBuilder.<ConnectionSocketFactory> create().register("https", sslSocketFactory)
+			final SSLConnectionSocketFactory sslSocketFactory = new SSLConnectionSocketFactory(sslContext,
+					NoopHostnameVerifier.INSTANCE);
+			return RegistryBuilder.<ConnectionSocketFactory>create().register("https", sslSocketFactory)
 					.register("http", PlainConnectionSocketFactory.getSocketFactory()).build();
 		} catch (final GeneralSecurityException e) {
 			// Wrap the exception
