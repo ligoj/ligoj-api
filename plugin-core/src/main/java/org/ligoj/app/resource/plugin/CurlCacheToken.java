@@ -36,7 +36,6 @@ public class CurlCacheToken {
 	 *            The amount of retries until the provider returns a not <code>null</code> value.
 	 * @param exceptionSupplier
 	 *            The exception used when the token cannot be retrieved.
-	 *            @param <X>
 	 * @return The token value either from the cache, either from the fresh computed one.
 	 */
 	@CacheResult(cacheName = "curl-tokens")

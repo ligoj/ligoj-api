@@ -49,6 +49,7 @@ public abstract class AbstractLockedResource<I extends Serializable> {
 	 *            The entity's identifier being deleted.
 	 * @param deleteRemoteData
 	 *            When <code>true</code>, remote data will be also destroyed.
+	 * @throws Exception When any delete fails. Managed at upper level.
 	 */
 	public void deleteWithTasks(final String node, final I id, final boolean deleteRemoteData) throws Exception {
 		// Delegate the deletion
@@ -71,6 +72,7 @@ public abstract class AbstractLockedResource<I extends Serializable> {
 	 *            The locked's identifier resource.
 	 * @param deleteRemoteData
 	 *            When <code>true</code>, remote data will be also destroyed.
+	 * @throws Exception When delete fails. Managed at upper level.
 	 */
 	protected abstract void delete(ServicePlugin plugin, final I id, final boolean deleteRemoteData) throws Exception;
 

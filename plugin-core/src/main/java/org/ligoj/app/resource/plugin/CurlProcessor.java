@@ -239,6 +239,10 @@ public class CurlProcessor {
 
 	/**
 	 * Process the given request.
+	 * 
+	 * @param request
+	 *            The request to process.
+	 * @return <code>true</code> when the call succeed.
 	 */
 	protected boolean process(final CurlRequest request) {
 		final String url = request.getUrl();
@@ -262,6 +266,8 @@ public class CurlProcessor {
 	 * @param url
 	 *            The URL to call.
 	 * @return <code>true</code> when the call succeed.
+	 * @throws When
+	 *             process failed at protocol level or timeout.
 	 */
 	protected boolean call(final CurlRequest request, final String url) throws Exception { // NOSONAR - Many Exception
 		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod())
@@ -368,7 +374,11 @@ public class CurlProcessor {
 	}
 
 	/**
-	 * Return a trusted SSL registry using the given protocol
+	 * Return a trusted SSL registry using the given protocol.
+	 * 
+	 * @param protocol
+	 *            The SSL protocol.
+	 * @return A new trusted SSL registry using the given protocol.
 	 */
 	protected static Registry<ConnectionSocketFactory> newSslContext(final String protocol) {
 		// Initialize HTTPS scheme

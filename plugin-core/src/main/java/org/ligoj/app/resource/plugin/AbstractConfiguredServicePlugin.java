@@ -77,8 +77,8 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * 
 	 * @param repository
 	 *            The repository holding the configured entity.
-	 * @param id
-	 *            The requested configured identifier.
+	 * @param nae
+	 *            The requested configured entity's name.
 	 * @param subscription
 	 *            The required subscription owner.
 	 * @param <K>
@@ -103,6 +103,8 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 *            The object related to a node.
 	 * @param requiredNode
 	 *            The widest accepted node relationship.
+	 * @param <T>
+	 *            The {@link Configurable} type.
 	 * @return the formal node coped object when the visibility has been checked.
 	 */
 	public <T extends NodeScoped> T checkVisibility(final T nodeScoped, final String requiredNode) {

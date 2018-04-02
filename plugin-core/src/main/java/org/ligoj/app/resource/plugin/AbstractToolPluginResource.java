@@ -42,6 +42,8 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 	 * @param subscription
 	 *            the subscription's identifier to use to locate the target instance.
 	 * @return the version of tool or <code>null</code> if not available/found.
+	 * @throws Exception
+	 *             When version cannot be be retrieved.
 	 */
 	@GET
 	@Path("version/{subscription:\\d+}")

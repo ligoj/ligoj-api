@@ -126,6 +126,7 @@ public abstract class AbstractAppTest extends AbstractJpaTest {
 	 * Register a singleton within the current application context. Don't forget to
 	 * destroy this singleton with a try-finally at the end of your tests.
 	 * 
+	 * @param <T> Singleton type.
 	 * @param beanName
 	 *            the name of the bean definition.
 	 * @param singleton

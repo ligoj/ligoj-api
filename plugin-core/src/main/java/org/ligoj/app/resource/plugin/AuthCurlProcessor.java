@@ -62,6 +62,9 @@ public class AuthCurlProcessor extends CurlProcessor {
 
 	/**
 	 * Add the basic authentication header.
+	 * 
+	 * @param request
+	 *            The request to complete header.
 	 */
 	protected void addAuthenticationHeader(final CurlRequest request) {
 		// Check the authentication is needed or not
@@ -71,7 +74,8 @@ public class AuthCurlProcessor extends CurlProcessor {
 			final String tmp = username + ':' + password;
 
 			// Use the preempted authentication processor
-			request.getHeaders().put(AUTH.WWW_AUTH_RESP, "Basic " + BASE64_CODEC.encodeToString(tmp.getBytes(StandardCharsets.UTF_8)));
+			request.getHeaders().put(AUTH.WWW_AUTH_RESP,
+					"Basic " + BASE64_CODEC.encodeToString(tmp.getBytes(StandardCharsets.UTF_8)));
 		}
 	}
 

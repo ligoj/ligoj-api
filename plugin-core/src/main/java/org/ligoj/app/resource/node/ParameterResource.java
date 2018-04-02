@@ -122,6 +122,7 @@ public class ParameterResource {
 	 * 
 	 * @param any
 	 *            Any object to serialize.
+	 * @return The JSON string from an object.
 	 */
 	public static String toJSon(final Object any) {
 		try {
@@ -135,11 +136,12 @@ public class ParameterResource {
 	 * Build parameter configuration from the string definition.
 	 * 
 	 * @param content
-	 *            The content JSON string configuration.
+	 *            The content JSON string configuration. May be <code>null</code>.
 	 * @param valueTypeRef
 	 *            The type reference to fix the return type.
 	 * @param <T>
 	 *            The return type.
+	 * @return The parameter configuration.
 	 */
 	public static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
 		try {

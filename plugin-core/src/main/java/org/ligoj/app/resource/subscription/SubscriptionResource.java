@@ -137,6 +137,8 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 * @param id
 	 *            The subscription identifier.
 	 * @return tools specific configuration.
+	 * @throws Exception
+	 *             When the configuration gathering fails. Managed at JAX-RS level.
 	 */
 	@GET
 	@Path("{id:\\d+}/configuration")
@@ -196,6 +198,8 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 * @param vo
 	 *            the subscription.
 	 * @return the created {@link Subscription}.
+	 * @throws Exception
+	 *             When the creat fails. Managed at JAX-RS level.
 	 */
 	@POST
 	public int create(final SubscriptionEditionVo vo) throws Exception {
@@ -230,6 +234,9 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	/**
 	 * Delegates the creation to the hierarchy of the related plug-in, and starting from the related plug-in. <br>
 	 * Exception appearing there causes to roll-back the previous persists.
+	 * 
+	 * @throws Exception
+	 *             When the link/create fails. Managed at upper level.
 	 */
 	private void delegateToPlugin(final SubscriptionEditionVo vo, final Subscription entity) throws Exception {
 		for (ServicePlugin p = locator.getResource(vo.getNode()); p != null; p = locator
@@ -277,6 +284,13 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 
 	/**
 	 * Check mandatory parameters are provided.
+	 * 
+	 * @param parameters
+	 *            The updated parameters to check.
+	 * @param acceptedParameters
+	 *            The accepted parameters.
+	 * @param mode
+	 *            The related mode.
 	 */
 	protected void checkMandatoryParameters(final List<ParameterValueCreateVo> parameters,
 			final List<Parameter> acceptedParameters, final SubscriptionMode mode) {
@@ -305,6 +319,8 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 * 
 	 * @param id
 	 *            the entity identifier.
+	 * @throws Exception
+	 *             When the delete fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}")
 	@DELETE
@@ -320,6 +336,8 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 	 *            the entity identifier.
 	 * @param deleteRemoteData
 	 *            When <code>true</code>, remote data will be also destroyed.
+	 * @throws Exception
+	 *             When the delete fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}/{deleteRemoteData}")
 	@DELETE

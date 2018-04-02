@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import javax.xml.XMLConstants;
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
@@ -43,6 +44,13 @@ public class XmlUtils {
 	 * @param input
 	 *            Input to parse.
 	 * @return The parsed document.
+	 * @throws IOException
+	 *             If any IO errors occur.
+	 * @throws SAXException
+	 *             If any parse errors occur.
+	 * @throws ParserConfigurationException
+	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
+	 *             feature.
 	 */
 	public Document parse(final InputStream input) throws SAXException, IOException, ParserConfigurationException {
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -51,7 +59,8 @@ public class XmlUtils {
 		factory.setExpandEntityReferences(false);
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		return factory.newDocumentBuilder().parse(input, StandardCharsets.UTF_8.name());
+		final DocumentBuilder newDocumentBuilder = factory.newDocumentBuilder();
+		return newDocumentBuilder.parse(input, StandardCharsets.UTF_8.name());
 	}
 
 	/**
@@ -60,6 +69,13 @@ public class XmlUtils {
 	 * @param input
 	 *            Input to parse. My be <code>null</code>.
 	 * @return Not <code>null</code> root element.
+	 * @throws IOException
+	 *             If any IO errors occur.
+	 * @throws SAXException
+	 *             If any parse errors occur.
+	 * @throws ParserConfigurationException
+	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
+	 *             feature.
 	 */
 	public Element parse(final String input) throws SAXException, IOException, ParserConfigurationException {
 		final InputStream jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"),
@@ -75,6 +91,13 @@ public class XmlUtils {
 	 * @param tag
 	 *            The tags to return.
 	 * @return Not <code>null</code> tag list.
+	 * @throws IOException
+	 *             If any IO errors occur.
+	 * @throws SAXException
+	 *             If any parse errors occur.
+	 * @throws ParserConfigurationException
+	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
+	 *             feature.
 	 */
 	public NodeList getTags(final String input, final String tag)
 			throws SAXException, IOException, ParserConfigurationException {
@@ -89,6 +112,15 @@ public class XmlUtils {
 	 * @param expression
 	 *            The XPATH expression.
 	 * @return Not <code>null</code> tag list.
+	 * @throws IOException
+	 *             If any IO errors occur.
+	 * @throws SAXException
+	 *             If any parse errors occur.
+	 * @throws ParserConfigurationException
+	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
+	 *             feature.
+	 * @throws XPathExpressionException
+	 *             If {@code expression} cannot be compiled.
 	 */
 	public NodeList getXpath(final String input, final String expression)
 			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {

@@ -121,7 +121,6 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @param user
 	 *            The current user name.
 	 * @return <code>true</code> when the user can manage the subscriptions of this project.
-	 * @see org.ligoj.app.iam.model.AbstractDelegate#isCanWrite()
 	 */
 	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND (p.teamLeader = :user OR "
 			+ SystemUserRepository.IS_ADMIN + " OR (EXISTS(SELECT 1 FROM DelegateOrg d WHERE "

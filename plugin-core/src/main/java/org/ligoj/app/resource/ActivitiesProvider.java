@@ -22,6 +22,7 @@ public interface ActivitiesProvider {
 	 * @param users
 	 *            User to collect activities.
 	 * @return activities. User without activity are not in this result.
+	 * @throws Exception When activities cannot be gathered. Managed at upper level.
 	 */
 	Map<String, Activity> getActivities(int subscription, Collection<String> users) throws Exception; // NOSONAR
 }

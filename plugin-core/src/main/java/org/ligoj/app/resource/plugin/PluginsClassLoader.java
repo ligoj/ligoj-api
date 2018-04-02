@@ -131,7 +131,7 @@ public class PluginsClassLoader extends URLClassLoader {
 		for (final String versionFile : mostRecentPlugins.values()) {
 			final URI uri = versionFileToPath.get(versionFile).toUri();
 			log.debug("Add plugin {}", uri);
-			copyExportedResources(versionFiles.get(versionFile), versionFileToPath.get(versionFile), uri);
+			copyExportedResources(versionFiles.get(versionFile), uri, versionFileToPath.get(versionFile));
 		}
 		log.info("Plugins ClassLoader has added {} plug-ins and ignored {} old plug-ins", mostRecentPlugins.size(),
 				versionFiles.size() - mostRecentPlugins.size());
@@ -173,8 +173,15 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Copy resources needed to be exported from the JAR plug-in to the home.
+	 * 
+	 * @param plugin
+	 *            The plug-in identifier.
+	 * @param uri
+	 *            The Source URI.
+	 * @param pluginFile
+	 *            The target plug-in file.
 	 */
-	protected void copyExportedResources(final String plugin, final Path pluginFile, final URI uri) throws IOException {
+	protected void copyExportedResources(final String plugin, final URI uri, final Path pluginFile) throws IOException {
 		FileSystem fileSystem = null;
 		try {
 			fileSystem = FileSystems.newFileSystem(pluginFile, this);
