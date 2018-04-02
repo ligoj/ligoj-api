@@ -16,7 +16,7 @@ public class EmptyIamProvider implements IamProvider {
 	private IamConfiguration iamConfiguration;
 
 	@Autowired
-	private EmptyIamProvider self;
+	private EmptyIamProvider self = this;
 
 	@Override
 	public Authentication authenticate(final Authentication authentication) {

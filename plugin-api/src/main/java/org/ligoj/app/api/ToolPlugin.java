@@ -16,6 +16,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param parameters
 	 *            the associated parameter values
 	 * @return the String value of the detected version of the tool or <code>null</code> if not available/found.
+	 * @throws Exception
+	 *             Version cannot be retrieved. This error is caught at higher level.
 	 */
 	default String getVersion(Map<String, String> parameters) throws Exception { // NOSONAR
 		// Not implemented, offline, or private tool
@@ -40,6 +42,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param parameters
 	 *            the parameter values of the node.
 	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
+	 * @throws Exception
+	 *             Status cannot be retrieved. This error is caught at higher level.
 	 */
 	default boolean checkStatus(final Map<String, String> parameters) throws Exception { // NOSONAR
 		return true;
@@ -54,6 +58,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 *            the parameter values of the node.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkStatus(Map)
+	 * @throws Exception
+	 *             Status cannot be retrieved. This error is caught at higher level.
 	 */
 	default boolean checkStatus(String node, Map<String, String> parameters) throws Exception { // NOSONAR
 		return checkStatus(parameters);
@@ -65,6 +71,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param parameters
 	 *            the parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
+	 * @throws Exception
+	 *             Status cannot be retrieved. This error is caught at higher level.
 	 */
 	default SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters) throws Exception { // NOSONAR
 		return new SubscriptionStatusWithData();
@@ -80,8 +88,11 @@ public interface ToolPlugin extends ServicePlugin {
 	 *            the parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkSubscriptionStatus(Map)
+	 * @throws Exception
+	 *             Status cannot be retrieved. This error is caught at higher level.
 	 */
-	default SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters) throws Exception { // NOSONAR
+	default SubscriptionStatusWithData checkSubscriptionStatus(String node, Map<String, String> parameters)
+			throws Exception { // NOSONAR
 		return checkSubscriptionStatus(parameters);
 	}
 
@@ -97,8 +108,11 @@ public interface ToolPlugin extends ServicePlugin {
 	 *            the parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkSubscriptionStatus(String, Map)
+	 * @throws Exception
+	 *             Status cannot be retrieved. This error is caught at higher level.
 	 */
-	default SubscriptionStatusWithData checkSubscriptionStatus(int subscription, String node, Map<String, String> parameters) throws Exception { // NOSONAR
+	default SubscriptionStatusWithData checkSubscriptionStatus(int subscription, String node,
+			Map<String, String> parameters) throws Exception { // NOSONAR
 		return checkSubscriptionStatus(node, parameters);
 	}
 }
