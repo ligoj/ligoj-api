@@ -13,6 +13,11 @@
 	<packaging>pom</packaging>
 	<name>Ligoj - Plugin Parent</name>
 	<description>Plugin parent pom the plugins should have.</description>
+	
+	<properties>
+		<sonar.sources>src/main/java,src/main/resources/META-INF/resources/webjars</sonar.sources>
+		<sonar.coverage.exclusions>*.js</sonar.coverage.exclusions>
+	</properties>
 
 	<dependencyManagement>
 		<dependencies>
