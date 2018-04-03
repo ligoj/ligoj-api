@@ -10,6 +10,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 
 import org.junit.jupiter.api.Assertions;
@@ -174,6 +175,24 @@ public class ParameterResourceTest extends AbstractAppTest {
 				"service:id:ldap:url", "service:id:ldap:department-attribute", "service:id:ldap:company-pattern",
 				"service:id:ldap:user-dn");
 		Assertions.assertTrue(parameters.stream().map(ParameterVo::getId).allMatch(expected::contains));
+	}
+
+	@Test
+	public void findByIdInternalNotExists() {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findByIdInternal("not-exists"));
+	}
+
+	@Test
+	public void findByIdInternalNotVisible() {
+		initSpringSecurityContext("any");
+		Assertions.assertThrows(EntityNotFoundException.class,
+				() -> resource.findByIdInternal("service:id:ldap:base-dn"));
+	}
+
+	@Test
+	public void findByIdInternal() {
+		Assertions.assertEquals("service:id:ldap:base-dn",
+				resource.findByIdInternal("service:id:ldap:base-dn").getId());
 	}
 
 	@Test

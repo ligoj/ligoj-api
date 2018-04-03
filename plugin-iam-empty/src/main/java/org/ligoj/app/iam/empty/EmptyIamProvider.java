@@ -25,7 +25,7 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 	private IamConfiguration iamConfiguration;
 
 	@Autowired
-	private EmptyIamProvider self;
+	private EmptyIamProvider self = this;
 
 	@Override
 	public Authentication authenticate(final Authentication authentication) {
@@ -34,7 +34,7 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
 	@Override
 	public IamConfiguration getConfiguration() {
-		self.refreshConfiguration();
+		self.ensureCachedConfiguration();
 		return Optional.ofNullable(iamConfiguration).orElseGet(this::refreshConfiguration);
 	}
 

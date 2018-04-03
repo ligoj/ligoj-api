@@ -105,4 +105,10 @@ public class EmptyUserRepositoryTest {
 	public void toDn() {
 		Assertions.assertEquals("", new EmptyUserRepository().toDn(null));
 	}
+
+	@Test
+	public void setPassword() {
+		// Does nothing
+		new EmptyUserRepository().setPassword(null, null, null);
+	}
 }

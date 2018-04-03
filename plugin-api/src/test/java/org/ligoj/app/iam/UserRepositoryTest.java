@@ -62,6 +62,12 @@ public class UserRepositoryTest {
 	public void toUserNotExists() {
 		Assertions.assertEquals("login", new MockUserRepository().toUser("login").getId());
 	}
+	
+	@Test
+	public void checkLockStatus() {
+		// Nothing by default
+		new MockUserRepository().checkLockStatus(null);
+	}
 
 	@Test
 	public void findByIdExpectedNotFound() {
