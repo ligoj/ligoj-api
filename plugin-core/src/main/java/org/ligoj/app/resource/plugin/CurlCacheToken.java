@@ -24,6 +24,9 @@ public class CurlCacheToken {
 
 	@Autowired
 	protected ApplicationContext applicationContext;
+	
+	@Autowired
+	private CurlCacheToken self = this;
 
 	/**
 	 * Return a cache token.
@@ -64,7 +67,7 @@ public class CurlCacheToken {
 			final Function<String, String> function, final int retries, final Supplier<? extends RuntimeException> exceptionSupplier) {
 		synchronized (synchronizeObject) {
 			// Use the jcache API to get the token
-			return applicationContext.getBean(CurlCacheToken.class).getTokenCache(key, function, retries, exceptionSupplier);
+			return self.getTokenCache(key, function, retries, exceptionSupplier);
 		}
 	}
 
