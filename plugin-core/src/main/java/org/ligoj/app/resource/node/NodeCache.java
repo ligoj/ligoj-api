@@ -3,16 +3,19 @@
  */
 package org.ligoj.app.resource.node;
 
+import static java.util.concurrent.TimeUnit.HOURS;
+
 import java.util.function.Function;
 
-import javax.cache.expiry.AccessedExpiryPolicy;
 import javax.cache.expiry.Duration;
+import javax.cache.expiry.ModifiedExpiryPolicy;
 
 import org.ligoj.bootstrap.resource.system.cache.CacheManagerAware;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.cache.HazelcastCacheManager;
 import com.hazelcast.config.CacheConfig;
+import com.hazelcast.config.EvictionConfig;
 
 /**
  * Nodes data cache configurations.
@@ -26,7 +29,8 @@ public class NodeCache implements CacheManagerAware {
 		cacheManager.createCache("node-parameters", provider.apply("node-parameters"));
 		cacheManager.createCache("services", provider.apply("services"));
 		final CacheConfig<?, ?> tokens = provider.apply("curl-tokens");
-		tokens.setExpiryPolicyFactory(AccessedExpiryPolicy.factoryOf(Duration.ONE_HOUR));
+		tokens.setExpiryPolicyFactory(ModifiedExpiryPolicy.factoryOf(new Duration(HOURS, 10)));
+		tokens.setEvictionConfig(new EvictionConfig() );
 		cacheManager.createCache("curl-tokens", tokens);
 		cacheManager.createCache("subscription-parameters", provider.apply("subscription-parameters"));
 		cacheManager.createCache("plugin-data", provider.apply("plugin-data"));
