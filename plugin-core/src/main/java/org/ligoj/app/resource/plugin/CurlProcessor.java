@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.function.Function;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
@@ -58,7 +59,7 @@ import lombok.extern.slf4j.Slf4j;
 public class CurlProcessor {
 
 	/**
-	 * proxy configuration constants
+	 * Proxy configuration constants
 	 */
 	private static final String HTTPS_PROXY_PORT = "https.proxyPort";
 	private static final String HTTPS_PROXY_HOST = "https.proxyHost";
@@ -75,6 +76,12 @@ public class CurlProcessor {
 
 	@Setter
 	protected HttpResponseCallback callback;
+
+	/**
+	 * Optional replay on rejected response. A request can only be replayed once.
+	 */
+	@Setter
+	protected Function<CurlRequest, Boolean> replay;
 
 	/**
 	 * Support HTTP methods.
@@ -250,7 +257,12 @@ public class CurlProcessor {
 		// Expose the current processor to this request
 		request.processor = this;
 		try {
-			return call(request, url);
+			boolean result = call(request, url);
+			if (!result && replay != null) {
+				// Replay as needed this request
+				result = replay.apply(request) && call(request, url);
+			}
+			return result;
 		} catch (final Exception e) { // NOSONAR - This exception can be dropped
 			log.error("Request execution ' [{}] {} {}' failed : {}", request.getCounter(), request.getMethod(), url,
 					e.getMessage());
@@ -266,8 +278,8 @@ public class CurlProcessor {
 	 * @param url
 	 *            The URL to call.
 	 * @return <code>true</code> when the call succeed.
-	 * @throws When
-	 *             process failed at protocol level or timeout.
+	 * @throws Exception
+	 *             When process failed at protocol level or timeout.
 	 */
 	protected boolean call(final CurlRequest request, final String url) throws Exception { // NOSONAR - Many Exception
 		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod())

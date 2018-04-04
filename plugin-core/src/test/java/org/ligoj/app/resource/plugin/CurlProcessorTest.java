@@ -21,6 +21,7 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
+import com.github.tomakehurst.wiremock.stubbing.Scenario;
 
 /**
  * Test class of {@link CurlProcessor}
@@ -199,7 +200,7 @@ public class CurlProcessorTest extends AbstractServerTest {
 	}
 
 	@Test
-	public void testProcessNext() {
+	public void processNext() {
 		httpServer.stubFor(
 				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
@@ -218,6 +219,68 @@ public class CurlProcessorTest extends AbstractServerTest {
 		processor.setCallback(new DefaultHttpResponseCallback());
 		Assertions.assertTrue(processor.process(curlRequest));
 		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+	}
+
+	@Test
+	public void processReplay() {
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs(Scenario.STARTED).willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)).willSetStateTo("second-attempt"));
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs("second-attempt").willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.start();
+
+		final List<CurlRequest> requests = new ArrayList<>();
+
+		final CurlProcessor processor = new CurlProcessor();
+		processor.setReplay(r -> r.getStatus() == 401);
+		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+		curlRequest.setSaveResponse(true);
+		requests.add(curlRequest);
+		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+		Assertions.assertTrue(processor.process(requests));
+		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+
+		// Continue the execution
+		processor.setCallback(new DefaultHttpResponseCallback());
+		Assertions.assertTrue(processor.process(curlRequest));
+		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+	}
+
+	/**
+	 * Replay conditions are not met.
+	 */
+	@Test
+	public void processReplayRejected() {
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs(Scenario.STARTED).willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)).willSetStateTo("second-attempt"));
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs("second-attempt").willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.start();
+
+		final List<CurlRequest> requests = new ArrayList<>();
+
+		final CurlProcessor processor = new CurlProcessor();
+		processor.setReplay(r -> false);
+		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+		curlRequest.setSaveResponse(true);
+		requests.add(curlRequest);
+		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+		Assertions.assertFalse(processor.process(requests));
+	}
+
+	/**
+	 * Replay failed at the second attempt
+	 */
+	@Test
+	public void processReplayFailed() {
+		httpServer.stubFor(get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)));
+		httpServer.start();
+
+		final List<CurlRequest> requests = new ArrayList<>();
+
+		final CurlProcessor processor = new CurlProcessor();
+		processor.setReplay(r -> true);
+		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+		curlRequest.setSaveResponse(true);
+		requests.add(curlRequest);
+		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+		Assertions.assertFalse(processor.process(requests));
 	}
 
 	@Test
