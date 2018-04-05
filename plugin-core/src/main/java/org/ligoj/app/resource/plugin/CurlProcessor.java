@@ -15,7 +15,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.function.Function;
 
-import javax.annotation.meta.When;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.ws.rs.HttpMethod;
