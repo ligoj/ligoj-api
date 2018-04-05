@@ -279,8 +279,8 @@ public class CurlProcessor {
 	 * @param url
 	 *            The URL to call.
 	 * @return <code>true</code> when the call succeed.
-	 * @throws When
-	 *             process failed at protocol level or timeout.
+	 * @throws Exception
+	 *             When process failed at protocol level or timeout.
 	 */
 	protected boolean call(final CurlRequest request, final String url) throws Exception { // NOSONAR - Many Exception
 		final HttpRequestBase httpRequest = (HttpRequestBase) SUPPORTED_METHOD.get(request.getMethod())
