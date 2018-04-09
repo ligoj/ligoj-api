@@ -21,6 +21,11 @@ import lombok.Setter;
 public class GroupOrg extends ContainerOrg {
 
 	/**
+	 * SID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Unique user members. Identifier (UID) is used.
 	 */
 	@JsonIgnore

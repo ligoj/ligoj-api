@@ -3,8 +3,6 @@
  */
 package org.ligoj.app.iam;
 
-import java.io.Serializable;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -27,7 +25,7 @@ import lombok.ToString;
 @Setter
 @ToString(of = "id")
 @EqualsAndHashCode(of = "id")
-public class SimpleUser implements INamableBean<String>, Serializable {
+public class SimpleUser implements INamableBean<String> {
 
 	/**
 	 * SID

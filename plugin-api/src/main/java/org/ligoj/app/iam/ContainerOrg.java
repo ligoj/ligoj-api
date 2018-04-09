@@ -22,6 +22,11 @@ import lombok.Setter;
 public class ContainerOrg extends NamedBean<String> implements ResourceOrg, IDescribableBean<String> {
 
 	/**
+	 * SID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Name pattern validation, includes LDAP injection protection.
 	 */
 	public static final String NAME_PATTERN = "[a-zA-Z0-9]([\\-: ]?[a-zA-Z0-9])+";

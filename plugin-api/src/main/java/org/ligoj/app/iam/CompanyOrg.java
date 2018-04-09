@@ -19,6 +19,11 @@ import lombok.Setter;
 public class CompanyOrg extends ContainerOrg {
 
 	/**
+	 * SID
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * This company, and the parents.
 	 */
 	private List<CompanyOrg> companyTree = new ArrayList<>();
