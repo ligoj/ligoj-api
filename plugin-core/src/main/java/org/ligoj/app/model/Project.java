@@ -39,6 +39,11 @@ import lombok.Setter;
 public class Project extends AbstractNamedAuditedEntity<Integer> implements IDescribableBean<Integer> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Project PKEY pattern.
 	 */
 	public static final String PKEY_PATTERN = "^([a-z]|[0-9]+-?[a-z])[a-z0-9\\-]*$";

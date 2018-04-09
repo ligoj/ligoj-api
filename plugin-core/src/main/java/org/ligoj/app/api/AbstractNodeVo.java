@@ -16,6 +16,11 @@ import lombok.Setter;
 public abstract class AbstractNodeVo extends NamedBean<String> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Optional tag name. May be <code>null</code>.
 	 */
 	private String tag;

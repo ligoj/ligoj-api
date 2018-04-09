@@ -22,6 +22,11 @@ import lombok.Setter;
 public class DelegateOrgEditionVo extends NamedBean<Integer> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * The people receiving the delegation.
 	 */
 	@NotBlank

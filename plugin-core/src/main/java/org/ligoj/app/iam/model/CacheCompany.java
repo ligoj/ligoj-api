@@ -17,6 +17,11 @@ import javax.persistence.UniqueConstraint;
 @Table(name = "LIGOJ_CACHE_COMPANY", uniqueConstraints= @UniqueConstraint(columnNames="name"))
 public class CacheCompany extends CacheContainer {
 
+	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// Only a template class implementation
 
 }

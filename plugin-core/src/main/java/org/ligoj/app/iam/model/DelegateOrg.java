@@ -31,6 +31,11 @@ import lombok.Setter;
 public class DelegateOrg extends AbstractDelegate {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * The DN associated to this entry, including base DN to be able to perform SQL filters.
 	 */
 	@NotNull

@@ -20,6 +20,11 @@ import lombok.Setter;
 @Setter
 public class NodeEditionVo extends AbstractParameteredVo implements INamableBean<String>, Refining<String> {
 
+	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
 	@NotBlank
 	@NotNull
 	private String name;

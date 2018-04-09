@@ -19,6 +19,11 @@ import lombok.Setter;
 public class NodeVo extends AbstractNodeVo implements Refining<NodeVo>{
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Instance of tool proving the expected service.
 	 */
 	private NodeVo refined;

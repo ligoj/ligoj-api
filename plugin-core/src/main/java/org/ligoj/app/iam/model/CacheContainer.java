@@ -26,6 +26,11 @@ import lombok.Setter;
 public class CacheContainer extends AbstractNamedBusinessEntity<String> implements IDescribableBean<String> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * DN.
 	 */
 	@Length(max = 512)

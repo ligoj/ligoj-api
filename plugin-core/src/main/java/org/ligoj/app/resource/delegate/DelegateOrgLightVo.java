@@ -19,6 +19,11 @@ import org.ligoj.app.iam.model.ReceiverType;
 public class DelegateOrgLightVo extends NamedAuditedBean<SimpleUserOrg, Integer> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * The people receiving the delegate.
 	 */
 	private INamableBean<String> receiver;

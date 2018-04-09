@@ -15,6 +15,11 @@ import lombok.Setter;
 public class SubscribedNodeVo extends AbstractNodeVo {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Instance of tool proving the expected service.
 	 */
 	private String refined;

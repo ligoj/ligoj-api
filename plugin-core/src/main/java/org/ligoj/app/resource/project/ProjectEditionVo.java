@@ -24,6 +24,11 @@ import lombok.Setter;
 public class ProjectEditionVo extends DescribedAuditedBean<UserOrg, Integer> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Unique technical and yet readable name.
 	 */
 	@NotNull

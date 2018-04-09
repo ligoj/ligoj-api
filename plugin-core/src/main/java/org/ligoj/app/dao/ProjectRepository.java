@@ -6,7 +6,6 @@ package org.ligoj.app.dao;
 import java.util.List;
 
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
-import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Project;
 import org.ligoj.bootstrap.core.dao.RestRepository;

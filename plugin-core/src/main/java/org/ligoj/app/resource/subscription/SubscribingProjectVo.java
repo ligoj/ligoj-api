@@ -15,6 +15,11 @@ import lombok.Setter;
 public class SubscribingProjectVo extends NamedBean<Integer> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * Unique technical and yet readable name.
 	 */
 	private String pkey;

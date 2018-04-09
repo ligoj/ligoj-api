@@ -13,6 +13,11 @@ import lombok.Setter;
 @Setter
 public class ProjectLightVo extends BasicProjectVo {
 
+	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private int nbSubscriptions;
 
 }

@@ -27,6 +27,11 @@ import lombok.Setter;
 public class BasicProjectVo extends NamedAuditedBean<SimpleUserOrg, Integer> implements IDescribableBean<Integer> {
 
 	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
+
+	/**
 	 * team leader
 	 */
 	@NotNull

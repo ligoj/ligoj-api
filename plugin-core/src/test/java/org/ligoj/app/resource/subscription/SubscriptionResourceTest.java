@@ -330,7 +330,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * Visible but not admin
 	 */
 	@Test
-	public void deleteNotAdminGroup() throws Exception {
+	public void deleteNotAdminGroup() {
 		initSpringSecurityContext("fdaugan");
 		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
 		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
@@ -346,7 +346,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * Visible but not write
 	 */
 	@Test
-	public void deleteNotWriteGroup() throws Exception {
+	public void deleteNotWriteGroup() {
 		initSpringSecurityContext("fdaugan");
 		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
 		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
