@@ -6,6 +6,8 @@ package org.ligoj.app.dao;
 import java.util.List;
 
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
+import org.ligoj.app.model.DelegateNode;
+import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Project;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.dao.system.SystemUserRepository;
@@ -115,6 +117,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * {@link org.ligoj.app.iam.model.DelegateOrg} with <code>canWrite</code> and <code>canAdmin</code> relating to the
 	 * group associated to this project</li>
 	 * </ul>
+	 * Note, this will only authorize the principal to create subscription to this project, and the valid subscribed
+	 * {@link Node}s are filtered regarding the delegates on this node.
 	 * 
 	 * @param project
 	 *            The project's identifier to match.
