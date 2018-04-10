@@ -19,6 +19,9 @@
 
 	<properties>
 		<api.version>2.2.6-SNAPSHOT</api.version>
+		
+		<!-- TODO Remove with boostrap 2.2.3+ -->		
+		<spring-security>5.0.4.RELEASE</spring-security>
 	</properties>
 
 	<profiles>
