@@ -15,6 +15,9 @@
 	<description>Plugin parent pom the plugins should have.</description>
 	
 	<properties>
+		<sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>
+		<sonar.issue.ignore.multicriteria.e1.ruleKey>Web:BoldAndItalicTagsCheck</sonar.issue.ignore.multicriteria.e1.ruleKey>
+		<sonar.issue.ignore.multicriteria.e1.resourceKey>**/*.html</sonar.issue.ignore.multicriteria.e1.resourceKey>
 		<sonar.sources>src/main/java,src/main/resources/META-INF/resources/webjars</sonar.sources>
 		<sonar.coverage.exclusions>**/*.js</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/messages.js</sonar.cpd.exclusions>
