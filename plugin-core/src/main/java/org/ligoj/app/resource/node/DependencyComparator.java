@@ -34,4 +34,4 @@ class DependencyComparator implements Comparator<ParameterVo> {
 		return compare;
 	}
 
-};
+}

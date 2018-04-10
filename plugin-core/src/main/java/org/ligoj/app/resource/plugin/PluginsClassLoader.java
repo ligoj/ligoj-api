@@ -303,6 +303,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	 * @since 2.2.4
 	 * @see {@link #toPath(Subscription, String...)}
 	 */
+	@Deprecated
 	public File toFile(final Subscription subscription, final String... fragments) throws IOException {
 		return toPath(subscription, fragments).toFile();
 	}

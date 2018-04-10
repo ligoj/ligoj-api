@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.resource.subscription;
 
+import java.io.Serializable;
 import java.util.Map;
 
 import org.ligoj.bootstrap.core.AuditedBean;
@@ -18,12 +19,17 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class SubscriptionVo extends AuditedBean<SimpleUser, Integer> {
+public class SubscriptionVo extends AuditedBean<SimpleUser, Integer> implements Serializable {
+
+	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Parameters attached to this subscription.
 	 */
-	private Map<String, Object> parameters;
+	private Map<String, Serializable> parameters;
 
 	/**
 	 * last event attached to this subscription
