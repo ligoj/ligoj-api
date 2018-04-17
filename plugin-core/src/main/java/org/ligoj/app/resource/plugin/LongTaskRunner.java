@@ -12,7 +12,6 @@ import java.util.function.Supplier;
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.transaction.Transactional.TxType;
-import javax.ws.rs.PathParam;
 
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.dao.task.LongTaskRepository;
@@ -137,7 +136,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @return status of import. May <code>null</code> when there is no previous
 	 *         task.
 	 */
-	default T getTask(@PathParam("locked") final I lockedId) {
+	default T getTask(final I lockedId) {
 		return getTaskRepository().findBy("locked.id", lockedId);
 	}
 
