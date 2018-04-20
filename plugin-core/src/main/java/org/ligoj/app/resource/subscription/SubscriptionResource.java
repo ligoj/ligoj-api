@@ -69,7 +69,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class SubscriptionResource extends AbstractLockedResource<Integer> {
+public class SubscriptionResource extends AbstractLockedResource<Subscription, Integer> {
 
 	@Autowired
 	private SubscriptionRepository repository;
@@ -389,20 +389,27 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 		return project;
 	}
 
-	/**
-	 * Check the given subscription is visible.
-	 * 
-	 * @param id
-	 *            Subscription identifier.
-	 * @return the loaded subscription.
-	 */
-	public Subscription checkVisibleSubscription(final int id) {
+	@Override
+	public Subscription checkVisible(final Integer id) {
 		final Subscription entity = repository.findOneExpected(id);
 		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
 			// Associated project is not visible, reject the subscription access
 			throw new EntityNotFoundException(String.valueOf(id));
 		}
 		return entity;
+	}
+
+	/**
+	 * Check the given subscription is visible.
+	 * 
+	 * @param id
+	 *            Subscription identifier.
+	 * @return the loaded subscription.
+	 * @deprecated Use #checkVisible(Integer)
+	 */
+	@Deprecated(since = "2.3.0")
+	public Subscription checkVisibleSubscription(final int id) {
+		return checkVisible(id);
 	}
 
 	/**
@@ -575,7 +582,7 @@ public class SubscriptionResource extends AbstractLockedResource<Integer> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?>> getLongTaskRunnerClass() {
+	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?, AbstractLockedResource<Subscription, Integer>>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerSubscription.class;
 	}
 }

@@ -28,6 +28,10 @@ public class TaskSampleNodeResource implements ServicePlugin, LongTaskRunnerNode
 	@Getter
 	private NodeRepository nodeRepository;
 
+	@Autowired
+	@Getter
+	private NodeResource nodeResource;
+
 	@Override
 	public String getKey() {
 		return "any";

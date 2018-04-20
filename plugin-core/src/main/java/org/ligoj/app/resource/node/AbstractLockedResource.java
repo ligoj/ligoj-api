@@ -10,21 +10,23 @@ import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Persistable;
 
 /**
  * Base class for resource that can be locked.
  * 
+ * @param <T>
+ *            Type of locked resource.
  * @param <I>
  *            Identifier type of locked resource.
  */
-public abstract class AbstractLockedResource<I extends Serializable> {
+public abstract class AbstractLockedResource<T extends Persistable<I>, I extends Serializable> {
 
 	@Autowired
 	protected ServicePluginLocator locator;
 
 	/**
-	 * Delete all tasks related the given entity and check there is no running
-	 * tasks.
+	 * Delete all tasks related the given entity and check there is no running tasks.
 	 * 
 	 * @param plugin
 	 *            The related resource plug-in managing the entity being deleted.
@@ -40,8 +42,7 @@ public abstract class AbstractLockedResource<I extends Serializable> {
 	}
 
 	/**
-	 * Delete all tasks related the given entity and check there is no running
-	 * tasks.
+	 * Delete all tasks related the given entity and check there is no running tasks.
 	 * 
 	 * @param node
 	 *            The related node's identifier owning the locked resource.
@@ -49,7 +50,8 @@ public abstract class AbstractLockedResource<I extends Serializable> {
 	 *            The entity's identifier being deleted.
 	 * @param deleteRemoteData
 	 *            When <code>true</code>, remote data will be also destroyed.
-	 * @throws Exception When any delete fails. Managed at upper level.
+	 * @throws Exception
+	 *             When any delete fails. Managed at upper level.
 	 */
 	public void deleteWithTasks(final String node, final I id, final boolean deleteRemoteData) throws Exception {
 		// Delegate the deletion
@@ -72,16 +74,24 @@ public abstract class AbstractLockedResource<I extends Serializable> {
 	 *            The locked's identifier resource.
 	 * @param deleteRemoteData
 	 *            When <code>true</code>, remote data will be also destroyed.
-	 * @throws Exception When delete fails. Managed at upper level.
+	 * @throws Exception
+	 *             When delete fails. Managed at upper level.
 	 */
 	protected abstract void delete(ServicePlugin plugin, final I id, final boolean deleteRemoteData) throws Exception;
 
 	/**
-	 * Return the {@link Class} of type {@link LongTaskRunner} to check task
-	 * deletion.
+	 * Return the {@link Class} of type {@link LongTaskRunner} to check task deletion.
 	 * 
-	 * @return the {@link LongTaskRunner} class type handling the locked resource
-	 *         type.
+	 * @return the {@link LongTaskRunner} class type handling the locked resource type.
 	 */
-	protected abstract Class<? extends LongTaskRunner<?, ?, ?, I, ?>> getLongTaskRunnerClass();
+	protected abstract Class<? extends LongTaskRunner<?, ?, ?, I, ?, AbstractLockedResource<T, I>>> getLongTaskRunnerClass();
+
+	/**
+	 * Check the given identifier relates to a visible entity.
+	 * 
+	 * @param id
+	 *            Entity identifier.
+	 * @return The visible entity. Never <code>null</code>.
+	 */
+	public abstract T checkVisible(final I id);
 }

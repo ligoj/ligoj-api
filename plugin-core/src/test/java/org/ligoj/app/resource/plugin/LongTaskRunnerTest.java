@@ -56,7 +56,8 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		persistEntities("csv", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
 		this.subscription = getSubscription("MDA");
-		this.resource = applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleSubscriptionResource.class);
+		this.resource = applicationContext.getAutowireCapableBeanFactory()
+				.createBean(TaskSampleSubscriptionResource.class);
 		this.resourceNode = applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleNodeResource.class);
 	}
 
@@ -74,9 +75,26 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	public void cancelNotRunnging() {
 		final TaskSampleNode task = newTaskSampleNode();
 		repositoryNode.saveAndFlush(task);
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resourceNode.cancel(task.getLocked().getId());
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resourceNode.cancel(task.getLocked().getId()));
+	}
+
+	@Test
+	public void cancelSubscription() {
+		final TaskSampleSubscription task = newTaskSample();
+		task.setEnd(null);
+		Assertions.assertFalse(task.isFailed());
+		repository.saveAndFlush(task);
+		resource.cancel(task.getLocked().getId());
+		Assertions.assertTrue(resource.getTask(task.getLocked().getId()).isFailed());
+	}
+
+	@Test
+	public void cancelSubscriptionNotRunnging() {
+		final TaskSampleSubscription task = newTaskSample();
+		repository.saveAndFlush(task);
+		em.flush();
+		em.clear();
+		Assertions.assertThrows(BusinessException.class, () -> resource.cancel(task.getLocked().getId()));
 	}
 
 	@Test
@@ -86,8 +104,8 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	public void deleteTaskNotRunnging() {
-		final TaskSampleSubscription taskSample = newTaskSample();
-		repository.saveAndFlush(taskSample);
+		final TaskSampleSubscription task = newTaskSample();
+		repository.saveAndFlush(task);
 		em.flush();
 		em.clear();
 		resource.deleteTask(subscription);
@@ -96,34 +114,32 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	public void deleteTaskRunnging() {
-		final TaskSampleSubscription taskSample = newTaskSample();
-		taskSample.setEnd(null);
-		repository.saveAndFlush(taskSample);
+		final TaskSampleSubscription task = newTaskSample();
+		task.setEnd(null);
+		repository.saveAndFlush(task);
 		em.flush();
 		em.clear();
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.deleteTask(subscription);
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.deleteTask(subscription));
 	}
 
 	private TaskSampleSubscription newTaskSample() {
-		final TaskSampleSubscription taskSample = new TaskSampleSubscription();
-		taskSample.setAuthor(DEFAULT_USER);
-		taskSample.setData("custom");
-		taskSample.setStart(new Date());
-		taskSample.setEnd(new Date());
-		taskSample.setLocked(em.find(Subscription.class, subscription));
-		return taskSample;
+		final TaskSampleSubscription task = new TaskSampleSubscription();
+		task.setAuthor(DEFAULT_USER);
+		task.setData("custom");
+		task.setStart(new Date());
+		task.setEnd(new Date());
+		task.setLocked(em.find(Subscription.class, subscription));
+		return task;
 	}
 
 	private TaskSampleNode newTaskSampleNode() {
-		final TaskSampleNode taskSample = new TaskSampleNode();
-		taskSample.setAuthor(DEFAULT_USER);
-		taskSample.setData("custom");
-		taskSample.setStart(new Date());
-		taskSample.setEnd(new Date());
-		taskSample.setLocked(em.find(Node.class, "service:bt:jira"));
-		return taskSample;
+		final TaskSampleNode task = new TaskSampleNode();
+		task.setAuthor(DEFAULT_USER);
+		task.setData("custom");
+		task.setStart(new Date());
+		task.setEnd(new Date());
+		task.setLocked(em.find(Node.class, "service:bt:jira"));
+		return task;
 	}
 
 	@Test
@@ -132,6 +148,20 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		final TaskSampleSubscription task = resource.getTask(subscription);
 		assertTask(task);
 		Assertions.assertNotNull(task.getEnd());
+	}
+
+	@Test
+	public void getTaskNotVisible() {
+		initSpringSecurityContext("any");
+		repository.saveAndFlush(newTaskSample());
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.getTask(subscription));
+	}
+
+	@Test
+	public void getTaskNodeNotVisible() {
+		initSpringSecurityContext("any");
+		repositoryNode.saveAndFlush(newTaskSampleNode());
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resourceNode.getTask("service:bt:jira"));
 	}
 
 	@Test
@@ -164,6 +194,14 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
+	public void startTaskNode() {
+		resourceNode.startTask("service:bt:jira", task -> task.setData("init"));
+		final TaskSampleNode task = resourceNode.getTask("service:bt:jira");
+		Assertions.assertFalse(task.isFailed());
+		Assertions.assertNull(task.getEnd());
+	}
+
+	@Test
 	public void startTaskNotRunning() {
 		repository.saveAndFlush(newTaskSample());
 		resource.startTask(subscription, task -> task.setData("init"));
@@ -175,26 +213,24 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	public void nextStep() {
-		final TaskSampleSubscription newTaskSample = newTaskSample();
-		newTaskSample.setEnd(null);
-		repository.saveAndFlush(newTaskSample);
+		final TaskSampleSubscription task = newTaskSample();
+		task.setEnd(null);
+		repository.saveAndFlush(task);
 		resource.nextStep(subscription, t -> t.setData("step2"));
-		Assertions.assertEquals("step2", newTaskSample.getData());
+		Assertions.assertEquals("step2", task.getData());
 	}
 
 	@Test
 	public void nextStepNotFound() {
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.nextStep(subscription, t -> t.setData("step2"));
-		});
+		Assertions.assertThrows(EntityNotFoundException.class,
+				() -> resource.nextStep(subscription, t -> t.setData("step2")));
 	}
 
 	@Test
 	public void nextStepAlreadyFinished() {
 		repository.saveAndFlush(newTaskSample());
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.nextStep(subscription, t -> t.setData("step2"));
-		});
+		Assertions.assertThrows(BusinessException.class,
+				() -> resource.nextStep(subscription, t -> t.setData("step2")));
 	}
 
 	/**
@@ -202,12 +238,11 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	 */
 	@Test
 	public void startTaskRunning() {
-		final TaskSampleSubscription newTaskSample = newTaskSample();
-		newTaskSample.setEnd(null);
-		repository.saveAndFlush(newTaskSample);
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.startTask(subscription, task -> task.setData("init"));
-		});
+		final TaskSampleSubscription task = newTaskSample();
+		task.setEnd(null);
+		repository.saveAndFlush(task);
+		Assertions.assertThrows(BusinessException.class,
+				() -> resource.startTask(subscription, t -> t.setData("init")));
 	}
 
 	/**
@@ -225,11 +260,10 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 		};
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
 
-		final TaskSampleSubscription newTaskSample = newTaskSample();
-		repository.saveAndFlush(newTaskSample);
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.startTask(subscription, task -> task.setData("init"));
-		});
+		final TaskSampleSubscription task = newTaskSample();
+		repository.saveAndFlush(task);
+		Assertions.assertThrows(BusinessException.class,
+				() -> resource.startTask(subscription, t -> t.setData("init")));
 	}
 
 	private void assertTask(TaskSampleSubscription task) {
@@ -244,8 +278,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Return the subscription identifier of MDA. Assumes there is only one
-	 * subscription for a service.
+	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
 	 */
 	protected int getSubscription(final String project) {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);

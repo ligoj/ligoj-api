@@ -29,6 +29,10 @@ public class TaskSampleSubscriptionResource
 	@Getter
 	private SubscriptionRepository subscriptionRepository;
 
+	@Autowired
+	@Getter
+	private SubscriptionResource subscriptionResource;
+
 	@Override
 	public String getKey() {
 		return "any";
@@ -45,7 +49,8 @@ public class TaskSampleSubscriptionResource
 	}
 
 	@Override
-	public TaskSampleSubscription startTask(final Integer subscription, final Consumer<TaskSampleSubscription> initializer) {
+	public TaskSampleSubscription startTask(final Integer subscription,
+			final Consumer<TaskSampleSubscription> initializer) {
 		return LongTaskRunnerSubscription.super.startTask(subscription, initializer);
 	}
 

@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
@@ -73,7 +74,7 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional
 @Produces(MediaType.APPLICATION_JSON)
 @Slf4j
-public class NodeResource extends AbstractLockedResource<String> {
+public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	@Autowired
 	private NodeRepository repository;
@@ -758,7 +759,17 @@ public class NodeResource extends AbstractLockedResource<String> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected Class<? extends LongTaskRunner<?, ?, ?, String, ?>> getLongTaskRunnerClass() {
+	protected Class<? extends LongTaskRunner<?, ?, ?, String, ?, AbstractLockedResource<Node, String>>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerNode.class;
+	}
+
+	@Override
+	public Node checkVisible(String id) {
+		final Node entity = repository.findOneVisible(id, securityHelper.getLogin());
+		if (entity == null) {
+			// Associated node is not visible
+			throw new EntityNotFoundException(id);
+		}
+		return entity;
 	}
 }

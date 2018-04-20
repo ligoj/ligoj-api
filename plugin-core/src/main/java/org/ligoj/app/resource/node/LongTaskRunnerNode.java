@@ -16,50 +16,58 @@ import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.resource.OnNullReturn404;
 
 /**
- * A resource running some long task. Implementing this interface causes the
- * subscription management checks there is no running task when a deletion is
- * requested. The contract :
+ * A resource running some long task. Implementing this interface causes the subscription management checks there is no
+ * running task when a deletion is requested. The contract :
  * <ul>
  * <li>At most one task can run per node</li>
- * <li>A subscription cannot be deleted while there is a running attached
- * task</li>
+ * <li>A subscription cannot be deleted while there is a running attached task</li>
  * <li>A running task is task without "end" date.
  * <li>When a task is started, is will always ends.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
  */
 public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends LongTaskNodeRepository<T>>
-		extends LongTaskRunner<T, R, Node, String, NodeRepository> {
+		extends LongTaskRunner<T, R, Node, String, NodeRepository, NodeResource> {
 	@Override
 	default NodeRepository getLockedRepository() {
 		return getNodeRepository();
 	}
 
+	@Override
+	default NodeResource getLockedResource() {
+		return getNodeResource();
+	}
+
 	/**
 	 * Return the {@link NodeRepository}.
 	 * 
-	 * @return The repository used to fetch related subscription entity of a task.
+	 * @return The repository used to fetch related node entity of a task.
 	 */
 	NodeRepository getNodeRepository();
+
+	/**
+	 * Return the {@link NodeResource}.
+	 * 
+	 * @return The resource used to fetch related node entity of a task.
+	 */
+	NodeResource getNodeResource();
 
 	/**
 	 * Return status of import.
 	 * 
 	 * @param node
 	 *            The locked node identifier.
-	 * @return status of import. May <code>null</code> when there is no previous
-	 *         task.
+	 * @return status of import. May <code>null</code> when there is no previous task.
 	 */
-	@Override
 	@GET
 	@Path("{node:service:.+}/task")
 	default T getTask(@PathParam("node") final String node) {
-		return LongTaskRunner.super.getTask(node);
+		checkVisible(node);
+		return LongTaskRunner.super.getTaskInternal(node);
 	}
 
 	/**
-	 * Cancel (stop) current the catalog update. Synchronous operation, flag the
-	 * task as failed.
+	 * Cancel (stop) current the catalog update. Synchronous operation, flag the task as failed.
 	 * 
 	 * @param node
 	 *            The node (provider) to cancel update.
@@ -69,7 +77,7 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 	@Path("{node:service:.+}/task")
 	@OnNullReturn404
 	default T cancel(@PathParam("node") final String node) {
+		checkVisible(node);
 		return endTask(node, true);
 	}
-
 }
