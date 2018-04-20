@@ -3,7 +3,6 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -286,26 +285,6 @@ public class PluginsClassLoader extends URLClassLoader {
 			log.info("Home directory is '{}', resolved from the system property '{}'", homeDir, HOME_DIR_PROPERTY);
 		}
 		return homeDir;
-	}
-
-	/**
-	 * Get a file reference for a specific subscription. This file will use the subscription as a context to isolate it,
-	 * and using the related node and the subscription's identifier. The parent directories are created as needed.
-	 * 
-	 * @param subscription
-	 *            The subscription used a context of the file to create.
-	 * @param fragments
-	 *            The file fragments.
-	 * @return The file reference.
-	 * @throws IOException
-	 *             When the parent directories creation failed.
-	 * @deprecated Use {@link #toPath(Subscription, String...)} instead.
-	 * @since 2.2.4
-	 * @see {@link #toPath(Subscription, String...)}
-	 */
-	@Deprecated
-	public File toFile(final Subscription subscription, final String... fragments) throws IOException {
-		return toPath(subscription, fragments).toFile();
 	}
 
 	/**

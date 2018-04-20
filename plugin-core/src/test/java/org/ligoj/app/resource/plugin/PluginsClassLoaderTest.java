@@ -140,7 +140,7 @@ public class PluginsClassLoaderTest {
 			Assertions.assertFalse(file.exists());
 			classLoader = checkClassLoader();
 			final Subscription subscription = newSubscription();
-			final File cfile = classLoader.toFile(subscription, "foo", "bar.log");
+			final File cfile = classLoader.toPath(subscription, "foo", "bar.log").toFile();
 			Assertions.assertTrue(subscriptionParent.exists());
 			Assertions.assertTrue(cfile.getParentFile().exists());
 			Assertions.assertTrue(file.getParentFile().exists());
