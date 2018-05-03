@@ -22,6 +22,7 @@
 		
 		<!-- TODO Remove with boostrap 2.2.3+ -->		
 		<spring-security>5.0.4.RELEASE</spring-security>
+		<spring-data.version>2.0.5.RELEASE</spring-data.version>
 	</properties>
 
 	<profiles>
