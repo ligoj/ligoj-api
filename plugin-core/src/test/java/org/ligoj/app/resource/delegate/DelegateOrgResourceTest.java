@@ -59,7 +59,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllFewVisible() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("someone");
 
@@ -67,7 +67,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(4, result.getData().size());
 		Assertions.assertEquals(4, result.getRecordsTotal());
 
-		// someone;group;dig rha;false;false;cn=dig rha,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
+		// someone;group;dig rha;false;false;cn=dig rha,cn=dig as,cn=dig,ou=function,ou=groups,dc=sample,dc=com
 		DelegateOrgLightVo entity = result.getData().get(2);
 		Assertions.assertEquals("DIG RHA", entity.getName());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
@@ -105,7 +105,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllSelf() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("mlavoine");
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
@@ -138,7 +138,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAll() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().putSingle("length", "12");
 
@@ -172,7 +172,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllReceiverCompany() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("jdoe5");
 		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
@@ -188,7 +188,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllGlobalSearch() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
@@ -200,7 +200,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllGlobalSearchGroup() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
@@ -212,7 +212,7 @@ public class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllGlobalSearchCompany() {
-		// create a mock URI info with pagination informations
+		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 

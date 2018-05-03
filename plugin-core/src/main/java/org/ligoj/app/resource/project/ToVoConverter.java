@@ -31,17 +31,17 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	/**
 	 * Subscriptions.
 	 */
-	private List<Object[]> subscriptionsAndParam;
+	private final List<Object[]> subscriptionsAndParam;
 
 	/**
 	 * Subscriptions status
 	 */
-	private Map<Integer, EventVo> subscriptionStatus;
+	private final Map<Integer, EventVo> subscriptionStatus;
 
 	/**
 	 * User converter used to serialize a safe data.
 	 */
-	private Function<String, ? extends UserOrg> userConverter;
+	private final Function<String, ? extends UserOrg> userConverter;
 
 	/**
 	 * Constructor holding the data used to convert a {@link Project} to {@link ProjectVo}.

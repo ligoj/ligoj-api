@@ -29,17 +29,17 @@ public class ParameterVo extends AbstractBusinessEntity<String> {
 	private ParameterType type;
 
 	/**
-	 * Minimal value for {@value ParameterType#INTEGER}
+	 * Minimal value for {@link ParameterType#INTEGER}
 	 */
 	private Integer min;
 
 	/**
-	 * Maximal value for {@value ParameterType#INTEGER}
+	 * Maximal value for {@link ParameterType#INTEGER}
 	 */
 	private Integer max;
 
 	/**
-	 * {@value ParameterType#SELECT}
+	 * {@link ParameterType#SELECT}
 	 */
 	private List<String> values;
 

@@ -199,7 +199,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *            the subscription.
 	 * @return the created {@link Subscription}.
 	 * @throws Exception
-	 *             When the creat fails. Managed at JAX-RS level.
+	 *             When the creation fails. Managed at JAX-RS level.
 	 */
 	@POST
 	public int create(final SubscriptionEditionVo vo) throws Exception {

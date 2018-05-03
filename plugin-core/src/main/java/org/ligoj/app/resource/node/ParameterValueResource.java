@@ -91,7 +91,7 @@ public class ParameterValueResource {
 	private ParameterRepository parameterRepository;
 
 	@Autowired
-	private SubscriptionRepository susbcriptionRepository;
+	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
 	private NodeResource nodeResource;
@@ -438,7 +438,7 @@ public class ParameterValueResource {
 	 */
 	private void checkUnusedValue(final ParameterValue entity) {
 		if (entity.getParameter().isMandatory()) {
-			final int nb = susbcriptionRepository.countByParameterValue(entity.getId());
+			final int nb = subscriptionRepository.countByParameterValue(entity.getId());
 			if (nb > 0) {
 				throw new ValidationJsonException(entity.getParameter().getId(), "used-parameter-value",
 						"subscriptions", nb);

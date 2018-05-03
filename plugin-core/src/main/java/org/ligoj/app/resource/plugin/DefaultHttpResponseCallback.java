@@ -58,8 +58,8 @@ public class DefaultHttpResponseCallback implements HttpResponseCallback {
 	/**
 	 * Indicate the status is accepted.
 	 * 
-	 * @param response
-	 *            The received response.
+	 * @param status
+	 *            The received status to accept.
 	 * @return <code>true</code> to proceed the next request. <code>false</code> otherwise.
 	 */
 	protected boolean acceptStatus(final int status) {

@@ -248,9 +248,9 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Check
+	 * Check the locked resource is visible by the principal user.
 	 * 
-	 * @param subscription
+	 * @param lockedId The resource identifier.
 	 */
 	default void checkVisible(final I lockedId) {
 		getLockedResource().checkVisible(lockedId);

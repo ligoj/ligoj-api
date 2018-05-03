@@ -98,7 +98,7 @@ public class EventResource {
 	}
 
 	/**
-	 * {@link Event} JPA to VO object transformer without refined informations.
+	 * {@link Event} JPA to VO object transformer without refined information.
 	 * 
 	 * @param entity
 	 *            Source entity.

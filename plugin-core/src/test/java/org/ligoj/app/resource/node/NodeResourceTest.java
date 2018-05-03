@@ -948,7 +948,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentMutiple() {
+	public void findAllByParentMultiple() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, JiraBaseResource.KEY, null, -1).getData();
 		Assertions.assertEquals(2, resources.size());
 		Assertions.assertEquals("service:bt:jira:4", resources.get(0).getId());
@@ -1098,7 +1098,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteTasks() throws Exception {
+	public void deleteTasks() {
 		final TaskSampleNodeResource sampleResource = registerSingleton("taskSampleResource",
 				applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleNodeResource.class));
 

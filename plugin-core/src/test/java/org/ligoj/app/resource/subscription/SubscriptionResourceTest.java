@@ -254,7 +254,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	private TaskSampleSubscriptionRepository taskSampleRepository;
 
 	@Test
-	public void deleteTasksSubscription() throws Exception {
+	public void deleteTasksSubscription() {
 		final TaskSampleSubscriptionResource sampleResource = registerSingleton("taskSampleResource",
 				applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleSubscriptionResource.class));
 
@@ -303,8 +303,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void deleteBecauseTeamLeader() throws Exception {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
-		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader("fdaugan"));
+		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().forEach(d -> d.setTeamLeader("fdaugan"));
 		assertDelete();
 	}
 
@@ -314,8 +314,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void deleteBecauseManageGroup() throws Exception {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
-		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 
 		// Persist the delegate and the related group to the project
 		final DelegateOrg delegate = prepareDelegate();
@@ -332,8 +332,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void deleteNotAdminGroup() {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
-		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 		// Persist the delegate and the related group to the project
 		final DelegateOrg delegate = prepareDelegate();
 		delegate.setCanWrite(true);
@@ -348,8 +348,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void deleteNotWriteGroup() {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
-		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 		// Persist the delegate and the related group to the project
 		final DelegateOrg delegate = prepareDelegate();
 		delegate.setCanAdmin(true);
@@ -394,8 +394,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void deleteBecauseManageTheGroup() throws Exception {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().stream().forEach(d -> d.setCanAdmin(false));
-		projectRepository.findAll().stream().forEach(d -> d.setTeamLeader(null));
+		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 		assertDelete();
 	}
 

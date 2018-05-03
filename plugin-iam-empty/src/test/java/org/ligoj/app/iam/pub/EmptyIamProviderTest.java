@@ -22,7 +22,7 @@ import com.hazelcast.config.CacheConfig;
  */
 public class EmptyIamProviderTest {
 
-	private EmptyIamProvider provider = new EmptyIamProvider();
+	private final EmptyIamProvider provider = new EmptyIamProvider();
 
 	@Test
 	public void testIamEmptyCache() {

@@ -103,7 +103,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void deleteTaskNotRunnging() {
+	public void deleteTaskNotRunning() {
 		final TaskSampleSubscription task = newTaskSample();
 		repository.saveAndFlush(task);
 		em.flush();
@@ -113,7 +113,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void deleteTaskRunnging() {
+	public void deleteTaskRunning() {
 		final TaskSampleSubscription task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);

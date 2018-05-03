@@ -20,37 +20,37 @@ import lombok.Setter;
 public class BasicParameterValueVo extends AuditedBean<SimpleUserOrg, Integer> {
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#TEXT}
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#TEXT}
 	 */
 	private String text;
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#TAGS}
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#TAGS}
 	 */
 	private List<String> tags;
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#MULTIPLE}
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#MULTIPLE}
 	 */
 	private List<Integer> selections;
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#INTEGER}
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#INTEGER}
 	 */
 	private Integer integer;
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#SELECT}. Represents index of selected item.
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#SELECT}. Represents index of selected item.
 	 */
 	private Integer index;
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#BINARY}.
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#BOOL}.
 	 */
 	private Boolean bool;
 
 	/**
-	 * Not <code>null</code> for {@value org.ligoj.app.model.ParameterType#DATE}.
+	 * Not <code>null</code> for {@link org.ligoj.app.model.ParameterType#DATE}.
 	 */
 	private Date date;
 

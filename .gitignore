@@ -7,5 +7,6 @@
 /*/target
 **/.classpath
 /*.exec
+**/*.iml
 **/org.eclipse.wst.validation.prefs
 **/org.eclipse.wst.common.component

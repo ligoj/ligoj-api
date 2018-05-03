@@ -216,9 +216,8 @@ public class ParameterResource {
 		boolean updated = true;
 		while (updated) {
 			updated = parameters.values().stream()
-					.map(p -> p.getDepends().addAll(p.getDepends().stream()
-							.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())))
-					.filter(Boolean::booleanValue).count() > 0;
+					.anyMatch(p -> p.getDepends().addAll(p.getDepends().stream()
+							.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())));
 		}
 		final List<ParameterVo> clone = new ArrayList<>(parameters.values());
 		clone.sort((o1, o2) -> o1.getId().compareTo(o2.getId()));

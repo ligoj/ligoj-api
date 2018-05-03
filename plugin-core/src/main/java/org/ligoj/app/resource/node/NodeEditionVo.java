@@ -18,7 +18,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class NodeEditionVo extends AbstractParameteredVo implements INamableBean<String>, Refining<String> {
+public class NodeEditionVo extends AbstractParameterizedVo implements INamableBean<String>, Refining<String> {
 
 	/**
 	 * SID, for Hazelcast
@@ -28,7 +28,7 @@ public class NodeEditionVo extends AbstractParameteredVo implements INamableBean
 	@NotBlank
 	@NotNull
 	private String name;
-	
+
 	/**
 	 * When <code>true</code> the previous parameters are not updated.
 	 */

@@ -5,7 +5,7 @@ package org.ligoj.app.resource.subscription;
 
 import javax.validation.constraints.Positive;
 
-import org.ligoj.app.resource.node.AbstractParameteredVo;
+import org.ligoj.app.resource.node.AbstractParameterizedVo;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +14,7 @@ import lombok.Setter;
  * A subscription data edition.
  */
 @Getter
-public class SubscriptionEditionVo extends AbstractParameteredVo {
+public class SubscriptionEditionVo extends AbstractParameterizedVo {
 
 	/**
 	 * Project identifier.

@@ -153,12 +153,12 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 	private class DnFunction extends StandardSQLFunction {
 
-		private int nbArgs;
-		private int dnIndex;
-		private int userIndex;
-		private String access;
-		private String query;
-		private BiFunction<String, List<?>, String> callback;
+		private final int nbArgs;
+		private final int dnIndex;
+		private final int userIndex;
+		private final String access;
+		private final String query;
+		private final BiFunction<String, List<?>, String> callback;
 
 		/**
 		 * Construct a standard SQL function definition with a static return type.

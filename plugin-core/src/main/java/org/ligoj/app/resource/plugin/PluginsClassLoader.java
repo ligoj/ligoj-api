@@ -360,8 +360,6 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
 	 * 
-	 * @param parent
-	 *            The parent path.
 	 * @param node
 	 *            The related node.
 	 * @return The computed sibling path.
@@ -375,11 +373,9 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
 	 * 
-	 * @param parent
-	 *            The parent path.
 	 * @param node
 	 *            The related node.
-	 * @return The computed sibling path.
+	 * @param fragments The computed sibling path (updated).
 	 */
 	private void toFragments(final Node node, List<String> fragments) {
 		if (node.isRefining()) {

@@ -128,7 +128,7 @@ public class ToVoConverterTest {
 		entity.setCreatedDate(new Date());
 		entity.setPkey("PK");
 		entity.setTeamLeader("U3");
-		entity.setSubscriptions(Arrays.asList(new Subscription[] { subscription, subscription2 }));
+		entity.setSubscriptions(Arrays.asList(subscription, subscription2));
 		final ProjectVo vo = converter.apply(entity);
 
 		// Check

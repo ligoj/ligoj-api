@@ -111,7 +111,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * @param user
 	 *            The target user name, receiving the delegation.
 	 * @param criteria
-	 *            Optional, use to filter by reveiver's name of delegate's name.
+	 *            Optional, use to filter by receiver's name of delegate's name.
 	 * @param type
 	 *            Optional {@link DelegateType} to match.
 	 * @param page

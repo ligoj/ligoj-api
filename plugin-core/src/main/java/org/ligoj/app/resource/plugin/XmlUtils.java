@@ -140,8 +140,8 @@ public class XmlUtils {
 	 * @return The trimmed tag value when tag is found of <code>null</code>.
 	 */
 	public String getTagText(final Element element, final String tag) {
-		return Optional.ofNullable(Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0))
-				.map(Node::getTextContent).map(StringUtils::trimToNull).orElse(null)).orElse(null);
+		return Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0))
+				.map(Node::getTextContent).map(StringUtils::trimToNull).orElse(null);
 	}
 
 }

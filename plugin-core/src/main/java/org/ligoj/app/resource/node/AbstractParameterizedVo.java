@@ -15,9 +15,12 @@ import org.ligoj.app.model.NodeId;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * A bean accepting parameters and linked to a node.
+ */
 @Getter
 @Setter
-public abstract class AbstractParameteredVo {
+public abstract class AbstractParameterizedVo {
 
 	/**
 	 * Service (node, ...) identifier.
@@ -32,7 +35,7 @@ public abstract class AbstractParameteredVo {
 	 */
 	@Valid
 	private List<ParameterValueCreateVo> parameters;
-	
+
 	/**
 	 * The restricted subscription mode.
 	 */

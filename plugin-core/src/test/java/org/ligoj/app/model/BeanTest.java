@@ -18,7 +18,7 @@ import org.ligoj.app.resource.plugin.BitBucketTag;
 import org.ligoj.app.resource.plugin.BitBucketTags;
 
 /**
- * Simple test of API beans.
+ * Simple test of API beans for coverage and automatic nullability checks.
  */
 public class BeanTest {
 

@@ -77,7 +77,7 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 * 
 	 * @param repository
 	 *            The repository holding the configured entity.
-	 * @param nae
+	 * @param name
 	 *            The requested configured entity's name.
 	 * @param subscription
 	 *            The required subscription owner.

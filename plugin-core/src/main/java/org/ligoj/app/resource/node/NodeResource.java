@@ -114,7 +114,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * {@link Node} JPA to business object transformer.
-	 * 
+	 *
 	 * @param entity
 	 *            Source entity.
 	 * @return The corresponding VO object with recursive redefined reference.
@@ -129,7 +129,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * {@link Node} JPA to business object transformer with parameters.
-	 * 
+	 *
 	 * @param entity
 	 *            Source entity.
 	 * @return The corresponding VO object with resources and without recursive parent reference.
@@ -143,8 +143,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * {@link Node} JPA to VO object transformer without refined informations.
-	 * 
+	 * {@link Node} JPA to VO object transformer without refined information.
+	 *
 	 * @param entity
 	 *            Source entity.
 	 * @return The corresponding VO object without recursive redefined reference.
@@ -160,7 +160,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * JPA {@link Node} associated to {@link ParameterValue} to detailed {@link NodeVo} converter. This not a one to one
 	 * {@link Function}.
-	 * 
+	 *
 	 * @param nodesAndValues
 	 *            Nodes with values.
 	 * @return The corresponding VO objects with recursive redefined reference.
@@ -204,7 +204,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Create a new {@link Node}.
-	 * 
+	 *
 	 * @param vo
 	 *            The new node definition.
 	 */
@@ -226,7 +226,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Update an existing {@link Node}.
-	 * 
+	 *
 	 * @param vo
 	 *            The new node definition to replace.
 	 */
@@ -310,12 +310,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * Delete an existing {@link Node} from its identifier. The whole cache of nodes is invalidated. The deletion can
 	 * only succeed if there are no related subscription. They need to be previously deleted. The administrator rights
 	 * are also checked.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier.
 	 * @throws Exception
 	 *             When the related plug-in implementation throws an exception during the deletion.
-	 * 
+	 *
 	 */
 	@DELETE
 	@Path("{id:service:.+:.+:.*}")
@@ -347,7 +347,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check status of each node.
-	 * 
+	 *
 	 * @param nodes
 	 *            The nodes to check.
 	 */
@@ -357,7 +357,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check status of a specific node instance. Only visible node from the current user is checked.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier to check.
 	 * @return the new status or <code>null</code> if undefined of not visible.
@@ -372,7 +372,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the status of a node.
-	 * 
+	 *
 	 * @param node
 	 *            The node to check.
 	 * @return the new status.
@@ -388,7 +388,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the status of a node. This method need to be public for the CGLIB proxying.
-	 * 
+	 *
 	 * @param node
 	 *            The node identifier.
 	 * @param parameters
@@ -431,7 +431,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the subscriptions of given nodes. The node my be checked if unknown.
-	 * 
+	 *
 	 * @param instances
 	 *            The nodes to check.
 	 */
@@ -448,7 +448,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Find subscriptions where some parameters are defined.
-	 * 
+	 *
 	 * @param id
 	 *            node identifier
 	 * @return subscriptions with redefined parameters
@@ -465,7 +465,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check status subscription.
-	 * 
+	 *
 	 * @param node
 	 *            node where we must check subscriptions
 	 * @param status
@@ -501,7 +501,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check status for a subscription.
-	 * 
+	 *
 	 * @param subscription
 	 *            Subscription entity.
 	 * @param parameters
@@ -552,7 +552,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Retrieve nodes status.
-	 * 
+	 *
 	 * @return Status statistics of all nodes.
 	 */
 	@GET
@@ -563,7 +563,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Retrieve a specific node status.
-	 * 
+	 *
 	 * @param id
 	 *            The node to check.
 	 * @return Status of a single node. Many be <code>null</code> when node is not found or when there is not known
@@ -579,7 +579,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Retrieve node statistics.
-	 * 
+	 *
 	 * @return Last known status of all nodes.
 	 */
 	@GET
@@ -609,7 +609,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Return a specific node visible for current user. The visibility is checked.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier.
 	 * @return The visible node. Never <code>null</code>.
@@ -625,7 +625,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Return a specific node details. The visibility is not checked, and the cache is not involved.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier.
 	 * @return The node. Cannot be <code>null</code>.
@@ -637,7 +637,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Return all visible nodes for current user. The hierarchy data is returned but without UI data.
-	 * 
+	 *
 	 * @param uriInfo
 	 *            pagination data.
 	 * @param criteria
@@ -669,7 +669,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Return all nodes with the hierarchy. Key is the identifier of the nodes.
-	 * 
+	 *
 	 * @return all nodes without UI data.
 	 */
 	@CacheResult(cacheName = "nodes")
@@ -680,12 +680,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the parameters that are being attached to this node : overrides, mandatory and ownerships.
-	 * 
+	 *
 	 * @param vo
 	 *            The parameterized object.
 	 * @return The corresponding and also validated {@link Parameter} entities.
 	 */
-	public List<Parameter> checkInputParameters(final AbstractParameteredVo vo) {
+	public List<Parameter> checkInputParameters(final AbstractParameterizedVo vo) {
 		final List<Parameter> acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
 				securityHelper.getLogin());
 
@@ -712,7 +712,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the related node can be updated by the current principal.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier to check.
 	 * @param checker
@@ -731,10 +731,10 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the related node can be updated by the current principal.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier to check.
-	 * @return the checked writable node.
+	 * @return The node the principal can write.
 	 */
 	public Node checkWritableNode(final String id) {
 		return checkNode(id, repository::findOneWritable);
@@ -742,10 +742,10 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	/**
 	 * Check the related node can be deleted by the current principal.
-	 * 
+	 *
 	 * @param id
 	 *            The node identifier to check.
-	 * @return the checked administerable node.
+	 * @return The node the principal can administer.
 	 */
 	public Node checkAdministerable(final String id) {
 		return checkNode(id, repository::findOneAdministerable);

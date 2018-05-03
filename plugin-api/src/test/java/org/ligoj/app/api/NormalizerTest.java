@@ -42,7 +42,7 @@ public class NormalizerTest extends AbstractDataGeneratorTest {
 	}
 
 	@Test
-	public void normalizDiacritic() {
+	public void normalizeDiacritic() {
 		Assertions.assertEquals("c", Normalizer.normalize("ç"));
 		Assertions.assertEquals("aaiconeeeuuaaiconeeeuu", Normalizer.normalize("àâîçôñéêèûùÂÀÎÇÔÑÊÉÈÛÙ"));
 	}

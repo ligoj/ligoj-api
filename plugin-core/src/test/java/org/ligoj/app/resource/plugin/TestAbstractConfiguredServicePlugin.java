@@ -27,7 +27,7 @@ import org.mockito.Mockito;
  */
 public class TestAbstractConfiguredServicePlugin {
 
-	private static interface NamedConfigurable
+	private interface NamedConfigurable
 			extends Configurable<PluginConfiguration, Integer>, INamableBean<Integer> {
 	}
 

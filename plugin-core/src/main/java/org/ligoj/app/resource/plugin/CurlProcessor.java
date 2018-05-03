@@ -241,7 +241,7 @@ public class CurlProcessor {
 	 * @return <code>true</code> if the process succeed.
 	 */
 	public boolean process(final List<CurlRequest> requests) {
-		return process(requests.toArray(new CurlRequest[requests.size()]));
+		return process(requests.toArray(new CurlRequest[0]));
 	}
 
 	/**
@@ -300,18 +300,13 @@ public class CurlProcessor {
 		}
 
 		// Execute the request
-		final CloseableHttpResponse response = httpClient.execute(httpRequest);
-		boolean result = false;
-		try {
+		try (CloseableHttpResponse response = httpClient.execute(httpRequest)) {
 			// Save the status
 			request.setStatus(response.getStatusLine().getStatusCode());
 
 			// Ask for the callback a flow control
-			result = ObjectUtils.defaultIfNull(request.getCallback(), callback).onResponse(request, response);
-		} finally {
-			IOUtils.closeQuietly(response);
+			return ObjectUtils.defaultIfNull(request.getCallback(), callback).onResponse(request, response);
 		}
-		return result;
 	}
 
 	/**

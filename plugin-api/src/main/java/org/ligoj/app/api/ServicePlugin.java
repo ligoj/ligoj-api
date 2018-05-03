@@ -23,7 +23,7 @@ public interface ServicePlugin extends FeaturePlugin {
 	 * @param remoteData
 	 *            When <code>true</code>, remote data will be also destroyed.
 	 * @throws Exception
-	 *             Delet failed. This error is caught at higher level.
+	 *             Deletion failed. This error is caught at higher level.
 	 */
 	default void delete(int subscription, boolean remoteData) throws Exception { // NOSONAR Everything could happen
 		// No custom data by default

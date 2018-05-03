@@ -346,7 +346,7 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Check the principal user can delete this delegate. 'canAdmin' flag must be enbaled.
+	 * Check the principal user can delete this delegate. 'canAdmin' flag must be enabled.
 	 * 
 	 * @param id
 	 *            the entity identifier.

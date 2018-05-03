@@ -5,14 +5,14 @@
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>parent</artifactId>
-		<version>2.3.0</version>
+		<version>2.3.1-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
 	<artifactId>plugin-core</artifactId>
 	<packaging>jar</packaging>
 	<name>Ligoj - Plugin Core</name>
-	<description>Plugin internal core compoents required to compile and test a plugin</description>
+	<description>Plugin internal core components required to compile and test a plugin</description>
 
 	<dependencies>
 		<dependency>
