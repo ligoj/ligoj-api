@@ -97,7 +97,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * {@link SubscriptionEditionVo} to JPA entity transformer.
-	 * 
+	 *
 	 * @param vo
 	 *            The object to convert.
 	 * @param project
@@ -118,7 +118,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Return non secured parameters values related to the subscription.The attached project is validated against the
 	 * current user to check it is visible. Secured parameters (even the encrypted ones) are not returned. The
 	 * visibility of this subscription is checked.
-	 * 
+	 *
 	 * @param id
 	 *            The subscription identifier.
 	 * @return secured associated parameters values. Key of returned map is the identifier of
@@ -128,12 +128,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@Path("{id:\\d+}")
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getNonSecuredParameters(@PathParam("id") final int id) {
-		return parameterValueResource.getNonSecuredSubscriptionParameters(checkVisibleSubscription(id).getId());
+		return parameterValueResource.getNonSecuredSubscriptionParameters(checkVisible(id).getId());
 	}
 
 	/**
 	 * Return tools specific configuration. Only non secured parameters are returned.
-	 * 
+	 *
 	 * @param id
 	 *            The subscription identifier.
 	 * @return tools specific configuration.
@@ -146,7 +146,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	public ConfigurationVo getConfiguration(@PathParam("id") final int id) throws Exception {
 
 		// Copy subscription details
-		final Subscription entity = checkVisibleSubscription(id);
+		final Subscription entity = checkVisible(id);
 		final ConfigurationVo vo = new ConfigurationVo();
 		vo.setNode(NodeResource.toVo(entity.getNode()));
 		vo.setParameters(getNonSecuredParameters(id));
@@ -166,7 +166,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Return all parameters values related to the subscription. The attached project is validated against the current
 	 * user to check it is visible. Beware, these parameters must not be returned to user, since clear encrypted
 	 * parameters are present.
-	 * 
+	 *
 	 * @param id
 	 *            The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
@@ -174,14 +174,14 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getParameters(final int id) {
-		checkVisibleSubscription(id);
+		checkVisible(id);
 		return getParametersNoCheck(id);
 	}
 
 	/**
 	 * Return all parameters values related to the subscription. The visibility of attached project is not checked in
 	 * this case. Secured (encrypted) parameters are decrypted.
-	 * 
+	 *
 	 * @param id
 	 *            The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
@@ -194,7 +194,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Create subscription.
-	 * 
+	 *
 	 * @param vo
 	 *            the subscription.
 	 * @return the created {@link Subscription}.
@@ -234,7 +234,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Delegates the creation to the hierarchy of the related plug-in, and starting from the related plug-in. <br>
 	 * Exception appearing there causes to roll-back the previous persists.
-	 * 
+	 *
 	 * @throws Exception
 	 *             When the link/create fails. Managed at upper level.
 	 */
@@ -265,7 +265,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Check the principal user can subscribe a project to the given visible node.
-	 * 
+	 *
 	 * @param node
 	 *            The node identifier to subscribe.
 	 * @return The found visible node. Never <code>null</code>.
@@ -284,7 +284,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Check mandatory parameters are provided.
-	 * 
+	 *
 	 * @param parameters
 	 *            The updated parameters to check.
 	 * @param acceptedParameters
@@ -316,7 +316,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Delete entity and cascaded associations : parameters, events then subscription. Note that remote data are not
 	 * deleted. Links are just destroyed.
-	 * 
+	 *
 	 * @param id
 	 *            the entity identifier.
 	 * @throws Exception
@@ -331,7 +331,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Delete entity and cascaded associations : parameters, events then subscription.
-	 * 
+	 *
 	 * @param id
 	 *            the entity identifier.
 	 * @param deleteRemoteData
@@ -343,7 +343,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@DELETE
 	public void delete(@PathParam("id") final int id, @PathParam("deleteRemoteData") final boolean deleteRemoteData)
 			throws Exception {
-		final Subscription entity = checkVisibleSubscription(id);
+		final Subscription entity = checkVisible(id);
 		checkManagedProject(entity.getProject().getId());
 
 		// Delete the events
@@ -375,7 +375,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Check the associated project is visible for current user.
-	 * 
+	 *
 	 * @param id
 	 *            Project's identifier.
 	 * @return the loaded project.
@@ -400,22 +400,9 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Check the given subscription is visible.
-	 * 
-	 * @param id
-	 *            Subscription identifier.
-	 * @return the loaded subscription.
-	 * @deprecated Use #checkVisible(Integer)
-	 */
-	@Deprecated(since = "2.3.0")
-	public Subscription checkVisibleSubscription(final int id) {
-		return checkVisible(id);
-	}
-
-	/**
 	 * Return all subscriptions and related nodes. Very light data are returned there since a lot of subscriptions
 	 * there. Parameters values are not fetch.
-	 * 
+	 *
 	 * @return Status of each subscription of each project and each node.
 	 */
 	@GET
@@ -520,7 +507,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Retrieve the last known status of subscriptions of given project .
-	 * 
+	 *
 	 * @param project
 	 *            project identifier
 	 * @return Status of each subscription of given project.
@@ -536,7 +523,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Get fresh status of given subscription. This fresh status is also stored in the data base. The project must be
 	 * visible to current user.
-	 * 
+	 *
 	 * @param id
 	 *            Node identifier
 	 * @return Status of each subscription of given project.
@@ -544,12 +531,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@Path("status/{id:\\d+}/refresh")
 	@GET
 	public SubscriptionStatusWithData refreshStatus(@PathParam("id") final int id) {
-		return refreshSubscription(checkVisibleSubscription(id));
+		return refreshSubscription(checkVisible(id));
 	}
 
 	/**
 	 * Get fresh status of a set of subscriptions. This a loop shortcut of the per-subscription call.
-	 * 
+	 *
 	 * @param ids
 	 *            Node identifiers
 	 * @return Status of each subscription of given project. Order is not guaranteed.

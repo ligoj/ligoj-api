@@ -3,6 +3,8 @@
  */
 package org.ligoj.app.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -23,7 +25,12 @@ import lombok.ToString;
 @Entity
 @Table(name = "LIGOJ_SUBSCRIPTION")
 @ToString(of = { "node", "project" }, callSuper = true)
-public class Subscription extends AbstractAudited<Integer> implements NodeScoped {
+public class Subscription extends AbstractAudited<Integer> implements NodeScoped, Serializable {
+
+	/**
+	 * SID
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The subscribed service.
