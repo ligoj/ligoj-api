@@ -18,12 +18,14 @@ public class SessionAuthCurlProcessorTest {
 	@Test
 	public void processFirstRequest() {
 		final CurlRequest request = new CurlRequest("", "", "");
-		Assertions.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
+		try (final CurlProcessor processor = new SessionAuthCurlProcessor("junit", "passwd") {
 			@Override
 			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
-		}.process(request));
+		}) {
+			Assertions.assertTrue(processor.process(request));
+		}
 		Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
 	}
 
@@ -34,12 +36,14 @@ public class SessionAuthCurlProcessorTest {
 	public void process() {
 		final CurlRequest request = new CurlRequest("", "", "");
 		request.counter = 1;
-		Assertions.assertTrue(new SessionAuthCurlProcessor("junit", "passwd") {
+		try (final CurlProcessor processor = new SessionAuthCurlProcessor("junit", "passwd") {
 			@Override
 			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
-		}.process(request));
+		}) {
+			Assertions.assertTrue(processor.process(request));
+		}
 		Assertions.assertTrue(request.getHeaders().isEmpty());
 	}
 

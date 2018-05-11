@@ -56,7 +56,7 @@ import lombok.extern.slf4j.Slf4j;
  * CURL processor.
  */
 @Slf4j
-public class CurlProcessor {
+public class CurlProcessor implements AutoCloseable {
 
 	/**
 	 * Proxy configuration constants
@@ -97,7 +97,7 @@ public class CurlProcessor {
 
 	/**
 	 * Prepare a processor with callback.
-	 * 
+	 *
 	 * @param callback
 	 *            Not <code>null</code> {@link HttpResponseCallback} used for each response.
 	 */
@@ -138,13 +138,14 @@ public class CurlProcessor {
 	/**
 	 * Close the connection.
 	 */
+	@Override
 	public void close() {
 		IOUtils.closeQuietly(httpClient);
 	}
 
 	/**
 	 * Execute a GET and return the content.
-	 * 
+	 *
 	 * @param url
 	 *            The GET URL.
 	 * @param headers
@@ -162,7 +163,7 @@ public class CurlProcessor {
 
 	/**
 	 * Execute the given requests.
-	 * 
+	 *
 	 * @param requests
 	 *            the request to proceed.
 	 * @return <code>true</code> if the process succeed.
@@ -185,7 +186,7 @@ public class CurlProcessor {
 
 	/**
 	 * Create a new processor, check the URL, and if failed, throw a {@link ValidationJsonException}
-	 * 
+	 *
 	 * @param url
 	 *            The URL to check.
 	 * @param propertyName
@@ -194,18 +195,14 @@ public class CurlProcessor {
 	 *            I18N key of the validation message.
 	 */
 	public static void validateAndClose(final String url, final String propertyName, final String errorText) {
-		final CurlProcessor curlProcessor = new CurlProcessor();
-		try {
+		try (final CurlProcessor curlProcessor = new CurlProcessor()) {
 			curlProcessor.validate(url, propertyName, errorText);
-		} finally {
-			curlProcessor.close();
 		}
-
 	}
 
 	/**
 	 * Check the URL, and if failed, throw a {@link ValidationJsonException}
-	 * 
+	 *
 	 * @param url
 	 *            The URL to check.
 	 * @param propertyName
@@ -219,7 +216,7 @@ public class CurlProcessor {
 
 	/**
 	 * Check the request, and if failed, throw a {@link ValidationJsonException}
-	 * 
+	 *
 	 * @param request
 	 *            The request to check.
 	 * @param propertyName
@@ -235,7 +232,7 @@ public class CurlProcessor {
 
 	/**
 	 * Execute the given requests. Cookies are kept along this execution and the next ones associated to this processor.
-	 * 
+	 *
 	 * @param requests
 	 *            the request to proceed.
 	 * @return <code>true</code> if the process succeed.
@@ -246,7 +243,7 @@ public class CurlProcessor {
 
 	/**
 	 * Process the given request.
-	 * 
+	 *
 	 * @param request
 	 *            The request to process.
 	 * @return <code>true</code> when the call succeed.
@@ -272,7 +269,7 @@ public class CurlProcessor {
 
 	/**
 	 * Call the HTTP method.
-	 * 
+	 *
 	 * @param request
 	 *            The request to process.
 	 * @param url
@@ -332,7 +329,7 @@ public class CurlProcessor {
 
 	/**
 	 * Add a header if not defined in <param>request</param>.
-	 * 
+	 *
 	 * @param request
 	 *            The user defined request.
 	 * @param httpRequest
@@ -373,7 +370,7 @@ public class CurlProcessor {
 
 	/**
 	 * Return a trusted TLS registry.
-	 * 
+	 *
 	 * @return a trusted TLS registry.
 	 */
 	public static Registry<ConnectionSocketFactory> newSslContext() {
@@ -382,7 +379,7 @@ public class CurlProcessor {
 
 	/**
 	 * Return a trusted SSL registry using the given protocol.
-	 * 
+	 *
 	 * @param protocol
 	 *            The SSL protocol.
 	 * @return A new trusted SSL registry using the given protocol.

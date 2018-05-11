@@ -39,7 +39,9 @@ public class CurlProcessorTest extends AbstractServerTest {
 		x509TrustManager.checkClientTrusted(null, null);
 		x509TrustManager.checkServerTrusted(null, null);
 		Assertions.assertEquals(0, x509TrustManager.getAcceptedIssuers().length);
-		Assertions.assertNotNull(new CurlProcessor().getHttpClient());
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			Assertions.assertNotNull(processor.getHttpClient());
+		}
 	}
 
 	@Test
@@ -55,9 +57,10 @@ public class CurlProcessorTest extends AbstractServerTest {
 				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
-		final CurlProcessor processor = new CurlProcessor();
-		final String downloadPage = processor.get("http://localhost:" + MOCK_PORT);
-		Assertions.assertEquals("CONTENT", downloadPage);
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			final String downloadPage = processor.get("http://localhost:" + MOCK_PORT);
+			Assertions.assertEquals("CONTENT", downloadPage);
+		}
 	}
 
 	@Test
@@ -81,10 +84,11 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 	@Test
 	public void testGetFailed() {
-		final CurlProcessor processor = new CurlProcessor();
 		final CurlRequest curlRequest = new CurlRequest(null, "http://localhost:" + MOCK_PORT);
 		curlRequest.setSaveResponse(true);
-		processor.process(curlRequest);
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			processor.process(curlRequest);
+		}
 		Assertions.assertNull(curlRequest.getResponse());
 
 		// Request has not been sent
@@ -97,10 +101,11 @@ public class CurlProcessorTest extends AbstractServerTest {
 				post(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
-		final CurlProcessor processor = new CurlProcessor();
 		final CurlRequest curlRequest = new CurlRequest("POST", "http://localhost:" + MOCK_PORT, "CONTENT");
 		curlRequest.setSaveResponse(true);
-		Assertions.assertTrue(processor.process(curlRequest));
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			Assertions.assertTrue(processor.process(curlRequest));
+		}
 		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
 		Assertions.assertEquals(200, curlRequest.getStatus());
 	}
@@ -147,7 +152,6 @@ public class CurlProcessorTest extends AbstractServerTest {
 		httpServer.start();
 
 		long start = System.currentTimeMillis();
-		final CurlProcessor processor = new CurlProcessor();
 
 		// Would succeed
 		final CurlRequest curlRequest1 = new CurlRequest("POST", "http://localhost:" + MOCK_PORT + "/success",
@@ -162,10 +166,12 @@ public class CurlProcessorTest extends AbstractServerTest {
 		curlRequest2.setSaveResponse(true);
 
 		// Process
-		Assertions.assertFalse(processor.process(curlRequest1, curlRequest2));
-		Assertions.assertEquals("CONTENT", curlRequest1.getResponse());
-		Assertions.assertNull(curlRequest2.getResponse());
-		Assertions.assertTrue(System.currentTimeMillis() - start <= 1000);
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			Assertions.assertFalse(processor.process(curlRequest1, curlRequest2));
+			Assertions.assertEquals("CONTENT", curlRequest1.getResponse());
+			Assertions.assertNull(curlRequest2.getResponse());
+			Assertions.assertTrue(System.currentTimeMillis() - start <= 1000);
+		}
 	}
 
 	@Test
@@ -174,8 +180,10 @@ public class CurlProcessorTest extends AbstractServerTest {
 				get(urlPathEqualTo("/")).willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
-		final CurlProcessor processor = new CurlProcessor();
-		Assertions.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "Content-Type:text/html"));
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			Assertions.assertEquals("CONTENT",
+					processor.get("http://localhost:" + MOCK_PORT, "Content-Type:text/html"));
+		}
 	}
 
 	@Test
@@ -184,8 +192,9 @@ public class CurlProcessorTest extends AbstractServerTest {
 				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
-		final CurlProcessor processor = new CurlProcessor();
-		Assertions.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "ACCEPT-charset:utf-8"));
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			Assertions.assertEquals("CONTENT", processor.get("http://localhost:" + MOCK_PORT, "ACCEPT-charset:utf-8"));
+		}
 	}
 
 	@Test
@@ -194,9 +203,10 @@ public class CurlProcessorTest extends AbstractServerTest {
 				.withHeader("Location", "http://www.google.fr")));
 		httpServer.start();
 
-		final CurlProcessor processor = new CurlProcessor();
-		final String downloadPage = processor.get("http://localhost:" + MOCK_PORT);
-		Assertions.assertNull(downloadPage);
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			final String downloadPage = processor.get("http://localhost:" + MOCK_PORT);
+			Assertions.assertNull(downloadPage);
+		}
 	}
 
 	@Test
@@ -206,42 +216,46 @@ public class CurlProcessorTest extends AbstractServerTest {
 		httpServer.start();
 
 		final List<CurlRequest> requests = new ArrayList<>();
-
-		final CurlProcessor processor = new CurlProcessor();
 		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
 		curlRequest.setSaveResponse(true);
 		requests.add(curlRequest);
 		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
-		Assertions.assertTrue(processor.process(requests));
-		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
 
-		// Continue the execution
-		processor.setCallback(new DefaultHttpResponseCallback());
-		Assertions.assertTrue(processor.process(curlRequest));
-		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			Assertions.assertTrue(processor.process(requests));
+			Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+
+			// Continue the execution
+			processor.setCallback(new DefaultHttpResponseCallback());
+			Assertions.assertTrue(processor.process(curlRequest));
+			Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+		}
 	}
 
 	@Test
 	public void processReplay() {
-		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs(Scenario.STARTED).willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)).willSetStateTo("second-attempt"));
-		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs("second-attempt").willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs(Scenario.STARTED)
+				.willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)).willSetStateTo("second-attempt"));
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs("second-attempt")
+				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final List<CurlRequest> requests = new ArrayList<>();
 
-		final CurlProcessor processor = new CurlProcessor();
-		processor.setReplay(r -> r.getStatus() == 401);
-		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
-		curlRequest.setSaveResponse(true);
-		requests.add(curlRequest);
-		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
-		Assertions.assertTrue(processor.process(requests));
-		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			processor.setReplay(r -> r.getStatus() == 401);
+			final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+			curlRequest.setSaveResponse(true);
+			requests.add(curlRequest);
+			requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+			Assertions.assertTrue(processor.process(requests));
+			Assertions.assertEquals("CONTENT", curlRequest.getResponse());
 
-		// Continue the execution
-		processor.setCallback(new DefaultHttpResponseCallback());
-		Assertions.assertTrue(processor.process(curlRequest));
-		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+			// Continue the execution
+			processor.setCallback(new DefaultHttpResponseCallback());
+			Assertions.assertTrue(processor.process(curlRequest));
+			Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+		}
 	}
 
 	/**
@@ -249,19 +263,22 @@ public class CurlProcessorTest extends AbstractServerTest {
 	 */
 	@Test
 	public void processReplayRejected() {
-		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs(Scenario.STARTED).willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)).willSetStateTo("second-attempt"));
-		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs("second-attempt").willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs(Scenario.STARTED)
+				.willReturn(aResponse().withStatus(HttpStatus.SC_UNAUTHORIZED)).willSetStateTo("second-attempt"));
+		httpServer.stubFor(get(urlPathEqualTo("/")).inScenario("replay").whenScenarioStateIs("second-attempt")
+				.willReturn(aResponse().withStatus(HttpStatus.SC_OK).withBody("CONTENT")));
 		httpServer.start();
 
 		final List<CurlRequest> requests = new ArrayList<>();
 
-		final CurlProcessor processor = new CurlProcessor();
-		processor.setReplay(r -> false);
-		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
-		curlRequest.setSaveResponse(true);
-		requests.add(curlRequest);
-		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
-		Assertions.assertFalse(processor.process(requests));
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			processor.setReplay(r -> false);
+			final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+			curlRequest.setSaveResponse(true);
+			requests.add(curlRequest);
+			requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+			Assertions.assertFalse(processor.process(requests));
+		}
 	}
 
 	/**
@@ -274,13 +291,14 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 		final List<CurlRequest> requests = new ArrayList<>();
 
-		final CurlProcessor processor = new CurlProcessor();
-		processor.setReplay(r -> true);
-		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
-		curlRequest.setSaveResponse(true);
-		requests.add(curlRequest);
-		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
-		Assertions.assertFalse(processor.process(requests));
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			processor.setReplay(r -> true);
+			final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+			curlRequest.setSaveResponse(true);
+			requests.add(curlRequest);
+			requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+			Assertions.assertFalse(processor.process(requests));
+		}
 	}
 
 	@Test
@@ -291,19 +309,20 @@ public class CurlProcessorTest extends AbstractServerTest {
 
 		final List<CurlRequest> requests = new ArrayList<>();
 
-		final CurlProcessor processor = new CurlProcessor();
-		final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
-		curlRequest.setSaveResponse(true);
-		requests.add(curlRequest);
-		requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
-		Assertions.assertTrue(processor.process(requests));
-		Assertions.assertEquals("CONTENT", curlRequest.getResponse());
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			final CurlRequest curlRequest = new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null);
+			curlRequest.setSaveResponse(true);
+			requests.add(curlRequest);
+			requests.add(new CurlRequest("GET", "http://localhost:" + MOCK_PORT, null));
+			Assertions.assertTrue(processor.process(requests));
+			Assertions.assertEquals("CONTENT", curlRequest.getResponse());
 
-		// Continue the execution
-		processor.setCallback((req, resp) -> {
-			throw new IllegalStateException();
-		});
-		Assertions.assertFalse(processor.process(curlRequest));
+			// Continue the execution
+			processor.setCallback((req, resp) -> {
+				throw new IllegalStateException();
+			});
+			Assertions.assertFalse(processor.process(curlRequest));
+		}
 	}
 
 	@Test
@@ -322,12 +341,13 @@ public class CurlProcessorTest extends AbstractServerTest {
 		httpServer.start();
 
 		// launch request
-		final CurlProcessor processor = new CurlProcessor();
-		final String downloadPage = processor.get("http://localhost:" + PROXY_PORT);
-		Assertions.assertEquals("CONTENT", downloadPage);
-		// clean proxy configuration
-		System.clearProperty("https.proxyHost");
-		System.clearProperty("https.proxyPort");
-		proxyServer.stop();
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			final String downloadPage = processor.get("http://localhost:" + PROXY_PORT);
+			Assertions.assertEquals("CONTENT", downloadPage);
+			// clean proxy configuration
+			System.clearProperty("https.proxyHost");
+			System.clearProperty("https.proxyPort");
+			proxyServer.stop();
+		}
 	}
 }

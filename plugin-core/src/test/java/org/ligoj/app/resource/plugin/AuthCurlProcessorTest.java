@@ -18,17 +18,18 @@ public class AuthCurlProcessorTest {
 	@Test
 	public void process() {
 		CurlRequest request = new CurlRequest("", "", "");
-		final CurlProcessor processor = new AuthCurlProcessor("junit", "passwd") {
+		try (final CurlProcessor processor = new AuthCurlProcessor("junit", "passwd") {
 			@Override
 			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
-		};
-		processor.process(request);
-		Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
-		request = new CurlRequest("", "", "");
-		processor.process(request);
-		Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
+		}) {
+			processor.process(request);
+			Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
+			request = new CurlRequest("", "", "");
+			processor.process(request);
+			Assertions.assertEquals("Basic anVuaXQ6cGFzc3dk", request.getHeaders().get(AUTH.WWW_AUTH_RESP));
+		}
 	}
 
 	/**
@@ -37,14 +38,15 @@ public class AuthCurlProcessorTest {
 	@Test
 	public void processNoUser() {
 		final CurlRequest request = new CurlRequest("", "", "");
-		final CurlProcessor processor = new AuthCurlProcessor("", "any") {
+		try (final CurlProcessor processor = new AuthCurlProcessor("", "any") {
 			@Override
 			protected boolean call(final CurlRequest request, final String url) {
 				return true;
 			}
-		};
-		processor.process(request);
-		Assertions.assertFalse(request.getHeaders().containsKey(AUTH.WWW_AUTH_RESP));
+		}) {
+			processor.process(request);
+			Assertions.assertFalse(request.getHeaders().containsKey(AUTH.WWW_AUTH_RESP));
+		}
 	}
 
 }

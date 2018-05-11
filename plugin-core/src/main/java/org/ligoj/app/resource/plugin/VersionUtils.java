@@ -26,7 +26,7 @@ public class VersionUtils {
 
 	/**
 	 * Return the lasted version for the given JIRA project.
-	 * 
+	 *
 	 * @param serverUrl
 	 *            The server base URL like "http://jira.codehaus.org"
 	 * @param project
@@ -37,29 +37,30 @@ public class VersionUtils {
 	 */
 	public AtlassianVersion getLatestReleasedVersion(final String serverUrl, final String project) throws IOException {
 		// Get the download index
-		final CurlProcessor processor = new CurlProcessor();
-		final String versionsAsJson = ObjectUtils.defaultIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"),
-				"[]");
-		final List<AtlassianVersion> versionsRaw = new ObjectMapper().readValue(versionsAsJson,
-				new TypeReference<List<AtlassianVersion>>() {
-					// Nothing to override
-				});
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			final String versionsAsJson = ObjectUtils
+					.defaultIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"), "[]");
+			final List<AtlassianVersion> versionsRaw = new ObjectMapper().readValue(versionsAsJson,
+					new TypeReference<List<AtlassianVersion>>() {
+						// Nothing to override
+					});
 
-		// Find the last download link
-		AtlassianVersion lastVersion = null;
-		for (final AtlassianVersion jiraVersion : versionsRaw) {
-			if (isValidVersion(lastVersion, jiraVersion)) {
-				lastVersion = jiraVersion;
+			// Find the last download link
+			AtlassianVersion lastVersion = null;
+			for (final AtlassianVersion jiraVersion : versionsRaw) {
+				if (isValidVersion(lastVersion, jiraVersion)) {
+					lastVersion = jiraVersion;
+				}
 			}
-		}
 
-		// Return the last read version
-		return lastVersion;
+			// Return the last read version
+			return lastVersion;
+		}
 	}
 
 	/**
 	 * Check the given version is valid and greater/newer than the last one.
-	 * 
+	 *
 	 * @param lastVersion
 	 *            The last validated version.
 	 * @param jiraVersion
@@ -78,7 +79,7 @@ public class VersionUtils {
 
 	/**
 	 * Return the lasted version name for the given Jira project.
-	 * 
+	 *
 	 * @param serverUrl
 	 *            The server base URL like "http://jira.codehaus.org"
 	 * @param project
