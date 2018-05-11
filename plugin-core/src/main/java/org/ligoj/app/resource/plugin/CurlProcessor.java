@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.resource.plugin;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
@@ -19,7 +20,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.ws.rs.HttpMethod;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpEntityEnclosingRequest;
@@ -140,7 +140,11 @@ public class CurlProcessor implements AutoCloseable {
 	 */
 	@Override
 	public void close() {
-		IOUtils.closeQuietly(httpClient);
+		try {
+			httpClient.close();
+		} catch (IOException e) {
+			// Ignore
+		}
 	}
 
 	/**
@@ -156,9 +160,7 @@ public class CurlProcessor implements AutoCloseable {
 		final CurlRequest curlRequest = new CurlRequest(HttpMethod.GET, url, null, headers);
 		curlRequest.setSaveResponse(true);
 		process(curlRequest);
-		final String response = curlRequest.getResponse();
-		close();
-		return response;
+		return curlRequest.getResponse();
 	}
 
 	/**

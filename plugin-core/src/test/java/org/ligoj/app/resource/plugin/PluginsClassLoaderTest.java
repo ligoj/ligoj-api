@@ -103,12 +103,9 @@ public class PluginsClassLoaderTest {
 
 	@Test
 	public void getInstance() {
-		ThreadClassLoaderScope scope = null;
-		try {
-			scope = new ThreadClassLoaderScope(new URLClassLoader(new URL[0], Mockito.mock(PluginsClassLoader.class)));
+		try (ThreadClassLoaderScope scope = new ThreadClassLoaderScope(
+				new URLClassLoader(new URL[0], Mockito.mock(PluginsClassLoader.class)))) {
 			Assertions.assertNotNull(PluginsClassLoader.getInstance());
-		} finally {
-			IOUtils.closeQuietly(scope);
 		}
 	}
 
@@ -163,7 +160,7 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
-	public void copyFailed() {
+	public void copyFailed() throws IOException {
 		final AtomicReference<PluginsClassLoader> refError = new AtomicReference<>();
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
@@ -178,8 +175,8 @@ public class PluginsClassLoaderTest {
 				classLoader.copyExportedResources("any", null, null);
 			});
 		} finally {
-			IOUtils.closeQuietly(refError.get());
 			System.clearProperty("ligoj.home");
+			refError.get().close();
 		}
 	}
 
@@ -196,9 +193,9 @@ public class PluginsClassLoaderTest {
 		Assertions.assertTrue(pluginTestUrl.getFile().endsWith("plugin-foo-1.0.1.jar"));
 
 		// Check the JAR is readable
-		final InputStream pluginTestUrlStream = pluginTestUrl.openStream();
-		Assertions.assertNotNull(pluginTestUrlStream);
-		IOUtils.closeQuietly(pluginTestUrlStream);
+		try (InputStream pluginTestUrlStream = pluginTestUrl.openStream()) {
+			Assertions.assertNotNull(pluginTestUrlStream);
+		}
 
 		// Check the content of the plug-in is resolvable from the class loader
 		IOUtils.toString(classLoader.getResourceAsStream("home-test/.ligoj/plugins/plugin-foo-1.0.1.jar"),
