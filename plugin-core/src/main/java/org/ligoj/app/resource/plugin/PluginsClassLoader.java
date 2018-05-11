@@ -24,7 +24,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.PluginException;
@@ -83,7 +82,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Initialize the plug-in {@link URLClassLoader} and the related directories.
-	 * 
+	 *
 	 * @throws IOException
 	 *             exception when reading plug-ins directory
 	 */
@@ -138,7 +137,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Return the plug-in class loader from the current class loader.
-	 * 
+	 *
 	 * @return the closest {@link PluginsClassLoader} instance from the current thread's {@link ClassLoader}. May be
 	 *         <code>null</code>.
 	 */
@@ -148,7 +147,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Return the plug-in class loader from the given class loader's hierarchy.
-	 * 
+	 *
 	 * @param cl
 	 *            The {@link ClassLoader} to inspect.
 	 * @return the closest {@link PluginsClassLoader} instance from the current thread's {@link ClassLoader}. May be
@@ -172,7 +171,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Copy resources needed to be exported from the JAR plug-in to the home.
-	 * 
+	 *
 	 * @param plugin
 	 *            The plug-in identifier.
 	 * @param uri
@@ -181,16 +180,12 @@ public class PluginsClassLoader extends URLClassLoader {
 	 *            The target plug-in file.
 	 */
 	protected void copyExportedResources(final String plugin, final URI uri, final Path pluginFile) throws IOException {
-		FileSystem fileSystem = null;
-		try {
-			fileSystem = FileSystems.newFileSystem(pluginFile, this);
+		try (final FileSystem fileSystem = FileSystems.newFileSystem(pluginFile, this)) {
 			final Path export = fileSystem.getPath("/" + EXPORT_DIR);
 			if (Files.exists(export)) {
 				final Path targetExport = getHomeDirectory().resolve(EXPORT_DIR);
 				Files.walk(export).forEach(from -> copyExportedResource(plugin, targetExport, export, from));
 			}
-		} finally {
-			IOUtils.closeQuietly(fileSystem);
 		}
 		addURL(uri.toURL());
 	}
@@ -249,7 +244,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Convert a version to a comparable string and following the semver specification. Maximum 4 version ranges are
 	 * accepted.
-	 * 
+	 *
 	 * @param version
 	 *            The version string to convert. May be <code>null</code>
 	 * @return The given version to be comparable with another version. Handle the 'SNAPSHOT' case considered has oldest
@@ -268,7 +263,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Compute the right home directory for the application from the system properties.
-	 * 
+	 *
 	 * @return The computed home directory.
 	 */
 	protected Path computeHome() {
@@ -290,7 +285,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Get a file reference for a specific subscription. This file will use the subscription as a context to isolate it,
 	 * and using the related node and the subscription's identifier. The parent directories are created as needed.
-	 * 
+	 *
 	 * @param subscription
 	 *            The subscription used a context of the file to create.
 	 * @param fragments
@@ -307,7 +302,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Get a file reference for a specific node. This file will use the node as a context to isolate it. The parent
 	 * directories are created as needed.
-	 * 
+	 *
 	 * @param node
 	 *            The related node.
 	 * @return The {@link Path} reference.
@@ -324,7 +319,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the home directory. The intermediate directories are also
 	 * created.
-	 * 
+	 *
 	 * @param fragments
 	 *            The file fragments within the home directory.
 	 * @return The {@link Path} reference.
@@ -338,7 +333,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Get a file reference inside the given parent path. The parent directories are created as needed.
-	 * 
+	 *
 	 * @param parent
 	 *            The parent path.
 	 * @param fragments
@@ -359,7 +354,7 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
-	 * 
+	 *
 	 * @param node
 	 *            The related node.
 	 * @return The computed sibling path.
@@ -372,10 +367,11 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
-	 * 
+	 *
 	 * @param node
 	 *            The related node.
-	 * @param fragments The computed sibling path (updated).
+	 * @param fragments
+	 *            The computed sibling path (updated).
 	 */
 	private void toFragments(final Node node, List<String> fragments) {
 		if (node.isRefining()) {
@@ -391,7 +387,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	 * <li>node = 'service:id:ldap', fragment = 'ldap'</li>
 	 * <li>node = 'service:id', fragment = 'service:id'</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param node
 	 *            The node to convert to a simple fragment String.
 	 * @return The simple fragment.

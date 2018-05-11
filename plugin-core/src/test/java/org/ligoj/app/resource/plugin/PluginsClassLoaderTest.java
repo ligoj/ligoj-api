@@ -32,58 +32,56 @@ public class PluginsClassLoaderTest {
 
 	@BeforeEach
 	public void cleanHome() throws IOException {
-		FileUtils.deleteDirectory(
-				new File(new File(USER_HOME_DIRECTORY, PluginsClassLoader.HOME_DIR_FOLDER), PluginsClassLoader.EXPORT_DIR));
+		FileUtils.deleteDirectory(new File(new File(USER_HOME_DIRECTORY, PluginsClassLoader.HOME_DIR_FOLDER),
+				PluginsClassLoader.EXPORT_DIR));
 	}
 
 	@Test
 	public void standardHome() throws Exception {
-		PluginsClassLoader classLoader = null;
 		final String oldHome = System.getProperty("user.home");
 		try {
 			System.setProperty("user.home", USER_HOME_DIRECTORY);
-			classLoader = checkClassLoader();
+			try (PluginsClassLoader classLoader = checkClassLoader()) {
+				// Nothing to do
+			}
 		} finally {
 			System.setProperty("user.home", oldHome);
-			IOUtils.closeQuietly(classLoader);
 		}
 	}
 
 	@Test
 	public void safeMode() throws Exception {
-		PluginsClassLoader classLoader = null;
 		final String old = System.getProperty("app.safe.mode");
 		try {
 			System.setProperty("app.safe.mode", "true");
-			classLoader = new PluginsClassLoader();
+			try (PluginsClassLoader classLoader = checkClassLoader()) {
+				Assertions.assertTrue(classLoader.isSafeMode());
 
-			Assertions.assertTrue(classLoader.isSafeMode());
+				// Check the home is in the class-path
+				final URL homeUrl = classLoader.getURLs()[0];
+				Assertions.assertTrue(homeUrl.getFile().endsWith("/"));
 
-			// Check the home is in the class-path
-			final URL homeUrl = classLoader.getURLs()[0];
-			Assertions.assertTrue(homeUrl.getFile().endsWith("/"));
-
-			// Check the plug-in is in the class-path
-			Assertions.assertEquals(1, classLoader.getURLs().length);
+				// Check the plug-in is in the class-path
+				Assertions.assertEquals(1, classLoader.getURLs().length);
+			}
 		} finally {
 			if (old == null) {
 				System.clearProperty("app.safe.mode");
 			} else {
 				System.setProperty("app.safe.mode", old);
 			}
-			IOUtils.closeQuietly(classLoader);
 		}
 	}
 
 	@Test
 	public void forcedHome() throws Exception {
-		PluginsClassLoader classLoader = null;
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
-			classLoader = checkClassLoader();
+			try (PluginsClassLoader classLoader = checkClassLoader()) {
+				// Nothing to do
+			}
 		} finally {
 			System.clearProperty("ligoj.home");
-			IOUtils.closeQuietly(classLoader);
 		}
 	}
 
@@ -98,7 +96,8 @@ public class PluginsClassLoaderTest {
 		Assertions.assertEquals("Z0000000Z0000000Z0000000Z0000000", PluginsClassLoader.toExtendedVersion(""));
 		Assertions.assertEquals("Z0000001Z0000000Z0000000Z0000000", PluginsClassLoader.toExtendedVersion("1.0"));
 		Assertions.assertEquals("Z0000001Z0000002Z0000003Z0000004", PluginsClassLoader.toExtendedVersion("1.2.3.4"));
-		Assertions.assertEquals("Z0000012Z0000034Z0000056Z0000789", PluginsClassLoader.toExtendedVersion("12.34.56.789"));
+		Assertions.assertEquals("Z0000012Z0000034Z0000056Z0000789",
+				PluginsClassLoader.toExtendedVersion("12.34.56.789"));
 		Assertions.assertEquals("Z0000012Z000003bZ000005AZ0000000", PluginsClassLoader.toExtendedVersion("12.3b.5A"));
 	}
 
@@ -115,39 +114,36 @@ public class PluginsClassLoaderTest {
 
 	@Test
 	public void forcedHomeTwice() throws Exception {
-		PluginsClassLoader classLoader = null;
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
-			classLoader = checkClassLoader();
-			classLoader = checkClassLoader();
-			Assertions.assertNotNull(classLoader.getHomeDirectory());
-			Assertions.assertNotNull(classLoader.getPluginDirectory());
+			try (PluginsClassLoader classLoader = checkClassLoader()) {
+				Assertions.assertNotNull(classLoader.getHomeDirectory());
+				Assertions.assertNotNull(classLoader.getPluginDirectory());
+			}
 		} finally {
 			System.clearProperty("ligoj.home");
-			IOUtils.closeQuietly(classLoader);
 		}
 	}
 
 	@Test
 	public void toFile() throws Exception {
-		PluginsClassLoader classLoader = null;
+		final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/42/foo/bar.log");
+		final File subscriptionParent = new File(USER_HOME_DIRECTORY, ".ligoj/service-id");
+		FileUtils.deleteQuietly(subscriptionParent);
+		Assertions.assertFalse(subscriptionParent.exists());
+		Assertions.assertFalse(file.exists());
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
-			final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/42/foo/bar.log");
-			final File subscriptionParent = new File(USER_HOME_DIRECTORY, ".ligoj/service-id");
-			FileUtils.deleteQuietly(subscriptionParent);
-			Assertions.assertFalse(subscriptionParent.exists());
-			Assertions.assertFalse(file.exists());
-			classLoader = checkClassLoader();
-			final Subscription subscription = newSubscription();
-			final File cfile = classLoader.toPath(subscription, "foo", "bar.log").toFile();
-			Assertions.assertTrue(subscriptionParent.exists());
-			Assertions.assertTrue(cfile.getParentFile().exists());
-			Assertions.assertTrue(file.getParentFile().exists());
+			try (PluginsClassLoader classLoader = checkClassLoader()) {
+				final Subscription subscription = newSubscription();
+				final File cfile = classLoader.toPath(subscription, "foo", "bar.log").toFile();
+				Assertions.assertTrue(subscriptionParent.exists());
+				Assertions.assertTrue(cfile.getParentFile().exists());
+				Assertions.assertTrue(file.getParentFile().exists());
+			}
 			Assertions.assertFalse(file.exists());
 		} finally {
 			System.clearProperty("ligoj.home");
-			IOUtils.closeQuietly(classLoader);
 		}
 	}
 
@@ -205,15 +201,18 @@ public class PluginsClassLoaderTest {
 		IOUtils.closeQuietly(pluginTestUrlStream);
 
 		// Check the content of the plug-in is resolvable from the class loader
-		IOUtils.toString(classLoader.getResourceAsStream("home-test/.ligoj/plugins/plugin-foo-1.0.1.jar"), StandardCharsets.UTF_8.name());
-		Assertions.assertEquals("FOO", IOUtils.toString(classLoader.getResourceAsStream("plugin-foo.txt"), StandardCharsets.UTF_8.name()));
+		IOUtils.toString(classLoader.getResourceAsStream("home-test/.ligoj/plugins/plugin-foo-1.0.1.jar"),
+				StandardCharsets.UTF_8.name());
+		Assertions.assertEquals("FOO",
+				IOUtils.toString(classLoader.getResourceAsStream("plugin-foo.txt"), StandardCharsets.UTF_8.name()));
 
 		final File export = new File(USER_HOME_DIRECTORY + "/.ligoj/export");
 		Assertions.assertTrue(export.exists());
 		Assertions.assertTrue(export.isDirectory());
 		Assertions.assertTrue(new File(export, "export.txt").exists());
 		Assertions.assertTrue(new File(export, "export.txt").isFile());
-		Assertions.assertEquals("EXPORT", FileUtils.readFileToString(new File(export, "export.txt"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("EXPORT",
+				FileUtils.readFileToString(new File(export, "export.txt"), StandardCharsets.UTF_8.name()));
 		return classLoader;
 	}
 }
