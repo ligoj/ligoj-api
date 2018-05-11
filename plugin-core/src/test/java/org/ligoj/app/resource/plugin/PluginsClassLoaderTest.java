@@ -54,7 +54,7 @@ public class PluginsClassLoaderTest {
 		final String old = System.getProperty("app.safe.mode");
 		try {
 			System.setProperty("app.safe.mode", "true");
-			try (PluginsClassLoader classLoader = checkClassLoader()) {
+			try (PluginsClassLoader classLoader = new PluginsClassLoader()) {
 				Assertions.assertTrue(classLoader.isSafeMode());
 
 				// Check the home is in the class-path
@@ -162,22 +162,22 @@ public class PluginsClassLoaderTest {
 	@Test
 	public void copyFailed() throws IOException {
 		final AtomicReference<PluginsClassLoader> refError = new AtomicReference<>();
-		try {
-			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
-			Assertions.assertThrows(PluginException.class, () -> {
-				final PluginsClassLoader classLoader = new PluginsClassLoader() {
+		Assertions.assertThrows(PluginException.class, () -> {
+			try {
+				System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
+				try (PluginsClassLoader classLoader = new PluginsClassLoader() {
 					@Override
 					protected void copy(final Path from, final Path dest) throws IOException {
 						throw new IOException();
 					}
-				};
-				refError.set(classLoader);
-				classLoader.copyExportedResources("any", null, null);
-			});
-		} finally {
-			System.clearProperty("ligoj.home");
-			refError.get().close();
-		}
+				}) {
+					classLoader.copyExportedResources("any", null, null);
+				}
+			} finally {
+				System.clearProperty("ligoj.home");
+				refError.get().close();
+			}
+		});
 	}
 
 	private PluginsClassLoader checkClassLoader() throws IOException {

@@ -8,15 +8,18 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static com.github.tomakehurst.wiremock.client.WireMock.post;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlPathEqualTo;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.http.HttpStatus;
+import org.apache.http.impl.client.CloseableHttpClient;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.AbstractServerTest;
 import org.ligoj.app.MatcherUtil;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.mockito.Mockito;
 
 import com.github.tomakehurst.wiremock.WireMockServer;
 import com.github.tomakehurst.wiremock.client.WireMock;
@@ -350,4 +353,26 @@ public class CurlProcessorTest extends AbstractServerTest {
 			proxyServer.stop();
 		}
 	}
+
+	@Test
+	public void closeTwice() {
+		try (final CurlProcessor processor = new CurlProcessor()) {
+			processor.close();
+		}
+	}
+
+	@Test
+	public void closeErrorTwice() throws IOException {
+		final CloseableHttpClient mock = Mockito.mock(CloseableHttpClient.class);
+		Mockito.doThrow(new IOException()).when(mock).close();
+		try (final CurlProcessor processor = new CurlProcessor() {
+			@Override
+			public CloseableHttpClient getHttpClient() {
+				return mock;
+			}
+		}) {
+			processor.close();
+		}
+	}
+
 }
