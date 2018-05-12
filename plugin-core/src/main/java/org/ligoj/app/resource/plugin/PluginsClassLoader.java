@@ -178,9 +178,11 @@ public class PluginsClassLoader extends URLClassLoader {
 	 *            The Source URI.
 	 * @param pluginFile
 	 *            The target plug-in file.
+	 * @throws IOException
+	 *             When plug-in file cannot be read.
 	 */
 	protected void copyExportedResources(final String plugin, final URI uri, final Path pluginFile) throws IOException {
-		try (final FileSystem fileSystem = FileSystems.newFileSystem(pluginFile, this)) {
+		try (FileSystem fileSystem = FileSystems.newFileSystem(pluginFile, this)) {
 			final Path export = fileSystem.getPath("/" + EXPORT_DIR);
 			if (Files.exists(export)) {
 				final Path targetExport = getHomeDirectory().resolve(EXPORT_DIR);
@@ -208,6 +210,13 @@ public class PluginsClassLoader extends URLClassLoader {
 
 	/**
 	 * Copy a resource needed to be exported from the JAR plug-in to the home.
+	 *
+	 * @param from
+	 *            The source file to the destination file. Directories are not supported.
+	 * @param dest
+	 *            The destination file.
+	 * @throws IOException
+	 *             When plug-in file cannot be copied.
 	 */
 	protected void copy(final Path from, final Path dest) throws IOException {
 		if (Files.isDirectory(from)) {

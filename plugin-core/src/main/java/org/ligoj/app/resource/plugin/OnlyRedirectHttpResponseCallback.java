@@ -25,9 +25,11 @@ public class OnlyRedirectHttpResponseCallback extends DefaultHttpResponseCallbac
 
 	/**
 	 * Indicate the location is accepted.
+	 * @param location The location to check.
+	 * @return <code>true</code> when location is accepted.
 	 */
 	protected boolean acceptLocation(final String location) {
-		// Accept all locations by default
+		// Accept all not null locations by default
 		return location != null;
 	}
 

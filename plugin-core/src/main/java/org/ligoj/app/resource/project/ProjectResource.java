@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.resource.project;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -87,7 +88,7 @@ public class ProjectResource {
 
 	/**
 	 * Converter from {@link Project} to {@link ProjectVo} with the associated subscriptions.
-	 * 
+	 *
 	 * @param project
 	 *            Entity to convert.
 	 * @return The project description with subscriptions.
@@ -113,7 +114,7 @@ public class ProjectResource {
 
 	/**
 	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription count.
-	 * 
+	 *
 	 * @param resultset
 	 *            Entity to convert and the associated subscription count.
 	 * @return The project description with subscription counter.
@@ -126,7 +127,7 @@ public class ProjectResource {
 
 	/**
 	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription count.
-	 * 
+	 *
 	 * @param entity
 	 *            Entity to convert.
 	 * @return The project description without subscription counter.
@@ -156,7 +157,7 @@ public class ProjectResource {
 
 	/**
 	 * Retrieve all project with pagination, and filtered. A visible project is attached to a visible group.
-	 * 
+	 *
 	 * @param uriInfo
 	 *            pagination data.
 	 * @param criteria
@@ -175,7 +176,7 @@ public class ProjectResource {
 
 	/**
 	 * Return a project with all subscription parameters and their status.
-	 * 
+	 *
 	 * @param id
 	 *            Project identifier.
 	 * @return Found element. Never <tt>null</tt>.
@@ -189,7 +190,7 @@ public class ProjectResource {
 	/**
 	 * Return a project with all subscription parameters and their status. The security is checked regarding the current
 	 * user.
-	 * 
+	 *
 	 * @param pkey
 	 *            Project pkey.
 	 * @return Found element. May not be <tt>null</tt>.
@@ -204,7 +205,7 @@ public class ProjectResource {
 
 	/**
 	 * Create project. Should be protected with RBAC.
-	 * 
+	 *
 	 * @param vo
 	 *            the object to create.
 	 * @return the entity's identifier.
@@ -216,7 +217,7 @@ public class ProjectResource {
 
 	/**
 	 * Update project. Should be protected with RBAC.
-	 * 
+	 *
 	 * @param vo
 	 *            the object to save.
 	 */
@@ -236,9 +237,11 @@ public class ProjectResource {
 
 	/**
 	 * Delete entity. Should be protected with RBAC.
-	 * 
+	 *
 	 * @param id
 	 *            The entity identifier.
+	 * @throws Exception
+	 *             When the delete fails. Managed at JAX-RS level.
 	 */
 	@DELETE
 	@Path("{id:\\d+}")
