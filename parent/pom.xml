@@ -16,12 +16,13 @@
 	<version>2.4.2-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Ligoj - API Parent</name>
-	<description>API Parent pom for all plugin components</description>
+	<description>API Parent pom for all plug-in</description>
 
 	<properties>
 		<api.version>2.4.2-SNAPSHOT</api.version>
 		<jdk.version>9</jdk.version>
 		<jdk.release>9</jdk.release>
+		<plugin.jacoco.listeners>5.3.0.13828</plugin.jacoco.listeners>
 	</properties>
 
 	<profiles>
@@ -40,58 +41,4 @@
 		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
 		<url>https://github.com/ligoj/ligoj-api.git</url>
 	</scm>
-
-	<build>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-compiler-plugin</artifactId>
-					<version>${plugin.compiler}</version>
-					<configuration>
-						<source>${jdk.version}</source>
-						<target>${jdk.version}</target>
-						<release>${jdk.release}</release>
-						<encoding>${encoding.java}</encoding>
-						<compilerArgs>
-							<arg>-Xlint:all,-options,-path</arg>
-							<arg>-parameters</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED</arg>
-							<arg>-J--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED</arg>
-						</compilerArgs>
-					</configuration>
-					<dependencies>
-						<dependency>
-							<groupId>org.junit.platform</groupId>
-							<artifactId>junit-platform-surefire-provider</artifactId>
-							<version>${junit.platform.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.junit.jupiter</groupId>
-							<artifactId>junit-jupiter-engine</artifactId>
-							<version>${junit.jupiter.version}</version>
-						</dependency>
-						<dependency>
-							<groupId>org.ow2.asm</groupId>
-							<artifactId>asm</artifactId>
-							<version>${asm.version}</version>
-						</dependency>
-					</dependencies>
-				</plugin>
-
-
-			</plugins>
-
-
-		</pluginManagement>
-	</build>
 </project>
