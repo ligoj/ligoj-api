@@ -7,22 +7,21 @@
 	<parent>
 		<groupId>org.ligoj.bootstrap</groupId>
 		<artifactId>bootstrap-business-parent</artifactId>
-		<version>2.3.1</version>
+		<version>2.3.2</version>
 		<relativePath />
 	</parent>
 
 	<groupId>org.ligoj.api</groupId>
 	<artifactId>parent</artifactId>
-	<version>2.4.2-SNAPSHOT</version>
+	<version>2.4.2</version>
 	<packaging>pom</packaging>
 	<name>Ligoj - API Parent</name>
 	<description>API Parent pom for all plug-in</description>
 
 	<properties>
-		<api.version>2.4.2-SNAPSHOT</api.version>
+		<api.version>2.4.2</api.version>
 		<jdk.version>9</jdk.version>
 		<jdk.release>9</jdk.release>
-		<plugin.jacoco.listeners>5.3.0.13828</plugin.jacoco.listeners>
 	</properties>
 
 	<profiles>
