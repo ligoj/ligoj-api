@@ -175,7 +175,9 @@ public class PluginsClassLoaderTest {
 				}
 			} finally {
 				System.clearProperty("ligoj.home");
-				refError.get().close();
+				if (refError.get() != null) {
+					refError.get().close();
+				}
 			}
 		});
 	}
