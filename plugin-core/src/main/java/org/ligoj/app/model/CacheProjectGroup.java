@@ -3,6 +3,8 @@
  */
 package org.ligoj.app.model;
 
+import java.io.Serializable;
+
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
@@ -20,7 +22,12 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "LIGOJ_CACHE_PROJECT_GROUP")
-public class CacheProjectGroup extends AbstractPersistable<Integer> {
+public class CacheProjectGroup extends AbstractPersistable<Integer> implements Serializable {
+
+	/**
+	 * SID, for Hazelcast
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@ManyToOne
 	private Project project;
