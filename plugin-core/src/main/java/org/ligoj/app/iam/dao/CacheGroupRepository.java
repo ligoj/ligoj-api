@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.ligoj.bootstrap.dao.system.SystemUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -17,10 +18,11 @@ import org.springframework.data.jpa.repository.Query;
 public interface CacheGroupRepository extends RestRepository<CacheGroup, String>, CacheContainerRepository<CacheGroup> {
 
 	/**
-	 * Filter to determine the group is visible or not : brought by a delegate or
-	 * one of the sub groups the current user is member.
+	 * Filter to determine the group is visible or not : brought by a delegate or one of the sub groups the current user
+	 * is member.
 	 */
-	String VISIBLE_RESOURCE = "visiblegroup(l.description,:user,:user,:user,:user)=true";
+	String VISIBLE_RESOURCE = "(" + SystemUserRepository.IS_ADMIN
+			+ " OR visiblegroup(l.description,:user,:user,:user,:user)=true)";
 
 	@Override
 	@Query("FROM CacheGroup l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_RESOURCE)

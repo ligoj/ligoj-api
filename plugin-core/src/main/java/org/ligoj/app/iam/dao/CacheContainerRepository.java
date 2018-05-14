@@ -6,13 +6,14 @@ package org.ligoj.app.iam.dao;
 import java.util.List;
 
 import org.ligoj.app.iam.model.CacheContainer;
+import org.ligoj.bootstrap.dao.system.SystemUserRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
 
 /**
  * {@link CacheContainer} base repository
- * 
+ *
  * @param <C>
  *            Cache container type.
  */
@@ -21,16 +22,17 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * Filter to determine the company is writable : brought only by a delegate.
 	 */
-	String WRITABLE_RESOURCE = "writedn(l.description,:user,:user,:user)=true";
+	String WRITABLE_RESOURCE = "(" + SystemUserRepository.IS_ADMIN
+			+ " OR writedn(l.description,:user,:user,:user)=true)";
 
 	/**
 	 * Filter to determine the group is administered : brought only by a delegate.
 	 */
-	String ADMIN_RESOURCE = "admindn(l.description,:user,:user,:user)=true";
+	String ADMIN_RESOURCE = "(" + SystemUserRepository.IS_ADMIN + " OR admindn(l.description,:user,:user,:user)=true)";
 
 	/**
 	 * All visible containers regarding the security, and the criteria.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @param criteria
@@ -43,7 +45,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 
 	/**
 	 * All visible containers regarding the security.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @return The visible items.
@@ -51,9 +53,8 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	List<C> findAll(String user);
 
 	/**
-	 * All visible containers regarding the security with write access, and the
-	 * criteria.
-	 * 
+	 * All visible containers regarding the security with write access, and the criteria.
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @param criteria
@@ -68,7 +69,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 
 	/**
 	 * All visible containers regarding the security with write access.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @return The visible items.
@@ -77,9 +78,8 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	List<C> findAllWrite(String user);
 
 	/**
-	 * All visible containers regarding the security with administration access, and
-	 * the criteria.
-	 * 
+	 * All visible containers regarding the security with administration access, and the criteria.
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @param criteria
@@ -94,7 +94,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 
 	/**
 	 * All visible containers regarding the security with administration access.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @return The visible items.
@@ -103,15 +103,13 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	List<C> findAllAdmin(String user);
 
 	/**
-	 * Return a container matching to the given identifier and also visible by the
-	 * given user.
-	 * 
+	 * Return a container matching to the given identifier and also visible by the given user.
+	 *
 	 * @param user
 	 *            The user requesting the operation.
 	 * @param id
 	 *            The container's identifier to find.
-	 * @return a container matching to the given identifier and also visible by the
-	 *         given user. May be <code>null</code>
+	 * @return a container matching to the given identifier and also visible by the given user. May be <code>null</code>
 	 */
 	C findById(String user, String id);
 
