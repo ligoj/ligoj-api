@@ -107,6 +107,18 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	List<Object[]> findAllWithValuesByNode(String node);
 
 	/**
+	 * Return the subscriptions of given project with all non secured parameters.
+	 * 
+	 * @param project
+	 *            the subscribing project
+	 * @return the subscriptions of given project.
+	 */
+	@Query("SELECT s, p FROM Subscription s, ParameterValue p LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
+			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
+			+ " WHERE s.project.id = ?2 AND (subscription = s OR  n0 = ?1 OR n1.refined = ?1 OR n2.refined = ?1) AND param.secured != TRUE")
+	List<Object[]> findAllWithValuesSecureByNodeByProject(String node, int project);
+
+	/**
 	 * Count subscriptions by project's identifier.
 	 * 
 	 * @param project
