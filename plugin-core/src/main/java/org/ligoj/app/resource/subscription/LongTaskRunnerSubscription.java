@@ -40,21 +40,21 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 
 	/**
 	 * Return the {@link SubscriptionRepository}.
-	 * 
+	 *
 	 * @return The repository used to fetch related subscription entity of a task.
 	 */
 	SubscriptionRepository getSubscriptionRepository();
 
 	/**
 	 * Return the {@link SubscriptionResource}.
-	 * 
+	 *
 	 * @return The resource used to fetch related subscription entity of a task.
 	 */
 	SubscriptionResource getSubscriptionResource();
 
 	/**
 	 * Return status of the task.
-	 * 
+	 *
 	 * @param subscription
 	 *            The locked subscription identifier.
 	 * @return status of task. May <code>null</code> when there is no previous task.
@@ -68,7 +68,7 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 
 	/**
 	 * Cancel (stop) the current task. Synchronous operation, flag the task as failed.
-	 * 
+	 *
 	 * @param subscription
 	 *            The locked subscription identifier.
 	 * @return The ended task if present or <code>null</code>.
@@ -76,7 +76,7 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 	@DELETE
 	@Path("{subscription:\\d+}/task")
 	@OnNullReturn404
-	default T cancel(@PathParam("node") final int subscription) {
+	default T cancel(@PathParam("subscription") final int subscription) {
 		checkVisible(subscription);
 		return endTask(subscription, true);
 	}
