@@ -18,6 +18,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -100,7 +101,7 @@ public class PluginsClassLoader extends URLClassLoader {
 		addURL(this.homeDirectory.toUri().toURL());
 
 		if (isSafeMode()) {
-			// Ignore this refresh
+			// Ignore this refresh keep original class-path
 			log.info("SAFE MODE - Plugins classloader is disabled");
 			return;
 		}
@@ -112,27 +113,30 @@ public class PluginsClassLoader extends URLClassLoader {
 	 * Complete the class-path with plug-ins jars
 	 */
 	private void completeClasspath() throws IOException {
-		// Build the plug-ins list with full version to filter the oldest
-		// versions
+		// Build the plug-ins list with full version to filter the oldest versions
 		final Map<String, Path> versionFileToPath = new HashMap<>();
 		final Map<String, String> versionFiles = new TreeMap<>();
 		Files.list(this.pluginDirectory).filter(p -> p.toString().endsWith(".jar"))
 				.forEach(path -> addVersionFile(versionFileToPath, versionFiles, path));
 
+		// Ordered last version (to be enabled) plug-ins.
+		// Key is the plug-in name built from the filename
+		// Value is the key and the version
+		final Map<String, String> enabledPlugins = new TreeMap<>(Comparator.reverseOrder());
+
 		// Remove old plug-in from the list
-		final Map<String, String> mostRecentPlugins = new TreeMap<>(Comparator.reverseOrder());
 		versionFiles.keySet().stream().sorted(Comparator.reverseOrder())
-				.filter(p -> !mostRecentPlugins.containsKey(versionFiles.get(p)))
-				.forEach(p -> mostRecentPlugins.put(versionFiles.get(p), p));
+				.forEach(p -> enabledPlugins.putIfAbsent(versionFiles.get(p), p));
 
 		// Add the filtered plug-in files to the class-path
-		for (final String versionFile : mostRecentPlugins.values()) {
-			final URI uri = versionFileToPath.get(versionFile).toUri();
+		for (final Entry<String, String> plugin : enabledPlugins.entrySet()) {
+			final URI uri = versionFileToPath.get(plugin.getValue()).toUri();
 			log.debug("Add plugin {}", uri);
-			copyExportedResources(versionFiles.get(versionFile), uri, versionFileToPath.get(versionFile));
+			copyExportedResources(plugin.getKey(), versionFileToPath.get(plugin.getValue()));
+			addURL(uri.toURL());
 		}
-		log.info("Plugins ClassLoader has added {} plug-ins and ignored {} old plug-ins", mostRecentPlugins.size(),
-				versionFiles.size() - mostRecentPlugins.size());
+		log.info("Plugins ClassLoader has added {} plug-ins and ignored {} old plug-ins", enabledPlugins.size(),
+				versionFileToPath.size() - enabledPlugins.size());
 	}
 
 	/**
@@ -174,14 +178,12 @@ public class PluginsClassLoader extends URLClassLoader {
 	 *
 	 * @param plugin
 	 *            The plug-in identifier.
-	 * @param uri
-	 *            The Source URI.
 	 * @param pluginFile
 	 *            The target plug-in file.
 	 * @throws IOException
 	 *             When plug-in file cannot be read.
 	 */
-	protected void copyExportedResources(final String plugin, final URI uri, final Path pluginFile) throws IOException {
+	protected void copyExportedResources(final String plugin, final Path pluginFile) throws IOException {
 		try (FileSystem fileSystem = FileSystems.newFileSystem(pluginFile, this)) {
 			final Path export = fileSystem.getPath("/" + EXPORT_DIR);
 			if (Files.exists(export)) {
@@ -189,7 +191,6 @@ public class PluginsClassLoader extends URLClassLoader {
 				Files.walk(export).forEach(from -> copyExportedResource(plugin, targetExport, export, from));
 			}
 		}
-		addURL(uri.toURL());
 	}
 
 	/**
@@ -233,14 +234,12 @@ public class PluginsClassLoader extends URLClassLoader {
 		final String noVersionFile;
 		final String fileWithExtVersion;
 		if (matcher.find()) {
-			// This plug-in has a version, extend the version for the next
-			// natural string ordering
+			// This plug-in has a version, extend the version for the next natural string ordering
 			noVersionFile = file.substring(0, matcher.start());
 			fileWithExtVersion = noVersionFile + "-" + toExtendedVersion(matcher.group(1));
 
 		} else {
-			// No version, the file will be kept with the lowest level version
-			// number
+			// No version, the file will be kept with the lowest level version number
 			noVersionFile = FilenameUtils.removeExtension(file);
 			fileWithExtVersion = noVersionFile + "-0";
 		}

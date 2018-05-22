@@ -160,7 +160,7 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
-	public void copyFailed() throws IOException {
+	public void copyFailed() {
 		final AtomicReference<PluginsClassLoader> refError = new AtomicReference<>();
 		Assertions.assertThrows(PluginException.class, () -> {
 			try {
@@ -171,7 +171,7 @@ public class PluginsClassLoaderTest {
 						throw new IOException();
 					}
 				}) {
-					classLoader.copyExportedResources("any", null, null);
+					classLoader.copyExportedResources("any", null);
 				}
 			} finally {
 				System.clearProperty("ligoj.home");
@@ -180,6 +180,41 @@ public class PluginsClassLoaderTest {
 				}
 			}
 		});
+	}
+
+	@Test
+	public void copyAlreadyExists() throws IOException {
+		final AtomicReference<PluginsClassLoader> refError = new AtomicReference<>();
+		try {
+			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
+			try (PluginsClassLoader classLoader = new PluginsClassLoader() {
+				@Override
+				protected void copy(final Path from, final Path dest) throws IOException {
+					if (!from.toString().endsWith("/export")) {
+						FileUtils.touch(dest.toFile());
+					}
+				}
+			}) {
+				classLoader.copyExportedResources("plugin-foo",
+						new File(USER_HOME_DIRECTORY, ".ligoj/plugins/plugin-foo-1.0.1.jar").toPath());
+				File exported = new File(USER_HOME_DIRECTORY, ".ligoj/export/export.txt");
+				Assertions.assertTrue(exported.exists());
+				FileUtils.write(exported, "value", StandardCharsets.UTF_8);
+
+				// Copy again without error or overwrite
+				classLoader.copyExportedResources("plugin-foo",
+						new File(USER_HOME_DIRECTORY, ".ligoj/plugins/plugin-foo-1.0.1.jar").toPath());
+
+				Assertions.assertTrue(exported.exists());
+				Assertions.assertEquals("value", FileUtils.readFileToString(exported, StandardCharsets.UTF_8));
+
+			}
+		} finally {
+			System.clearProperty("ligoj.home");
+			if (refError.get() != null) {
+				refError.get().close();
+			}
+		}
 	}
 
 	private PluginsClassLoader checkClassLoader() throws IOException {
