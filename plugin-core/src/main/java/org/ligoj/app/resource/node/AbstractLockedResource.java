@@ -8,13 +8,13 @@ import java.io.Serializable;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
-import org.ligoj.bootstrap.core.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Persistable;
 
 /**
  * Base class for resource that can be locked.
- * 
+ *
  * @param <T>
  *            Type of locked resource.
  * @param <I>
@@ -25,9 +25,12 @@ public abstract class AbstractLockedResource<T extends Persistable<I>, I extends
 	@Autowired
 	protected ServicePluginLocator locator;
 
+	@Autowired
+	protected ApplicationContext applicationContext;
+
 	/**
 	 * Delete all tasks related the given entity and check there is no running tasks.
-	 * 
+	 *
 	 * @param plugin
 	 *            The related resource plug-in managing the entity being deleted.
 	 * @param id
@@ -36,14 +39,14 @@ public abstract class AbstractLockedResource<T extends Persistable<I>, I extends
 	public void deleteTasks(final ServicePlugin plugin, final I id) {
 		// Check and delete the related finished tasks
 		final String scope = plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-		SpringUtils.getApplicationContext().getBeansOfType(getLongTaskRunnerClass()).values().stream()
+		applicationContext.getBeansOfType(getLongTaskRunnerClass()).values().stream()
 				.filter(l -> l.getClass().getProtectionDomain().getCodeSource().getLocation().toString().equals(scope))
 				.forEach(l -> l.deleteTask(id));
 	}
 
 	/**
 	 * Delete all tasks related the given entity and check there is no running tasks.
-	 * 
+	 *
 	 * @param node
 	 *            The related node's identifier owning the locked resource.
 	 * @param id
@@ -67,7 +70,7 @@ public abstract class AbstractLockedResource<T extends Persistable<I>, I extends
 
 	/**
 	 * Delete a locked resource by its identifier and owned by the given plug-in.
-	 * 
+	 *
 	 * @param plugin
 	 *            The related plug-in owning the locked resource
 	 * @param id
@@ -81,14 +84,14 @@ public abstract class AbstractLockedResource<T extends Persistable<I>, I extends
 
 	/**
 	 * Return the {@link Class} of type {@link LongTaskRunner} to check task deletion.
-	 * 
+	 *
 	 * @return the {@link LongTaskRunner} class type handling the locked resource type.
 	 */
 	protected abstract Class<? extends LongTaskRunner<?, ?, ?, I, ?, AbstractLockedResource<T, I>>> getLongTaskRunnerClass();
 
 	/**
 	 * Check the given identifier relates to a visible entity.
-	 * 
+	 *
 	 * @param id
 	 *            Entity identifier.
 	 * @return The visible entity. Never <code>null</code>.

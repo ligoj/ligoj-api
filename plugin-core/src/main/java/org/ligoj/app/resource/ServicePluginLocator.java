@@ -12,26 +12,31 @@ import javax.cache.annotation.CacheResult;
 
 import org.ligoj.app.api.PluginNotFoundException;
 import org.ligoj.app.api.ServicePlugin;
-import org.ligoj.bootstrap.core.SpringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
+
+import lombok.Setter;
 
 /**
  * Locate service resource from the plug-in key.
  */
 @Component
-public class ServicePluginLocator {
-	
+public class ServicePluginLocator implements ApplicationContextAware {
+
 	/**
 	 * Used for "this" and forcing proxying.
 	 */
 	@Autowired
 	protected ServicePluginLocator self;
-	
+
+	@Setter
+	private ApplicationContext applicationContext;
 
 	/**
 	 * Return the plug-in from the service key.
-	 * 
+	 *
 	 * @param service
 	 *            the service name.
 	 * @return the plug-in from the service key. <code>null</code> if not found.
@@ -42,7 +47,7 @@ public class ServicePluginLocator {
 
 	/**
 	 * Return and expect the plug-in from the service key.
-	 * 
+	 *
 	 * @param service
 	 *            the service name.
 	 * @param requiredType
@@ -60,7 +65,7 @@ public class ServicePluginLocator {
 
 	/**
 	 * Return the plug-in from the service key.
-	 * 
+	 *
 	 * @param service
 	 *            the service name.
 	 * @param requiredType
@@ -86,7 +91,7 @@ public class ServicePluginLocator {
 		}
 
 		// Check the type
-		final ServicePlugin bean = SpringUtils.getApplicationContext().getBean(name, ServicePlugin.class);
+		final ServicePlugin bean = applicationContext.getBean(name, ServicePlugin.class);
 		if (requiredType.isInstance(bean)) {
 			return (T) bean;
 		}
@@ -96,7 +101,7 @@ public class ServicePluginLocator {
 
 	/**
 	 * Return the plug-in from the service key.
-	 * 
+	 *
 	 * @param service
 	 *            the service name.
 	 * @return the plug-in from the service key. <code>null</code> if not found.
@@ -108,7 +113,7 @@ public class ServicePluginLocator {
 
 	/**
 	 * Return the plug-in from the service key.
-	 * 
+	 *
 	 * @param service
 	 *            the service name.
 	 * @return the plug-in from the service key.
@@ -121,7 +126,7 @@ public class ServicePluginLocator {
 	 * Return all Spring context bean of type {@link ServicePlugin}
 	 */
 	private String[] getPluginResources() {
-		return SpringUtils.getApplicationContext().getBeanNamesForType(ServicePlugin.class);
+		return applicationContext.getBeanNamesForType(ServicePlugin.class);
 	}
 
 	/**
@@ -154,7 +159,7 @@ public class ServicePluginLocator {
 	private List<String> getExactResources(final String[] registeredServices, final String service) {
 		final List<String> result = new ArrayList<>();
 		for (final String plugin : registeredServices) {
-			final ServicePlugin bean = SpringUtils.getApplicationContext().getBean(plugin, ServicePlugin.class);
+			final ServicePlugin bean = applicationContext.getBean(plugin, ServicePlugin.class);
 			if (service.equals(bean.getKey())) {
 				result.add(plugin);
 			}
@@ -164,7 +169,7 @@ public class ServicePluginLocator {
 
 	/**
 	 * Return the parent service.
-	 * 
+	 *
 	 * @param service
 	 *            the service name. the parent service or <code>null</code>
 	 * @return the parent service key.

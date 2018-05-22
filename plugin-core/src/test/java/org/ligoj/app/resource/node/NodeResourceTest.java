@@ -50,7 +50,6 @@ import org.ligoj.app.resource.node.sample.KmResource;
 import org.ligoj.app.resource.node.sample.KpiResource;
 import org.ligoj.app.resource.node.sample.LdapPluginResource;
 import org.ligoj.app.resource.node.sample.SonarPluginResource;
-import org.ligoj.bootstrap.core.SpringUtils;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
@@ -58,7 +57,6 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -111,26 +109,13 @@ public class NodeResourceTest extends AbstractAppTest {
 		super.clearAllCache();
 	}
 
-	@SuppressWarnings("unchecked")
-	public void mockApplicationContext() {
+	private void mockApplicationContext() {
 		final NodeResource resource = new NodeResource();
 		super.applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
 		resource.self = resource;
-		final ApplicationContext applicationContext = Mockito.mock(ApplicationContext.class);
-		SpringUtils.setSharedApplicationContext(applicationContext);
-		final ServicePluginLocator servicePluginLocator = Mockito.mock(ServicePluginLocator.class);
 
 		// Replace the plug-in locator
-		resource.locator = servicePluginLocator;
-		Mockito.when(applicationContext.getBean(ArgumentMatchers.any(Class.class))).thenAnswer(invocation -> {
-			if (invocation.getArgument(0).equals(ServicePluginLocator.class)) {
-				return servicePluginLocator;
-			}
-			if (invocation.getArgument(0).equals(NodeResource.class)) {
-				return resource;
-			}
-			return super.applicationContext.getBean((Class<?>) invocation.getArgument(0));
-		});
+		resource.locator = Mockito.mock(ServicePluginLocator.class);
 		this.resourceMock = resource;
 	}
 
