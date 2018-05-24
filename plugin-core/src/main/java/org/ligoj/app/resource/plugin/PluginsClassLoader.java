@@ -42,6 +42,11 @@ import lombok.extern.slf4j.Slf4j;
 public class PluginsClassLoader extends URLClassLoader {
 
 	/**
+	 * Safe mode property flag.
+	 */
+	private static final String SAFE_MODE = "ligoj.safe.mode";
+
+	/**
 	 * System property name pointing to the home directory. When undefined, system user home directory will be used
 	 */
 	public static final String HOME_DIR_PROPERTY = "ligoj.home";
@@ -89,7 +94,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	 */
 	public PluginsClassLoader() throws IOException {
 		super(new URL[0], Thread.currentThread().getContextClassLoader());
-		this.safeMode = Boolean.valueOf(System.getProperty("app.safe.mode", "false"));
+		this.safeMode = Boolean.valueOf(System.getProperty(SAFE_MODE, "false"));
 		this.homeDirectory = computeHome();
 		this.pluginDirectory = this.homeDirectory.resolve(PLUGINS_DIR);
 
@@ -113,20 +118,13 @@ public class PluginsClassLoader extends URLClassLoader {
 	 * Complete the class-path with plug-ins jars
 	 */
 	private void completeClasspath() throws IOException {
-		// Build the plug-ins list with full version to filter the oldest versions
+		// Mapping from "version file" to Path
+		// Key : The filename without extension and with extended comparable version
+		// Value : The resolved Path
 		final Map<String, Path> versionFileToPath = new HashMap<>();
-		final Map<String, String> versionFiles = new TreeMap<>();
-		Files.list(this.pluginDirectory).filter(p -> p.toString().endsWith(".jar"))
-				.forEach(path -> addVersionFile(versionFileToPath, versionFiles, path));
 
 		// Ordered last version (to be enabled) plug-ins.
-		// Key is the plug-in name built from the filename
-		// Value is the key and the version
-		final Map<String, String> enabledPlugins = new TreeMap<>(Comparator.reverseOrder());
-
-		// Remove old plug-in from the list
-		versionFiles.keySet().stream().sorted(Comparator.reverseOrder())
-				.forEach(p -> enabledPlugins.putIfAbsent(versionFiles.get(p), p));
+		final Map<String, String> enabledPlugins = getInstalledPlugins(versionFileToPath);
 
 		// Add the filtered plug-in files to the class-path
 		for (final Entry<String, String> plugin : enabledPlugins.entrySet()) {
@@ -137,6 +135,43 @@ public class PluginsClassLoader extends URLClassLoader {
 		}
 		log.info("Plugins ClassLoader has added {} plug-ins and ignored {} old plug-ins", enabledPlugins.size(),
 				versionFileToPath.size() - enabledPlugins.size());
+	}
+
+	/**
+	 * Return the mapping of the elected last plug-in name to the corresponding version file.
+	 *
+	 * @param versionFileToPath
+	 *            The mapping filled by this method. Key : The filename without extension and with extended comparable
+	 *            version. Value : The resolved Path.
+	 * @return The mapping of the elected last plug-in name to the corresponding version file. Key: the plug-in
+	 *         artifactId resolved from the filename. Value: the plug-in artifactId with its extended comparable
+	 *         version.
+	 * @throws IOException
+	 *             When file list failed.
+	 */
+	private Map<String, String> getInstalledPlugins(final Map<String, Path> versionFileToPath) throws IOException {
+		final Map<String, String> versionFiles = new TreeMap<>();
+		Files.list(this.pluginDirectory).filter(p -> p.toString().endsWith(".jar"))
+				.forEach(path -> addVersionFile(versionFileToPath, versionFiles, path));
+		final Map<String, String> enabledPlugins = new TreeMap<>(Comparator.reverseOrder());
+
+		// Remove old plug-in from the list
+		versionFiles.keySet().stream().sorted(Comparator.reverseOrder())
+				.forEach(p -> enabledPlugins.putIfAbsent(versionFiles.get(p), p));
+		return enabledPlugins;
+	}
+
+	/**
+	 * Return the mapping of the installed plug-ins. Only the last version is returned.
+	 *
+	 * @return The mapping of the elected last plug-in name to the corresponding version file. Key: the plug-in
+	 *         artifactId resolved from the filename. Value: the plug-in artifactId with its extended comparable
+	 *         version.
+	 * @throws IOException
+	 *             When file list failed.
+	 */
+	public Map<String, String> getInstalledPlugins() throws IOException {
+		return getInstalledPlugins(new HashMap<>());
 	}
 
 	/**

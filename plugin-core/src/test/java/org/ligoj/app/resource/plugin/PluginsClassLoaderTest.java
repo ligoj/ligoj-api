@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.apache.commons.io.FileUtils;
@@ -37,12 +38,16 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
-	public void standardHome() throws Exception {
+	public void getInstalledPlugins() throws IOException {
 		final String oldHome = System.getProperty("user.home");
 		try {
 			System.setProperty("user.home", USER_HOME_DIRECTORY);
 			try (PluginsClassLoader classLoader = checkClassLoader()) {
 				// Nothing to do
+				final Map<String, String> plugins = classLoader.getInstalledPlugins();
+				Assertions.assertEquals(2,plugins.size());
+				Assertions.assertEquals("plugin-foo-Z0000001Z0000000Z0000001Z0000000", plugins.get("plugin-foo"));
+				Assertions.assertEquals("plugin-bar-Z0000001Z0000000Z0000000Z0000000", plugins.get("plugin-bar"));
 			}
 		} finally {
 			System.setProperty("user.home", oldHome);
@@ -50,10 +55,10 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
-	public void safeMode() throws Exception {
-		final String old = System.getProperty("app.safe.mode");
+	public void safeMode() throws IOException {
+		final String old = System.getProperty("ligoj.safe.mode");
 		try {
-			System.setProperty("app.safe.mode", "true");
+			System.setProperty("ligoj.safe.mode", "true");
 			try (PluginsClassLoader classLoader = new PluginsClassLoader()) {
 				Assertions.assertTrue(classLoader.isSafeMode());
 
@@ -66,15 +71,15 @@ public class PluginsClassLoaderTest {
 			}
 		} finally {
 			if (old == null) {
-				System.clearProperty("app.safe.mode");
+				System.clearProperty("ligoj.safe.mode");
 			} else {
-				System.setProperty("app.safe.mode", old);
+				System.setProperty("ligoj.safe.mode", old);
 			}
 		}
 	}
 
 	@Test
-	public void forcedHome() throws Exception {
+	public void forcedHome() throws IOException {
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
 			try (PluginsClassLoader classLoader = checkClassLoader()) {
@@ -123,7 +128,7 @@ public class PluginsClassLoaderTest {
 	}
 
 	@Test
-	public void toFile() throws Exception {
+	public void toFile() throws IOException {
 		final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/42/foo/bar.log");
 		final File subscriptionParent = new File(USER_HOME_DIRECTORY, ".ligoj/service-id");
 		FileUtils.deleteQuietly(subscriptionParent);
