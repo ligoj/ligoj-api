@@ -56,9 +56,9 @@ public class PluginsClassLoaderTest {
 
 	@Test
 	public void safeMode() throws IOException {
-		final String old = System.getProperty("ligoj.safe.mode");
+		final String old = System.getProperty("ligoj.plugin.enabled");
 		try {
-			System.setProperty("ligoj.safe.mode", "true");
+			System.setProperty("ligoj.plugin.enabled", "false");
 			try (PluginsClassLoader classLoader = new PluginsClassLoader()) {
 				Assertions.assertFalse(classLoader.isEnabled());
 
@@ -73,7 +73,7 @@ public class PluginsClassLoaderTest {
 			if (old == null) {
 				System.clearProperty("ligoj.plugin.enabled");
 			} else {
-				System.setProperty("ligoj.safe.mode", old);
+				System.setProperty("ligoj.plugin.enabled", old);
 			}
 		}
 	}
