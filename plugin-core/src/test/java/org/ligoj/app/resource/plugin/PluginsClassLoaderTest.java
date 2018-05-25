@@ -56,11 +56,11 @@ public class PluginsClassLoaderTest {
 
 	@Test
 	public void safeMode() throws IOException {
-		final String old = System.getProperty("ligoj.safe.mode");
+		final String old = System.getProperty("ligoj.plugin.enabled");
 		try {
-			System.setProperty("ligoj.safe.mode", "true");
+			System.setProperty("ligoj.plugin.enabled", "false");
 			try (PluginsClassLoader classLoader = new PluginsClassLoader()) {
-				Assertions.assertTrue(classLoader.isSafeMode());
+				Assertions.assertFalse(classLoader.isEnabled());
 
 				// Check the home is in the class-path
 				final URL homeUrl = classLoader.getURLs()[0];
@@ -71,9 +71,9 @@ public class PluginsClassLoaderTest {
 			}
 		} finally {
 			if (old == null) {
-				System.clearProperty("ligoj.safe.mode");
+				System.clearProperty("ligoj.plugin.enabled");
 			} else {
-				System.setProperty("ligoj.safe.mode", old);
+				System.setProperty("ligoj.plugin.enabled", old);
 			}
 		}
 	}

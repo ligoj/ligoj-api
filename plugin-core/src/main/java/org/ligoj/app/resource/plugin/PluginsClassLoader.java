@@ -44,7 +44,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	/**
 	 * Safe mode property flag.
 	 */
-	private static final String SAFE_MODE = "ligoj.safe.mode";
+	private static final String ENABLED = "ligoj.plugin.enabled";
 
 	/**
 	 * System property name pointing to the home directory. When undefined, system user home directory will be used
@@ -81,10 +81,10 @@ public class PluginsClassLoader extends URLClassLoader {
 	private Path pluginDirectory;
 
 	/**
-	 * Read only plug-in safe mode
+	 * Read only plug-in safe mode. When <code>false</code>, external plug-ins are not participating to the classpath.
 	 */
 	@Getter
-	protected final boolean safeMode;
+	protected final boolean enabled;
 
 	/**
 	 * Initialize the plug-in {@link URLClassLoader} and the related directories.
@@ -94,7 +94,7 @@ public class PluginsClassLoader extends URLClassLoader {
 	 */
 	public PluginsClassLoader() throws IOException {
 		super(new URL[0], Thread.currentThread().getContextClassLoader());
-		this.safeMode = Boolean.valueOf(System.getProperty(SAFE_MODE, "false"));
+		this.enabled = Boolean.valueOf(System.getProperty(ENABLED, "true"));
 		this.homeDirectory = computeHome();
 		this.pluginDirectory = this.homeDirectory.resolve(PLUGINS_DIR);
 
@@ -105,7 +105,7 @@ public class PluginsClassLoader extends URLClassLoader {
 		// Add the home it self in the class-path
 		addURL(this.homeDirectory.toUri().toURL());
 
-		if (isSafeMode()) {
+		if (!isEnabled()) {
 			// Ignore this refresh keep original class-path
 			log.info("SAFE MODE - Plugins classloader is disabled");
 			return;
