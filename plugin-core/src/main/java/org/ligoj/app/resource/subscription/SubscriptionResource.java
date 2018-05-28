@@ -587,8 +587,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@GET
 	@Path("{node}/{project}")
 	public List<Object[]> getSubscriptionsWithParameterValues(@PathParam("node") final String node,
-			@PathParam("project") final int project) {
+			@PathParam("parameter") final String parameter, @PathParam("project") final int project) {
 		checkManagedProject(project);
-		return repository.findAllWithValuesSecureByNodeByProject(node, project);
+		return repository.findAllWithValuesSecureByNodeByProject(node, parameter, project);
 	}
 }
