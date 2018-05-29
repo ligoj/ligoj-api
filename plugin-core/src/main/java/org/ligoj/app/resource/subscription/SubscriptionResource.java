@@ -585,10 +585,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *         {@link ParameterValue}
 	 */
 	@GET
-	@Path("{node}/{project}")
-	public List<Object[]> getSubscriptionsWithParameterValues(@PathParam("node") final String node,
-			@PathParam("parameter") final String parameter, @PathParam("project") final int project) {
+	@Path("{project}/{parameter}/{node}/{criteria}")
+	public List<Object[]> getSubscriptionsWithParameterValues(@PathParam("project") final int project,
+			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
+			@PathParam("criteria") final String criteria) {
+		checkVisibleProject(project);
 		checkManagedProject(project);
-		return repository.findAllWithValuesSecureByNodeByProject(node, parameter, project);
+		return repository.findAllWithValuesSecureByNodeByProject(node, parameter, project, criteria);
 	}
 }
