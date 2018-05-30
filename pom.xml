@@ -19,6 +19,15 @@
 		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
 		<url>https://github.com/ligoj/ligoj-api.git</url>
 	</scm>
+	<ciManagement>
+		<system>Travis</system>
+		<url>https://travis-ci.org/ligoj/ligoj-api/</url>
+		<notifiers />
+	</ciManagement>
+	<issueManagement>
+		<system>GitHub Issues</system>
+		<url>https://github.com/ligoj/ligoj-api</url>
+	</issueManagement>
 
 	<modules>
 		<module>parent</module>
