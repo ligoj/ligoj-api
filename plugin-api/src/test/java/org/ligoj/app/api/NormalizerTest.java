@@ -3,7 +3,6 @@
  */
 package org.ligoj.app.api;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -48,8 +47,7 @@ public class NormalizerTest extends AbstractDataGeneratorTest {
 	}
 
 	@Test
-	public void testCoverage() throws SecurityException, NoSuchMethodException, InstantiationException,
-			IllegalAccessException, InvocationTargetException {
+	public void testCoverage() throws ReflectiveOperationException {
 		coverageSingleton(Normalizer.class);
 	}
 
