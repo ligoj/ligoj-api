@@ -581,6 +581,10 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *            Node identifier
 	 * @param project
 	 *            Project identifier
+	 * @param parameter
+	 *            The parameter id
+	 * @param criteria
+	 *            The user input corresponding to the value searched in the data attribute of the parameter value
 	 * @return The list of object containing for each entry the {@link Subscription} and its associated
 	 *         {@link ParameterValue}
 	 */
