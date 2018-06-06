@@ -103,9 +103,15 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	/**
 	 * Return the subscriptions of given project with all non secured parameters.
 	 * 
+	 * @param node
+	 *            The node name
+	 * @param parameter
+	 *            The id of the parameter
 	 * @param project
-	 *            the subscribing project
-	 * @return the subscriptions of given project.
+	 *            the subscribed project
+	 * @param criteria
+	 *            The search criteria to match with the data value
+	 * @return A list of table of [Subscription, ParameterValue]
 	 */
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
 			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
