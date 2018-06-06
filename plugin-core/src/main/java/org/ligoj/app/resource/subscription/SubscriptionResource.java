@@ -41,6 +41,7 @@ import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
+import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.node.AbstractLockedResource;
@@ -571,5 +572,29 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@Override
 	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?, AbstractLockedResource<Subscription, Integer>>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerSubscription.class;
+	}
+
+	/**
+	 * Returns the list of {@link Subscription} and there {@link ParameterValue} with given node and project.
+	 * 
+	 * @param node
+	 *            Node identifier
+	 * @param project
+	 *            Project identifier
+	 * @param parameter
+	 *            The parameter id
+	 * @param criteria
+	 *            The user input corresponding to the value searched in the data attribute of the parameter value
+	 * @return The list of object containing for each entry the {@link Subscription} and its associated
+	 *         {@link ParameterValue}
+	 */
+	@GET
+	@Path("{project}/{parameter}/{node}/{criteria}")
+	public List<Object[]> getSubscriptionsWithParameterValues(@PathParam("project") final int project,
+			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
+			@PathParam("criteria") final String criteria) {
+		checkVisibleProject(project);
+		checkManagedProject(project);
+		return repository.findAllWithValuesSecureByNodeByProject(node, parameter, project, criteria);
 	}
 }

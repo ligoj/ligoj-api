@@ -33,21 +33,17 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	List<Subscription> findAllByProject(int project);
 
 	/**
-	 * Return all subscriptions attached to the same project than the given
-	 * subscription.
+	 * Return all subscriptions attached to the same project than the given subscription.
 	 * 
 	 * @param subscription
-	 *            the subscription used to check the other attached a common
-	 *            project.
-	 * @return the subscriptions attached to the same project. Service are
-	 *         fetch.
+	 *            the subscription used to check the other attached a common project.
+	 * @return the subscriptions attached to the same project. Service are fetch.
 	 */
 	@Query("SELECT s1 FROM Subscription s1, Subscription s2 INNER JOIN FETCH s1.node WHERE s2.id = ?1 AND s1.project.id = s2.project.id")
 	List<Subscription> findAllOnSameProject(int subscription);
 
 	/**
-	 * Return the subscriptions to given node or one of the sub-nodes, and with
-	 * all non secured parameters.
+	 * Return the subscriptions to given node or one of the sub-nodes, and with all non secured parameters.
 	 * 
 	 * @param node
 	 *            the subscribed node. Directly or not.
@@ -75,16 +71,14 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * 
 	 * @param parameterValue
 	 *            The parameter value identifier.
-	 * @return The amount of subscriptions involving the given parameter value
-	 *         directly or not.
+	 * @return The amount of subscriptions involving the given parameter value directly or not.
 	 */
 	@Query("SELECT count(s.id) FROM Subscription s, ParameterValue v INNER JOIN s.node sn INNER JOIN v.node vn"
 			+ " WHERE v.id = :parameterValue AND (vn = sn OR sn.id LIKE CONCAT(vn.id, ':%'))")
 	int countByParameterValue(int parameterValue);
 
 	/**
-	 * Return the subscriptions of given project with all non secured
-	 * parameters.
+	 * Return the subscriptions of given project with all non secured parameters.
 	 * 
 	 * @param project
 	 *            the subscribing project
@@ -105,6 +99,24 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	@Query("SELECT s, p FROM ParameterValue p INNER JOIN p.subscription s INNER JOIN s.node service INNER JOIN FETCH p.parameter "
 			+ " LEFT JOIN s.node n0 WHERE n0.id = ?1  ")
 	List<Object[]> findAllWithValuesByNode(String node);
+
+	/**
+	 * Return the subscriptions of given project with all non secured parameters.
+	 * 
+	 * @param node
+	 *            The node name
+	 * @param parameter
+	 *            The id of the parameter
+	 * @param project
+	 *            the subscribed project
+	 * @param criteria
+	 *            The search criteria to match with the data value
+	 * @return A list of table of [Subscription, ParameterValue]
+	 */
+	@Query("SELECT s, p FROM Subscription s, ParameterValue p LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
+			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
+			+ " WHERE s.project.id = ?3 AND (subscription = s OR n0.id = ?1 OR n1.refined = ?1 OR n2.refined = ?1) AND param.id LIKE ?2 AND UPPER(p.data) LIKE UPPER(CONCAT(CONCAT('%',?4),'%')) AND param.secured != TRUE")
+	List<Object[]> findAllWithValuesSecureByNodeByProject(String node, String parameter, int project, String criteria);
 
 	/**
 	 * Count subscriptions by project's identifier.
