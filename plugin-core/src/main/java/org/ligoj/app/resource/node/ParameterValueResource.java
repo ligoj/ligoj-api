@@ -5,6 +5,7 @@ package org.ligoj.app.resource.node;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.EnumMap;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
@@ -92,6 +94,9 @@ public class ParameterValueResource {
 
 	@Autowired
 	private SubscriptionRepository subscriptionRepository;
+
+	@Autowired
+	private SubscriptionResource subscriptionResource;
 
 	@Autowired
 	private NodeResource nodeResource;
@@ -559,7 +564,7 @@ public class ParameterValueResource {
 		}
 
 		// Updated or created value
-		ParameterValue entity = existing.get(value.getParameter());
+		final ParameterValue entity = existing.get(value.getParameter());
 		if (entity == null) {
 			// Need to parse and recreate the value
 			return createInternal(value);
@@ -683,5 +688,29 @@ public class ParameterValueResource {
 			}
 			return vo;
 		}).collect(Collectors.toList());
+	}
+
+	/**
+	 * Returns the list of {@link ParameterValue} with given node and project.
+	 * 
+	 * @param node
+	 *            The node identifier subscribed.
+	 * @param project
+	 *            Project identifier
+	 * @param parameter
+	 *            The id of the parameter.
+	 * @param criteria
+	 *            the optional criteria used to check name (CN).
+	 * @return The list of object containing for each entry the {@link Subscription} and its associated
+	 *         {@link ParameterValue}
+	 */
+	@GET
+	@Path("{project}/{parameter}/{node}/{criteria}")
+	public Collection<ParameterValueVo> findAll(@PathParam("project") final int project,
+			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
+			@PathParam("criteria") final String criteria) {
+		subscriptionResource.checkVisibleProject(project);
+		return repository.findAll(node, parameter, project, criteria).stream()
+				.map(this::toVo).collect(Collectors.toList());
 	}
 }

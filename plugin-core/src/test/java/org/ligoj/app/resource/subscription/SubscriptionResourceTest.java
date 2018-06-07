@@ -43,9 +43,7 @@ import org.ligoj.app.iam.model.ReceiverType;
 import org.ligoj.app.model.CacheProjectGroup;
 import org.ligoj.app.model.DelegateNode;
 import org.ligoj.app.model.Event;
-import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.model.TaskSampleSubscription;
@@ -740,26 +738,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	public void checkStatus() {
 		Assertions.assertTrue(
 				servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class).checkStatus(null));
-	}
-
-	@Test
-	public void getSubscriptionsWithParameterValues() throws IOException {
-		persistEntities("csv",
-				new Class[] { Node.class, Subscription.class, Event.class, Parameter.class, ParameterValue.class },
-				StandardCharsets.UTF_8.name());
-		final int projectId = projectRepository.findByName("MDA").getId();
-		List<Object[]> subscriptions = resource.getSubscriptionsWithParameterValues(projectId, "service:bt:jira:pkey",
-				"service:bt:jira:4", "MD");
-		Assertions.assertEquals(1, subscriptions.size());
-
-		final Object[] firstValue = subscriptions.get(0);
-		final Subscription subscription = (Subscription) firstValue[0];
-		final ParameterValue pValue = (ParameterValue) firstValue[1];
-		Assertions.assertEquals("MDA", subscription.getProject().getName());
-		Assertions.assertEquals("MDA", pValue.getData());
-		Assertions.assertEquals("service:bt:jira:pkey", pValue.getParameter().getId());
-		Assertions.assertEquals("service:bt:jira:4", pValue.getSubscription().getNode().getId());
-
 	}
 
 }

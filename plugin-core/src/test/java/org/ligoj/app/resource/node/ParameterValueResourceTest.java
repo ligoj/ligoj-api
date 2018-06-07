@@ -23,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
+import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
@@ -58,6 +59,9 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private ParameterValueResource resource;
+
+	@Autowired
+	private ProjectRepository projectRepository;
 
 	@Autowired
 	private StringEncryptor encryptor;
@@ -790,5 +794,17 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		final Node node = new Node();
 		node.setId("service:id:ldap:dig");
 		resource.update(values, node);
+	}
+
+	@Test
+	public void findAll() throws IOException {
+		final int projectId = projectRepository.findByName("MDA").getId();
+		final List<ParameterValueVo> parameterValues = new ArrayList<>(
+				resource.findAll(projectId, "service:bt:jira:pkey", "service:bt:jira:4", "MD"));
+		Assertions.assertEquals(1, parameterValues.size());
+
+		final ParameterValueVo pValue = parameterValues.get(0);
+		Assertions.assertEquals("MDA", pValue.getText());
+
 	}
 }
