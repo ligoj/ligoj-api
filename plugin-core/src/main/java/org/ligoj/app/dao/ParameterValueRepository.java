@@ -16,8 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 public interface ParameterValueRepository extends RestRepository<ParameterValue, Integer> {
 
 	/**
-	 * Return all parameter values associated to a node, including the ones from
-	 * the parent.
+	 * Return all parameter values associated to a node, including the ones from the parent.
 	 * 
 	 * @param node
 	 *            The node identifier.
@@ -28,8 +27,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	List<ParameterValue> getParameterValues(String node);
 
 	/**
-	 * Return a parameter value related to the subscription to the given service
-	 * for a project.
+	 * Return a parameter value related to the subscription to the given service for a project.
 	 * 
 	 * @param subscription
 	 *            the subscription identifier.
@@ -42,8 +40,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	String getSubscriptionParameterValue(int subscription, String parameter);
 
 	/**
-	 * Return all parameters (name and raw value) associated to a subscription.
-	 * Sensitive parameters are returned.
+	 * Return all parameters (name and raw value) associated to a subscription. Sensitive parameters are returned.
 	 * 
 	 * @param subscription
 	 *            the subscription identifier.
@@ -55,8 +52,8 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	List<ParameterValue> findAllBySubscription(int subscription);
 
 	/**
-	 * Return all non secured parameters (name and raw value) associated to a
-	 * subscription. Sensitive parameters are not returned.
+	 * Return all non secured parameters (name and raw value) associated to a subscription. Sensitive parameters are not
+	 * returned.
 	 * 
 	 * @param subscription
 	 *            the subscription identifier.
@@ -82,9 +79,8 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	void deleteByNode(String node);
 
 	/**
-	 * Return the parameter with the given identifier and associated to a
-	 * visible and also writable node by the given user. Only entities linked to
-	 * a node can be deleted this way.
+	 * Return the parameter with the given identifier and associated to a visible and also writable node by the given
+	 * user. Only entities linked to a node can be deleted this way.
 	 * 
 	 * @param id
 	 *            The parameter identifier.
@@ -92,6 +88,26 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 *            The user principal requesting this parameter.
 	 * @return The visible parameter or <code>null</code> when not found.
 	 */
-	@Query("FROM ParameterValue v INNER JOIN FETCH v.node n WHERE v.id=:id AND n IS NOT NULL AND " + NodeRepository.WRITE_NODES)
+	@Query("FROM ParameterValue v INNER JOIN FETCH v.node n WHERE v.id=:id AND n IS NOT NULL AND "
+			+ NodeRepository.WRITE_NODES)
 	ParameterValue findOneVisible(int id, String user);
+
+	/**
+	 * Return the subscriptions of given project with all non secured parameters.
+	 * 
+	 * @param node
+	 *            The subscribed node. Directly or not.
+	 * @param parameter
+	 *            The id of the parameter.
+	 * @param project
+	 *            project's identifier.
+	 * @param criteria
+	 *            the optional criteria used to check name (CN).
+	 * @return A list of table of [Subscription, ParameterValue]
+	 */
+	@Query("SELECT v FROM Subscription s, ParameterValue v LEFT JOIN v.subscription subscription INNER JOIN FETCH v.parameter param "
+			+ " LEFT JOIN v.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
+			+ " WHERE s.project.id = ?3 AND (subscription = s OR n0.id = ?1 OR n1.refined = ?1 OR n2.refined = ?1) AND param.id = ?2 AND UPPER(v.data) LIKE UPPER(CONCAT(CONCAT('%', ?4),'%')) AND param.secured != TRUE ORDER BY v.data, v.id")
+	List<ParameterValue> findAll(String node, String parameter, int project,
+			String criteria);
 }
