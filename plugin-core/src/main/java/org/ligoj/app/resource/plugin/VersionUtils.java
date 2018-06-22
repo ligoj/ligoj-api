@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ObjectUtils;
+import org.ligoj.bootstrap.core.curl.CurlProcessor;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.type.TypeReference;

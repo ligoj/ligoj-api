@@ -5,13 +5,14 @@ package org.ligoj.app.api;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.ligoj.bootstrap.core.plugin.FeaturePlugin;
 
 /**
  * Test class of {@link FeaturePlugin}
  */
 public class FeaturePluginTest {
 
-	private final FeaturePlugin plugin = new FeaturePlugin() {
+	private final org.ligoj.bootstrap.core.plugin.FeaturePlugin plugin = new FeaturePlugin() {
 
 		@Override
 		public String getKey() {

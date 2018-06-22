@@ -13,11 +13,11 @@ package org.ligoj.app.api;
  * <li>"t" is the first level of service. Lower case part, following the pattern [a-z\\d]+</li>
  * </ul>
  */
-public interface ServicePlugin extends FeaturePlugin {
+public interface ServicePlugin extends org.ligoj.bootstrap.core.plugin.FeaturePlugin {
 
 	/**
 	 * Delete a subscription.
-	 * 
+	 *
 	 * @param subscription
 	 *            the subscription identifier.
 	 * @param remoteData
@@ -31,7 +31,7 @@ public interface ServicePlugin extends FeaturePlugin {
 
 	/**
 	 * Complete the subscription in creation mode. Link data still required.
-	 * 
+	 *
 	 * @param subscription
 	 *            the subscription identifier is being created.
 	 * @throws Exception
@@ -43,7 +43,7 @@ public interface ServicePlugin extends FeaturePlugin {
 
 	/**
 	 * Complete the subscription in link mode.
-	 * 
+	 *
 	 * @param subscription
 	 *            the subscription identifier is being created.
 	 * @throws Exception
@@ -55,7 +55,7 @@ public interface ServicePlugin extends FeaturePlugin {
 
 	/**
 	 * Delete a node.
-	 * 
+	 *
 	 * @param node
 	 *            The node identifier.
 	 * @param remoteData
