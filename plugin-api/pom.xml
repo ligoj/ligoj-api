@@ -7,7 +7,7 @@
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.0.0-SNAPSHOT</version>
+		<version>3.0.1</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
