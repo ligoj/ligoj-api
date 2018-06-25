@@ -797,7 +797,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAll() throws IOException {
+	public void findAll() {
 		final int projectId = projectRepository.findByName("MDA").getId();
 		final List<ParameterValueVo> parameterValues = new ArrayList<>(
 				resource.findAll(projectId, "service:bt:jira:pkey", "service:bt:jira:4", "MD"));
