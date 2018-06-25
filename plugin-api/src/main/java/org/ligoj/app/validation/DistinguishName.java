@@ -21,20 +21,26 @@ public @interface DistinguishName {
 
 	/**
 	 * Default Key message
+	 *
+	 * @return Message key.
 	 */
 	String message() default "org.ligoj.app.validation.DistinguishName.message";
 
 	/**
 	 * JSR-303 requirement.
+	 *
+	 * @return Empty groups.
 	 */
 	Class<?>[] groups() default {
-		
+
 	};
 
 	/**
 	 * JSR-303 requirement.
+	 *
+	 * @return Empty payloads.
 	 */
 	Class<? extends Payload>[] payload() default {
-		
+
 	};
 }
