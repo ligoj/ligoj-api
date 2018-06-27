@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.validation.ConstraintViolationException;
 import javax.ws.rs.core.UriInfo;
@@ -28,8 +29,6 @@ import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.ligoj.bootstrap.core.json.TableItem;
-import org.ligoj.bootstrap.core.resource.BusinessException;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -87,6 +86,24 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
 		Assertions.assertTrue(result.getData().get(1).getNbSubscriptions() >= 6);
+	}
+
+	@Test
+	public void findAllByPkeyOrName() {
+		initSpringSecurityContext("fdaugan");
+		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "mda");
+		Assertions.assertEquals(1, result.getData().size());
+		checkProjectMDA(result.getData().get(0));
+	}
+
+	@Test
+	public void findAllByPkey() {
+		initSpringSecurityContext("fdaugan");
+		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "gfi-gstack");
+		Assertions.assertEquals(1, result.getData().size());
+		Assertions.assertEquals(1, result.getRecordsFiltered());
+		Assertions.assertEquals(1, result.getRecordsTotal());
+		Assertions.assertEquals("gStack", result.getData().get(0).getName());
 	}
 
 	@Test
@@ -189,7 +206,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	public void findByIdInvalid() {
 		initSpringSecurityContext("alongchu");
-		Assertions.assertThrows(BusinessException.class, () -> {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.findById(0);
 		});
 	}
@@ -201,8 +218,20 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void findByIdNotVisible() {
 		final Project byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(BusinessException.class, () -> {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.findById(byName.getId());
+		});
+	}
+
+	/**
+	 * test {@link ProjectResource#findById(int)}
+	 */
+	@Test
+	public void findByPKeyFullNotVisible() {
+		final Project byName = repository.findByName("gStack");
+		initSpringSecurityContext("any");
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
+			resource.findByPKeyFull(byName.getPkey());
 		});
 	}
 
@@ -213,7 +242,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void findByIdVisibleSinceAdmin() {
 		initSpringSecurityContext("admin");
 		final Project byName = repository.findByName("gStack");
-		Assertions.assertThrows(BusinessException.class, () -> {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.findById(byName.getId());
 		});
 	}
@@ -246,6 +275,12 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void findById() {
 		initSpringSecurityContext("fdaugan");
 		checkProject(resource.findById(testProject.getId()));
+	}
+
+	@Test
+	public void findByPKeyFull() {
+		initSpringSecurityContext("fdaugan");
+		checkProject(resource.findByPKeyFull(testProject.getPkey()));
 	}
 
 	/**
@@ -289,7 +324,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	public void findByPKeyNotExists() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			checkProject(resource.findByPKey("mda"));
 		});
 	}
@@ -441,7 +476,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void deleteNotVisible() {
 		em.clear();
 		initSpringSecurityContext("mlavoine");
-		Assertions.assertThrows(BusinessException.class, () -> {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.delete(testProject.getId());
 		});
 	}
@@ -452,7 +487,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	public void deleteNotExists() {
 		em.clear();
-		Assertions.assertThrows(BusinessException.class, () -> {
+		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.delete(-1);
 		});
 	}

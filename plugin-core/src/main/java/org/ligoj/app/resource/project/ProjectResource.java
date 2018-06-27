@@ -7,8 +7,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -35,9 +37,7 @@ import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.json.PaginationJson;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
-import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
-import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -183,23 +183,32 @@ public class ProjectResource {
 	@GET
 	@Path("{id:\\d+}")
 	public ProjectVo findById(@PathParam("id") final int id) {
-		return findOneVisible(id, this::toVo);
+		return findOneVisible(repository::findOneVisible, id, this::toVo);
 	}
 
 	/**
-	 * Return a project with all subscription parameters and their status. The security is checked regarding the current
-	 * user.
+	 * Return a project with all subscription parameters and their status.
 	 *
 	 * @param pkey
-	 *            Project pkey.
-	 * @return Found element. May not be <tt>null</tt>.
+	 *            Project pkey (string identifier).
+	 * @return Found element. Never <tt>null</tt>.
 	 */
 	@GET
 	@Path("{pkey:" + Project.PKEY_PATTERN + "}")
-	public ProjectLightVo findByPKey(@PathParam("pkey") final String pkey) {
-		return Optional.ofNullable(repository.findByPKey(pkey, securityHelper.getLogin())).map(this::toVoLight)
-				.orElseThrow(() -> new ValidationJsonException("pkey", BusinessException.KEY_UNKNOW_ID, "0", "project",
-						"1", pkey));
+	public ProjectVo findByPKeyFull(@PathParam("pkey") final String pkey) {
+		return findOneVisible(repository::findByPKey, pkey, this::toVo);
+	}
+
+	/**
+	 * Return a project without subscription details.
+	 *
+	 * @param pkey
+	 *            Project pkey.
+	 * @return Found element. Never <tt>null</tt>.
+	 */
+	public ProjectLightVo findByPKey(final String pkey) {
+		return Optional.ofNullable(repository.findByPKeyNoFetch(pkey, securityHelper.getLogin())).map(this::toVoLight)
+				.orElseThrow(() -> new EntityNotFoundException(pkey));
 	}
 
 	/**
@@ -245,15 +254,16 @@ public class ProjectResource {
 	@DELETE
 	@Path("{id:\\d+}")
 	public void delete(@PathParam("id") final int id) throws Exception {
-		final Project project = findOneVisible(id, Function.identity());
+		final Project project = findOneVisible(repository::findOneVisible, id, Function.identity());
 		for (final Subscription subscription : project.getSubscriptions()) {
 			subscriptionResource.delete(subscription.getId());
 		}
 		repository.delete(project);
 	}
 
-	private <T> T findOneVisible(final int id, final Function<Project, T> mapper) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(mapper)
-				.orElseThrow(() -> new BusinessException(BusinessException.KEY_UNKNOW_ID, id));
+	private <T, K> T findOneVisible(final BiFunction<K, String, Project> finder, final K key,
+			final Function<Project, T> mapper) {
+		return Optional.ofNullable(finder.apply(key, securityHelper.getLogin())).map(mapper)
+				.orElseThrow(() -> new EntityNotFoundException(key.toString()));
 	}
 }

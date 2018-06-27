@@ -46,7 +46,12 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	/**
 	 * Project PKEY pattern.
 	 */
-	public static final String PKEY_PATTERN = "^([a-z]|[0-9]+-?[a-z])[a-z0-9\\-]*$";
+	public static final String PKEY_PATTERN = "([a-z]|[0-9]+-?[a-z])[a-z0-9\\-]*";
+
+	/**
+	 * Project PKEY pattern.
+	 */
+	public static final String PKEY_PATTERN_WRAPPER = "^" + PKEY_PATTERN +"$";
 
 	/**
 	 * Unique technical and yet readable name.
@@ -55,7 +60,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	@NotBlank
 	@LowerCase
 	@Size(max = 100)
-	@Pattern(regexp = PKEY_PATTERN)
+	@Pattern(regexp = PKEY_PATTERN_WRAPPER)
 	private String pkey;
 
 	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)

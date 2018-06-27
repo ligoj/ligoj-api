@@ -38,7 +38,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Or, the given user is the team leader</li>
 	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param user
 	 *            The principal user name
 	 * @param criteria
@@ -49,9 +49,12 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 */
 	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 			+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p", countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p",
+			countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 					+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p")
+					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+					+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p")
 	Page<Object[]> findAllLight(String user, String criteria, Pageable page);
 
 	/**
@@ -62,7 +65,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Or, the given user is the team leader</li>
 	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param user
 	 *            The principal user name
 	 * @return all visible {@link Project} objects for the given user.
@@ -78,7 +81,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Or, the given user is the team leader</li>
 	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param id
 	 *            the identifier to match.
 	 * @param user
@@ -96,7 +99,25 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Or, the given user is the team leader</li>
 	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
-	 * 
+	 *
+	 * @param pkey
+	 *            The pkey to match.
+	 * @param user
+	 *            The principal user name.
+	 * @return the project or <code>null</code> if not found or not visible.
+	 */
+	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
+			+ VISIBLE_PROJECTS)
+	Project findByPKey(String pkey, String user);
+
+	/**
+	 * Return a project by its pkey without fetching subscriptions. The other constraints are :
+	 * <ul>
+	 * <li>The given user is a system administrator</li>
+	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the given user is member of the group associated to this project via the CacheGroup</li>
+	 * </ul>
+	 *
 	 * @param pkey
 	 *            the pkey to match.
 	 * @param user
@@ -105,7 +126,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
 			+ VISIBLE_PROJECTS)
-	Project findByPKey(String pkey, String user);
+	Project findByPKeyNoFetch(String pkey, String user);
 
 	/**
 	 * Indicate the given user can manage the subscriptions of the given project. The other constraints are :
@@ -118,7 +139,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * </ul>
 	 * Note, this will only authorize the principal to create subscription to this project, and the valid subscribed
 	 * {@link Node}s are filtered regarding the delegates on this node.
-	 * 
+	 *
 	 * @param project
 	 *            The project's identifier to match.
 	 * @param user
