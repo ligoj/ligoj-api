@@ -34,7 +34,7 @@ public class CacheUser extends AbstractBusinessEntity<String> {
 	private String lastName;
 
 	/**
-	 * Mails
+	 * Mails using ',' as separator.
 	 */
 	@Length(max = 255)
 	private String mails;

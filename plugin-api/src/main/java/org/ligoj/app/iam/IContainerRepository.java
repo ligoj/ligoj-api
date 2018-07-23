@@ -15,14 +15,14 @@ import org.springframework.data.domain.Pageable;
 
 /**
  * Container repository contract.
- * 
+ *
  * @param <T>
  *            The container type.
  */
 public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Return the container corresponding to the given identifier using the user cache.
-	 * 
+	 *
 	 * @param id
 	 *            The container's identifier. Case is sensitive. Corresponds to the normalized container's name.
 	 * @return The container corresponding to the given identifier. May be <code>null</code>
@@ -33,7 +33,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 
 	/**
 	 * Find a container from its identifier. Security is applied regarding the given user.
-	 * 
+	 *
 	 * @param principal
 	 *            The user requesting this container.
 	 * @param id
@@ -47,7 +47,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 
 	/**
 	 * Find a container from its identifier. Security is applied regarding the given user.
-	 * 
+	 *
 	 * @param principal
 	 *            The user requesting this container.
 	 * @param id
@@ -58,25 +58,36 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 */
 	default T findByIdExpected(String principal, String id) {
 		// Check the container exists and return the in memory object.
-		return Optional.ofNullable(findById(principal, id))
-				.orElseThrow(() -> new ValidationJsonException(getTypeName(), BusinessException.KEY_UNKNOW_ID, "0", "id", "1", id));
+		return Optional.ofNullable(findById(principal, id)).orElseThrow(
+				() -> new ValidationJsonException(getTypeName(), BusinessException.KEY_UNKNOW_ID, "0", "id", "1", id));
 	}
 
 	/**
-	 * Return all normalized containers where key is the identifier. Note the result use cache, so does not reflect the
-	 * current state of internal representation.
-	 * Cache manager is involved.
-	 * 
+	 * Return all normalized containers where key is the identifier. Note the result uses cache, so does not reflect the
+	 * current state of internal representation. Cache manager is involved.
+	 *
 	 * @return the whole set of containers. Key is the normalized identifier. Value is the corresponding LDAP container
-	 *         containing real CN, DN and
-	 *         normalized UID members.
+	 *         containing real CN, DN and normalized UID members.
 	 */
 	Map<String, T> findAll();
 
 	/**
+	 * Return all normalized containers where key is the identifier. Note the result does not use cache, so reflect the
+	 * current state of internal representation and implies a poor performance. Cache manager is not involved.
+	 *
+	 * @return the whole set of containers. Key is the normalized identifier. Value is the corresponding LDAP container
+	 *         containing real CN, DN and normalized UID members.
+	 *
+	 * @since 3.0.2
+	 */
+	default Map<String, T> findAllNoCache() {
+		return findAll();
+	}
+
+	/**
 	 * Create a new container. There is no synchronized block, so error could occur; this is assumed for performance
 	 * purpose.
-	 * 
+	 *
 	 * @param dn
 	 *            The DN of new Group. Must ends with the CN.
 	 * @param cn
@@ -87,7 +98,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 
 	/**
 	 * Delete the given container. Cascaded deletion and cache are managed.
-	 * 
+	 *
 	 * @param container
 	 *            The container to delete.
 	 */
@@ -95,14 +106,14 @@ public interface IContainerRepository<T extends ContainerOrg> {
 
 	/**
 	 * Return the human readable container type name.
-	 * 
+	 *
 	 * @return the human readable container type name.
 	 */
 	String getTypeName();
 
 	/**
 	 * Return the groups matching to the given pattern.
-	 * 
+	 *
 	 * @param groups
 	 *            the visible groups.
 	 * @param criteria
