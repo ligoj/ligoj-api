@@ -50,7 +50,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 			+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p",
+			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p                ",
 			countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 					+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
@@ -132,13 +132,18 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Indicate the given user can manage the subscriptions of the given project. The other constraints are :
 	 * <ul>
 	 * <li>The given user is a system administrator</li>
-	 * <li>Or, the given user is the team leader</li>
+	 * <li>Or, the given user manages at least one node, and
+	 * <ul>
+	 * <li>The given user is the team leader</li>
 	 * <li>Or, the project is visible by given user and also the given user has a
 	 * {@link org.ligoj.app.iam.model.DelegateOrg} with <code>canWrite</code> and <code>canAdmin</code> relating to the
 	 * group associated to this project</li>
+	 * <ul>
+	 * </ul>
+	 * </li>
 	 * </ul>
 	 * Note, this will only authorize the principal to create subscription to this project, and the valid subscribed
-	 * {@link Node}s are filtered regarding the delegates on this node.
+	 * {@link Node}s should be filtered regarding the delegates on this node.
 	 *
 	 * @param project
 	 *            The project's identifier to match.
@@ -146,11 +151,14 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name.
 	 * @return <code>true</code> when the user can manage the subscriptions of this project.
 	 */
-	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND (p.teamLeader = :user OR "
-			+ SystemUserRepository.IS_ADMIN + " OR (EXISTS(SELECT 1 FROM DelegateOrg d WHERE "
-			+ DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ " AND d.canWrite=true AND d.canAdmin=true                        "
-			+ " AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.name=cg.id) OR"
-			+ "      (d.type=org.ligoj.app.iam.model.DelegateType.TREE  AND (cg.description LIKE CONCAT('%,',d.dn) OR d.dn=cg.description))))))")
+	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND ("
+			+ SystemUserRepository.IS_ADMIN
+			+ " OR (EXISTS(SELECT 1 FROM DelegateNode WHERE (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true) AND "
+			+ DelegateOrgRepository.ASSIGNED_DELEGATE + ")                "
+			+ "  AND (EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
+			+ "  AND d.canWrite=true                                      "
+			+ "  AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.name=cg.id) OR"
+			+ "      (d.type=org.ligoj.app.iam.model.DelegateType.TREE"
+			+ "       AND (cg.description LIKE CONCAT('%,',d.dn) OR d.dn=cg.description)))))))")
 	boolean isManageSubscription(int project, String user);
 }
