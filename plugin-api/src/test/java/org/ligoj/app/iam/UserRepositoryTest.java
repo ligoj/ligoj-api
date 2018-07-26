@@ -21,6 +21,11 @@ public class UserRepositoryTest {
 	}
 
 	@Test
+	public void findAllNoCache() {
+		Assertions.assertTrue(new EmptyUserRepository().findAllNoCache(null).isEmpty());
+	}
+
+	@Test
 	public void findAll2() {
 		Assertions.assertTrue(new EmptyUserRepository().findAll(null, null, null, null).getContent().isEmpty());
 	}
@@ -62,7 +67,7 @@ public class UserRepositoryTest {
 	public void toUserNotExists() {
 		Assertions.assertEquals("login", new MockUserRepository().toUser("login").getId());
 	}
-	
+
 	@Test
 	public void checkLockStatus() {
 		// Nothing by default

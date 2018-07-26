@@ -17,6 +17,11 @@ public class CompanyRepositoryTest {
 	}
 
 	@Test
+	public void findAllNoCache() {
+		Assertions.assertTrue(new EmptyCompanyRepository().findAllNoCache().isEmpty());
+	}
+
+	@Test
 	public void delete() {
 		new EmptyCompanyRepository().delete(null);
 	}
