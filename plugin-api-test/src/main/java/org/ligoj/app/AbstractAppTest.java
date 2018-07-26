@@ -3,10 +3,13 @@
  */
 package org.ligoj.app;
 
+import javax.ws.rs.core.UriInfo;
+
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -42,6 +45,61 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	 */
 	protected IGroupRepository getGroup() {
 		return iamProvider.getConfiguration().getGroupRepository();
+	}
+
+	/**
+	 * Return a new mocked {@link UriInfo} instance with search and an order string.
+	 *
+	 * @param orderedProperty
+	 *            The property to order.
+	 * @param search
+	 *            The value to search.
+	 * @return
+	 */
+	protected UriInfo newUriInfoAscSearch(final String orderedProperty, final String search) {
+		final UriInfo uriInfo = newUriInfo(orderedProperty, "asc");
+		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, search);
+		return uriInfo;
+	}
+
+	/**
+	 * Return a new mocked {@link UriInfo} instance with ascending order on given property.
+	 *
+	 * @param property
+	 *            The property to order.
+	 * @return a new mocked {@link UriInfo} instance.
+	 */
+	protected UriInfo newUriInfoAsc(final String orderedProperty) {
+		return newUriInfo(orderedProperty, "asc");
+	}
+
+	/**
+	 * Return a new mocked {@link UriInfo} instance with descending order on given property.
+	 *
+	 * @param property
+	 *            The property to order.
+	 * @return a new mocked {@link UriInfo} instance.
+	 */
+	protected UriInfo newUriInfoDesc(final String property) {
+		return newUriInfo(property, "desc");
+	}
+
+	/**
+	 * Return a new mocked {@link UriInfo} instance with descending order on given property.
+	 *
+	 * @param property
+	 *            The property to order.
+	 * @param order
+	 *            The order string: <code>desc</code>, <code>asc</code>.
+	 * @return a new mocked {@link UriInfo} instance.
+	 */
+	protected UriInfo newUriInfo(final String property, final String order) {
+		final UriInfo uriInfo = newUriInfo();
+		uriInfo.getQueryParameters().add(DataTableAttributes.PAGE_LENGTH, "100");
+		uriInfo.getQueryParameters().add(DataTableAttributes.SORTED_COLUMN, "2");
+		uriInfo.getQueryParameters().add("columns[2][data]", property);
+		uriInfo.getQueryParameters().add(DataTableAttributes.SORT_DIRECTION, order);
+		return uriInfo;
 	}
 
 	/**
