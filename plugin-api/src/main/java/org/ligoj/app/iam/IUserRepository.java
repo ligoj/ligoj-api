@@ -178,14 +178,14 @@ public interface IUserRepository {
 
 	/**
 	 * Reset user password to the given value. The given password is not stored inside the given {@link UserOrg}
-	 * instance, but only in the remote storage, and in an hashed form. In case <b>password</b> is <code>null</code>, a
-	 * new temporary password will be generated to guarantee the authentication before performing any change. Some LDAP
-	 * modules such as PPOLICY requires a fully authenticated of the target user to apply the password policy.
+	 * instance, but only in the remote storage, and in an hashed form. Some LDAP modules such as PPOLICY requires a
+	 * fully authenticated of the target user to apply the password policy.
 	 *
 	 * @param user
 	 *            The user to update.
 	 * @param password
-	 *            The user current password.
+	 *            The user current password. When <code>null</code>, a new temporary password will be generated to
+	 *            guarantee the authentication before performing any change.
 	 * @param newPassword
 	 *            The raw new password. Will be hashed.
 	 */
