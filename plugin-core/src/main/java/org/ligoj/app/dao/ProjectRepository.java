@@ -50,8 +50,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 			+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p                ",
-			countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p                ", countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 					+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 					+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p")
@@ -151,14 +150,15 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 *            The current user name.
 	 * @return <code>true</code> when the user can manage the subscriptions of this project.
 	 */
-	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :project AND ("
-			+ SystemUserRepository.IS_ADMIN
-			+ " OR (EXISTS(SELECT 1 FROM DelegateNode WHERE (d.canSubscribe = true OR d.canWrite = true OR d.canAdmin = true) AND "
-			+ DelegateOrgRepository.ASSIGNED_DELEGATE + ")                "
-			+ "  AND (EXISTS(SELECT 1 FROM DelegateOrg d WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ "  AND d.canWrite=true                                      "
-			+ "  AND ((d.type=org.ligoj.app.iam.model.DelegateType.GROUP AND d.name=cg.id) OR"
-			+ "      (d.type=org.ligoj.app.iam.model.DelegateType.TREE"
-			+ "       AND (cg.description LIKE CONCAT('%,',d.dn) OR d.dn=cg.description)))))))")
+	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg0 LEFT JOIN cpg0.group AS cg0 WHERE p.id = :project AND ("
+			+ SystemUserRepository.IS_ADMIN + "                               "
+			+ " OR (EXISTS(SELECT 1 FROM DelegateNode WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
+			+ "   AND canSubscribe = true)                             "
+			+ "  AND (EXISTS(SELECT 1 FROM DelegateOrg WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
+			+ "  AND canWrite=true                                      "
+			+ "  AND ((type=org.ligoj.app.iam.model.DelegateType.GROUP AND name=cg0.id) OR"
+			+ "      (type=org.ligoj.app.iam.model.DelegateType.TREE"
+			+ "       AND (cg0.description LIKE CONCAT('%,',dn) OR dn=cg0.description)))))))")
+
 	boolean isManageSubscription(int project, String user);
 }
