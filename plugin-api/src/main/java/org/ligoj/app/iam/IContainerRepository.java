@@ -89,7 +89,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * purpose.
 	 *
 	 * @param dn
-	 *            The DN of new Group. Must ends with the CN.
+	 *            The DN of new container. Must ends with the CN.
 	 * @param cn
 	 *            The formatted CN.
 	 * @return The created container. This corresponds to the internal instance stored in cache.
@@ -112,10 +112,10 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	String getTypeName();
 
 	/**
-	 * Return the groups matching to the given pattern.
+	 * Return the containers matching to the given pattern.
 	 *
-	 * @param groups
-	 *            the visible groups.
+	 * @param containers
+	 *            the visible containers.
 	 * @param criteria
 	 *            the optional criteria used to check name (CN).
 	 * @param pageable
@@ -124,5 +124,6 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 *            The custom comparators used to order the result. The key is the ordered property name.
 	 * @return the UID of users matching all above criteria.
 	 */
-	Page<T> findAll(Set<T> groups, String criteria, Pageable pageable, Map<String, Comparator<T>> customComparators);
+	Page<T> findAll(Set<T> containers, String criteria, Pageable pageable,
+			Map<String, Comparator<T>> customComparators);
 }
