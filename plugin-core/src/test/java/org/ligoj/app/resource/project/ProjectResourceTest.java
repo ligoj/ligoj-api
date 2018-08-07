@@ -273,8 +273,17 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	public void findById() {
+		initSpringSecurityContext("junit");
+		Assertions.assertTrue(checkProject(resource.findById(testProject.getId())).isManageSubscriptions());
+	}
+
+	/**
+	 * test {@link ProjectResource#findById(int)}
+	 */
+	@Test
+	public void findByIdNotSubscriber() {
 		initSpringSecurityContext("fdaugan");
-		checkProject(resource.findById(testProject.getId()));
+		Assertions.assertFalse(checkProject(resource.findById(testProject.getId())).isManageSubscriptions());
 	}
 
 	@Test
@@ -341,7 +350,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("fdaugan", project.getTeamLeader().getId());
 	}
 
-	private void checkProject(final ProjectVo project) {
+	private ProjectVo checkProject(final ProjectVo project) {
 		checkProject((BasicProjectVo) project);
 		Assertions.assertTrue(project.isManageSubscriptions());
 
@@ -369,6 +378,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(10074,
 				((Integer) subscription.getParameters().get("service:bt:jira:project")).intValue());
 		Assertions.assertEquals("MDA", subscription.getParameters().get("service:bt:jira:pkey"));
+		return project;
 	}
 
 	/**
@@ -435,6 +445,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("artifact-id", projFromDB.getPkey());
 		Assertions.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
 	}
+
 	/**
 	 * Create with invalid HTML content.
 	 */

@@ -27,6 +27,7 @@ import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
+import org.ligoj.app.dao.DelegateNodeRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.ProjectRepository;
@@ -90,6 +91,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	private DelegateOrgRepository delegateOrgRepository;
 
 	@Autowired
+	private DelegateNodeRepository delegateNodeRepository;
+
+	@Autowired
 	private ParameterValueRepository parameterValueRepository;
 
 	@Autowired
@@ -98,7 +102,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@BeforeEach
 	public void prepareSubscription() throws IOException {
 		persistEntities("csv", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
-		persistSystemEntities();
 		this.subscription = getSubscription("MDA");
 	}
 
@@ -268,8 +271,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 			entity.setEnd(new Date());
 			taskSampleRepository.saveAndFlush(entity);
 			Assertions.assertNull(taskSampleRepository.findNotFinishedByLocked(subscription));
-			em.flush();
-			em.clear();
 			Assertions.assertEquals(1, taskSampleRepository.count());
 			resource.deleteTasks(sampleResource, subscription);
 			Assertions.assertNull(taskSampleRepository.findNotFinishedByLocked(subscription));
@@ -292,8 +293,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void delete() throws Exception {
-		initSpringSecurityContext("fdaugan");
+	public void deleteByAdmin() throws Exception {
+		initSpringSecurityContext("junit");
 		assertDelete();
 	}
 
@@ -301,10 +302,11 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * Can delete since team leader
 	 */
 	@Test
-	public void deleteBecauseTeamLeader() throws Exception {
+	public void deleteByTeamLeader() throws Exception {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		delegateOrgRepository.findAll().forEach(d -> d.setCanWrite(false));
 		projectRepository.findAll().forEach(d -> d.setTeamLeader("fdaugan"));
+		newDelegateNode();
 		assertDelete();
 	}
 
@@ -312,14 +314,13 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 * Delete since manage the main group
 	 */
 	@Test
-	public void deleteBecauseManageGroup() throws Exception {
+	public void deleteByGroupManager() throws Exception {
 		initSpringSecurityContext("fdaugan");
 		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
 		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 
 		// Persist the delegate and the related group to the project
 		final DelegateOrg delegate = prepareDelegate();
-		delegate.setCanAdmin(true);
 		delegate.setCanWrite(true);
 		em.flush();
 
@@ -327,13 +328,14 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Visible but not admin
+	 * Project is visible and the related group is writable but principal has no right on node.
 	 */
 	@Test
-	public void deleteNotAdminGroup() {
+	public void deleteNoProjectRight() {
 		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
+		delegateNodeRepository.findAll().forEach(d -> d.setCanSubscribe(false));
 		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
+
 		// Persist the delegate and the related group to the project
 		final DelegateOrg delegate = prepareDelegate();
 		delegate.setCanWrite(true);
@@ -343,19 +345,36 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * Visible but not write
+	 * Project is visible and the related group is not writable but principal has right on node.
 	 */
 	@Test
-	public void deleteNotWriteGroup() {
+	public void deleteNoDelegateSubscribe() {
 		initSpringSecurityContext("fdaugan");
 		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
 		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
+
 		// Persist the delegate and the related group to the project
 		final DelegateOrg delegate = prepareDelegate();
-		delegate.setCanAdmin(true);
+		delegate.setCanWrite(false);
+
+		newDelegateNode();
+
 		em.flush();
 		em.clear();
 		Assertions.assertThrows(ForbiddenException.class, () -> resource.delete(subscription));
+	}
+
+	private DelegateNode newDelegateNode() {
+		final DelegateNode delegateNode = new DelegateNode();
+		delegateNode.setReceiver("fdaugan");
+		delegateNode.setReceiverType(ReceiverType.USER);
+		delegateNode.setNode("service");
+		delegateNode.setCanSubscribe(true);
+		delegateNode.setCanWrite(false);
+		delegateNode.setCanAdmin(false);
+		delegateNode.setName("service");
+		delegateNodeRepository.save(delegateNode);
+		return delegateNode;
 	}
 
 	private DelegateOrg prepareDelegate() {
@@ -386,17 +405,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		em.flush();
 
 		return delegate;
-	}
-
-	/**
-	 * Visible since team leader
-	 */
-	@Test
-	public void deleteBecauseManageTheGroup() throws Exception {
-		initSpringSecurityContext("fdaugan");
-		delegateOrgRepository.findAll().forEach(d -> d.setCanAdmin(false));
-		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
-		assertDelete();
 	}
 
 	private void assertDelete() throws Exception {
@@ -456,18 +464,18 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
 
-		em.flush();
-		em.clear();
-
 		Assertions.assertThrows(ForbiddenException.class, () -> {
 			resource.create(vo);
 		});
 	}
 
+	/**
+	 * Principal is the team leader of target project, but can subscribe no node.
+	 */
 	@Test
-	public void createNotSubscribeRight() {
-		// This users sees only Jenkins nodes
+	public void createNotSubscribeRightOnThisNode() {
 		initSpringSecurityContext("user1");
+		delegateNodeRepository.findAll().forEach(d -> d.setCanSubscribe(false));
 
 		// Make the project visible for this user
 		final Project project = projectRepository.findByName("gStack");
@@ -477,13 +485,28 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(project.getId());
-		em.flush();
-		em.clear();
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
+	}
 
-		// Ensure LDAP cache is loaded
-		em.flush();
-		em.clear();
+	/**
+	 * Principal is the team leader of target project, can subscribe to at least one node but not the target one.
+	 */
+	@Test
+	public void createNoSubscribeRight() {
+		initSpringSecurityContext("user1");
+		delegateNodeRepository.findAll().forEach(d -> d.setCanSubscribe(false));
+		DelegateNode delegateNode = newDelegateNode();
+		delegateNode.setReceiver("user1");
+		delegateNode.setNode("service:some:other");
 
+		// Make the project visible for this user
+		final Project project = projectRepository.findByName("gStack");
+		project.setTeamLeader("user1");
+		em.merge(project);
+
+		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		vo.setNode("service:bt:jira:4");
+		vo.setProject(project.getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo));
 	}
 
@@ -518,10 +541,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setParameters(parameters);
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
-
-		// Ensure LDAP cache is loaded
-		em.flush();
-		em.clear();
 		return vo;
 	}
 
@@ -554,13 +573,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setParameters(parameters);
 		vo.setNode("service:id:ldap:dig");
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
-		em.flush();
-		em.clear();
 
 		initSpringSecurityContext(DEFAULT_USER);
 		final int subscription = resource.create(vo);
-		em.flush();
-		em.clear();
 
 		Assertions.assertEquals(group,
 				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
@@ -612,8 +627,6 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		project.setPkey("test");
 		project.setTeamLeader(getAuthenticationName());
 		em.persist(project);
-		em.flush();
-		em.clear();
 
 		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();

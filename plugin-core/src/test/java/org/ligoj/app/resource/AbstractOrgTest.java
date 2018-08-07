@@ -53,6 +53,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 
 	@BeforeEach
 	public void setUpEntities() throws IOException {
+		persistSystemEntities();
 
 		// Prepare the standard data
 		persistEntities("csv", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8.name());
