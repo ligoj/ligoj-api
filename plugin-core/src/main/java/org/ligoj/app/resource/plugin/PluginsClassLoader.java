@@ -78,7 +78,9 @@ public class PluginsClassLoader extends org.ligoj.bootstrap.core.plugin.PluginsC
 	 * @return The {@link Path} reference.
 	 * @throws IOException
 	 *             When the parent directories creation failed.
+	 * @deprecated Remove with Bootstrap 2.4.2+
 	 */
+	@Deprecated
 	private Path toPath(final Path parent, final String... fragments) throws IOException {
 		Path parentR = parent;
 		for (int i = 0; i < fragments.length; i++) {
