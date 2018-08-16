@@ -22,6 +22,7 @@
 		<api.version>3.0.2-SNAPSHOT</api.version>
 		<jdk.version>9</jdk.version>
 		<jdk.release>9</jdk.release>
+		<lombok.version>1.18.2</lombok.version>
 	</properties>
 
 	<profiles>
