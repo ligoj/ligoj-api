@@ -121,7 +121,8 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * @param pageable
 	 *            the ordering and page data.
 	 * @param customComparators
-	 *            The custom comparators used to order the result. The key is the ordered property name.
+	 *            The custom comparators used to order the result. The key is the ordered property name. When no
+	 *            comparator is found within this map, natural order is used.
 	 * @return the UID of users matching all above criteria.
 	 */
 	Page<T> findAll(Set<T> containers, String criteria, Pageable pageable,
