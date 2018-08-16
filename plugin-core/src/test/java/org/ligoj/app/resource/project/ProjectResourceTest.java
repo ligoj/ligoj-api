@@ -131,11 +131,17 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 	@Test
 	public void findAllNotMemberButTreeVisible() {
+		// Drop administrator right from "junit" user
+		em.createQuery("DELETE FROM SystemRoleAssignment").executeUpdate();
+
 		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
-
 		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(1, result.getData().size());
+
+		// "gStack" is visible because of :
+		// - delegate to tree "dc=sample,dc=com"
+		// - AND the related project has subscription to "plugin-id":
 		Assertions.assertEquals("gStack", result.getData().get(0).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
@@ -273,22 +279,11 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	public void findById() {
-		initSpringSecurityContext("junit");
 		Assertions.assertTrue(checkProject(resource.findById(testProject.getId())).isManageSubscriptions());
-	}
-
-	/**
-	 * test {@link ProjectResource#findById(int)}
-	 */
-	@Test
-	public void findByIdNotSubscriber() {
-		initSpringSecurityContext("fdaugan");
-		Assertions.assertFalse(checkProject(resource.findById(testProject.getId())).isManageSubscriptions());
 	}
 
 	@Test
 	public void findByPKeyFull() {
-		initSpringSecurityContext("fdaugan");
 		checkProject(resource.findByPKeyFull(testProject.getPkey()));
 	}
 
@@ -507,7 +502,6 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	public void delete() throws Exception {
 		final long initCount = repository.count();
 		em.clear();
-		initSpringSecurityContext("fdaugan");
 		resource.delete(testProject.getId());
 		em.flush();
 		em.clear();
