@@ -21,23 +21,23 @@ import org.ligoj.app.model.Subscription;
 import org.mockito.Mockito;
 
 /**
- * Test class of {@link PluginsClassLoader}
+ * Test class of {@link LigojPluginsClassLoader}
  */
-public class PluginsClassLoaderTest {
+public class LigojPluginsClassLoaderTest {
 
 	protected static final String USER_HOME_DIRECTORY = "target/test-classes/home-test";
 
 	@BeforeEach
 	public void cleanHome() throws IOException {
-		FileUtils.deleteDirectory(new File(new File(USER_HOME_DIRECTORY, PluginsClassLoader.HOME_DIR_FOLDER),
-				PluginsClassLoader.EXPORT_DIR));
+		FileUtils.deleteDirectory(new File(new File(USER_HOME_DIRECTORY, LigojPluginsClassLoader.HOME_DIR_FOLDER),
+				LigojPluginsClassLoader.EXPORT_DIR));
 	}
 
 	@Test
 	public void getInstance() {
 		try (ThreadClassLoaderScope scope = new ThreadClassLoaderScope(
-				new URLClassLoader(new URL[0], Mockito.mock(PluginsClassLoader.class)))) {
-			Assertions.assertNotNull(PluginsClassLoader.getInstance());
+				new URLClassLoader(new URL[0], Mockito.mock(LigojPluginsClassLoader.class)))) {
+			Assertions.assertNotNull(LigojPluginsClassLoader.getInstance());
 		}
 	}
 
@@ -50,7 +50,7 @@ public class PluginsClassLoaderTest {
 		Assertions.assertFalse(file.exists());
 		try {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
-			try (PluginsClassLoader classLoader = checkClassLoader()) {
+			try (LigojPluginsClassLoader classLoader = checkClassLoader()) {
 				final Subscription subscription = newSubscription();
 				final File cfile = classLoader.toPath(subscription, "foo", "bar.log").toFile();
 				Assertions.assertTrue(subscriptionParent.exists());
@@ -78,8 +78,8 @@ public class PluginsClassLoaderTest {
 		return subscription;
 	}
 
-	private PluginsClassLoader checkClassLoader() throws IOException {
-		final PluginsClassLoader classLoader = new PluginsClassLoader();
+	private LigojPluginsClassLoader checkClassLoader() throws IOException {
+		final LigojPluginsClassLoader classLoader = new LigojPluginsClassLoader();
 		Assertions.assertEquals(3, classLoader.getURLs().length);
 
 		// Check the home is in the class-path

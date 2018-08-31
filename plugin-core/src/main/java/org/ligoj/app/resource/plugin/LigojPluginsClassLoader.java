@@ -11,6 +11,7 @@ import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.bootstrap.core.plugin.PluginsClassLoader;
 
 import lombok.Getter;
 
@@ -18,9 +19,9 @@ import lombok.Getter;
  * Class Loader which load jars in {@value #PLUGINS_DIR} directory inside the home directory.
  */
 @Getter
-public class PluginsClassLoader extends org.ligoj.bootstrap.core.plugin.PluginsClassLoader {
+public class LigojPluginsClassLoader extends PluginsClassLoader {
 
-	public PluginsClassLoader() throws IOException {
+	public LigojPluginsClassLoader() throws IOException {
 		super();
 	}
 
@@ -30,8 +31,8 @@ public class PluginsClassLoader extends org.ligoj.bootstrap.core.plugin.PluginsC
 	 * @return the closest {@link PluginsClassLoader} instance from the current thread's {@link ClassLoader}. May be
 	 *         <code>null</code>.
 	 */
-	public static PluginsClassLoader getInstance() {
-		return (PluginsClassLoader) org.ligoj.bootstrap.core.plugin.PluginsClassLoader.getInstance();
+	public static LigojPluginsClassLoader getInstance() {
+		return (LigojPluginsClassLoader) org.ligoj.bootstrap.core.plugin.PluginsClassLoader.getInstance();
 	}
 
 	/**
