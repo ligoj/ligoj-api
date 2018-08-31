@@ -69,29 +69,6 @@ public class PluginsClassLoader extends org.ligoj.bootstrap.core.plugin.PluginsC
 	}
 
 	/**
-	 * Get a file reference inside the given parent path. The parent directories are created as needed.
-	 *
-	 * @param parent
-	 *            The parent path.
-	 * @param fragments
-	 *            The file fragments within the given parent.
-	 * @return The {@link Path} reference.
-	 * @throws IOException
-	 *             When the parent directories creation failed.
-	 * @deprecated Remove with Bootstrap 2.4.2+
-	 */
-	@Deprecated
-	private Path toPath(final Path parent, final String... fragments) throws IOException {
-		Path parentR = parent;
-		for (int i = 0; i < fragments.length; i++) {
-			parentR = parentR.resolve(fragments[i]);
-		}
-		// Ensure the parent path is created
-		FileUtils.forceMkdir(parentR.getParent().toFile());
-		return parentR;
-	}
-
-	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
 	 *
 	 * @param node

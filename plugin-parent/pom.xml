@@ -21,7 +21,6 @@
 		<sonar.sources>src/main/java,src/main/resources/META-INF/resources/webjars</sonar.sources>
 		<sonar.coverage.exclusions>**/*.js</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/messages.js</sonar.cpd.exclusions>
-		<jetty.version>9.4.9.v20180320</jetty.version>
 	</properties>
 
 	<dependencyManagement>
