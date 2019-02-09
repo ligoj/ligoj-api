@@ -20,5 +20,5 @@ mtuyer;USER;TREE;-;true;true;ou=fonction,ou=groups,dc=sample,dc=com
 mtuyer;USER;COMPANY;ing;false;true;ou=ing,ou=external,ou=people,dc=sample,dc=com
 mlavoine;USER;TREE;-;false;false;cn=biz agency,ou=tools,dc=sample,dc=com
 mlavoine;USER;COMPANY;ing;false;false;ou=ing,ou=external,ou=people,dc=sample,dc=com
-gfi-gstack;GROUP;COMPANY;ing;false;false;ou=ing,ou=external,ou=people,dc=sample,dc=com;cn=gfi-gstack,ou=gfi,ou=project,dc=sample,dc=com
+ligoj-gstack;GROUP;COMPANY;ing;false;false;ou=ing,ou=external,ou=people,dc=sample,dc=com;cn=ligoj-gstack,ou=ligoj,ou=project,dc=sample,dc=com
 ing;COMPANY;GROUP;business solution;false;false;cn=business solution,ou=groups,dc=sample,dc=com;ou=ing,ou=external,ou=people,dc=sample,dc=com

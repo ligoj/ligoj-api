@@ -626,7 +626,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("junit", parameters.get("service:build:jenkins:user"));
 		Assertions.assertEquals("http://localhost:8120", parameters.get("service:build:jenkins:url"));
 		Assertions.assertEquals("secret", parameters.get("service:build:jenkins:api-token"));
-		Assertions.assertEquals("gfi-bootstrap", parameters.get("service:build:jenkins:job"));
+		Assertions.assertEquals("ligoj-bootstrap", parameters.get("service:build:jenkins:job"));
 	}
 
 	@Test

@@ -452,9 +452,9 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * The project is visible for user "alongchu" since he is in the main group "gfi-gstack" of the project
-	 * "gfi-gstack", however he is neither the team leader of this project, neither an administrator, neither a manger
-	 * of the group "gfi-gstack".
+	 * The project is visible for user "alongchu" since he is in the main group "ligoj-gstack" of the project
+	 * "ligoj-gstack", however he is neither the team leader of this project, neither an administrator, neither a manger
+	 * of the group "ligoj-gstack".
 	 */
 	@Test
 	public void createNotManagedProject() {
@@ -547,8 +547,8 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	public void createCreateMode() throws Exception {
 		// Prepare data
-		final int subscription = createCreateBase("gfi-gstack", "gfi-gstack-client");
-		Assertions.assertEquals("gfi-gstack", parameterValueRepository.getSubscriptionParameterValue(subscription,
+		final int subscription = createCreateBase("ligoj-gstack", "ligoj-gstack-client");
+		Assertions.assertEquals("ligoj-gstack", parameterValueRepository.getSubscriptionParameterValue(subscription,
 				IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
@@ -558,7 +558,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter(IdentityResource.PARAMETER_OU);
-		parameterValueEditionVo.setText("gfi");
+		parameterValueEditionVo.setText("ligoj");
 		parameters.add(parameterValueEditionVo);
 		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter(IdentityResource.PARAMETER_PARENT_GROUP);
@@ -579,7 +579,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 
 		Assertions.assertEquals(group,
 				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
-		Assertions.assertEquals("gfi",
+		Assertions.assertEquals("ligoj",
 				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_OU));
 		return subscription;
 	}
@@ -589,7 +589,7 @@ public class SubscriptionResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	public void createCreateModeBlank() throws Exception {
-		final int subscription = createCreateBase("", "gfi-gstack-client2");
+		final int subscription = createCreateBase("", "ligoj-gstack-client2");
 		Assertions.assertNull(parameterValueRepository.getSubscriptionParameterValue(subscription,
 				IdentityResource.PARAMETER_PARENT_GROUP));
 	}

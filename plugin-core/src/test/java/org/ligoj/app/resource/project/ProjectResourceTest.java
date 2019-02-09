@@ -99,7 +99,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	public void findAllByPkey() {
 		initSpringSecurityContext("fdaugan");
-		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "gfi-gstack");
+		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "ligoj-gstack");
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsFiltered());
 		Assertions.assertEquals(1, result.getRecordsTotal());
@@ -111,8 +111,8 @@ public class ProjectResourceTest extends AbstractOrgTest {
 		final DelegateOrg delegate = new DelegateOrg();
 		delegate.setType(DelegateType.GROUP);
 		delegate.setReceiver("user");
-		delegate.setDn("cn=gfi-gstack,ou=gfi,ou=project,dc=sample,dc=com");
-		delegate.setName("gfi-gStack");
+		delegate.setDn("cn=ligoj-gstack,ou=ligoj,ou=project,dc=sample,dc=com");
+		delegate.setName("ligoj-gStack");
 		em.persist(delegate);
 		em.flush();
 		em.clear();
@@ -186,7 +186,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 
 	private void checkProjectMDA(final ProjectLightVo project) {
 		Assertions.assertEquals("MDA", project.getName());
-		Assertions.assertEquals("Model Driven Architecture implementation of Gfi", project.getDescription());
+		Assertions.assertEquals("Model Driven Architecture implementation", project.getDescription());
 		Assertions.assertEquals("mda", project.getPkey());
 		Assertions.assertNotNull(project.getCreatedDate());
 		Assertions.assertNotNull(project.getLastModifiedDate());
@@ -336,7 +336,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	private void checkProject(final BasicProjectVo project) {
 		Assertions.assertEquals("MDA", project.getName());
 		Assertions.assertEquals(testProject.getId(), project.getId());
-		Assertions.assertEquals("Model Driven Architecture implementation of Gfi", project.getDescription());
+		Assertions.assertEquals("Model Driven Architecture implementation", project.getDescription());
 		Assertions.assertNotNull(project.getCreatedDate());
 		Assertions.assertNotNull(project.getLastModifiedDate());
 		Assertions.assertEquals(DEFAULT_USER, project.getCreatedBy().getId());
