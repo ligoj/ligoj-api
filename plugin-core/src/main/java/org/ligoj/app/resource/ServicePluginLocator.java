@@ -46,24 +46,6 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	}
 
 	/**
-	 * Return and expect the plug-in from the service key.
-	 *
-	 * @param service
-	 *            the service name.
-	 * @param requiredType
-	 *            The required resource class. For sample
-	 *            <code>ServicePlugin.class</code>
-	 * @param <T>
-	 *            The required resource type. For sample
-	 *            <code>ServicePlugin</code>
-	 * @return the plug-in from the service key. <code>PluginException</code> if
-	 *         not found.
-	 */
-	public <T> T getResourceExpected(final String service, final Class<T> requiredType) {
-		return Optional.ofNullable(getResource(service, requiredType)).orElseThrow(() -> new PluginNotFoundException(service));
-	}
-
-	/**
 	 * Return the plug-in from the service key.
 	 *
 	 * @param service
@@ -100,6 +82,24 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	}
 
 	/**
+	 * Return and expect the plug-in from the service key.
+	 *
+	 * @param service
+	 *            the service name.
+	 * @param requiredType
+	 *            The required resource class. For sample
+	 *            <code>ServicePlugin.class</code>
+	 * @param <T>
+	 *            The required resource type. For sample
+	 *            <code>ServicePlugin</code>
+	 * @return the plug-in from the service key. <code>PluginException</code> if
+	 *         not found.
+	 */
+	public <T> T getResourceExpected(final String service, final Class<T> requiredType) {
+		return Optional.ofNullable(getResource(service, requiredType)).orElseThrow(() -> new PluginNotFoundException(service));
+	}
+
+	/**
 	 * Return the plug-in from the service key.
 	 *
 	 * @param service
@@ -112,6 +112,13 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	}
 
 	/**
+	 * Return all Spring context bean of type {@link ServicePlugin}
+	 */
+	private String[] getPluginResources() {
+		return applicationContext.getBeanNamesForType(ServicePlugin.class);
+	}
+
+	/**
 	 * Return the plug-in from the service key.
 	 *
 	 * @param service
@@ -120,13 +127,6 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	 */
 	private List<String> getResources(final String service) {
 		return getResources(getPluginResources(), service);
-	}
-
-	/**
-	 * Return all Spring context bean of type {@link ServicePlugin}
-	 */
-	private String[] getPluginResources() {
-		return applicationContext.getBeanNamesForType(ServicePlugin.class);
 	}
 
 	/**

@@ -336,6 +336,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		repository.deleteById(id);
 	}
 
+	@Override
+	protected void delete(final ServicePlugin plugin, final String id, final boolean deleteRemoteData)
+			throws Exception {
+		plugin.delete(id, deleteRemoteData);
+	}
+
 	/**
 	 * Check status of each node instance. Only visible nodes from the current user are checked.
 	 */
@@ -749,12 +755,6 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	public Node checkAdministerable(final String id) {
 		return checkNode(id, repository::findOneAdministerable);
-	}
-
-	@Override
-	protected void delete(final ServicePlugin plugin, final String id, final boolean deleteRemoteData)
-			throws Exception {
-		plugin.delete(id, deleteRemoteData);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

@@ -566,6 +566,25 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		return parameterValueEntity;
 	}
 
+	/**
+	 * Create a new {@link ParameterValue} linked to a new {@link Node} without subscription.
+	 */
+	private ParameterValue newParameterValue() {
+		final Node node = new Node();
+		node.setName("create-test");
+		node.setId("service:kpi:sonar:temp");
+		node.setRefined(em.find(Node.class, "service:kpi:sonar"));
+		em.persist(node);
+		final ParameterValue value = new ParameterValue();
+		value.setParameter(em.find(Parameter.class, "service:kpi:sonar:user"));
+		value.setData("user");
+		value.setNode(node);
+		em.persist(value);
+		em.flush();
+		em.clear();
+		return value;
+	}
+
 	@Test
 	public void toMap() {
 		final List<SystemRole> values = new ArrayList<>();
@@ -708,25 +727,6 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertTrue(repository.existsById(value.getId()));
 		resource.delete(value.getId());
 		Assertions.assertFalse(repository.existsById(value.getId()));
-	}
-
-	/**
-	 * Create a new {@link ParameterValue} linked to a new {@link Node} without subscription.
-	 */
-	private ParameterValue newParameterValue() {
-		final Node node = new Node();
-		node.setName("create-test");
-		node.setId("service:kpi:sonar:temp");
-		node.setRefined(em.find(Node.class, "service:kpi:sonar"));
-		em.persist(node);
-		final ParameterValue value = new ParameterValue();
-		value.setParameter(em.find(Parameter.class, "service:kpi:sonar:user"));
-		value.setData("user");
-		value.setNode(node);
-		em.persist(value);
-		em.flush();
-		em.clear();
-		return value;
 	}
 
 	@Test

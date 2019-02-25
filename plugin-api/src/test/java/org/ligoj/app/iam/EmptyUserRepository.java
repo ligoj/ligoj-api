@@ -24,7 +24,7 @@ public class EmptyUserRepository implements IUserRepository {
 	@Getter
 	@Setter
 	private ICompanyRepository companyRepository;
-	
+
 	@Override
 	public String getToken(final String login) {
 		return login;
@@ -76,6 +76,12 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public void setPassword(UserOrg user, String password) {
 		// Nothing to do
+	}
+
+	@Override
+	public void setPassword(UserOrg user, String password, String newPassword) {
+		// Nothing to do
+
 	}
 
 	@Override
@@ -131,12 +137,6 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public String toDn(UserOrg newUser) {
 		return null;
-	}
-
-	@Override
-	public void setPassword(UserOrg user, String password, String newPassword) {
-		// Nothing to do
-		
 	}
 
 }

@@ -61,6 +61,12 @@ class MockUserRepository implements IUserRepository {
 	}
 
 	@Override
+	public void setPassword(UserOrg user, String password, String newPassword) {
+		// Nothing to do
+
+	}
+
+	@Override
 	public String getPeopleInternalBaseDn() {
 		return null;
 	}
@@ -113,11 +119,5 @@ class MockUserRepository implements IUserRepository {
 	@Override
 	public String toDn(UserOrg newUser) {
 		return null;
-	}
-
-	@Override
-	public void setPassword(UserOrg user, String password, String newPassword) {
-		// Nothing to do
-		
 	}
 }

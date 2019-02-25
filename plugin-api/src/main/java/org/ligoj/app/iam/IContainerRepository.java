@@ -72,6 +72,23 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	Map<String, T> findAll();
 
 	/**
+	 * Return the containers matching to the given pattern.
+	 *
+	 * @param containers
+	 *            the visible containers.
+	 * @param criteria
+	 *            the optional criteria used to check name (CN).
+	 * @param pageable
+	 *            the ordering and page data.
+	 * @param customComparators
+	 *            The custom comparators used to order the result. The key is the ordered property name. When no
+	 *            comparator is found within this map, natural order is used.
+	 * @return the UID of users matching all above criteria.
+	 */
+	Page<T> findAll(Set<T> containers, String criteria, Pageable pageable,
+			Map<String, Comparator<T>> customComparators);
+
+	/**
 	 * Return all normalized containers where key is the identifier. Note the result does not use cache, so reflect the
 	 * current state of internal representation and implies a poor performance. Cache manager is not involved.
 	 *
@@ -110,21 +127,4 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * @return the human readable container type name.
 	 */
 	String getTypeName();
-
-	/**
-	 * Return the containers matching to the given pattern.
-	 *
-	 * @param containers
-	 *            the visible containers.
-	 * @param criteria
-	 *            the optional criteria used to check name (CN).
-	 * @param pageable
-	 *            the ordering and page data.
-	 * @param customComparators
-	 *            The custom comparators used to order the result. The key is the ordered property name. When no
-	 *            comparator is found within this map, natural order is used.
-	 * @return the UID of users matching all above criteria.
-	 */
-	Page<T> findAll(Set<T> containers, String criteria, Pageable pageable,
-			Map<String, Comparator<T>> customComparators);
 }

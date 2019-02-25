@@ -56,6 +56,12 @@ class MockUserRepository2 implements IUserRepository {
 	}
 
 	@Override
+	public void setPassword(UserOrg user, String password, String newPassword) {
+		// Nothing to do
+
+	}
+
+	@Override
 	public ICompanyRepository getCompanyRepository() {
 		return Mockito.mock(ICompanyRepository.class);
 	}
@@ -79,7 +85,7 @@ class MockUserRepository2 implements IUserRepository {
 	@Override
 	public void restore(UserOrg user) {
 		// Nothing to do
-		
+
 	}
 
 	@Override
@@ -117,11 +123,5 @@ class MockUserRepository2 implements IUserRepository {
 	public String toDn(UserOrg newUser) {
 		// Nothing to do
 		return null;
-	}
-
-	@Override
-	public void setPassword(UserOrg user, String password, String newPassword) {
-		// Nothing to do
-		
 	}
 }

@@ -83,6 +83,11 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
+	public void setPassword(UserOrg user, String password, String newPassword) {
+		// Nothing to do
+	}
+
+	@Override
 	public String getPeopleInternalBaseDn() {
 		return "";
 	}
@@ -135,10 +140,5 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public String toDn(UserOrg newUser) {
 		return "";
-	}
-
-	@Override
-	public void setPassword(UserOrg user, String password, String newPassword) {
-		// Nothing to do		
 	}
 }

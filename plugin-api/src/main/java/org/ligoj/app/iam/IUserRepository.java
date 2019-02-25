@@ -75,6 +75,23 @@ public interface IUserRepository {
 	}
 
 	/**
+	 * Return the users members (UIDs) of the given groups and matching to the given pattern.
+	 *
+	 * @param requiredGroups
+	 *            Filtered groups to be member of returned users. The users must be member of one of these groups. When
+	 *            <code>null</code>, there is no constraint.
+	 * @param companies
+	 *            Filtered companies (DNs) to be member of returned users.
+	 * @param criteria
+	 *            the optional criteria used to check identifier (UID), first name and last name.
+	 * @param pageable
+	 *            the ordering and page data.
+	 * @return the UID of users matching all above criteria.
+	 */
+	Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria,
+			Pageable pageable);
+
+	/**
 	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache.
 	 *
 	 * @param id
@@ -84,27 +101,6 @@ public interface IUserRepository {
 	default UserOrg findById(final String id) {
 		return findAll().get(id);
 	}
-
-	/**
-	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache.
-	 *
-	 * @param id
-	 *            The user identifier.
-	 * @return the {@link UserOrg} corresponding to the given identifier. Never <code>null</code>.
-	 * @throws ValidationJsonException
-	 *             If no user is found.
-	 */
-	default UserOrg findByIdExpected(final String id) {
-		return Optional.ofNullable(findById(id))
-				.orElseThrow(() -> new ValidationJsonException("id", "unknown-id", "0", "user", "1", id));
-	}
-
-	/**
-	 * Return the {@link ICompanyRepository} to use to resolve the company of the managed users.
-	 *
-	 * @return the {@link ICompanyRepository} to use to resolve the company of the managed users.
-	 */
-	ICompanyRepository getCompanyRepository();
 
 	/**
 	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache and the relevant security
@@ -129,21 +125,25 @@ public interface IUserRepository {
 	}
 
 	/**
-	 * Return the users members (UIDs) of the given groups and matching to the given pattern.
+	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache.
 	 *
-	 * @param requiredGroups
-	 *            Filtered groups to be member of returned users. The users must be member of one of these groups. When
-	 *            <code>null</code>, there is no constraint.
-	 * @param companies
-	 *            Filtered companies (DNs) to be member of returned users.
-	 * @param criteria
-	 *            the optional criteria used to check identifier (UID), first name and last name.
-	 * @param pageable
-	 *            the ordering and page data.
-	 * @return the UID of users matching all above criteria.
+	 * @param id
+	 *            The user identifier.
+	 * @return the {@link UserOrg} corresponding to the given identifier. Never <code>null</code>.
+	 * @throws ValidationJsonException
+	 *             If no user is found.
 	 */
-	Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria,
-			Pageable pageable);
+	default UserOrg findByIdExpected(final String id) {
+		return Optional.ofNullable(findById(id))
+				.orElseThrow(() -> new ValidationJsonException("id", "unknown-id", "0", "user", "1", id));
+	}
+
+	/**
+	 * Return the {@link ICompanyRepository} to use to resolve the company of the managed users.
+	 *
+	 * @return the {@link ICompanyRepository} to use to resolve the company of the managed users.
+	 */
+	ICompanyRepository getCompanyRepository();
 
 	/**
 	 * Check the user credentials.
