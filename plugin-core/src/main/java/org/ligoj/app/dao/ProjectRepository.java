@@ -9,7 +9,7 @@ import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Project;
 import org.ligoj.bootstrap.core.dao.RestRepository;
-import org.ligoj.bootstrap.dao.system.SystemUserRepository;
+import org.ligoj.bootstrap.model.system.SystemUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -28,7 +28,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	/**
 	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
-	String VISIBLE_PROJECTS = "(" + SystemUserRepository.IS_ADMIN
+	String VISIBLE_PROJECTS = "(" + SystemUser.IS_ADMIN
 			+ " OR visibleproject(p, cg.description, :user, :user, :user, :user, :user) = true)";
 
 	/**
@@ -153,7 +153,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @return <code>true</code> when <code>user</code> can manage the subscriptions of this project.
 	 */
 	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg0 LEFT JOIN cpg0.group AS cg0 WHERE p.id = :project AND ("
-			+ SystemUserRepository.IS_ADMIN + "                          "
+			+ SystemUser.IS_ADMIN + "                          "
 			+ "  OR (EXISTS(SELECT 1 FROM DelegateNode WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
 			+ "   AND canSubscribe = true)                                      "
 			+ "  AND (p.teamLeader = :user                                      "

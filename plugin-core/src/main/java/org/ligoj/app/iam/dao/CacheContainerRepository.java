@@ -6,7 +6,7 @@ package org.ligoj.app.iam.dao;
 import java.util.List;
 
 import org.ligoj.app.iam.model.CacheContainer;
-import org.ligoj.bootstrap.dao.system.SystemUserRepository;
+import org.ligoj.bootstrap.model.system.SystemUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -22,13 +22,13 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * Filter to determine the company is writable : brought only by a delegate.
 	 */
-	String WRITABLE_RESOURCE = "(" + SystemUserRepository.IS_ADMIN
+	String WRITABLE_RESOURCE = "(" + SystemUser.IS_ADMIN
 			+ " OR writedn(l.description,:user,:user,:user)=true)";
 
 	/**
 	 * Filter to determine the group is administered : brought only by a delegate.
 	 */
-	String ADMIN_RESOURCE = "(" + SystemUserRepository.IS_ADMIN + " OR admindn(l.description,:user,:user,:user)=true)";
+	String ADMIN_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR admindn(l.description,:user,:user,:user)=true)";
 
 	/**
 	 * All visible containers regarding the security, and the criteria.

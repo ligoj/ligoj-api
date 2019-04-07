@@ -7,7 +7,7 @@ import java.util.List;
 
 import org.ligoj.app.iam.model.CacheCompany;
 import org.ligoj.bootstrap.core.dao.RestRepository;
-import org.ligoj.bootstrap.dao.system.SystemUserRepository;
+import org.ligoj.bootstrap.model.system.SystemUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -21,7 +21,7 @@ public interface CacheCompanyRepository
 	/**
 	 * Filter to determine the company is visible or not.
 	 */
-	String VISIBLE_RESOURCE = "(" + SystemUserRepository.IS_ADMIN
+	String VISIBLE_RESOURCE = "(" + SystemUser.IS_ADMIN
 			+ " OR visiblecompany(l.description,:user,:user,:user,:user)=true)";
 
 	@Override

@@ -9,7 +9,7 @@ import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.model.Node;
 import org.ligoj.bootstrap.core.dao.RestRepository;
-import org.ligoj.bootstrap.dao.system.SystemUserRepository;
+import org.ligoj.bootstrap.model.system.SystemUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
@@ -24,7 +24,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Visible nodes condition.
 	 */
-	String VISIBLE_NODES_PART = "(" + SystemUserRepository.IS_ADMIN + " OR EXISTS(SELECT 1 FROM DelegateNode d WHERE " + MATCH_DELEGATE;
+	String VISIBLE_NODES_PART = "(" + SystemUser.IS_ADMIN + " OR EXISTS(SELECT 1 FROM DelegateNode d WHERE " + MATCH_DELEGATE;
 
 	/**
 	 * Visible nodes condition.
@@ -51,7 +51,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 
 	/**
 	 * Return all nodes with all non secured parameters.
-	 * 
+	 *
 	 * @return the nodes.
 	 */
 	@Query("SELECT n, p FROM ParameterValue p RIGHT JOIN p.node n"
@@ -60,7 +60,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 
 	/**
 	 * Return final nodes, so representing a node (running instance) of a tool.
-	 * 
+	 *
 	 * @return instance nodes considered as final .
 	 */
 	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL ORDER BY UPPER(n.name)")
@@ -69,7 +69,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Return final nodes, so representing a node (running instance) of a tool and
 	 * visible for a given user.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the nodes.
 	 * @return instance nodes considered as final .
@@ -79,7 +79,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 
 	/**
 	 * Count subscriptions by node and visible to a given user.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the nodes.
 	 * @return node subscriptions count
@@ -90,7 +90,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Return a {@link Node} by its identifier if it is visible for the current
 	 * user.
-	 * 
+	 *
 	 * @param id
 	 *            The identifier to find.
 	 * @param user
@@ -103,7 +103,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Return a {@link Node} by its identifier if it is visible and writable for the
 	 * current user.
-	 * 
+	 *
 	 * @param id
 	 *            The identifier to find.
 	 * @param user
@@ -116,7 +116,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Return a {@link Node} by its identifier if it is visible and administered for
 	 * the current user.
-	 * 
+	 *
 	 * @param id
 	 *            The identifier to find.
 	 * @param user
@@ -128,7 +128,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 
 	/**
 	 * Return all visible {@link Node} for current user.
-	 * 
+	 *
 	 * @param user
 	 *            The user requesting the nodes.
 	 * @param criteria
@@ -159,7 +159,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	/**
 	 * Return a {@link Node} by its identifier if it is visible for current user and
 	 * if this user can create a subscription on it.
-	 * 
+	 *
 	 * @param id
 	 *            The identifier to find.
 	 * @param user
@@ -171,7 +171,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 
 	/**
 	 * Return the amount of nodes having the parent node.
-	 * 
+	 *
 	 * @param node
 	 *            The parent node identifier. Directly or not.
 	 * @return The amount of nodes having the parent node.
