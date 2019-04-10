@@ -88,8 +88,7 @@ public class ProjectResource {
 	/**
 	 * Converter from {@link Project} to {@link ProjectVo} with the associated subscriptions.
 	 *
-	 * @param project
-	 *            Entity to convert.
+	 * @param project Entity to convert.
 	 * @return The project description with subscriptions.
 	 */
 	public ProjectVo toVo(final Project project) {
@@ -114,8 +113,7 @@ public class ProjectResource {
 	/**
 	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription count.
 	 *
-	 * @param resultset
-	 *            Entity to convert and the associated subscription count.
+	 * @param resultset Entity to convert and the associated subscription count.
 	 * @return The project description with subscription counter.
 	 */
 	public ProjectLightVo toVoLightCount(final Object[] resultset) { // NOSONAR -- varargs
@@ -127,8 +125,7 @@ public class ProjectResource {
 	/**
 	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription count.
 	 *
-	 * @param entity
-	 *            Entity to convert.
+	 * @param entity Entity to convert.
 	 * @return The project description without subscription counter.
 	 */
 	public ProjectLightVo toVoLight(final Project entity) {
@@ -157,10 +154,8 @@ public class ProjectResource {
 	/**
 	 * Retrieve all project with pagination, and filtered. A visible project is attached to a visible group.
 	 *
-	 * @param uriInfo
-	 *            pagination data.
-	 * @param criteria
-	 *            the optional criteria to match.
+	 * @param uriInfo  pagination data.
+	 * @param criteria the optional criteria to match.
 	 * @return all elements with pagination.
 	 */
 	@GET
@@ -176,9 +171,8 @@ public class ProjectResource {
 	/**
 	 * Return a project with all subscription parameters and their status.
 	 *
-	 * @param id
-	 *            Project identifier.
-	 * @return Found element. Never <tt>null</tt>.
+	 * @param id Project identifier.
+	 * @return Found element. Never <code>null</code>.
 	 */
 	@GET
 	@Path("{id:\\d+}")
@@ -189,9 +183,8 @@ public class ProjectResource {
 	/**
 	 * Return a project with all subscription parameters and their status.
 	 *
-	 * @param pkey
-	 *            Project pkey (string identifier).
-	 * @return Found element. Never <tt>null</tt>.
+	 * @param pkey Project pkey (string identifier).
+	 * @return Found element. Never <code>null</code>.
 	 */
 	@GET
 	@Path("{pkey:" + Project.PKEY_PATTERN + "}")
@@ -202,9 +195,8 @@ public class ProjectResource {
 	/**
 	 * Return a project without subscription details.
 	 *
-	 * @param pkey
-	 *            Project pkey.
-	 * @return Found element. Never <tt>null</tt>.
+	 * @param pkey Project pkey.
+	 * @return Found element. Never <code>null</code>.
 	 */
 	public ProjectLightVo findByPKey(final String pkey) {
 		return Optional.ofNullable(repository.findByPKeyNoFetch(pkey, securityHelper.getLogin())).map(this::toVoLight)
@@ -214,8 +206,7 @@ public class ProjectResource {
 	/**
 	 * Create project. Should be protected with RBAC.
 	 *
-	 * @param vo
-	 *            the object to create.
+	 * @param vo the object to create.
 	 * @return the entity's identifier.
 	 */
 	@POST
@@ -226,8 +217,7 @@ public class ProjectResource {
 	/**
 	 * Update project. Should be protected with RBAC.
 	 *
-	 * @param vo
-	 *            the object to save.
+	 * @param vo the object to save.
 	 */
 	@PUT
 	public void update(final ProjectEditionVo vo) {
@@ -246,10 +236,8 @@ public class ProjectResource {
 	/**
 	 * Delete entity. Should be protected with RBAC.
 	 *
-	 * @param id
-	 *            The entity identifier.
-	 * @throws Exception
-	 *             When the delete fails. Managed at JAX-RS level.
+	 * @param id The entity identifier.
+	 * @throws Exception When the delete fails. Managed at JAX-RS level.
 	 */
 	@DELETE
 	@Path("{id:\\d+}")

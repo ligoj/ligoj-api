@@ -24,10 +24,8 @@ public class PluginException extends RuntimeException {
 	/**
 	 * All arguments constructor.
 	 * 
-	 * @param plugin
-	 *            The requested plug-in of node identifier.
-	 * @param message
-	 *            The related message for this plug-in.
+	 * @param plugin  The requested plug-in of node identifier.
+	 * @param message The related message for this plug-in.
 	 */
 	public PluginException(final String plugin, String message) {
 		this(plugin, message, null);
@@ -36,15 +34,10 @@ public class PluginException extends RuntimeException {
 	/**
 	 * All arguments constructor.
 	 * 
-	 * @param plugin
-	 *            The requested plug-in of node identifier.
-	 * @param message
-	 *            The related message for this plug-in.
-	 * @param cause
-	 *            the cause (which is saved for later retrieval by the
-	 *            {@link #getCause()} method). (A <tt>null</tt> value is
-	 *            permitted, and indicates that the cause is nonexistent or
-	 *            unknown.)
+	 * @param plugin  The requested plug-in of node identifier.
+	 * @param message The related message for this plug-in.
+	 * @param cause   the cause (which is saved for later retrieval by the {@link #getCause()} method). (A
+	 *                <code>null</code> value is permitted, and indicates that the cause is nonexistent or unknown.)
 	 */
 	public PluginException(final String plugin, String message, final Throwable cause) {
 		super("Plugin issue for " + plugin + ":" + message, cause);

@@ -132,16 +132,14 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Indicate <code>user</code> can manage the subscriptions of <code>project</code>. The constraints are:
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
-	 * <li>Either <code>user</code> has at least one {@link org.ligoj.app.iam.model.DelegateNode} with
-	 * <code>canSubscribe</code>, and:
+	 * <li>Either <code>user</code> has at least one {@link org.ligoj.app.model.DelegateNode} with
+	 * <code>canSubscribe</code>, and:</li>
 	 * <ul>
 	 * <li>Either <code>user</code> is the team leader</li>
 	 * <li>Either the project is visible by <code>user</code> and also <code>user</code> has at least one
 	 * {@link org.ligoj.app.iam.model.DelegateOrg} with <code>canWrite</code> and related to the group associated to
 	 * <code>project</code></li>
-	 * <ul>
 	 * </ul>
-	 * </li>
 	 * </ul>
 	 * Note, this will only authorize the principal to create subscriptions to this project, and the valid subscribed
 	 * {@link Node}s should be filtered regarding the delegates on this node.

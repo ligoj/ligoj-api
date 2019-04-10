@@ -50,11 +50,9 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	/**
 	 * Return a new mocked {@link UriInfo} instance with search and an order string.
 	 *
-	 * @param orderedProperty
-	 *            The property to order.
-	 * @param search
-	 *            The value to search.
-	 * @return
+	 * @param orderedProperty The property to order.
+	 * @param search          The value to search.
+	 * @return A new mocked {@link UriInfo} instance with a search criteria.
 	 */
 	protected UriInfo newUriInfoAscSearch(final String orderedProperty, final String search) {
 		final UriInfo uriInfo = newUriInfo(orderedProperty, "asc");
@@ -65,9 +63,8 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	/**
 	 * Return a new mocked {@link UriInfo} instance with ascending order on given property.
 	 *
-	 * @param property
-	 *            The property to order.
-	 * @return a new mocked {@link UriInfo} instance.
+	 * @param orderedProperty The property to order.
+	 * @return A new mocked {@link UriInfo} instance.
 	 */
 	protected UriInfo newUriInfoAsc(final String orderedProperty) {
 		return newUriInfo(orderedProperty, "asc");
@@ -76,28 +73,25 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	/**
 	 * Return a new mocked {@link UriInfo} instance with descending order on given property.
 	 *
-	 * @param property
-	 *            The property to order.
+	 * @param property The property to order.
 	 * @return a new mocked {@link UriInfo} instance.
 	 */
-	protected UriInfo newUriInfoDesc(final String property) {
-		return newUriInfo(property, "desc");
+	protected UriInfo newUriInfoDesc(final String orderedProperty) {
+		return newUriInfo(orderedProperty, "desc");
 	}
 
 	/**
 	 * Return a new mocked {@link UriInfo} instance with descending order on given property.
 	 *
-	 * @param property
-	 *            The property to order.
-	 * @param order
-	 *            The order string: <code>desc</code>, <code>asc</code>.
+	 * @param orderedProperty The property to order.
+	 * @param order           The order string: <code>desc</code>, <code>asc</code>.
 	 * @return a new mocked {@link UriInfo} instance.
 	 */
-	protected UriInfo newUriInfo(final String property, final String order) {
+	protected UriInfo newUriInfo(final String orderedProperty, final String order) {
 		final UriInfo uriInfo = newUriInfo();
 		uriInfo.getQueryParameters().add(DataTableAttributes.PAGE_LENGTH, "100");
 		uriInfo.getQueryParameters().add(DataTableAttributes.SORTED_COLUMN, "2");
-		uriInfo.getQueryParameters().add("columns[2][data]", property);
+		uriInfo.getQueryParameters().add("columns[2][data]", orderedProperty);
 		uriInfo.getQueryParameters().add(DataTableAttributes.SORT_DIRECTION, order);
 		return uriInfo;
 	}
@@ -105,11 +99,9 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	/**
 	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
 	 *
-	 * @param project
-	 *            The project name of the subscription to return.
-	 * @param service
-	 *            The subscribed service of the project. May be a service or a tool or an instance. <code>LIKE</code> is
-	 *            used.
+	 * @param project The project name of the subscription to return.
+	 * @param service The subscribed service of the project. May be a service or a tool or an instance.
+	 *                <code>LIKE</code> is used.
 	 * @return The subscription identifier.
 	 */
 	protected int getSubscription(final String project, final String service) {
