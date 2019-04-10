@@ -40,12 +40,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param user
-	 *            The principal user name
-	 * @param criteria
-	 *            the optional criteria to match: name, description or pkey. Case is insensitive.
-	 * @param page
-	 *            the pagination.
+	 * @param user     The principal user name
+	 * @param criteria the optional criteria to match: name, description or pkey. Case is insensitive.
+	 * @param page     the pagination.
 	 * @return all {@link Project} objects with the given name. Insensitive case search is used.
 	 */
 	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
@@ -66,8 +63,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param user
-	 *            The principal user name
+	 * @param user The principal user name
 	 * @return all visible {@link Project} objects for <code>user</code>.
 	 */
 	@Query("SELECT DISTINCT p.id, p.name, p.pkey FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE "
@@ -82,10 +78,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param id
-	 *            The project's identifier to match.
-	 * @param user
-	 *            The current user name.
+	 * @param id   The project's identifier to match.
+	 * @param user The current user name.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :id AND "
@@ -100,10 +94,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param pkey
-	 *            The project <code>pkey</code> to match.
-	 * @param user
-	 *            The principal user name.
+	 * @param pkey The project <code>pkey</code> to match.
+	 * @param user The principal user name.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
@@ -118,10 +110,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param pkey
-	 *            The pkey to match.
-	 * @param user
-	 *            The principal user name.
+	 * @param pkey The pkey to match.
+	 * @param user The principal user name.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
@@ -133,26 +123,25 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> has at least one {@link org.ligoj.app.model.DelegateNode} with
-	 * <code>canSubscribe</code>, and:</li>
+	 * <code>canSubscribe</code>, and:
 	 * <ul>
 	 * <li>Either <code>user</code> is the team leader</li>
 	 * <li>Either the project is visible by <code>user</code> and also <code>user</code> has at least one
 	 * {@link org.ligoj.app.iam.model.DelegateOrg} with <code>canWrite</code> and related to the group associated to
 	 * <code>project</code></li>
 	 * </ul>
+	 * </li>
 	 * </ul>
 	 * Note, this will only authorize the principal to create subscriptions to this project, and the valid subscribed
 	 * {@link Node}s should be filtered regarding the delegates on this node.
 	 *
-	 * @param project
-	 *            The project's identifier to match.
-	 * @param user
-	 *            The principal user name.
+	 * @param project The project's identifier to match.
+	 * @param user    The principal user name.
 	 * @return <code>true</code> when <code>user</code> can manage the subscriptions of this project.
 	 */
 	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg0 LEFT JOIN cpg0.group AS cg0 WHERE p.id = :project AND ("
-			+ SystemUser.IS_ADMIN + "                          "
-			+ "  OR (EXISTS(SELECT 1 FROM DelegateNode WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
+			+ SystemUser.IS_ADMIN + "                          " + "  OR (EXISTS(SELECT 1 FROM DelegateNode WHERE "
+			+ DelegateOrgRepository.ASSIGNED_DELEGATE
 			+ "   AND canSubscribe = true)                                      "
 			+ "  AND (p.teamLeader = :user                                      "
 			+ "   OR (EXISTS(SELECT 1 FROM DelegateOrg WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE

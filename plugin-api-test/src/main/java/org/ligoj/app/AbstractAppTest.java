@@ -73,7 +73,7 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	/**
 	 * Return a new mocked {@link UriInfo} instance with descending order on given property.
 	 *
-	 * @param property The property to order.
+	 * @param orderedProperty The property to order.
 	 * @return a new mocked {@link UriInfo} instance.
 	 */
 	protected UriInfo newUriInfoDesc(final String orderedProperty) {
