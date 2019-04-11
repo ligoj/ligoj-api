@@ -10,17 +10,20 @@ function installMaven {
   echo "Setup Maven"
   mkdir -p ~/maven
   pushd ~/maven > /dev/null
-  if [ ! -d "apache-maven-3.5.4" ]; then
-    echo "Download Maven 3.5.4"
-    curl -sSL http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz | tar zx -C ~/maven
+  if [ ! -d "apache-maven-3.6.0" ]; then
+    echo "Download Maven 3.6.0"
+    curl -sSL http://apache.mirrors.ovh.net/ftp.apache.org/dist/maven/maven-3/3.6.0/binaries/apache-maven-3.6.0-bin.tar.gz | tar zx -C ~/maven
   fi
   popd > /dev/null
-  export M2_HOME=~/maven/apache-maven-3.5.4
+  export M2_HOME=~/maven/apache-maven-3.6.0
   export PATH=$M2_HOME/bin:$PATH
   echo '<settings><profiles><profile><id>spring-milestone</id><repositories>' > $M2_HOME/conf/settings.xml
   echo '<repository><id>spring-milestone</id><url>http://repo.spring.io/milestone/</url></repository>' >> $M2_HOME/conf/settings.xml
   echo '<repository><id>oss-sonatype</id><url>https://oss.sonatype.org/service/local/repositories/releases/content/</url></repository>' >> $M2_HOME/conf/settings.xml
-  echo '</repositories></profile></profiles><activeProfiles><activeProfile>spring-milestone</activeProfile></activeProfiles></settings>' >> $M2_HOME/conf/settings.xml
+  echo '</repositories><pluginRepositories>' >> $M2_HOME/conf/settings.xml
+  echo '<pluginRepository><id>spring-milestone-p</id><url>http://repo.spring.io/milestone/</url></pluginRepository>' >> $M2_HOME/conf/settings.xml
+  echo '</pluginRepositories></profile></profiles><activeProfiles><activeProfile>spring-milestone</activeProfile></activeProfiles></settings>' >> $M2_HOME/conf/settings.xml
+
 }
 
 #
@@ -85,7 +88,7 @@ function fixBuildVersion {
 #
 function configureTravis {
   mkdir -p ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v50 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v56 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
 }
 configureTravis
