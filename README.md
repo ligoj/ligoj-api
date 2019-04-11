@@ -5,7 +5,7 @@ API plugin used for compatibility check
 [![Build Status](https://circleci.com/gh/ligoj/ligoj-api.svg?style=svg)](https://circleci.com/gh/ligoj/ligoj-api)
 [![Build Status](https://semaphoreci.com/api/v1/ligoj/ligoj-api/branches/master/shields_badge.svg)](https://semaphoreci.com/ligoj/ligoj-api)
 [![Build Status](https://ci.appveyor.com/api/projects/status/5926fmf0p5qp9j16/branch/master?svg=true)](https://ci.appveyor.com/project/ligoj/ligoj-api/branch/master)
-[![Coverage Status](https://coveralls.io/repos/github/ligoj/ligoj-api/badge.svg?branch=master)](https://coveralls.io/github/ligoj/ligoj-api?branch=master)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.ligoj.api%3Aroot&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=org.ligoj.api%3Aroot)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?metric=alert_status&project=org.ligoj.api%3Aroot)](https://sonarcloud.io/dashboard/index/org.ligoj.api:root)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/abf810c094e44c0691f71174c707d6ed)](https://www.codacy.com/app/ligoj/ligoj-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ligoj/ligoj-api&amp;utm_campaign=Badge_Grade)
 [![CodeFactor](https://www.codefactor.io/repository/github/ligoj/ligoj-api/badge)](https://www.codefactor.io/repository/github/ligoj/ligoj-api)
