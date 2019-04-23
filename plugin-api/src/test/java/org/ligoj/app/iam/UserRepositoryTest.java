@@ -3,15 +3,117 @@
  */
 package org.ligoj.app.iam;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Test class of {@link IUserRepository}
  */
 public class UserRepositoryTest {
+
+	@Test
+	public void coverage() {
+		final IUserRepository repository = new IUserRepository() {
+
+			@Override
+			public void updateUser(UserOrg user) {
+			}
+
+			@Override
+			public void updateMembership(Collection<String> groups, UserOrg user) {
+			}
+
+			@Override
+			public void unlock(UserOrg user) {
+			}
+
+			@Override
+			public String toDn(UserOrg newUser) {
+				return null;
+			}
+
+			@Override
+			public void setPassword(UserOrg user, String password, String newPassword) {
+			}
+
+			@Override
+			public void setPassword(UserOrg user, String password) {
+			}
+
+			@Override
+			public void restore(UserOrg user) {
+			}
+
+			@Override
+			public void move(UserOrg user, CompanyOrg company) {
+			}
+
+			@Override
+			public void lock(String principal, UserOrg user) {
+			}
+
+			@Override
+			public void isolate(String principal, UserOrg user) {
+			}
+
+			@Override
+			public String getToken(String id) {
+				return null;
+			}
+
+			@Override
+			public String getPeopleInternalBaseDn() {
+				return null;
+			}
+
+			@Override
+			public UserOrg findByIdNoCache(String id) {
+				return null;
+			}
+
+			@Override
+			public List<UserOrg> findAllBy(String attribute, String value) {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria,
+					Pageable pageable) {
+				return null;
+			}
+
+			@Override
+			public Map<String, UserOrg> findAll() {
+				return null;
+			}
+
+			@Override
+			public void delete(UserOrg user) {
+			}
+
+			@Override
+			public UserOrg create(UserOrg entry) {
+				return null;
+			}
+
+			@Override
+			public boolean authenticate(String name, String password) {
+				return false;
+			}
+		};
+		Assertions.assertNull(repository.getCompanyRepository());
+		Assertions.assertNull(repository.getGroupRepository());
+	}
 
 	@Test
 	public void findAll() {

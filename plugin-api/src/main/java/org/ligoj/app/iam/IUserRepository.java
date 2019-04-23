@@ -128,7 +128,18 @@ public interface IUserRepository {
 	 *
 	 * @return the {@link ICompanyRepository} to use to resolve the company of the managed users.
 	 */
-	ICompanyRepository getCompanyRepository();
+	default ICompanyRepository getCompanyRepository() {
+		return null;
+	}
+
+	/**
+	 * Return the {@link IGroupRepository} to use to resolve the group of the managed users.
+	 *
+	 * @return the {@link IGroupRepository} to use to resolve the group of the managed users.
+	 */
+	default IGroupRepository getGroupRepository() {
+		return null;
+	}
 
 	/**
 	 * Check the user credentials.
