@@ -14,7 +14,7 @@ public interface ToolPlugin extends ServicePlugin {
 	 * Return the detected version of the tool given some parameters.
 	 * 
 	 * @param parameters
-	 *            the associated parameter values
+	 *            The associated parameter values
 	 * @return the String value of the detected version of the tool or <code>null</code> if not available/found.
 	 * @throws Exception
 	 *             Version cannot be retrieved. This error is caught at higher level.
@@ -27,7 +27,7 @@ public interface ToolPlugin extends ServicePlugin {
 	/**
 	 * Return the last available version of this tool.
 	 * 
-	 * @return the String value of the last available version of the tool or <code>null</code> if not found.
+	 * @return The String value of the last available version of the tool or <code>null</code> if not found.
 	 * @throws Exception
 	 *             When the version failed to be read, will also be considered as a <code>null</code> version.
 	 */
@@ -37,10 +37,10 @@ public interface ToolPlugin extends ServicePlugin {
 	}
 
 	/**
-	 * Check the status of node having the given configuration. In these case, the node is anonymous.
+	 * Check the status of node having the given configuration. The related node exists but is anonymous.
 	 * 
 	 * @param parameters
-	 *            the parameter values of the node.
+	 *            The current parameter values of the node.
 	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
 	 * @throws Exception
 	 *             Status cannot be retrieved. This error is caught at higher level.
@@ -53,9 +53,9 @@ public interface ToolPlugin extends ServicePlugin {
 	 * Check the status of given node.
 	 * 
 	 * @param node
-	 *            The node identifier. May be <code>null</code>.
+	 *            The node identifier. May be <code>null</code> for anonyous case.
 	 * @param parameters
-	 *            the parameter values of the node.
+	 *            The actual parameter values of the node.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkStatus(Map)
 	 * @throws Exception
@@ -69,7 +69,7 @@ public interface ToolPlugin extends ServicePlugin {
 	 * Check the status of given subscription configuration. In these case, the subscription's node is anonymous.
 	 * 
 	 * @param parameters
-	 *            the parameter values of the subscription.
+	 *            The parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
 	 * @throws Exception
 	 *             Status cannot be retrieved. This error is caught at higher level.
@@ -85,7 +85,7 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param node
 	 *            The related node identifier.
 	 * @param parameters
-	 *            the parameter values of the subscription.
+	 *            The parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkSubscriptionStatus(Map)
 	 * @throws Exception
@@ -105,7 +105,7 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param node
 	 *            The related node identifier.
 	 * @param parameters
-	 *            the parameter values of the subscription.
+	 *            The parameter values of the subscription.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkSubscriptionStatus(String, Map)
 	 * @throws Exception

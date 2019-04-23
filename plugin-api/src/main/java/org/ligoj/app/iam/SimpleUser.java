@@ -82,7 +82,7 @@ public class SimpleUser implements INamableBean<String> {
 	private String department;
 
 	/**
-	 * Local identifier. Is not unique among the the users.
+	 * Local identifier. Is not unique among all the users, but unique within the original source repository.
 	 */
 	private String localId;
 
