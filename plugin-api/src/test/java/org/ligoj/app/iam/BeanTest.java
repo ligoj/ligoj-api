@@ -31,6 +31,7 @@ public class BeanTest {
 		check(new IamConfiguration(), IamConfiguration::setCompanyRepository, IamConfiguration::getCompanyRepository, Mockito.mock(ICompanyRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setGroupRepository, IamConfiguration::getGroupRepository, Mockito.mock(IGroupRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setUserRepository, IamConfiguration::getUserRepository, Mockito.mock(IUserRepository.class));
+		check(new IamConfiguration(), IamConfiguration::setNode, IamConfiguration::getNode, "service:plugin:id");
 	}
 
 
