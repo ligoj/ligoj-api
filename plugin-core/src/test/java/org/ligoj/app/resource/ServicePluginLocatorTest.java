@@ -15,6 +15,7 @@ import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.ConfluencePluginResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
+import org.ligoj.app.resource.plugin.AbstractServicePlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -58,7 +59,8 @@ public class ServicePluginLocatorTest extends AbstractAppTest {
 
 	@Test
 	public void getResourceTypeParent() {
-		final ConfigurablePlugin resource = component.getResource(JiraBaseResource.KEY + ":any", ConfigurablePlugin.class);
+		final ConfigurablePlugin resource = component.getResource(JiraBaseResource.KEY + ":any",
+				ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
 		Assertions.assertTrue(resource instanceof BugTrackerResource);
 	}
@@ -75,11 +77,48 @@ public class ServicePluginLocatorTest extends AbstractAppTest {
 
 	@Test
 	public void getResourceExpected() {
-		Assertions.assertEquals(JiraBaseResource.KEY, component.getResourceExpected(JiraBaseResource.KEY, ServicePlugin.class).getKey());
+		Assertions.assertEquals(JiraBaseResource.KEY,
+				component.getResourceExpected(JiraBaseResource.KEY, ServicePlugin.class).getKey());
 	}
 
 	@Test
 	public void getResourceParent() {
-		Assertions.assertEquals(BugTrackerResource.SERVICE_KEY, component.getResource(BugTrackerResource.SERVICE_KEY + ":any").getKey());
+		Assertions.assertEquals(BugTrackerResource.SERVICE_KEY,
+				component.getResource(BugTrackerResource.SERVICE_KEY + ":any").getKey());
+	}
+
+	@Test
+	public void isEnabledTool() {
+		Assertions.assertTrue(component.isEnabled(JiraBaseResource.KEY));
+	}
+
+	@Test
+	public void isEnabledToolNo() {
+		Assertions.assertFalse(component.isEnabled(BugTrackerResource.SERVICE_KEY + ":any"));
+	}
+
+	@Test
+	public void isEnabledNode() {
+		Assertions.assertTrue(component.isEnabled(JiraBaseResource.KEY + ":any"));
+	}
+
+	@Test
+	public void isEnabledService() {
+		Assertions.assertTrue(component.isEnabled(BugTrackerResource.SERVICE_KEY));
+	}
+
+	@Test
+	public void isEnabledServiceRoot() {
+		Assertions.assertFalse(component.isEnabled(AbstractServicePlugin.BASE_KEY));
+	}
+
+	@Test
+	public void isEnabledServiceEmpty() {
+		Assertions.assertFalse(component.isEnabled(""));
+	}
+
+	@Test
+	public void isEnabledServiceNull() {
+		Assertions.assertFalse(component.isEnabled(null));
 	}
 }

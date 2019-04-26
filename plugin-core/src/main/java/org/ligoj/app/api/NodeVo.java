@@ -49,7 +49,7 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 
 	/**
 	 * When <code>true</code>, this node is considered as unavailable because of a missing resource, such as the
-	 * plug-in.
+	 * plug-in. When <code>null</code>, the state has not been resolved.
 	 */
-	private boolean disabled;
+	private Boolean disabled;
 }

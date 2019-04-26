@@ -10,8 +10,10 @@ import java.util.Optional;
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheResult;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.PluginNotFoundException;
 import org.ligoj.app.api.ServicePlugin;
+import org.ligoj.app.api.ToolPlugin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -37,8 +39,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	/**
 	 * Return the plug-in from the service key.
 	 *
-	 * @param service
-	 *            the service name.
+	 * @param service the service name.
 	 * @return the plug-in from the service key. <code>null</code> if not found.
 	 */
 	public ServicePlugin getResource(final String service) {
@@ -48,14 +49,9 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	/**
 	 * Return the plug-in from the service key.
 	 *
-	 * @param service
-	 *            the service name.
-	 * @param requiredType
-	 *            The required resource class. For sample
-	 *            <code>ServicePlugin.class</code>
-	 * @param <T>
-	 *            The required resource type. For sample
-	 *            <code>ServicePlugin</code>
+	 * @param service      the service name.
+	 * @param requiredType The required resource class. For sample <code>ServicePlugin.class</code>
+	 * @param <T>          The required resource type. For sample <code>ServicePlugin</code>
 	 * @return the plug-in from the service key. <code>null</code> if not found.
 	 */
 	@SuppressWarnings("unchecked")
@@ -84,26 +80,20 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	/**
 	 * Return and expect the plug-in from the service key.
 	 *
-	 * @param service
-	 *            the service name.
-	 * @param requiredType
-	 *            The required resource class. For sample
-	 *            <code>ServicePlugin.class</code>
-	 * @param <T>
-	 *            The required resource type. For sample
-	 *            <code>ServicePlugin</code>
-	 * @return the plug-in from the service key. <code>PluginException</code> if
-	 *         not found.
+	 * @param service      the service name.
+	 * @param requiredType The required resource class. For sample <code>ServicePlugin.class</code>
+	 * @param <T>          The required resource type. For sample <code>ServicePlugin</code>
+	 * @return the plug-in from the service key. <code>PluginException</code> if not found.
 	 */
 	public <T> T getResourceExpected(final String service, final Class<T> requiredType) {
-		return Optional.ofNullable(getResource(service, requiredType)).orElseThrow(() -> new PluginNotFoundException(service));
+		return Optional.ofNullable(getResource(service, requiredType))
+				.orElseThrow(() -> new PluginNotFoundException(service));
 	}
 
 	/**
 	 * Return the plug-in from the service key.
 	 *
-	 * @param service
-	 *            the service name.
+	 * @param service the service name.
 	 * @return the plug-in from the service key. <code>null</code> if not found.
 	 */
 	@CacheResult(cacheName = "services")
@@ -121,8 +111,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	/**
 	 * Return the plug-in from the service key.
 	 *
-	 * @param service
-	 *            the service name.
+	 * @param service the service name.
 	 * @return the plug-in from the service key.
 	 */
 	private List<String> getResources(final String service) {
@@ -170,16 +159,20 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	/**
 	 * Return the parent service.
 	 *
-	 * @param service
-	 *            the service name. the parent service or <code>null</code>
+	 * @param service the service name. the parent service or <code>null</code>
 	 * @return the parent service key.
 	 */
 	public String getParent(final String service) {
-		final int index = service.lastIndexOf(':');
-		if (index == -1) {
+		if (StringUtils.countMatches(service, ':') <= 1) {
 			return null;
 		}
-		return service.substring(0, index);
+		return service.substring(0, service.lastIndexOf(':'));
+	}
+
+	@CacheResult(cacheName = "node-enablement")
+	public boolean isEnabled(String id) {
+		return getResource(id, ToolPlugin.class) != null
+				|| (getParent(id) == null && getResource(id, ServicePlugin.class) != null);
 	}
 
 }
