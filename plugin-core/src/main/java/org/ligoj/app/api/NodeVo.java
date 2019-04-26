@@ -16,7 +16,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class NodeVo extends AbstractNodeVo implements Refining<NodeVo>{
+public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 
 	/**
 	 * SID, for Hazelcast
@@ -47,4 +47,9 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo>{
 	 */
 	private Map<String, Serializable> parameters;
 
+	/**
+	 * When <code>true</code>, this node is considered as unavailable because of a missing resource, such as the
+	 * plug-in.
+	 */
+	private boolean disabled;
 }

@@ -1033,6 +1033,23 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
+	public void toVoLightDisabled() {
+		final Node entity = new Node();
+		entity.setId("disabled:node");
+		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
+		Assertions.assertTrue(NodeResource.toVoLight(entity, locator).isDisabled());
+	}
+
+	@Test
+	public void toVoLightEnabled() {
+		final Node entity = new Node();
+		entity.setId("enabled:node");
+		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
+		Mockito.doReturn("yes_name").when(locator).getResourceName("enabled:node");
+		Assertions.assertFalse(NodeResource.toVoLight(entity, locator).isDisabled());
+	}
+
+	@Test
 	public void findByIdExpected() {
 		Assertions.assertEquals("service:kpi:sonar", resource.findById("service:kpi:sonar").getId());
 	}

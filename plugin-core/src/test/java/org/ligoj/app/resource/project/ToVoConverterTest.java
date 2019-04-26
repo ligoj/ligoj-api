@@ -25,6 +25,7 @@ import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
@@ -38,7 +39,8 @@ public class ToVoConverterTest {
 
 	@Test
 	public void applyEmpty() {
-		final ToVoConverter converter = new ToVoConverter(s -> null, new ArrayList<>(), new HashMap<>());
+		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
+		final ToVoConverter converter = new ToVoConverter(locator, s -> null, new ArrayList<>(), new HashMap<>());
 		final Project entity = new Project();
 		entity.setSubscriptions(Collections.emptyList());
 		final ProjectVo vo = converter.apply(entity);
@@ -117,7 +119,10 @@ public class ToVoConverterTest {
 		events.put(1, event);
 
 		// Call
-		final ToVoConverter converter = new ToVoConverter(this::toUser, subscriptions, events);
+		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
+		Mockito.doReturn("enabled-name").when(locator).getResourceName("service:n1");
+		Mockito.doReturn(null).when(locator).getResourceName("service:n2");
+		final ToVoConverter converter = new ToVoConverter(locator, this::toUser, subscriptions, events);
 		final Project entity = new Project();
 		entity.setId(1);
 		entity.setName("N");
@@ -147,8 +152,10 @@ public class ToVoConverterTest {
 		final List<SubscriptionVo> subscriptionsVo = vo.getSubscriptions();
 		Assertions.assertNull(subscriptionsVo.get(0).getStatus());
 		Assertions.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
+		Assertions.assertFalse(subscriptionsVo.get(0).getNode().isDisabled());
 		Assertions.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
 		Assertions.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
+		Assertions.assertTrue(subscriptionsVo.get(1).getNode().isDisabled());
 	}
 
 	private UserOrg toUser(final String login) {

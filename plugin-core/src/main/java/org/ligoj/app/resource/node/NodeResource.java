@@ -50,6 +50,7 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.NamedBean;
 import org.ligoj.bootstrap.core.json.PaginationJson;
@@ -115,8 +116,20 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * {@link Node} JPA to business object transformer.
 	 *
-	 * @param entity
-	 *            Source entity.
+	 * @param locator Plug-in locator to resolve the enabled and available plug-ins.
+	 * @param entity  Source entity.
+	 * @return The corresponding VO object with recursive redefined reference.
+	 */
+	public static NodeVo toVo(final Node entity, final ServicePluginLocator locator) {
+		final NodeVo vo = toVo(entity);
+		vo.setDisabled(locator.getResourceName(entity.getId()) == null);
+		return vo;
+	}
+
+	/**
+	 * {@link Node} JPA to business object transformer.
+	 *
+	 * @param entity Source entity.
 	 * @return The corresponding VO object with recursive redefined reference.
 	 */
 	public static NodeVo toVo(final Node entity) {
@@ -130,8 +143,20 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * {@link Node} JPA to business object transformer with parameters.
 	 *
-	 * @param entity
-	 *            Source entity.
+	 * @param locator Plug-in locator to resolve the enabled and available plug-ins.
+	 * @param entity  Source entity.
+	 * @return The corresponding VO object with resources and without recursive parent reference.
+	 */
+	private static NodeVo toVoParameter(final Node entity, final ServicePluginLocator locator) {
+		final NodeVo vo = toVoParameter(entity);
+		vo.setDisabled(locator.getResourceName(entity.getId()) == null);
+		return vo;
+	}
+
+	/**
+	 * {@link Node} JPA to business object transformer with parameters.
+	 *
+	 * @param entity Source entity.
 	 * @return The corresponding VO object with resources and without recursive parent reference.
 	 */
 	private static NodeVo toVoParameter(final Node entity) {
@@ -145,8 +170,20 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * {@link Node} JPA to VO object transformer without refined information.
 	 *
-	 * @param entity
-	 *            Source entity.
+	 * @param locator Plug-in locator to resolve the enabled and available plug-ins.
+	 * @param entity  Source entity.
+	 * @return The corresponding VO object without recursive redefined reference.
+	 */
+	protected static NodeVo toVoLight(final Node entity, final ServicePluginLocator locator) {
+		final NodeVo vo = toVoLight(entity);
+		vo.setDisabled(locator.getResourceName(entity.getId()) == null);
+		return vo;
+	}
+
+	/**
+	 * {@link Node} JPA to VO object transformer without refined information.
+	 *
+	 * @param entity Source entity.
 	 * @return The corresponding VO object without recursive redefined reference.
 	 */
 	public static NodeVo toVoLight(final Node entity) {
@@ -161,11 +198,11 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * JPA {@link Node} associated to {@link ParameterValue} to detailed {@link NodeVo} converter. This not a one to one
 	 * {@link Function}.
 	 *
-	 * @param nodesAndValues
-	 *            Nodes with values.
+	 * @param nodesAndValues Nodes with values.
 	 * @return The corresponding VO objects with recursive redefined reference.
 	 */
-	public static Map<String, NodeVo> toVoParameters(final List<Object[]> nodesAndValues) {
+	private static Map<String, NodeVo> toVoParameters(final List<Object[]> nodesAndValues,
+			final ServicePluginLocator locator) {
 
 		// Build the nodes
 		final Map<String, NodeVo> nodes = new HashMap<>();
@@ -175,7 +212,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 			final NodeVo vo = nodes.computeIfAbsent(node.getId(), id -> {
 				// Build the first encountered parameter for this node
 				entities.put(id, node);
-				return toVoParameter(node);
+				return toVoParameter(node, locator);
 			});
 
 			// Copy the parameter value if present
@@ -205,8 +242,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Create a new {@link Node}.
 	 *
-	 * @param vo
-	 *            The new node definition.
+	 * @param vo The new node definition.
 	 */
 	@POST
 	@CacheRemoveAll(cacheName = "nodes")
@@ -227,8 +263,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Update an existing {@link Node}.
 	 *
-	 * @param vo
-	 *            The new node definition to replace.
+	 * @param vo The new node definition to replace.
 	 */
 	@PUT
 	@CacheRemoveAll(cacheName = "nodes")
@@ -311,10 +346,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * only succeed if there are no related subscription. They need to be previously deleted. The administrator rights
 	 * are also checked.
 	 *
-	 * @param id
-	 *            The node identifier.
-	 * @throws Exception
-	 *             When the related plug-in implementation throws an exception during the deletion.
+	 * @param id The node identifier.
+	 * @throws Exception When the related plug-in implementation throws an exception during the deletion.
 	 *
 	 */
 	@DELETE
@@ -354,8 +387,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check status of each node.
 	 *
-	 * @param nodes
-	 *            The nodes to check.
+	 * @param nodes The nodes to check.
 	 */
 	private void checkNodesStatus(final List<Node> nodes) {
 		nodes.forEach(this::checkNodeStatus);
@@ -364,8 +396,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check status of a specific node instance. Only visible node from the current user is checked.
 	 *
-	 * @param id
-	 *            The node identifier to check.
+	 * @param id The node identifier to check.
 	 * @return the new status or <code>null</code> if undefined of not visible.
 	 */
 	@POST
@@ -379,8 +410,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check the status of a node.
 	 *
-	 * @param node
-	 *            The node to check.
+	 * @param node The node to check.
 	 * @return the new status.
 	 */
 	private NodeStatus checkNodeStatus(final Node node) {
@@ -395,10 +425,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check the status of a node. This method need to be public for the CGLIB proxying.
 	 *
-	 * @param node
-	 *            The node identifier.
-	 * @param parameters
-	 *            Node parameters used to check the status.
+	 * @param node       The node identifier.
+	 * @param parameters Node parameters used to check the status.
 	 * @return The node status.
 	 */
 	public NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
@@ -438,8 +466,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check the subscriptions of given nodes. The node my be checked if unknown.
 	 *
-	 * @param instances
-	 *            The nodes to check.
+	 * @param instances The nodes to check.
 	 */
 	private void checkSubscriptionsStatus(final List<Node> instances) {
 		int counter = 0;
@@ -455,8 +482,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Find subscriptions where some parameters are defined.
 	 *
-	 * @param id
-	 *            node identifier
+	 * @param id node identifier
 	 * @return subscriptions with redefined parameters
 	 */
 	protected Map<Subscription, Map<String, String>> findSubscriptionsWithParams(final String id) {
@@ -472,10 +498,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check status subscription.
 	 *
-	 * @param node
-	 *            node where we must check subscriptions
-	 * @param status
-	 *            node status
+	 * @param node   node where we must check subscriptions
+	 * @param status node status
 	 */
 	protected void checkSubscriptionStatus(final Node node, final NodeStatus status) {
 		final Map<String, String> nodeParameters = pvResource.getNodeParameters(node.getId());
@@ -508,10 +532,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check status for a subscription.
 	 *
-	 * @param subscription
-	 *            Subscription entity.
-	 * @param parameters
-	 *            Parameters of a subscription.
+	 * @param subscription Subscription entity.
+	 * @param parameters   Parameters of a subscription.
 	 * @return status of given subscription.
 	 */
 	public SubscriptionStatusWithData checkSubscriptionStatus(final Subscription subscription,
@@ -570,8 +592,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Retrieve a specific node status.
 	 *
-	 * @param id
-	 *            The node to check.
+	 * @param id The node to check.
 	 * @return Status of a single node. Many be <code>null</code> when node is not found or when there is not known
 	 *         status.
 	 */
@@ -616,8 +637,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Return a specific node visible for current user. The visibility is checked.
 	 *
-	 * @param id
-	 *            The node identifier.
+	 * @param id The node identifier.
 	 * @return The visible node. Never <code>null</code>.
 	 */
 	@GET
@@ -625,39 +645,33 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public NodeVo findById(@PathParam("id") final String id) {
 		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
-				.map(NodeResource::toVoLight).orElseThrow(
+				.map(n -> toVoLight(n, locator)).orElseThrow(
 						() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "node", "1", id));
 	}
 
 	/**
 	 * Return a specific node details. The visibility is not checked, and the cache is not involved.
 	 *
-	 * @param id
-	 *            The node identifier.
+	 * @param id The node identifier.
 	 * @return The node. Cannot be <code>null</code>.
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public NodeVo findByIdInternal(final String id) {
-		return toVo(repository.findOneExpected(id));
+		return toVo(repository.findOneExpected(id), locator);
 	}
 
 	/**
 	 * Return all visible nodes for current user. The hierarchy data is returned but without UI data.
 	 *
-	 * @param uriInfo
-	 *            pagination data.
-	 * @param criteria
-	 *            the optional criteria to match.
-	 * @param refined
-	 *            The optional parent identifier to be like. Special attention for 'service' value corresponding to the
-	 *            root.
-	 * @param mode
-	 *            Expected subscription mode. When <code>null</code>, the node's mode is not checked.
-	 * @param depth
-	 *            The maximal depth. When <code>0</code> means no refined, so basically services only. <code>1</code>
-	 *            means refined is a service, so nodes are basically tool only. <code>2</code> means refined is a tool,
-	 *            so nodes are basically instances only. For the other cases, there is no limit, and corresponds to the
-	 *            default behavior.
+	 * @param uriInfo  pagination data.
+	 * @param criteria the optional criteria to match.
+	 * @param refined  The optional parent identifier to be like. Special attention for 'service' value corresponding to
+	 *                 the root.
+	 * @param mode     Expected subscription mode. When <code>null</code>, the node's mode is not checked.
+	 * @param depth    The maximal depth. When <code>0</code> means no refined, so basically services only.
+	 *                 <code>1</code> means refined is a service, so nodes are basically tool only. <code>2</code> means
+	 *                 refined is a tool, so nodes are basically instances only. For the other cases, there is no limit,
+	 *                 and corresponds to the default behavior.
 	 * @return All visible nodes with the hierarchy but without UI data.
 	 */
 	@GET
@@ -670,7 +684,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 				paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
 
 		// apply pagination and prevent lazy initialization issue
-		return paginationJson.applyPagination(uriInfo, findAll, NodeResource::toVo);
+		return paginationJson.applyPagination(uriInfo, findAll, n -> toVo(n, locator));
 	}
 
 	/**
@@ -681,14 +695,13 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@CacheResult(cacheName = "nodes")
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, NodeVo> findAll() {
-		return toVoParameters(repository.findAllWithValuesSecure());
+		return toVoParameters(repository.findAllWithValuesSecure(), locator);
 	}
 
 	/**
 	 * Check the parameters that are being attached to this node : overrides, mandatory and ownerships.
 	 *
-	 * @param vo
-	 *            The parameterized object.
+	 * @param vo The parameterized object.
 	 * @return The corresponding and also validated {@link Parameter} entities.
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameterizedVo vo) {
@@ -719,11 +732,9 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check the related node can be updated by the current principal.
 	 *
-	 * @param id
-	 *            The node identifier to check.
-	 * @param checker
-	 *            The function checking the node from its identifier (first parameter) for a given user (second
-	 *            parameter) and return the check {@link Node} identity.
+	 * @param id      The node identifier to check.
+	 * @param checker The function checking the node from its identifier (first parameter) for a given user (second
+	 *                parameter) and return the check {@link Node} identity.
 	 * @return the checked node.
 	 */
 	public Node checkNode(final String id, final BiFunction<String, String, Node> checker) {
@@ -738,8 +749,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check the related node can be updated by the current principal.
 	 *
-	 * @param id
-	 *            The node identifier to check.
+	 * @param id The node identifier to check.
 	 * @return The node the principal can write.
 	 */
 	public Node checkWritableNode(final String id) {
@@ -749,8 +759,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check the related node can be deleted by the current principal.
 	 *
-	 * @param id
-	 *            The node identifier to check.
+	 * @param id The node identifier to check.
 	 * @return The node the principal can administer.
 	 */
 	public Node checkAdministerable(final String id) {

@@ -16,6 +16,7 @@ import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
 import org.ligoj.app.resource.node.ParameterValueResource;
@@ -43,19 +44,19 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	 */
 	private final Function<String, ? extends UserOrg> userConverter;
 
+	private ServicePluginLocator locator;
+
 	/**
 	 * Constructor holding the data used to convert a {@link Project} to {@link ProjectVo}.
 	 * 
-	 * @param userConverter
-	 *            The {@link Function} used to convert internal user identifier to described user.
-	 * @param subscriptionsAndParam
-	 *            The subscription (index 0, type {@link Subscription}) with parameter values (index 1, type
-	 *            {@link ParameterValue}).
-	 * @param subscriptionStatus
-	 *            The subscriptions statuses. Key is the subscription identifier.
+	 * @param userConverter         The {@link Function} used to convert internal user identifier to described user.
+	 * @param subscriptionsAndParam The subscription (index 0, type {@link Subscription}) with parameter values (index
+	 *                              1, type {@link ParameterValue}).
+	 * @param subscriptionStatus    The subscriptions statuses. Key is the subscription identifier.
 	 */
-	protected ToVoConverter(final Function<String, ? extends UserOrg> userConverter, final List<Object[]> subscriptionsAndParam,
-			final Map<Integer, EventVo> subscriptionStatus) {
+	protected ToVoConverter(final ServicePluginLocator locator, final Function<String, ? extends UserOrg> userConverter,
+			final List<Object[]> subscriptionsAndParam, final Map<Integer, EventVo> subscriptionStatus) {
+		this.locator = locator;
 		this.subscriptionsAndParam = subscriptionsAndParam;
 		this.subscriptionStatus = subscriptionStatus;
 		this.userConverter = userConverter;
@@ -82,7 +83,8 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 		entity.getSubscriptions().forEach(s -> addVo(subscriptions, s));
 
 		// Return the subscription to order by the related node
-		vo.setSubscriptions(subscriptions.values().stream().sorted(Comparator.comparing(s -> s.getNode().getId(), String::compareTo))
+		vo.setSubscriptions(subscriptions.values().stream()
+				.sorted(Comparator.comparing(s -> s.getNode().getId(), String::compareTo))
 				.collect(Collectors.toList()));
 		return vo;
 	}
@@ -91,10 +93,8 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	 * Convert a {@link Subscription} to a {@link SubscriptionVo} with status, and put it in the target map if not
 	 * existing.
 	 * 
-	 * @param subscriptions
-	 *            The map of already converted entities.
-	 * @param entity
-	 *            The {@link Subscription}
+	 * @param subscriptions The map of already converted entities.
+	 * @param entity        The {@link Subscription}
 	 * @return The related converted {@link SubscriptionVo} newly created or existing one.
 	 */
 	private SubscriptionVo addVo(final Map<Integer, SubscriptionVo> subscriptions, final Subscription entity) {
@@ -103,7 +103,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 			final SubscriptionVo vo = new SubscriptionVo();
 			vo.copyAuditData(entity, userConverter);
 			vo.setId(entity.getId());
-			vo.setNode(NodeResource.toVo(entity.getNode()));
+			vo.setNode(NodeResource.toVo(entity.getNode(), locator));
 			vo.setParameters(new HashMap<>());
 			subscriptions.put(entity.getId(), vo);
 

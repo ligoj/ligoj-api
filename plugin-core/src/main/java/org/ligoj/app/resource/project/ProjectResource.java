@@ -31,6 +31,7 @@ import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.ligoj.bootstrap.core.DescribedBean;
@@ -67,6 +68,9 @@ public class ProjectResource {
 	private SubscriptionResource subscriptionResource;
 
 	@Autowired
+	private ServicePluginLocator locator;
+
+	@Autowired
 	protected IamProvider[] iamProvider;
 
 	/**
@@ -100,7 +104,7 @@ public class ProjectResource {
 		final Map<Integer, EventVo> subscriptionStatus = subscriptionResource.getStatusByProject(project.getId());
 
 		// Convert users, project and subscriptions
-		final ProjectVo projectVo = new ToVoConverter(toUser(), subscriptionsResultSet, subscriptionStatus)
+		final ProjectVo projectVo = new ToVoConverter(locator, toUser(), subscriptionsResultSet, subscriptionStatus)
 				.apply(project);
 		projectVo.setManageSubscriptions(repository.isManageSubscription(project.getId(), securityHelper.getLogin()));
 		return projectVo;
