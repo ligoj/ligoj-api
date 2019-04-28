@@ -13,14 +13,14 @@
 
 	<groupId>org.ligoj.api</groupId>
 	<artifactId>parent</artifactId>
-	<version>3.2.2</version>
+	<version>3.2.3-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	<name>Ligoj - API Parent</name>
 	<description>API Parent pom for all plug-in</description>
 	<url>https://github.com/ligoj/ligoj-api/parent</url>
 
 	<properties>
-		<api.version>3.2.2</api.version>
+		<api.version>3.2.3-SNAPSHOT</api.version>
 	</properties>
 
 	<profiles>
