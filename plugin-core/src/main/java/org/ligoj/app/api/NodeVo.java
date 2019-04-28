@@ -48,8 +48,8 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	private Map<String, Serializable> parameters;
 
 	/**
-	 * When <code>true</code>, this node is considered as unavailable because of a missing resource, such as the
+	 * When <code>false</code>, this node is considered as unavailable because of a missing resource, such as the
 	 * plug-in. When <code>null</code>, the state has not been resolved.
 	 */
-	private Boolean disabled;
+	private Boolean enabled;
 }

@@ -122,7 +122,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	public static NodeVo toVo(final Node entity, final ServicePluginLocator locator) {
 		final NodeVo vo = toVo(entity);
-		vo.setDisabled(!locator.isEnabled(entity.getId()));
+		vo.setEnabled(locator.isEnabled(entity.getId()));
 		return vo;
 	}
 
@@ -149,7 +149,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	private static NodeVo toVoParameter(final Node entity, final ServicePluginLocator locator) {
 		final NodeVo vo = toVoParameter(entity);
-		vo.setDisabled(!locator.isEnabled(entity.getId()));
+		vo.setEnabled(locator.isEnabled(entity.getId()));
 		return vo;
 	}
 
@@ -176,7 +176,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	protected static NodeVo toVoLight(final Node entity, final ServicePluginLocator locator) {
 		final NodeVo vo = toVoLight(entity);
-		vo.setDisabled(!locator.isEnabled(entity.getId()));
+		vo.setEnabled(locator.isEnabled(entity.getId()));
 		return vo;
 	}
 

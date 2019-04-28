@@ -120,8 +120,8 @@ public class ToVoConverterTest {
 
 		// Call
 		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
-		Mockito.doReturn("enabled-name").when(locator).getResourceName("service:n1");
-		Mockito.doReturn(null).when(locator).getResourceName("service:n2");
+		Mockito.doReturn(true).when(locator).isEnabled("service:n1");
+		Mockito.doReturn(false).when(locator).isEnabled("service:n2");
 		final ToVoConverter converter = new ToVoConverter(locator, this::toUser, subscriptions, events);
 		final Project entity = new Project();
 		entity.setId(1);
@@ -152,10 +152,10 @@ public class ToVoConverterTest {
 		final List<SubscriptionVo> subscriptionsVo = vo.getSubscriptions();
 		Assertions.assertNull(subscriptionsVo.get(0).getStatus());
 		Assertions.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
-		Assertions.assertFalse(subscriptionsVo.get(0).getNode().getDisabled());
+		Assertions.assertFalse(subscriptionsVo.get(0).getNode().getEnabled());
 		Assertions.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
 		Assertions.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
-		Assertions.assertTrue(subscriptionsVo.get(1).getNode().getDisabled());
+		Assertions.assertTrue(subscriptionsVo.get(1).getNode().getEnabled());
 	}
 
 	private UserOrg toUser(final String login) {
