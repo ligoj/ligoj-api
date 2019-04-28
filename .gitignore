@@ -2,6 +2,7 @@
 .project
 .settings
 **/.settings
+**/.idea
 **/.project
 /target
 /*/target
