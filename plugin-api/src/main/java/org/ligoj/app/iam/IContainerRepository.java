@@ -59,7 +59,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	default T findByIdExpected(String principal, String id) {
 		// Check the container exists and return the in memory object.
 		return Optional.ofNullable(findById(principal, id)).orElseThrow(
-				() -> new ValidationJsonException(getTypeName(), BusinessException.KEY_UNKNOW_ID, "0", "id", "1", id));
+				() -> new ValidationJsonException(getTypeName(), BusinessException.KEY_UNKNOWN_ID, "0", "id", "1", id));
 	}
 
 	/**

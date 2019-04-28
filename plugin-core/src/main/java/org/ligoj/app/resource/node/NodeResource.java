@@ -643,7 +643,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	public NodeVo findById(@PathParam("id") final String id) {
 		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
 				.map(n -> toVoLight(n, locator)).orElseThrow(
-						() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "node", "1", id));
+						() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOWN_ID, "0", "node", "1", id));
 	}
 
 	/**

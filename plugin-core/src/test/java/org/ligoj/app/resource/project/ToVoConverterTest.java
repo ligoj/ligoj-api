@@ -152,10 +152,10 @@ public class ToVoConverterTest {
 		final List<SubscriptionVo> subscriptionsVo = vo.getSubscriptions();
 		Assertions.assertNull(subscriptionsVo.get(0).getStatus());
 		Assertions.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
-		Assertions.assertFalse(subscriptionsVo.get(0).getNode().getEnabled());
+		Assertions.assertTrue(subscriptionsVo.get(0).getNode().getEnabled());
 		Assertions.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
 		Assertions.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
-		Assertions.assertTrue(subscriptionsVo.get(1).getNode().getEnabled());
+		Assertions.assertFalse(subscriptionsVo.get(1).getNode().getEnabled());
 	}
 
 	private UserOrg toUser(final String login) {

@@ -25,7 +25,7 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	
 	@BeforeEach
 	public void copyIamProvider() {
-		iamProvider = iamProviders[0];
+		iamProvider = iamProviders == null ? null : iamProviders[0];
 	}
 
 	/**

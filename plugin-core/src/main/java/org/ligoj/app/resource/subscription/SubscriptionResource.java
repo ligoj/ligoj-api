@@ -273,7 +273,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	private Node checkManagedNodeForSubscription(final String node) {
 		// Check the node can be subscribed by the principal user
 		final Node entity = Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin()))
-				.orElseThrow(() -> new ValidationJsonException("node", BusinessException.KEY_UNKNOW_ID, "0", node));
+				.orElseThrow(() -> new ValidationJsonException("node", BusinessException.KEY_UNKNOWN_ID, "0", node));
 
 		// Check the node accept subscription
 		if (entity.getMode() == SubscriptionMode.NONE) {

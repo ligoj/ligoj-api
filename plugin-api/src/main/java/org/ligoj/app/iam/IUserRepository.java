@@ -106,7 +106,7 @@ public interface IUserRepository {
 		final UserOrg rawUser = findByIdExpected(id);
 		if (getCompanyRepository().findById(principal, rawUser.getCompany()) == null) {
 			// No available delegation -> no result
-			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOW_ID, "0", "user", "1", principal);
+			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOWN_ID, "0", "user", "1", principal);
 		}
 		return rawUser;
 	}

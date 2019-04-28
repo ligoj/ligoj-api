@@ -560,7 +560,7 @@ public class ParameterValueResource {
 		if (value.isUntouched()) {
 			// Untouched value, keep the previous value but must exists
 			return Optional.ofNullable(existing.get(value.getParameter())).orElseThrow(
-					() -> new BusinessException(BusinessException.KEY_UNKNOW_ID, "parameter", value.getParameter()));
+					() -> new BusinessException(BusinessException.KEY_UNKNOWN_ID, "parameter", value.getParameter()));
 		}
 
 		// Updated or created value
