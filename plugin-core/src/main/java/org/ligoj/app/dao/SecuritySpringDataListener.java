@@ -203,8 +203,8 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		private String func(final String name, final int nbParam) {
-			return "\\$" + name + "\\(" + StringUtils.repeat("([^,)]+)", Math.min(nbParam, 1))
-					+ StringUtils.repeat(",([^,)]+)", Math.max(nbParam - 1, 0)) + "\\)";
+			return "\\$" + name + "\\(" + "([^,)]+)".repeat(Math.min(nbParam, 1))
+					+ ",([^,)]+)".repeat(Math.max(nbParam - 1, 0)) + "\\)";
 		}
 
 		private String parse(final String query, final String arg, final String user) {
