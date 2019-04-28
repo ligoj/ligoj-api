@@ -13,6 +13,7 @@
 	<packaging>pom</packaging>
 	<name>Ligoj - Plugin Parent</name>
 	<description>Plugin parent pom the plugins should have.</description>
+	<url>https://github.com/ligoj/ligoj-api/plugin-parent</url>
 	
 	<properties>
 		<sonar.issue.ignore.multicriteria>e1</sonar.issue.ignore.multicriteria>

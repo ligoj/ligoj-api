@@ -13,7 +13,7 @@
 	<packaging>pom</packaging>
 	<name>Ligoj - API</name>
 	<description>Ligoj - API components to test and build</description>
-	<url>https://github.com/ligoj/plugin-api</url>
+	<url>https://github.com/ligoj/ligoj-api</url>
 
 	<scm>
 		<connection>scm:git:https://github.com/ligoj/ligoj-api</connection>

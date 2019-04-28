@@ -13,6 +13,7 @@
 	<packaging>jar</packaging>
 	<name>Ligoj - Plugin Core</name>
 	<description>Plugin internal core components required to compile and test a plugin</description>
+	<url>https://github.com/ligoj/ligoj-api/plugin-core</url>
 
 	<dependencies>
 		<dependency>

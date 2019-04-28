@@ -13,6 +13,7 @@
 	<packaging>jar</packaging>
 	<name>Ligoj - API Test</name>
 	<description>API test configuration</description>
+	<url>https://github.com/ligoj/ligoj-api/plugin-api-test</url>
 
 	<dependencyManagement>
 		<dependencies>
