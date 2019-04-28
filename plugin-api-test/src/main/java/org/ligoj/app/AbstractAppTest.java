@@ -5,6 +5,7 @@ package org.ligoj.app;
 
 import javax.ws.rs.core.UriInfo;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.ligoj.app.iam.ICompanyRepository;
 import org.ligoj.app.iam.IGroupRepository;
 import org.ligoj.app.iam.IUserRepository;
@@ -18,7 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTest {
 
 	@Autowired
+	protected IamProvider[] iamProviders;
+
 	protected IamProvider iamProvider;
+	
+	@BeforeEach
+	public void copyIamProvider() {
+		iamProvider = iamProviders[0];
+	}
 
 	/**
 	 * User repository provider.

@@ -10,6 +10,7 @@ import javax.persistence.TypedQuery;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
@@ -20,6 +21,13 @@ import org.mockito.Mockito;
  * Test class of {@link AbstractAppTest}
  */
 public class TestAbstractAppTest extends AbstractAppTest {
+
+	@BeforeEach
+	@Override
+	public void copyIamProvider() {
+		iamProviders = new IamProvider[] { null };
+		super.copyIamProvider();
+	}
 
 	/**
 	 * Only there fore coverage, no Spring involved.

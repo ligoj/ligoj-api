@@ -38,6 +38,11 @@
 				<version>${api.version}</version>
 				<scope>test</scope>
 			</dependency>
+			<dependency>
+				<groupId>org.ligoj.api</groupId>
+				<artifactId>plugin-iam-empty</artifactId>
+				<version>${api.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 	<dependencies>
