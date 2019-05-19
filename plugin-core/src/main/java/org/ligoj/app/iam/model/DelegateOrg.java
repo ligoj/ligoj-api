@@ -38,7 +38,6 @@ public class DelegateOrg extends AbstractDelegate {
 	/**
 	 * The DN associated to this entry, including base DN to be able to perform SQL filters.
 	 */
-	@NotNull
 	@NotBlank
 	@Length(max = 512)
 	@DistinguishName

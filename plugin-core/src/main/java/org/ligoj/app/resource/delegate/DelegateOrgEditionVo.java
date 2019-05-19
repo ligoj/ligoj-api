@@ -30,7 +30,6 @@ public class DelegateOrgEditionVo extends NamedBean<Integer> {
 	 * The people receiving the delegation.
 	 */
 	@NotBlank
-	@NotNull
 	private String receiver;
 
 	/**

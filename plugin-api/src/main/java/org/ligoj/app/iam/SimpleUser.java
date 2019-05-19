@@ -4,7 +4,6 @@
 package org.ligoj.app.iam;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -44,7 +43,6 @@ public class SimpleUser implements INamableBean<String> {
 	/**
 	 * User first name.
 	 */
-	@NotNull
 	@NotBlank
 	@Size(max = 50)
 	private String firstName;
@@ -52,7 +50,6 @@ public class SimpleUser implements INamableBean<String> {
 	/**
 	 * User last name.
 	 */
-	@NotNull
 	@NotBlank
 	@Size(max = 50)
 	private String lastName;
@@ -60,7 +57,6 @@ public class SimpleUser implements INamableBean<String> {
 	/**
 	 * User name/login/UID.
 	 */
-	@NotNull
 	@NotBlank
 	@LowerCase
 	@Size(max = 50)
@@ -70,7 +66,6 @@ public class SimpleUser implements INamableBean<String> {
 	/**
 	 * Normalized Organizational Unit.
 	 */
-	@NotNull
 	@NotBlank
 	@Size(max = 100)
 	@Pattern(regexp = USER_PATTERN_WRAPPER)

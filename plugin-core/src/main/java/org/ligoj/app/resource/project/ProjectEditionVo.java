@@ -4,7 +4,6 @@
 package org.ligoj.app.resource.project;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
@@ -31,7 +30,6 @@ public class ProjectEditionVo extends DescribedAuditedBean<UserOrg, Integer> {
 	/**
 	 * Unique technical and yet readable name.
 	 */
-	@NotNull
 	@NotBlank
 	@LowerCase
 	@Size(max = 100)
@@ -41,7 +39,6 @@ public class ProjectEditionVo extends DescribedAuditedBean<UserOrg, Integer> {
 	/**
 	 * UID of team leader.
 	 */
-	@NotNull
 	@NotBlank
 	@LowerCase
 	@Size(max = 100)

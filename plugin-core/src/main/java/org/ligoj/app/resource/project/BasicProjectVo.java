@@ -40,7 +40,6 @@ public class BasicProjectVo extends NamedAuditedBean<SimpleUserOrg, Integer> imp
 	/**
 	 * Unique technical and yet readable name.
 	 */
-	@NotNull
 	@NotBlank
 	@Column(updatable = false)
 	@LowerCase

@@ -4,7 +4,6 @@
 package org.ligoj.app.resource.node;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import org.ligoj.app.model.NodeId;
 import org.ligoj.app.model.Refining;
@@ -26,7 +25,6 @@ public class NodeEditionVo extends AbstractParameterizedVo implements INamableBe
 	private static final long serialVersionUID = 1L;
 
 	@NotBlank
-	@NotNull
 	private String name;
 
 	/**
@@ -38,7 +36,6 @@ public class NodeEditionVo extends AbstractParameterizedVo implements INamableBe
 	 * The node identifier.
 	 */
 	@NotBlank
-	@NotNull
 	@NodeId
 	private String id;
 

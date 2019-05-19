@@ -26,7 +26,6 @@ public abstract class AbstractParameterizedVo {
 	 * Service (node, ...) identifier.
 	 */
 	@NotBlank
-	@NotNull
 	@NodeId
 	private String node;
 

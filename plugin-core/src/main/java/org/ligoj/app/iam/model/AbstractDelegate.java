@@ -33,7 +33,6 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 	 * The resource receiving the delegation.
 	 */
 	@NotBlank
-	@NotNull
 	private String receiver;
 
 	/**
