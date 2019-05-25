@@ -38,6 +38,10 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 		return Optional.ofNullable(iamConfiguration).orElseGet(this::refreshConfiguration);
 	}
 
+	/**
+	 * Refresh the configuration.
+	 * @return Ignored.
+	 */
 	@CacheResult(cacheName = "iam-empty-configuration")
 	public boolean ensureCachedConfiguration() {
 		refreshConfiguration();

@@ -38,7 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class ParameterResourceTest extends AbstractAppTest {
+class ParameterResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private ParameterResource resource;
@@ -47,7 +47,7 @@ public class ParameterResourceTest extends AbstractAppTest {
 	private ParameterRepository repository;
 
 	@BeforeEach
-	public void prepare() throws IOException {
+	void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
 				StandardCharsets.UTF_8.name());
@@ -55,7 +55,7 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNotProvidedParameters() {
+	void getNotProvidedParameters() {
 		repository.findOneExpected("service:bt:jira:pkey").setDefaultValue("DEFAULT_VALUE1");
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6",
 				SubscriptionMode.LINK);
@@ -69,7 +69,7 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNotProvidedParametersWithDependencies() {
+	void getNotProvidedParametersWithDependencies() {
 
 		// c_16->[c_10], c_10->[c_15, c8,c2], c8->c2, c2->[c7], c7->[c14]
 		repository.findOneExpected("c_16").getDepends().add(repository.findOneExpected("c_10"));
@@ -106,7 +106,7 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNotProvidedParametersTool() {
+	void getNotProvidedParametersTool() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira",
 				SubscriptionMode.LINK);
 		Assertions.assertEquals(32, parameters.size());
@@ -133,13 +133,13 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNotProvidedParametersServiceEmpty() {
+	void getNotProvidedParametersServiceEmpty() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt", SubscriptionMode.LINK);
 		Assertions.assertEquals(0, parameters.size());
 	}
 
 	@Test
-	public void getNotProvidedParametersServiceToService() {
+	void getNotProvidedParametersServiceToService() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id", SubscriptionMode.LINK);
 		Assertions.assertEquals(2, parameters.size());
 		Assertions.assertEquals("service:id:group", parameters.get(0).getId());
@@ -147,7 +147,7 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNotProvidedParametersServiceToTool() {
+	void getNotProvidedParametersServiceToTool() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap",
 				SubscriptionMode.LINK);
 		Assertions.assertEquals(19, parameters.size());
@@ -162,7 +162,7 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNotProvidedParametersServiceToToolCreate() {
+	void getNotProvidedParametersServiceToToolCreate() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap",
 				SubscriptionMode.CREATE);
 		Assertions.assertEquals(21, parameters.size());
@@ -178,25 +178,25 @@ public class ParameterResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findByIdInternalNotExists() {
+	void findByIdInternalNotExists() {
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findByIdInternal("not-exists"));
 	}
 
 	@Test
-	public void findByIdInternalNotVisible() {
+	void findByIdInternalNotVisible() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(EntityNotFoundException.class,
 				() -> resource.findByIdInternal("service:id:ldap:base-dn"));
 	}
 
 	@Test
-	public void findByIdInternal() {
+	void findByIdInternal() {
 		Assertions.assertEquals("service:id:ldap:base-dn",
 				resource.findByIdInternal("service:id:ldap:base-dn").getId());
 	}
 
 	@Test
-	public void getNotProvidedParametersServiceToNode() {
+	void getNotProvidedParametersServiceToNode() {
 		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap:dig",
 				SubscriptionMode.LINK);
 		Assertions.assertEquals(1, parameters.size());

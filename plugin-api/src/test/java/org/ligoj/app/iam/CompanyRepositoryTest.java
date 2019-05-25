@@ -9,25 +9,25 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class of {@link ICompanyRepository}
  */
-public class CompanyRepositoryTest {
+class CompanyRepositoryTest {
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		Assertions.assertTrue(new EmptyCompanyRepository().findAll().isEmpty());
 	}
 
 	@Test
-	public void findAllNoCache() {
+	void findAllNoCache() {
 		Assertions.assertTrue(new EmptyCompanyRepository().findAllNoCache().isEmpty());
 	}
 
 	@Test
-	public void delete() {
+	void delete() {
 		new EmptyCompanyRepository().delete(null);
 	}
 
 	@Test
-	public void create() {
+	void create() {
 		final CompanyOrg companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", companyLdap.getDn());
 		Assertions.assertEquals("Name", companyLdap.getName());

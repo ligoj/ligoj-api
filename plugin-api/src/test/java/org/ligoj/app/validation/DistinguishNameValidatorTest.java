@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class of {@link DistinguishNameValidator}
  */
-public class DistinguishNameValidatorTest {
+class DistinguishNameValidatorTest {
 
 	@Test
-	public void invalid() {
+	void invalid() {
 		Assertions.assertFalse(new DistinguishNameValidator().isValid("dc==", null));
 		Assertions.assertFalse(new DistinguishNameValidator().isValid("dc", null));
 		Assertions.assertFalse(new DistinguishNameValidator().isValid(",dc=com", null));
@@ -22,7 +22,7 @@ public class DistinguishNameValidatorTest {
 	}
 
 	@Test
-	public void valid() {
+	void valid() {
 		// only there for coverage
 		new DistinguishNameValidator().initialize(null);
 

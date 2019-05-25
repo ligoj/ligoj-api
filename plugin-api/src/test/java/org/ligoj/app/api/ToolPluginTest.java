@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class of {@link ToolPlugin}
  */
-public class ToolPluginTest {
+class ToolPluginTest {
 
 	private final ToolPlugin plugin = new ToolPlugin() {
 
@@ -21,17 +21,17 @@ public class ToolPluginTest {
 	};
 
 	@Test
-	public void checkStatus() throws Exception {
+	void checkStatus() throws Exception {
 		Assertions.assertTrue(plugin.checkStatus(null));
 	}
 
 	@Test
-	public void checkStatusNode() throws Exception {
+	void checkStatusNode() throws Exception {
 		Assertions.assertTrue(plugin.checkStatus(null, null));
 	}
 
 	@Test
-	public void checkSubscriptionStatus() throws Exception {
+	void checkSubscriptionStatus() throws Exception {
 		final SubscriptionStatusWithData data = plugin.checkSubscriptionStatus(0, null, null);
 		data.put("some", "value");
 		Assertions.assertNotNull(data.getStatus().isUp());
@@ -40,12 +40,12 @@ public class ToolPluginTest {
 	}
 
 	@Test
-	public void getLastVersion() throws Exception {
+	void getLastVersion() throws Exception {
 		Assertions.assertNull(plugin.getLastVersion());
 	}
 
 	@Test
-	public void getVersion() throws Exception {
+	void getVersion() throws Exception {
 		Assertions.assertNull(plugin.getVersion(null));
 	}
 }

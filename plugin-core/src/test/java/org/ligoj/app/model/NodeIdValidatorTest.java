@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class of {@link NodeIdValidator}
  */
-public class NodeIdValidatorTest {
+class NodeIdValidatorTest {
 
 	@Test
-	public void invalid() {
+	void invalid() {
 		Assertions.assertFalse(new NodeIdValidator().isValid("service", null));
 		Assertions.assertFalse(new NodeIdValidator().isValid("service:", null));
 		Assertions.assertFalse(new NodeIdValidator().isValid("service:a:", null));
@@ -28,7 +28,7 @@ public class NodeIdValidatorTest {
 	}
 
 	@Test
-	public void valid() {
+	void valid() {
 		// only there for coverage
 		new NodeIdValidator().initialize(null);
 

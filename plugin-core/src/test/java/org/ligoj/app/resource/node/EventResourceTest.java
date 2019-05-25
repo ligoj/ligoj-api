@@ -37,7 +37,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class EventResourceTest extends AbstractAppTest {
+class EventResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private EventResource resource;
@@ -49,14 +49,14 @@ public class EventResourceTest extends AbstractAppTest {
 	private ProjectRepository projectRepository;
 
 	@BeforeEach
-	public void prepare() throws IOException {
+	void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, Event.class },
 				StandardCharsets.UTF_8.name());
 	}
 
 	@Test
-	public void registerNodeEvent() {
+	void registerNodeEvent() {
 		final Node node = new Node();
 		node.setId("junit1");
 		node.setName("junit1");
@@ -75,7 +75,7 @@ public class EventResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void registerSubscriptionEvent() {
+	void registerSubscriptionEvent() {
 		final Subscription subscription = new Subscription();
 		subscription.setProject(projectRepository.findByName("MDA"));
 		subscription.setNode(em.find(Node.class, "service:build:jenkins:bpr"));

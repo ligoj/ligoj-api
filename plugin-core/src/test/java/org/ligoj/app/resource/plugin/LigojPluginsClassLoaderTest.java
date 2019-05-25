@@ -23,18 +23,18 @@ import org.mockito.Mockito;
 /**
  * Test class of {@link LigojPluginsClassLoader}
  */
-public class LigojPluginsClassLoaderTest {
+class LigojPluginsClassLoaderTest {
 
 	protected static final String USER_HOME_DIRECTORY = "target/test-classes/home-test";
 
 	@BeforeEach
-	public void cleanHome() throws IOException {
+	void cleanHome() throws IOException {
 		FileUtils.deleteDirectory(new File(new File(USER_HOME_DIRECTORY, LigojPluginsClassLoader.HOME_DIR_FOLDER),
 				LigojPluginsClassLoader.EXPORT_DIR));
 	}
 
 	@Test
-	public void getInstance() {
+	void getInstance() {
 		try (ThreadClassLoaderScope scope = new ThreadClassLoaderScope(
 				new URLClassLoader(new URL[0], Mockito.mock(LigojPluginsClassLoader.class)))) {
 			Assertions.assertNotNull(LigojPluginsClassLoader.getInstance());
@@ -42,7 +42,7 @@ public class LigojPluginsClassLoaderTest {
 	}
 
 	@Test
-	public void toFile() throws IOException {
+	void toFile() throws IOException {
 		final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/42/foo/bar.log");
 		final File subscriptionParent = new File(USER_HOME_DIRECTORY, ".ligoj/service-id");
 		FileUtils.deleteQuietly(subscriptionParent);

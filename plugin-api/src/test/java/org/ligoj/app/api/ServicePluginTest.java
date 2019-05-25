@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class of {@link ServicePlugin}
  */
-public class ServicePluginTest {
+class ServicePluginTest {
 
 	private final ServicePlugin plugin = new ServicePlugin() {
 
@@ -19,22 +19,22 @@ public class ServicePluginTest {
 	};
 
 	@Test
-	public void delete() throws Exception {
+	void delete() throws Exception {
 		plugin.delete(2, true);
 	}
 
 	@Test
-	public void create() throws Exception {
+	void create() throws Exception {
 		plugin.create(1);
 	}
 
 	@Test
-	public void link() throws Exception {
+	void link() throws Exception {
 		plugin.link(3);
 	}
 
 	@Test
-	public void deleteNode() throws Exception {
+	void deleteNode() throws Exception {
 		plugin.delete("service:s1:t2:n3", true);
 	}
 }

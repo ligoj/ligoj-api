@@ -11,12 +11,12 @@ import org.springframework.context.ApplicationContext;
 /**
  * Test class of {@link DefaultVerificationMode}
  */
-public class DefaultVerificationModeTest {
+class DefaultVerificationModeTest {
 
 	private boolean checked = false;
 
 	@Test
-	public void testCall() {
+	void testCall() {
 		ApplicationContext context = Mockito.mock(ApplicationContext.class);
 		context.getBean("some");
 		Mockito.verify(context, new DefaultVerificationMode(data -> {
@@ -27,7 +27,7 @@ public class DefaultVerificationModeTest {
 	}
 
 	@Test
-	public void testNotCall() {
+	void testNotCall() {
 		ApplicationContext context = Mockito.mock(ApplicationContext.class);
 		DefaultVerificationMode mode = new DefaultVerificationMode(data -> {
 			Assertions.assertEquals(0, data.getAllInvocations().size());

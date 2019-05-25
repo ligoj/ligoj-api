@@ -13,30 +13,30 @@ import org.ligoj.app.iam.empty.EmptyGroupRepository;
 /**
  * Test class of {@link EmptyGroupRepository}
  */
-public class EmptyGroupRepositoryTest {
+class EmptyGroupRepositoryTest {
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		Assertions.assertTrue(new EmptyGroupRepository().findAll().isEmpty());
 	}
 
 	@Test
-	public void delete() {
+	void delete() {
 		new EmptyGroupRepository().delete(null);
 	}
 
 	@Test
-	public void findByDepartment() {
+	void findByDepartment() {
 		Assertions.assertNull(new EmptyGroupRepository().findByDepartment("any"));
 	}
 
 	@Test
-	public void getTypeName() {
+	void getTypeName() {
 		Assertions.assertEquals("group", new EmptyGroupRepository().getTypeName());
 	}
 
 	@Test
-	public void create() {
+	void create() {
 		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", groupLdap.getDn());
 		Assertions.assertEquals("Name", groupLdap.getName());
@@ -44,32 +44,32 @@ public class EmptyGroupRepositoryTest {
 	}
 
 	@Test
-	public void findAllPage() {
+	void findAllPage() {
 		Assertions.assertEquals(0, new EmptyGroupRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
 	}
 
 	@Test
-	public void addAttributes() {
+	void addAttributes() {
 		new EmptyGroupRepository().addAttributes(null, null, null);
 	}
 
 	@Test
-	public void addGroup() {
+	void addGroup() {
 		new EmptyGroupRepository().addGroup(null, null);
 	}
 
 	@Test
-	public void empty() {
+	void empty() {
 		new EmptyGroupRepository().empty(null, null);
 	}
 
 	@Test
-	public void addUser() {
+	void addUser() {
 		new EmptyGroupRepository().addUser(null, null);
 	}
 
 	@Test
-	public void removeUser() {
+	void removeUser() {
 		new EmptyGroupRepository().removeUser(null, null);
 	}
 

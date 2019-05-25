@@ -35,10 +35,10 @@ import org.mockito.Mockito;
 /**
  * Test class of {@link ToVoConverter}
  */
-public class ToVoConverterTest {
+class ToVoConverterTest {
 
 	@Test
-	public void applyEmpty() {
+	void applyEmpty() {
 		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
 		final ToVoConverter converter = new ToVoConverter(locator, s -> null, new ArrayList<>(), new HashMap<>());
 		final Project entity = new Project();
@@ -56,7 +56,7 @@ public class ToVoConverterTest {
 	}
 
 	@Test
-	public void apply() {
+	void apply() {
 
 		// Sub user repository
 		final IamProvider iamProvider = Mockito.mock(IamProvider.class);

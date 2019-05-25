@@ -69,7 +69,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class NodeResourceTest extends AbstractAppTest {
+class NodeResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private NodeRepository repository;
@@ -97,7 +97,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	private EventRepository eventRepository;
 
 	@BeforeEach
-	public void prepare() throws IOException {
+	void prepare() throws IOException {
 		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
 				ParameterValue.class, Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		persistSystemEntities();
@@ -105,7 +105,7 @@ public class NodeResourceTest extends AbstractAppTest {
 
 	@BeforeEach
 	@AfterEach
-	public void cleanNodeCache() {
+	void cleanNodeCache() {
 		super.clearAllCache();
 	}
 
@@ -120,7 +120,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkNodesStatusFiltered() throws Exception {
+	void checkNodesStatusFiltered() throws Exception {
 
 		// This users sees only Jenkins nodes
 		mockApplicationContext();
@@ -143,7 +143,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkNodesStatus() throws Exception {
+	void checkNodesStatus() throws Exception {
 
 		// This users sees all nodes
 		mockApplicationContext();
@@ -166,7 +166,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkNodeStatusNotVisible() throws Exception {
+	void checkNodeStatusNotVisible() throws Exception {
 
 		// This users sees only Jenkins nodes
 		mockApplicationContext();
@@ -185,7 +185,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkNodeStatus() throws Exception {
+	void checkNodeStatus() throws Exception {
 		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 
@@ -201,7 +201,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNodeStatusSingleNode() throws Exception {
+	void getNodeStatusSingleNode() throws Exception {
 		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 
@@ -257,7 +257,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkNodesStatusScheduler() throws Exception {
+	void checkNodesStatusScheduler() throws Exception {
 		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 
@@ -307,7 +307,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkSubscriptionsStatus() throws Exception {
+	void checkSubscriptionsStatus() throws Exception {
 		mockApplicationContext();
 
 		// This users sees only Jenkins nodes
@@ -369,7 +369,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkSubscriptionsStatusScheduler() throws Exception {
+	void checkSubscriptionsStatusScheduler() throws Exception {
 		mockApplicationContext();
 		initSpringSecurityContext(DEFAULT_USER);
 		final NodeResource resource = resourceMock;
@@ -396,7 +396,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkSubscriptionStatusException() throws Exception {
+	void checkSubscriptionStatusException() throws Exception {
 		mockApplicationContext();
 		final NodeResource resource = resourceMock;
 		final ServicePluginLocator servicePluginLocator = resourceMock.locator;
@@ -423,7 +423,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getServices() {
+	void getServices() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, "service", null, -1).getData();
 		Assertions.assertEquals(10, resources.size());
 		final NodeVo service = resources.get(0);
@@ -459,7 +459,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void update() {
+	void update() {
 		Assertions.assertNotNull(resource.findAll().get("service:bt:jira:6"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:6");
@@ -476,7 +476,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createOverflowMode() {
+	void createOverflowMode() {
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.CREATE);
@@ -488,7 +488,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createOverflowModeAll() {
+	void createOverflowModeAll() {
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setMode(SubscriptionMode.ALL);
@@ -500,7 +500,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createNoParameter() {
+	void createNoParameter() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
@@ -517,7 +517,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void create() {
+	void create() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:some-7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:some-7");
@@ -544,7 +544,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createOverrideParameter() {
+	void createOverrideParameter() {
 		final ParameterValue nodeParameter = new ParameterValue();
 		nodeParameter.setParameter(parameterRepository.findOneExpected("service:bt:jira:url"));
 		nodeParameter.setNode(repository.findOneExpected("service:bt:jira"));
@@ -565,7 +565,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void updateParameters() {
+	void updateParameters() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
@@ -645,7 +645,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void updateUntouchParameters() {
+	void updateUntouchParameters() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
@@ -682,7 +682,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * The relationship is valid regarding the syntax but the parent does not exist.
 	 */
 	@Test
-	public void createNotExistRefined() {
+	void createNotExistRefined() {
 		Assertions.assertNull(resource.findAll().get("service:bt:some:instance"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:some:instance");
@@ -697,7 +697,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * The relationship is not valid regarding the identifier syntax.
 	 */
 	@Test
-	public void createNotInvalidRefined() {
+	void createNotInvalidRefined() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
@@ -712,7 +712,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * The identifier does not match to a service.
 	 */
 	@Test
-	public void createNotInvalidRoot() {
+	void createNotInvalidRoot() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final NodeEditionVo node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
@@ -723,30 +723,30 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createRootAllMode() {
+	void createRootAllMode() {
 		newNode(SubscriptionMode.ALL);
 	}
 
 	@Test
-	public void createOnParentAllMode() {
+	void createOnParentAllMode() {
 		newNode(SubscriptionMode.ALL);
 		newSubNode(SubscriptionMode.NONE);
 	}
 
 	@Test
-	public void createOnParentSameMode() {
+	void createOnParentSameMode() {
 		newNode(SubscriptionMode.CREATE);
 		newSubNode(SubscriptionMode.CREATE);
 	}
 
 	@Test
-	public void createOnParentGreaterMode() {
+	void createOnParentGreaterMode() {
 		newNode(SubscriptionMode.ALL);
 		newSubNode(SubscriptionMode.CREATE);
 	}
 
 	@Test
-	public void createNoneOnParent() {
+	void createNoneOnParent() {
 		newNode(SubscriptionMode.CREATE);
 		newSubNode(SubscriptionMode.NONE);
 	}
@@ -755,7 +755,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * Cannot create sub node of a parent node having different subscription mode different from "ALL".
 	 */
 	@Test
-	public void createOnParentDifferentMode() {
+	void createOnParentDifferentMode() {
 		newNode(SubscriptionMode.CREATE);
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			newSubNode(SubscriptionMode.LINK);
@@ -766,7 +766,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * Cannot create sub node of a parent node having subscription mode "NONE".
 	 */
 	@Test
-	public void createOnParentDifferentMode2() {
+	void createOnParentDifferentMode2() {
 		newNode(SubscriptionMode.NONE);
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			newSubNode(SubscriptionMode.CREATE);
@@ -777,7 +777,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	 * Create sub node of a parent node having subscription mode "NONE".
 	 */
 	@Test
-	public void createOnParentNoneMode() {
+	void createOnParentNoneMode() {
 		newNode(SubscriptionMode.NONE);
 		newSubNode(SubscriptionMode.NONE);
 	}
@@ -810,14 +810,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteNotExist() {
+	void deleteNotExist() {
 		Assertions.assertThrows(BusinessException.class, () -> {
 			resource.delete("service:bt:jira:any");
 		});
 	}
 
 	@Test
-	public void deleteNotVisible() {
+	void deleteNotVisible() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(BusinessException.class, () -> {
 			delete();
@@ -825,7 +825,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteHasSubscription() {
+	void deleteHasSubscription() {
 		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		em.clear();
 		Assertions.assertThrows(BusinessException.class, () -> {
@@ -834,7 +834,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void delete() throws Exception {
+	void delete() throws Exception {
 		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		subscriptionRepository.findAllBy("node.id", "service:bt:jira:6").forEach(s -> {
 			eventRepository.deleteAllBy("subscription.id", s.getId());
@@ -848,7 +848,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParent() {
+	void findAllByParent() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, null, -1)
 				.getData();
 		Assertions.assertEquals(1, resources.size());
@@ -860,7 +860,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByDepth() {
+	void findAllByDepth() {
 		final UriInfo newUriInfo = newUriInfo();
 		newUriInfo.getQueryParameters().putSingle("length", "100");
 
@@ -875,7 +875,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentFilterModeCreate() {
+	void findAllByParentFilterModeCreate() {
 		final List<NodeVo> resources = resource
 				.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.CREATE, -1).getData();
 		Assertions.assertEquals(1, resources.size());
@@ -889,14 +889,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentFilterModeLinkAcceptNoCreate() {
+	void findAllByParentFilterModeLinkAcceptNoCreate() {
 		final List<NodeVo> resources = resource
 				.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.CREATE, 0).getData();
 		Assertions.assertEquals(0, resources.size());
 	}
 
 	@Test
-	public void findAllByParentFilterModeLinkStrict() {
+	void findAllByParentFilterModeLinkStrict() {
 		final List<NodeVo> resources = resource
 				.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 2).getData();
 		Assertions.assertEquals(1, resources.size());
@@ -908,7 +908,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentFilterModeAkkAcceptLink() {
+	void findAllByParentFilterModeAkkAcceptLink() {
 		final List<NodeVo> resources = resource
 				.findAll(newUriInfo(), null, "service:scm:git", SubscriptionMode.LINK, -1).getData();
 		Assertions.assertEquals(1, resources.size());
@@ -920,7 +920,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentCreateMode() {
+	void findAllByParentCreateMode() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, null, -1).getData();
 		Assertions.assertEquals(1, resources.size());
 		final NodeVo service = resources.get(0);
@@ -933,7 +933,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllByParentMultiple() {
+	void findAllByParentMultiple() {
 		final List<NodeVo> resources = resource.findAll(newUriInfo(), null, JiraBaseResource.KEY, null, -1).getData();
 		Assertions.assertEquals(2, resources.size());
 		Assertions.assertEquals("service:bt:jira:4", resources.get(0).getId());
@@ -941,7 +941,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNodeStatus() {
+	void getNodeStatus() {
 		final List<EventVo> nodes = resource.getNodeStatus();
 		Assertions.assertEquals(2, nodes.size());
 		Assertions.assertTrue(
@@ -954,14 +954,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void nodeStatus() {
+	void nodeStatus() {
 		// dummy test : used to cover enum methods.
 		Assertions.assertEquals(NodeStatus.UP, NodeStatus.valueOf("UP"));
 		Assertions.assertEquals(2, NodeStatus.values().length);
 	}
 
 	@Test
-	public void getNodeStatistics() {
+	void getNodeStatistics() {
 		final List<NodeStatisticsVo> nodes = resource.getNodeStatistics();
 		// +2 Since there are 2 nodes for JIRA and 2 for source
 		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2,
@@ -969,14 +969,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findSubscriptionsWithParams() {
+	void findSubscriptionsWithParams() {
 		final Map<Subscription, Map<String, String>> result = resource.findSubscriptionsWithParams("service:bt:jira:4");
 		Assertions.assertEquals(1, result.size());
 		Assertions.assertEquals(2, result.values().iterator().next().size());
 	}
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		final Map<String, NodeVo> result = resource.findAll();
 		Assertions.assertTrue(result.size() > 30);
 		// Check SonarQube
@@ -1009,7 +1009,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllCriteria() {
+	void findAllCriteria() {
 		final List<NodeVo> result = resource.findAll(newFindAllParameters(), "sonar", null, null, -1).getData();
 		Assertions.assertEquals(2, result.size());
 		// Check SonarQube
@@ -1023,7 +1023,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAllNoCriteria() {
+	void findAllNoCriteria() {
 		final TableItem<NodeVo> findAll = resource.findAll(newFindAllParameters(), null, null, null, 2);
 		final List<NodeVo> result = findAll.getData();
 		Assertions.assertEquals(10, result.size());
@@ -1033,7 +1033,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void toVoLightDisabled() {
+	void toVoLightDisabled() {
 		final Node entity = new Node();
 		entity.setId("disabled:node");
 		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
@@ -1041,7 +1041,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void toVoLightEnabled() {
+	void toVoLightEnabled() {
 		final Node entity = new Node();
 		entity.setId("enabled:node");
 		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
@@ -1050,19 +1050,19 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findByIdExpected() {
+	void findByIdExpected() {
 		Assertions.assertEquals("service:kpi:sonar", resource.findById("service:kpi:sonar").getId());
 	}
 
 	@Test
-	public void findByIdExpectedNotExists() {
+	void findByIdExpectedNotExists() {
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			resource.findById("service:any");
 		});
 	}
 
 	@Test
-	public void findByIdExpectedNoDelegate() {
+	void findByIdExpectedNoDelegate() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			resource.findById("service:kpi:sonar");
@@ -1070,7 +1070,7 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findByIdExpectedNoValidDelegate() {
+	void findByIdExpectedNoValidDelegate() {
 		initSpringSecurityContext("user1");
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			resource.findById("service:kpi:sonar");
@@ -1078,14 +1078,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findByIdExpectedSubNodes() {
+	void findByIdExpectedSubNodes() {
 		initSpringSecurityContext("user1");
 		Assertions.assertEquals("service:build:jenkins:bpr", resource.findById("service:build:jenkins:bpr").getId());
 		Assertions.assertEquals("service:build:jenkins", resource.findById("service:build:jenkins").getId());
 	}
 
 	@Test
-	public void findByIdInternal() {
+	void findByIdInternal() {
 		initSpringSecurityContext("any");
 		Assertions.assertEquals("service:build:jenkins:bpr",
 				resource.findByIdInternal("service:build:jenkins:bpr").getId());
@@ -1093,14 +1093,14 @@ public class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findByIdInternalNotExists() {
+	void findByIdInternalNotExists() {
 		Assertions.assertThrows(JpaObjectRetrievalFailureException.class, () -> {
 			resource.findByIdInternal("any");
 		});
 	}
 
 	@Test
-	public void deleteTasks() {
+	void deleteTasks() {
 		final TaskSampleNodeResource sampleResource = registerSingleton("taskSampleResource",
 				applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleNodeResource.class));
 

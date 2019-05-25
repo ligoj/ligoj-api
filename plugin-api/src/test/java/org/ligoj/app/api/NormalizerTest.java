@@ -15,10 +15,10 @@ import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 /**
  * Test class of {@link Normalizer}
  */
-public class NormalizerTest extends AbstractDataGeneratorTest {
+class NormalizerTest extends AbstractDataGeneratorTest {
 
 	@Test
-	public void normalizeSet() {
+	void normalizeSet() {
 		final List<String> strings = new ArrayList<>();
 		strings.add("c");
 		strings.add("C");
@@ -29,25 +29,25 @@ public class NormalizerTest extends AbstractDataGeneratorTest {
 	}
 
 	@Test
-	public void normalizeSetNull() {
+	void normalizeSetNull() {
 		final Set<String> result = Normalizer.normalize((Collection<String>) null);
 		Assertions.assertEquals(0, result.size());
 	}
 
 	@Test
-	public void normalize() {
+	void normalize() {
 		Assertions.assertEquals("c", Normalizer.normalize(" C "));
 		Assertions.assertEquals("c", Normalizer.normalize("c"));
 	}
 
 	@Test
-	public void normalizeDiacritic() {
+	void normalizeDiacritic() {
 		Assertions.assertEquals("c", Normalizer.normalize("ç"));
 		Assertions.assertEquals("aaiconeeeuuaaiconeeeuu", Normalizer.normalize("àâîçôñéêèûùÂÀÎÇÔÑÊÉÈÛÙ"));
 	}
 
 	@Test
-	public void testCoverage() throws ReflectiveOperationException {
+	void testCoverage() throws ReflectiveOperationException {
 		coverageSingleton(Normalizer.class);
 	}
 

@@ -13,20 +13,20 @@ import org.ligoj.app.iam.empty.EmptyCompanyRepository;
 /**
  * Test class of {@link EmptyCompanyRepository}
  */
-public class EmptyCompanyRepositoryTest {
+class EmptyCompanyRepositoryTest {
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		Assertions.assertTrue(new EmptyCompanyRepository().findAll().isEmpty());
 	}
 
 	@Test
-	public void delete() {
+	void delete() {
 		new EmptyCompanyRepository().delete(null);
 	}
 
 	@Test
-	public void create() {
+	void create() {
 		final CompanyOrg companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", companyLdap.getDn());
 		Assertions.assertEquals("Name", companyLdap.getName());
@@ -34,12 +34,12 @@ public class EmptyCompanyRepositoryTest {
 	}
 
 	@Test
-	public void getTypeName() {
+	void getTypeName() {
 		Assertions.assertEquals("company", new EmptyCompanyRepository().getTypeName());
 	}
 
 	@Test
-	public void findAllPage() {
+	void findAllPage() {
 		Assertions.assertEquals(0, new EmptyCompanyRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
 	}
 

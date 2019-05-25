@@ -38,7 +38,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class DelegateNodeResourceTest extends AbstractJpaTest {
+class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Autowired
 	private DelegateNodeRepository repository;
@@ -47,14 +47,14 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	private DelegateNodeResource resource;
 
 	@BeforeEach
-	public void prepare() throws IOException {
+	void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, DelegateNode.class },
 				StandardCharsets.UTF_8.name());
 	}
 
 	@Test
-	public void createNotExistsUser() {
+	void createNotExistsUser() {
 		initSpringSecurityContext("any");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service");
@@ -65,7 +65,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createNoRightAtThisLevel() {
+	void createNoRightAtThisLevel() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build");
@@ -76,7 +76,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createNoRightAtThisLevel2() {
+	void createNoRightAtThisLevel2() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("");
@@ -87,7 +87,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createExactNode() {
+	void createExactNode() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
@@ -96,7 +96,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createSubNode() {
+	void createSubNode() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins:dig");
@@ -105,7 +105,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createSubNodeMaxiRight() {
+	void createSubNodeMaxiRight() {
 		initSpringSecurityContext("user1");
 		final DelegateNode delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins:dig");
@@ -117,7 +117,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createWriteNotAdmin() {
+	void createWriteNotAdmin() {
 
 		// Add a special right on for a node
 		final DelegateNode delegate = new DelegateNode();
@@ -136,7 +136,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createGrantRefused() {
+	void createGrantRefused() {
 
 		// Add a special right on for a node
 		final DelegateNode delegate = new DelegateNode();
@@ -156,7 +156,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void createSubNodeMiniRight() {
+	void createSubNodeMiniRight() {
 
 		// Add a special right on for a node
 		final DelegateNode delegate = new DelegateNode();
@@ -174,7 +174,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void updateNoChange() {
+	void updateNoChange() {
 
 		// Add a special right on for a node
 		final DelegateNode delegate = new DelegateNode();
@@ -192,7 +192,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void updateSubNodeReduceRight() {
+	void updateSubNodeReduceRight() {
 
 		// Add a special right on for a node
 		final DelegateNode delegate = new DelegateNode();
@@ -209,21 +209,21 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void deleteSubNode() {
+	void deleteSubNode() {
 		final int user1Delegate = repository.findBy("receiver", "user1").getId();
 		resource.delete(user1Delegate);
 		Assertions.assertFalse(repository.existsById(user1Delegate));
 	}
 
 	@Test
-	public void deleteSameLevel() {
+	void deleteSameLevel() {
 		final int user1Delegate = repository.findBy("receiver", "fdaugan").getId();
 		resource.delete(user1Delegate);
 		Assertions.assertFalse(repository.existsById(user1Delegate));
 	}
 
 	@Test
-	public void deleteNotRight() {
+	void deleteNotRight() {
 		final int user1Delegate = repository.findBy("receiver", "junit").getId();
 
 		initSpringSecurityContext("user1");
@@ -233,7 +233,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void findAllCriteriaUser() {
+	void findAllCriteriaUser() {
 		final TableItem<DelegateNode> items = resource.findAll(newUriInfo(), "junit");
 		Assertions.assertEquals(1, items.getData().size());
 		Assertions.assertEquals(1, items.getRecordsFiltered());
@@ -248,7 +248,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void findAllCriteriaNode() {
+	void findAllCriteriaNode() {
 		final TableItem<DelegateNode> items = resource.findAll(newUriInfo(), "jenkins");
 		Assertions.assertEquals(1, items.getData().size());
 		Assertions.assertEquals(1, items.getRecordsFiltered());
@@ -263,7 +263,7 @@ public class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
-	public void findAllNoCriteriaOrder() {
+	void findAllNoCriteriaOrder() {
 		final UriInfo uriInfo = Mockito.mock(UriInfo.class);
 		Mockito.when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
 		uriInfo.getQueryParameters().add("draw", "1");

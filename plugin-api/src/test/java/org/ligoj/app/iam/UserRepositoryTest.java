@@ -18,10 +18,10 @@ import org.springframework.data.domain.Pageable;
 /**
  * Test class of {@link IUserRepository}
  */
-public class UserRepositoryTest {
+class UserRepositoryTest {
 
 	@Test
-	public void coverage() {
+	void coverage() {
 		final IUserRepository repository = new IUserRepository() {
 
 			@Override
@@ -116,44 +116,44 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		new EmptyUserRepository().setPassword(null, null);
 		new EmptyUserRepository().setPassword(null, null, null);
 		Assertions.assertTrue(new EmptyUserRepository().findAll().isEmpty());
 	}
 
 	@Test
-	public void findAllNoCache() {
+	void findAllNoCache() {
 		Assertions.assertTrue(new EmptyUserRepository().findAllNoCache(null).isEmpty());
 	}
 
 	@Test
-	public void findAll2() {
+	void findAll2() {
 		Assertions.assertTrue(new EmptyUserRepository().findAll(null, null, null, null).getContent().isEmpty());
 	}
 
 	@Test
-	public void findAllBy() {
+	void findAllBy() {
 		Assertions.assertTrue(new EmptyUserRepository().findAllBy("any", "any").isEmpty());
 	}
 
 	@Test
-	public void authenticate() {
+	void authenticate() {
 		Assertions.assertTrue(new EmptyUserRepository().authenticate("any", "any"));
 	}
 
 	@Test
-	public void findByIdNoCache() {
+	void findByIdNoCache() {
 		Assertions.assertEquals("some", new EmptyUserRepository().findByIdNoCache("some").getId());
 	}
 
 	@Test
-	public void getToken() {
+	void getToken() {
 		Assertions.assertEquals("some", new EmptyUserRepository().getToken("some"));
 	}
 
 	@Test
-	public void toUser() {
+	void toUser() {
 		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertNotNull(configuration);
 		Assertions.assertNotNull(configuration.getUserRepository());
@@ -161,30 +161,30 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	public void toUserNull() {
+	void toUserNull() {
 		Assertions.assertNull(new EmptyIamProvider().getConfiguration().getUserRepository().toUser(null));
 	}
 
 	@Test
-	public void toUserNotExists() {
+	void toUserNotExists() {
 		Assertions.assertEquals("login", new MockUserRepository().toUser("login").getId());
 	}
 
 	@Test
-	public void checkLockStatus() {
+	void checkLockStatus() {
 		// Nothing by default
 		new MockUserRepository().checkLockStatus(null);
 	}
 
 	@Test
-	public void findByIdExpectedNotFound() {
+	void findByIdExpectedNotFound() {
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			new MockUserRepository().findByIdExpected("user1", "user2");
 		});
 	}
 
 	@Test
-	public void findByIdExpectedCompanyNotExists() {
+	void findByIdExpectedCompanyNotExists() {
 		final EmptyUserRepository emptyUserRepository = new EmptyUserRepository();
 		emptyUserRepository.setCompanyRepository(Mockito.mock(ICompanyRepository.class));
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -193,7 +193,7 @@ public class UserRepositoryTest {
 	}
 
 	@Test
-	public void findByIdExpected() {
+	void findByIdExpected() {
 		final EmptyUserRepository emptyUserRepository = new EmptyUserRepository();
 		final ICompanyRepository companyRepository = Mockito.mock(ICompanyRepository.class);
 		Mockito.when(companyRepository.findById("user1", "company")).thenReturn(new CompanyOrg("", ""));

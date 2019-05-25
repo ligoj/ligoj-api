@@ -19,15 +19,15 @@ import org.mockito.Mockito;
 /**
  * Simple test of API beans.
  */
-public class BeanTest {
+class BeanTest {
 
 	@Test
-	public void testActivity() {
+	void testActivity() {
 		check(new Activity(), Activity::setLastConnection, Activity::getLastConnection, DateUtils.newCalendar().getTime());
 	}
 
 	@Test
-	public void testIamConfiguration() {
+	void testIamConfiguration() {
 		check(new IamConfiguration(), IamConfiguration::setCompanyRepository, IamConfiguration::getCompanyRepository, Mockito.mock(ICompanyRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setGroupRepository, IamConfiguration::getGroupRepository, Mockito.mock(IGroupRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setUserRepository, IamConfiguration::getUserRepository, Mockito.mock(IUserRepository.class));
@@ -36,7 +36,7 @@ public class BeanTest {
 
 
 	@Test
-	public void testCompanyLdap() throws InvalidNameException {
+	void testCompanyLdap() throws InvalidNameException {
 		final CompanyOrg companyLdap = new CompanyOrg("dn", "name");
 		companyLdap.getCompanyTree().contains(companyLdap);
 		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, new LdapName(""));
@@ -49,7 +49,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testGroupLdap() {
+	void testGroupLdap() {
 		final GroupOrg groupLdap = new GroupOrg("dn", "name", Collections.emptySet());
 		check(groupLdap, GroupOrg::setMembers, GroupOrg::getMembers, Collections.emptySet());
 		check(groupLdap, GroupOrg::setGroups, GroupOrg::getGroups, Collections.emptySet());
@@ -62,7 +62,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testContainerLdap() {
+	void testContainerLdap() {
 		final ContainerOrg groupLdap = new ContainerOrg("dn", "name");
 		check(groupLdap, ContainerOrg::setLocked, ContainerOrg::isLocked, true);
 		check(groupLdap, ContainerOrg::setDescription, ContainerOrg::getDescription, "some");
@@ -71,7 +71,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testSimpleUserOrg() {
+	void testSimpleUserOrg() {
 		final UserOrg user = new UserOrg();
 
 		// Simple user attributes

@@ -25,7 +25,7 @@ import org.mockito.Mockito;
 /**
  * Test class of {@link AbstractConfiguredServicePlugin}
  */
-public class TestAbstractConfiguredServicePlugin {
+class TestAbstractConfiguredServicePlugin {
 
 	private interface NamedConfigurable
 			extends Configurable<PluginConfiguration, Integer>, INamableBean<Integer> {
@@ -41,7 +41,7 @@ public class TestAbstractConfiguredServicePlugin {
 
 	@SuppressWarnings("unchecked")
 	@BeforeEach
-	public void prepareMock() {
+	void prepareMock() {
 		resource = new AbstractConfiguredServicePlugin<>() {
 
 			@Override
@@ -79,7 +79,7 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void deletedConfigured() throws Exception {
+	void deletedConfigured() throws Exception {
 		resource.deletedConfigured(repository, 1);
 
 		// Coverage
@@ -88,7 +88,7 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void deletedConfiguredKo() {
+	void deletedConfiguredKo() {
 		project.setId(-1);
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.deletedConfigured(repository, 1);
@@ -96,18 +96,18 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void findConfigured() {
+	void findConfigured() {
 		Assertions.assertEquals(configurable, resource.findConfigured(repository, 1));
 	}
 
 	@Test
-	public void findConfiguredByName() {
+	void findConfiguredByName() {
 		Assertions.assertEquals(configurable,
 				resource.findConfiguredByName(repository, "my-name", subscription.getId()));
 	}
 
 	@Test
-	public void findConfiguredByNameNotFound() {
+	void findConfiguredByNameNotFound() {
 		Assertions.assertEquals("not-found", Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			Assertions.assertEquals(configurable,
 					resource.findConfiguredByName(repository, "not-found", subscription.getId()));
@@ -115,7 +115,7 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void findConfiguredKo() {
+	void findConfiguredKo() {
 		project.setId(-1);
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.findConfigured(repository, 1);
@@ -123,7 +123,7 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void checkVisibility() {
+	void checkVisibility() {
 		final Subscription subscription = new Subscription();
 		final Node node = new Node();
 		node.setId("service:s:t:i");
@@ -134,7 +134,7 @@ public class TestAbstractConfiguredServicePlugin {
 	}
 
 	@Test
-	public void checkVisibilityKo() {
+	void checkVisibilityKo() {
 		final Subscription subscription = new Subscription();
 		final Node node = new Node();
 		node.setId("service:s:t:i");

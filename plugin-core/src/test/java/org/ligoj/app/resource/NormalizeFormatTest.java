@@ -9,15 +9,15 @@ import org.junit.jupiter.api.Test;
 /**
  * {@link NormalizeFormat} test class
  */
-public class NormalizeFormatTest {
+class NormalizeFormatTest {
 
 	@Test
-	public void testFormat() {
+	void testFormat() {
 		Assertions.assertEquals("oneTWOOAC", new NormalizeFormat().format("twoÖÀç", new StringBuffer("one"), null).toString());
 	}
 
 	@Test
-	public void testParseObject() {
+	void testParseObject() {
 		Assertions.assertEquals(Integer.valueOf(1), new NormalizeFormat().parseObject("1", null));
 	}
 

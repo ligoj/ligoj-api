@@ -39,7 +39,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class LongTaskRunnerTest extends AbstractOrgTest {
+class LongTaskRunnerTest extends AbstractOrgTest {
 
 	protected TaskSampleSubscriptionResource resource;
 	protected TaskSampleNodeResource resourceNode;
@@ -52,7 +52,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	protected int subscription;
 
 	@BeforeEach
-	public void prepareSubscription() throws IOException {
+	void prepareSubscription() throws IOException {
 		persistEntities("csv", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
 		this.subscription = getSubscription("MDA");
 		this.resource = applicationContext.getAutowireCapableBeanFactory()
@@ -61,7 +61,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void cancel() {
+	void cancel() {
 		final TaskSampleNode task = newTaskSampleNode();
 		task.setEnd(null);
 		Assertions.assertFalse(task.isFailed());
@@ -71,14 +71,14 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void cancelNotRunnging() {
+	void cancelNotRunnging() {
 		final TaskSampleNode task = newTaskSampleNode();
 		repositoryNode.saveAndFlush(task);
 		Assertions.assertThrows(BusinessException.class, () -> resourceNode.cancel(task.getLocked().getId()));
 	}
 
 	@Test
-	public void cancelSubscription() {
+	void cancelSubscription() {
 		final TaskSampleSubscription task = newTaskSample();
 		task.setEnd(null);
 		Assertions.assertFalse(task.isFailed());
@@ -88,7 +88,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void cancelSubscriptionNotRunnging() {
+	void cancelSubscriptionNotRunnging() {
 		final TaskSampleSubscription task = newTaskSample();
 		repository.saveAndFlush(task);
 		em.flush();
@@ -97,12 +97,12 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void deleteTaskNoTask() {
+	void deleteTaskNoTask() {
 		resource.deleteTask(subscription);
 	}
 
 	@Test
-	public void deleteTaskNotRunning() {
+	void deleteTaskNotRunning() {
 		final TaskSampleSubscription task = newTaskSample();
 		repository.saveAndFlush(task);
 		em.flush();
@@ -112,7 +112,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void deleteTaskRunning() {
+	void deleteTaskRunning() {
 		final TaskSampleSubscription task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
@@ -142,7 +142,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void getTask() {
+	void getTask() {
 		repository.saveAndFlush(newTaskSample());
 		final TaskSampleSubscription task = resource.getTask(subscription);
 		assertTask(task);
@@ -150,21 +150,21 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void getTaskNotVisible() {
+	void getTaskNotVisible() {
 		initSpringSecurityContext("any");
 		repository.saveAndFlush(newTaskSample());
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.getTask(subscription));
 	}
 
 	@Test
-	public void getTaskNodeNotVisible() {
+	void getTaskNodeNotVisible() {
 		initSpringSecurityContext("any");
 		repositoryNode.saveAndFlush(newTaskSampleNode());
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resourceNode.getTask("service:bt:jira"));
 	}
 
 	@Test
-	public void endTask() {
+	void endTask() {
 		final TaskSampleSubscription newTaskSample = newTaskSample();
 		newTaskSample.setEnd(null);
 		repository.saveAndFlush(newTaskSample);
@@ -176,7 +176,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void endTaskAlreadyFinished() {
+	void endTaskAlreadyFinished() {
 		repository.saveAndFlush(newTaskSample());
 		Assertions.assertThrows(BusinessException.class, () -> {
 			resource.endTask(subscription, true);
@@ -184,7 +184,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void startTask() {
+	void startTask() {
 		resource.startTask(subscription, task -> task.setData("init"));
 		final TaskSampleSubscription task = resource.getTask(subscription);
 		assertTask(task, "init");
@@ -193,7 +193,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void startTaskNode() {
+	void startTaskNode() {
 		resourceNode.startTask("service:bt:jira", task -> task.setData("init"));
 		final TaskSampleNode task = resourceNode.getTask("service:bt:jira");
 		Assertions.assertFalse(task.isFailed());
@@ -201,7 +201,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void startTaskNotRunning() {
+	void startTaskNotRunning() {
 		repository.saveAndFlush(newTaskSample());
 		resource.startTask(subscription, task -> task.setData("init"));
 		final TaskSampleSubscription task = resource.getTask(subscription);
@@ -211,7 +211,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void nextStep() {
+	void nextStep() {
 		final TaskSampleSubscription task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
@@ -220,13 +220,13 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void nextStepNotFound() {
+	void nextStepNotFound() {
 		Assertions.assertThrows(EntityNotFoundException.class,
 				() -> resource.nextStep(subscription, t -> t.setData("step2")));
 	}
 
 	@Test
-	public void nextStepAlreadyFinished() {
+	void nextStepAlreadyFinished() {
 		repository.saveAndFlush(newTaskSample());
 		Assertions.assertThrows(BusinessException.class,
 				() -> resource.nextStep(subscription, t -> t.setData("step2")));
@@ -236,7 +236,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	 * There is already a running task on this subscription.
 	 */
 	@Test
-	public void startTaskRunning() {
+	void startTaskRunning() {
 		final TaskSampleSubscription task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
@@ -248,7 +248,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	 * Task is locally finished, but not from the external system view.
 	 */
 	@Test
-	public void startTaskRunningRemote() {
+	void startTaskRunningRemote() {
 		resource = new TaskSampleSubscriptionResource() {
 
 			@Override
@@ -279,7 +279,7 @@ public class LongTaskRunnerTest extends AbstractOrgTest {
 	/**
 	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
 	 */
-	protected int getSubscription(final String project) {
+	private int getSubscription(final String project) {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);
 	}
 }

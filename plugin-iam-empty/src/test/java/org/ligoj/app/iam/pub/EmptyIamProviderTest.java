@@ -20,25 +20,25 @@ import com.hazelcast.config.CacheConfig;
 /**
  * Test class of {@link EmptyIamProvider}.
  */
-public class EmptyIamProviderTest {
+class EmptyIamProviderTest {
 
 	private final EmptyIamProvider provider = new EmptyIamProvider();
 
 	@Test
-	public void testIamEmptyCache() {
+	void testIamEmptyCache() {
 		@SuppressWarnings("unchecked")
 		final Function<String, CacheConfig<?, ?>> provider = Mockito.mock(Function.class);
 		new IamEmptyCache().onCreate(Mockito.mock(HazelcastCacheManager.class), provider);
 	}
 
 	@Test
-	public void authenticate() {
+	void authenticate() {
 		final Authentication mock = Mockito.mock(Authentication.class);
 		Assertions.assertSame(mock, provider.authenticate(mock));
 	}
 
 	@Test
-	public void getConfiguration() {
+	void getConfiguration() {
 		final IamConfiguration configuration = provider.getConfiguration();
 		Assertions.assertNotNull(configuration);
 		Assertions.assertNotNull(configuration.getCompanyRepository());
@@ -48,7 +48,7 @@ public class EmptyIamProviderTest {
 	}
 
 	@Test
-	public void getConfigurationFindById() {
+	void getConfigurationFindById() {
 		final IamConfiguration configuration = provider.getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findById("any").getId());
 		Assertions.assertNull(configuration.getGroupRepository().findById("any"));
@@ -57,25 +57,25 @@ public class EmptyIamProviderTest {
 	}
 
 	@Test
-	public void getConfigurationFindByIdExpected() {
+	void getConfigurationFindByIdExpected() {
 		final IamConfiguration configuration = provider.getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
 	}
 
 	@Test
-	public void getConfigurationFindByIdDefault() {
+	void getConfigurationFindByIdDefault() {
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			Assertions.assertNotNull(new MockUserRepository().findByIdExpected("some"));
 		});
 	}
 
 	@Test
-	public void getConfigurationFindOneByDefault() {
+	void getConfigurationFindOneByDefault() {
 		Assertions.assertNotNull(new MockUserRepository().findOneBy("attribute1", "value1"));
 	}
 
 	@Test
-	public void getKey() {
+	void getKey() {
 		Assertions.assertEquals("feature:iam:empty", provider.getKey());
 	}
 }

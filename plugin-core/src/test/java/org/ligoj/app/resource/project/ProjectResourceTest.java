@@ -41,7 +41,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class ProjectResourceTest extends AbstractOrgTest {
+class ProjectResourceTest extends AbstractOrgTest {
 
 	private ProjectResource resource;
 
@@ -57,7 +57,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	private Project testProject;
 
 	@BeforeEach
-	public void setUpEntities2() {
+	void setUpEntities2() {
 		resource = new ProjectResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
 		resource.iamProvider = new IamProvider[] { iamProvider };
@@ -72,7 +72,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 		initSpringSecurityContext("fdaugan");
@@ -89,7 +89,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllByPkeyOrName() {
+	void findAllByPkeyOrName() {
 		initSpringSecurityContext("fdaugan");
 		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "mda");
 		Assertions.assertEquals(1, result.getData().size());
@@ -97,7 +97,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllByPkey() {
+	void findAllByPkey() {
 		initSpringSecurityContext("fdaugan");
 		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "ligoj-gstack");
 		Assertions.assertEquals(1, result.getData().size());
@@ -107,7 +107,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllNotMemberButDelegateGroupVisible() {
+	void findAllNotMemberButDelegateGroupVisible() {
 		final DelegateOrg delegate = new DelegateOrg();
 		delegate.setType(DelegateType.GROUP);
 		delegate.setReceiver("user");
@@ -130,7 +130,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllNotMemberButTreeVisible() {
+	void findAllNotMemberButTreeVisible() {
 		// Drop administrator right from "junit" user
 		em.createQuery("DELETE FROM SystemRoleAssignment").executeUpdate();
 
@@ -149,7 +149,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllNotVisible() {
+	void findAllNotVisible() {
 		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 
@@ -159,7 +159,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllTeamLeader() {
+	void findAllTeamLeader() {
 		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 
@@ -172,7 +172,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void findAllMember() {
+	void findAllMember() {
 		// create a mock URI info with pagination information
 		final UriInfo uriInfo = newFindAllParameters();
 
@@ -210,7 +210,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findById(int)}
 	 */
 	@Test
-	public void findByIdInvalid() {
+	void findByIdInvalid() {
 		initSpringSecurityContext("alongchu");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.findById(0);
@@ -221,7 +221,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findById(int)}
 	 */
 	@Test
-	public void findByIdNotVisible() {
+	void findByIdNotVisible() {
 		final Project byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -233,7 +233,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findById(int)}
 	 */
 	@Test
-	public void findByPKeyFullNotVisible() {
+	void findByPKeyFullNotVisible() {
 		final Project byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -245,7 +245,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findById(int)}
 	 */
 	@Test
-	public void findByIdVisibleSinceAdmin() {
+	void findByIdVisibleSinceAdmin() {
 		initSpringSecurityContext("admin");
 		final Project byName = repository.findByName("gStack");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -257,7 +257,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findById(int)}
 	 */
 	@Test
-	public void findByIdWithSubscription() throws IOException {
+	void findByIdWithSubscription() throws IOException {
 		final Project byName = repository.findByName("gStack");
 		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
 
@@ -278,12 +278,12 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findById(int)}
 	 */
 	@Test
-	public void findById() {
+	void findById() {
 		Assertions.assertTrue(checkProject(resource.findById(testProject.getId())).isManageSubscriptions());
 	}
 
 	@Test
-	public void findByPKeyFull() {
+	void findByPKeyFull() {
 		checkProject(resource.findByPKeyFull(testProject.getPkey()));
 	}
 
@@ -291,7 +291,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * Test {@link ProjectResource#findById(int)} when a subscription has no parameter.
 	 */
 	@Test
-	public void findByIdNoParameter() {
+	void findByIdNoParameter() {
 		// Pre check
 		initSpringSecurityContext("fdaugan");
 		Assertions.assertEquals(1, resource.findById(testProject.getId()).getSubscriptions().size());
@@ -317,7 +317,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findByPKey(String)}
 	 */
 	@Test
-	public void findByPKey() {
+	void findByPKey() {
 		initSpringSecurityContext("fdaugan");
 		checkProject(resource.findByPKey("mda"));
 	}
@@ -326,7 +326,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test {@link ProjectResource#findByPKey(String)}
 	 */
 	@Test
-	public void findByPKeyNotExists() {
+	void findByPKeyNotExists() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			checkProject(resource.findByPKey("mda"));
@@ -380,7 +380,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test create
 	 */
 	@Test
-	public void create() {
+	void create() {
 		final ProjectEditionVo vo = new ProjectEditionVo();
 		vo.setName("Name");
 		vo.setDescription("Description");
@@ -400,7 +400,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test update
 	 */
 	@Test
-	public void updateWithSubscriptions() {
+	void updateWithSubscriptions() {
 		final ProjectEditionVo vo = new ProjectEditionVo();
 		vo.setId(testProject.getId());
 		vo.setName("Name");
@@ -422,7 +422,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test update
 	 */
 	@Test
-	public void update() {
+	void update() {
 		create();
 		final Project project = repository.findByName("Name");
 		final ProjectEditionVo vo = new ProjectEditionVo();
@@ -445,7 +445,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * Create with invalid HTML content.
 	 */
 	@Test
-	public void updateInvalidDescription() {
+	void updateInvalidDescription() {
 		create();
 		final Project project = repository.findByName("Name");
 		final ProjectEditionVo vo = new ProjectEditionVo();
@@ -463,7 +463,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * Create with invalid HTML content.
 	 */
 	@Test
-	public void updateInvalidDescription2() {
+	void updateInvalidDescription2() {
 		create();
 		final Project project = repository.findByName("Name");
 		final ProjectEditionVo vo = new ProjectEditionVo();
@@ -479,7 +479,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test update
 	 */
 	@Test
-	public void deleteNotVisible() {
+	void deleteNotVisible() {
 		em.clear();
 		initSpringSecurityContext("mlavoine");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
@@ -491,7 +491,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	 * test update
 	 */
 	@Test
-	public void deleteNotExists() {
+	void deleteNotExists() {
 		em.clear();
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.delete(-1);
@@ -499,7 +499,7 @@ public class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	public void delete() throws Exception {
+	void delete() throws Exception {
 		final long initCount = repository.count();
 		em.clear();
 		resource.delete(testProject.getId());

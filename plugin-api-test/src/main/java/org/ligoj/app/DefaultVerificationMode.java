@@ -9,10 +9,18 @@ import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.internal.verification.api.VerificationData;
 import org.mockito.verification.VerificationMode;
 
+/**
+ * Verification mode.
+ */
 public class DefaultVerificationMode implements VerificationMode {
 
 	private Consumer<VerificationData> dataVerify;
 
+	/**
+	 * Verification mode.
+	 * 
+	 * @param dataVerify Verifier.
+	 */
 	public DefaultVerificationMode(final Consumer<VerificationData> dataVerify) {
 		this.dataVerify = dataVerify;
 	}

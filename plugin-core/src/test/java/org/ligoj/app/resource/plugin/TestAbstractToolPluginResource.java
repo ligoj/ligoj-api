@@ -21,12 +21,12 @@ import org.mockito.Mockito;
 /**
  * Test class of {@link AbstractToolPluginResource}
  */
-public class TestAbstractToolPluginResource {
+class TestAbstractToolPluginResource {
 
 	private AbstractToolPluginResource resource;
 
 	@BeforeEach
-	public void prepareMock() {
+	void prepareMock() {
 		resource = new AbstractToolPluginResource() {
 
 			@Override
@@ -42,20 +42,20 @@ public class TestAbstractToolPluginResource {
 	}
 
 	@Test
-	public void create() {
+	void create() {
 		Assertions.assertThrows(NotImplementedException.class, () -> {
 			resource.create(55);
 		});
 	}
 
 	@Test
-	public void delete() throws Exception {
+	void delete() throws Exception {
 		// Nothing happens
 		resource.delete(55, false);
 	}
 
 	@Test
-	public void getVersion() throws Exception {
+	void getVersion() throws Exception {
 		// Return the version from the subscription parameters
 		resource.subscriptionResource = Mockito.mock(SubscriptionResource.class);
 		Mockito.when(resource.subscriptionResource.getParameters(55)).thenReturn(new HashMap<>());
@@ -63,18 +63,18 @@ public class TestAbstractToolPluginResource {
 	}
 
 	@Test
-	public void download() {
+	void download() {
 		Assertions.assertNotNull(AbstractToolPluginResource.download(Mockito.mock(StreamingOutput.class), "file"));
 	}
 
 	@Test
-	public void getInstalledEntities() {
+	void getInstalledEntities() {
 		Assertions.assertTrue(resource.getInstalledEntities().contains(Node.class));
 		Assertions.assertTrue(resource.getInstalledEntities().contains(Parameter.class));
 	}
 
 	@Test
-	public void getInstalledEntitiesDefaultService() {
+	void getInstalledEntitiesDefaultService() {
 		Assertions.assertTrue(new AbstractServicePlugin() {
 
 			@Override
@@ -85,7 +85,7 @@ public class TestAbstractToolPluginResource {
 	}
 
 	@Test
-	public void getInstalledEntitiesService() {
+	void getInstalledEntitiesService() {
 		Assertions.assertTrue(new ServicePlugin() {
 
 			@Override

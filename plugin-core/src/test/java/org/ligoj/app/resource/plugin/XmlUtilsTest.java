@@ -24,17 +24,17 @@ import org.xml.sax.SAXException;
 /**
  * Test class of {@link XmlUtils}
  */
-public class XmlUtilsTest {
+class XmlUtilsTest {
 
 	private XmlUtils resource;
 
 	@BeforeEach
-	public void prepareMock() {
+	void prepareMock() {
 		resource = new XmlUtils();
 	}
 
 	@Test
-	public void getTags() throws SAXException, IOException, ParserConfigurationException {
+	void getTags() throws SAXException, IOException, ParserConfigurationException {
 		final NodeList tags = resource.getTags(
 				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>", "tag1");
 		Assertions.assertEquals(2, tags.getLength());
@@ -45,7 +45,7 @@ public class XmlUtilsTest {
 	}
 
 	@Test
-	public void getTagText() throws SAXException, IOException, ParserConfigurationException {
+	void getTagText() throws SAXException, IOException, ParserConfigurationException {
 		final InputStream jobsAsInput = IOUtils.toInputStream(
 				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag3>  </tag3></root>",
 				StandardCharsets.UTF_8);
@@ -55,7 +55,7 @@ public class XmlUtilsTest {
 	}
 
 	@Test
-	public void getXpath() throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
+	void getXpath() throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
 		Assertions.assertEquals(2,
 				resource.getXpath(
 						"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>",
@@ -63,13 +63,13 @@ public class XmlUtilsTest {
 	}
 
 	@Test
-	public void getTagsLink() throws SAXException, IOException, ParserConfigurationException {
+	void getTagsLink() throws SAXException, IOException, ParserConfigurationException {
 		NodeList tags = resource.getTags(null, "tag1");
 		Assertions.assertEquals(0, tags.getLength());
 	}
 
 	@Test
-	public void getInstalledEntitiesDefaultService() {
+	void getInstalledEntitiesDefaultService() {
 		Assertions.assertTrue(new AbstractServicePlugin() {
 
 			@Override
@@ -80,7 +80,7 @@ public class XmlUtilsTest {
 	}
 
 	@Test
-	public void getInstalledEntitiesService() {
+	void getInstalledEntitiesService() {
 		Assertions.assertTrue(new ServicePlugin() {
 
 			@Override

@@ -13,10 +13,10 @@ import org.junit.jupiter.api.Test;
 /**
  * Simple test of API beans.
  */
-public class BeanTest {
+class BeanTest {
 
 	@Test
-	public void testEnum() {
+	void testEnum() {
 		SubscriptionMode.valueOf(SubscriptionMode.values()[0].name());
 		Assertions.assertTrue(NodeStatus.valueOf(NodeStatus.values()[0].name()).isUp());
 		Assertions.assertFalse(NodeStatus.valueOf(NodeStatus.values()[1].name()).isUp());
@@ -25,7 +25,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testSubscriptionStatusWithData() {
+	void testSubscriptionStatusWithData() {
 		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setId, SubscriptionStatusWithData::getId,2);
 		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setNode, SubscriptionStatusWithData::getNode, "node");
 		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setParameters, SubscriptionStatusWithData::getParameters,Collections.emptyMap());

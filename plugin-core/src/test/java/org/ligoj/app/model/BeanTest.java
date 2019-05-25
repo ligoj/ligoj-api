@@ -20,21 +20,21 @@ import org.ligoj.app.resource.plugin.BitBucketTags;
 /**
  * Simple test of API beans for coverage and automatic nullability checks.
  */
-public class BeanTest {
+class BeanTest {
 
 	@Test
-	public void testCacheCompany() {
+	void testCacheCompany() {
 		Assertions.assertTrue(new CacheCompany().isNew());
 
 	}
 
 	@Test
-	public void testCacheGroup() {
+	void testCacheGroup() {
 		Assertions.assertTrue(new CacheGroup().isNew());
 	}
 
 	@Test
-	public void testCacheProjectGroup() {
+	void testCacheProjectGroup() {
 		Assertions.assertNull(new CacheProjectGroup().getGroup());
 		Assertions.assertNull(new CacheProjectGroup().getProject());
 		Assertions.assertNull(new Project().getCacheGroups());
@@ -42,17 +42,17 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testBitBucketTag() {
+	void testBitBucketTag() {
 		check(new BitBucketTag(), BitBucketTag::setName, BitBucketTag::getName, "v");
 	}
 
 	@Test
-	public void testBitBucketTags() {
+	void testBitBucketTags() {
 		check(new BitBucketTags(), BitBucketTags::setValues, BitBucketTags::getValues, Collections.emptyList());
 	}
 
 	@Test
-	public void testEnum() {
+	void testEnum() {
 		ParameterType.valueOf(ParameterType.values()[0].name());
 		ReceiverType.valueOf(ReceiverType.values()[0].name());
 		DelegateType.valueOf(DelegateType.values()[0].name());
@@ -61,7 +61,7 @@ public class BeanTest {
 	}
 
 	@Test
-	public void testCacheUser() {
+	void testCacheUser() {
 		final CacheUser user = new CacheUser();
 
 		// Simple user attributes

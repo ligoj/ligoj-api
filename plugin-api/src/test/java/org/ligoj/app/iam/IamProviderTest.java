@@ -12,16 +12,16 @@ import org.springframework.security.core.Authentication;
 /**
  * Test class of {@link IamProvider}.
  */
-public class IamProviderTest {
+class IamProviderTest {
 
 	@Test
-	public void authenticate() {
+	void authenticate() {
 		final Authentication mock = Mockito.mock(Authentication.class);
 		Assertions.assertSame(mock, new EmptyIamProvider().authenticate(mock));
 	}
 
 	@Test
-	public void getConfiguration() {
+	void getConfiguration() {
 		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertNotNull(configuration);
 		Assertions.assertNotNull(configuration.getCompanyRepository());
@@ -30,7 +30,7 @@ public class IamProviderTest {
 	}
 
 	@Test
-	public void getConfigurationFindById() {
+	void getConfigurationFindById() {
 		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findById("any").getId());
 		Assertions.assertNull(configuration.getGroupRepository().findById("any"));
@@ -39,20 +39,20 @@ public class IamProviderTest {
 	}
 
 	@Test
-	public void getConfigurationFindByIdExpected() {
+	void getConfigurationFindByIdExpected() {
 		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
 	}
 
 	@Test
-	public void getConfigurationFindByIdDefault() {
+	void getConfigurationFindByIdDefault() {
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			Assertions.assertNotNull(new MockUserRepository().findByIdExpected("some"));
 		});
 	}
 
 	@Test
-	public void getConfigurationFindOneByDefault() {
+	void getConfigurationFindOneByDefault() {
 		Assertions.assertNotNull(new MockUserRepository().findOneBy("attribute1", "value1"));
 	}
 }

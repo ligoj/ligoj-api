@@ -17,13 +17,13 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 /**
  * Test class of {@link AbstractServerTest}
  */
-public class TestAbstractServerTest extends AbstractServerTest {
+class TestAbstractServerTest extends AbstractServerTest {
 
 	/**
 	 * Only there fore coverage, no Spring involved.
 	 */
 	@Test
-	public void startAutoStop() throws IOException {
+	void startAutoStop() throws IOException {
 		httpServer.stubFor(
 				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
@@ -34,7 +34,7 @@ public class TestAbstractServerTest extends AbstractServerTest {
 	 * Only there fore coverage, no Spring involved.
 	 */
 	@Test
-	public void startStop() throws IOException {
+	void startStop() throws IOException {
 		httpServer.stubFor(
 				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
@@ -47,7 +47,7 @@ public class TestAbstractServerTest extends AbstractServerTest {
 	 * Only there fore coverage, no Spring involved.
 	 */
 	@Test
-	public void startStop2() throws IOException {
+	void startStop2() throws IOException {
 		httpServer.stubFor(
 				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
@@ -59,7 +59,7 @@ public class TestAbstractServerTest extends AbstractServerTest {
 	 * Only there fore coverage, no Spring involved.
 	 */
 	@Test
-	public void prepareMockServerDuplicate() {
+	void prepareMockServerDuplicate() {
 		Assertions.assertThrows(IllegalStateException.class, () -> {
 			prepareMockServer();
 		});

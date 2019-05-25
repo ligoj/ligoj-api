@@ -12,25 +12,25 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 /**
  * Test class of {@link IGroupRepository}
  */
-public class GroupRepositoryTest {
+class GroupRepositoryTest {
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		Assertions.assertTrue(new EmptyGroupRepository().findAll().isEmpty());
 	}
 
 	@Test
-	public void delete() {
+	void delete() {
 		new EmptyGroupRepository().delete(null);
 	}
 
 	@Test
-	public void findByDepartment() {
+	void findByDepartment() {
 		Assertions.assertNull(new EmptyGroupRepository().findByDepartment("any"));
 	}
 
 	@Test
-	public void create() {
+	void create() {
 		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", groupLdap.getDn());
 		Assertions.assertEquals("Name", groupLdap.getName());
@@ -38,14 +38,14 @@ public class GroupRepositoryTest {
 	}
 
 	@Test
-	public void findByIdExpectedNotExists() {
+	void findByIdExpectedNotExists() {
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			new EmptyGroupRepository().findByIdExpected("user1", "user2");
 		});
 	}
 
 	@Test
-	public void findByIdExpected() {
+	void findByIdExpected() {
 		Assertions.assertEquals("user2", new EmptyGroupRepository() {
 			@Override
 			public GroupOrg findById(String id) {

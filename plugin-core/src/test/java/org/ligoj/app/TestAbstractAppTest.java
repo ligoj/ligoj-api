@@ -26,10 +26,10 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class TestAbstractAppTest extends AbstractAppTest {
+class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
-	public void getSubscription() {
+	void getSubscription() {
 		em = Mockito.mock(EntityManager.class);
 		@SuppressWarnings("unchecked")
 		final TypedQuery<Object> typeQuery = Mockito.mock(TypedQuery.class);
@@ -41,7 +41,7 @@ public class TestAbstractAppTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void testRegisterSingleton() {
+	void testRegisterSingleton() {
 		final Object singleton = new Object();
 		Assertions.assertThrows(NoSuchBeanDefinitionException.class, () -> {
 			applicationContext.getBean("my_dynamical_bean");

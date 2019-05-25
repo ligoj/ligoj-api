@@ -29,10 +29,14 @@ public class EmptyIamProvider implements IamProvider {
 		return getCachedConfiguration();
 	}
 
-	public IamConfiguration getCachedConfiguration() {
+	private IamConfiguration getCachedConfiguration() {
 		return iamConfiguration;
 	}
 
+	/**
+	 * Return the cached configuration.
+	 * @return The cached configuration.
+	 */
 	@CacheResult(cacheName = "iam-test-configuration")
 	public String refreshConfiguration() {
 		final IamConfiguration configuration = new IamConfiguration();

@@ -49,7 +49,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class ParameterValueResourceTest extends AbstractAppTest {
+class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private ParameterValueRepository repository;
@@ -67,7 +67,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	private StringEncryptor encryptor;
 
 	@BeforeEach
-	public void prepare() throws IOException {
+	void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
 				StandardCharsets.UTF_8.name());
@@ -78,7 +78,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createText() {
+	void createText() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_2").getId());
 		parameterValue.setText("value");
@@ -89,7 +89,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createSecured() {
+	void createSecured() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("service:bt:jira:jdbc-url").getId());
 		parameterValue.setText("value");
@@ -102,7 +102,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createAlreadySecured() {
+	void createAlreadySecured() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("service:bt:jira:jdbc-url").getId());
 		parameterValue.setText(encryptor.encrypt("value"));
@@ -115,7 +115,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTextPattern() {
+	void createTextPattern() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_17").getId());
 		parameterValue.setText("va-l-u-9e");
@@ -126,7 +126,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTextEmptyPattern() {
+	void createTextEmptyPattern() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_170").getId());
 		parameterValue.setText("va-l-u-9e");
@@ -137,7 +137,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTextPatternFailed() {
+	void createTextPatternFailed() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_17").getId());
 		parameterValue.setText("1a");
@@ -147,14 +147,14 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTextEmpty() {
+	void createTextEmpty() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_17").getId());
 		Assertions.assertNull(resource.createInternal(parameterValue));
 	}
 
 	@Test
-	public void createIndex() {
+	void createIndex() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
 		parameterValue.setIndex(1);
@@ -164,7 +164,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIndexNull() {
+	void createIndexNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -173,7 +173,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIndexMin() {
+	void createIndexMin() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
 		parameterValue.setIndex(-1);
@@ -183,7 +183,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIndexMax() {
+	void createIndexMax() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
 		parameterValue.setIndex(3);
@@ -193,7 +193,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createInteger() {
+	void createInteger() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(1);
@@ -203,7 +203,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIntegerNoConstraint() {
+	void createIntegerNoConstraint() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_19").getId());
 		parameterValue.setInteger(-100);
@@ -213,7 +213,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIntegerNull() {
+	void createIntegerNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -222,7 +222,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIntegerMin() {
+	void createIntegerMin() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(-1);
@@ -232,7 +232,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createIntegerMax() {
+	void createIntegerMax() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(100);
@@ -242,7 +242,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createMissingProject() {
+	void createMissingProject() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(0);
@@ -252,7 +252,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createBoolean() {
+	void createBoolean() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_5").getId());
 		parameterValue.setBool(Boolean.TRUE);
@@ -262,7 +262,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createBooleanNull() {
+	void createBooleanNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_5").getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -271,7 +271,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createDate() {
+	void createDate() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_6").getId());
 		parameterValue.setDate(new Date());
@@ -281,7 +281,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createDateInvalid() {
+	void createDateInvalid() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_6").getId());
 		final Date date = new Date();
@@ -293,7 +293,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createDateNull() {
+	void createDateNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_6").getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -302,7 +302,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTags() {
+	void createTags() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
 		final List<String> tags = new ArrayList<>();
@@ -315,7 +315,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTagsEmpty() {
+	void createTagsEmpty() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
 		final List<String> tags = new ArrayList<>();
@@ -327,7 +327,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTagsNull() {
+	void createTagsNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -336,7 +336,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createMultiple() {
+	void createMultiple() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
 		final List<Integer> tags = new ArrayList<>();
@@ -349,7 +349,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createMultipleNull() {
+	void createMultipleNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
@@ -358,7 +358,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createMultipleInvalidIndex1() {
+	void createMultipleInvalidIndex1() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
 		final List<Integer> tags = new ArrayList<>();
@@ -370,7 +370,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createMultipleInvalidIndex2() {
+	void createMultipleInvalidIndex2() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
 		final List<Integer> tags = new ArrayList<>();
@@ -382,7 +382,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createTooManyValues() {
+	void createTooManyValues() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
 		final List<Integer> tags = new ArrayList<>();
@@ -394,7 +394,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createSelectJSonError() {
+	void createSelectJSonError() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
 		@SuppressWarnings("unchecked")
@@ -408,7 +408,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findText() {
+	void findText() {
 		final Parameter parameter = parameterRepository.findOne("c_2");
 		final ParameterValue parameterValueEntity = newParameterValue("value", parameter);
 		em.persist(parameterValueEntity);
@@ -422,7 +422,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findInteger() {
+	void findInteger() {
 		final Parameter parameter = parameterRepository.findOne("c_4");
 		final ParameterValue parameterValueEntity = newParameterValue("1", parameter);
 		em.persist(parameterValueEntity);
@@ -436,7 +436,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findIntegerNoData() {
+	void findIntegerNoData() {
 		final Parameter parameter = parameterRepository.findOne("c_4");
 		parameter.setData(null);
 		final ParameterValue parameterValueEntity = newParameterValue("1", parameter);
@@ -451,7 +451,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findSelect() {
+	void findSelect() {
 		final Parameter parameter = parameterRepository.findOne("c_3");
 		final ParameterValue parameterValueEntity = newParameterValue("1", parameter);
 		em.persist(parameterValueEntity);
@@ -465,7 +465,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findBool() {
+	void findBool() {
 		final Parameter parameter = parameterRepository.findOne("c_5");
 		final ParameterValue parameterValueEntity = newParameterValue(Boolean.TRUE.toString(), parameter);
 		em.persist(parameterValueEntity);
@@ -478,7 +478,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findDate() {
+	void findDate() {
 		final Parameter parameter = parameterRepository.findOne("c_6");
 		final ParameterValue parameterValueEntity = newParameterValue(String.valueOf(new Date().getTime()), parameter);
 		em.persist(parameterValueEntity);
@@ -493,7 +493,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findMultiple() {
+	void findMultiple() {
 		final Parameter parameter = parameterRepository.findOne("c_23");
 		final ParameterValue parameterValueEntity = newParameterValue("[0,2]", parameter);
 		em.persist(parameterValueEntity);
@@ -507,7 +507,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findTags() {
+	void findTags() {
 		final Parameter parameter = parameterRepository.findOne("c_22");
 		final ParameterValue parameterValueEntity = newParameterValue("[\"A\",\"B\"]", parameter);
 		em.persist(parameterValueEntity);
@@ -521,7 +521,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findWithNode() {
+	void findWithNode() {
 		final Parameter parameter = parameterRepository.findOne("c_20");
 		final ParameterValue parameterValueEntity = newParameterValue("true", parameter);
 		parameterValueEntity.setNode(em.find(Node.class, "service:bt:jira:6"));
@@ -534,7 +534,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findInvalidJSonData() {
+	void findInvalidJSonData() {
 		final Parameter parameter = parameterRepository.findOne("c_22");
 		final ParameterValue parameterValueEntity = newParameterValue("'", parameter);
 		Assertions.assertThrows(TechnicalException.class, () -> {
@@ -543,7 +543,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findSelectJSonError() {
+	void findSelectJSonError() {
 		final Parameter parameter = parameterRepository.findOne("c_4");
 		parameter.setData("'{");
 		final ParameterValue parameterValueEntity = newParameterValue("'", parameter);
@@ -586,7 +586,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void toMap() {
+	void toMap() {
 		final List<SystemRole> values = new ArrayList<>();
 		values.add(newUser("u1", 1));
 		values.add(newUser("u2", 2));
@@ -597,7 +597,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void toMapValues() {
+	void toMapValues() {
 		final List<ParameterValue> values = new ArrayList<>();
 		final Parameter p1 = new Parameter();
 		p1.setId("p1");
@@ -612,7 +612,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getNonSecuredParameters() {
+	void getNonSecuredParameters() {
 		final Map<String, String> parameters = resource.getNonSecuredSubscriptionParameters(getSubscription("MDA"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-user"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-password"));
@@ -626,7 +626,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getParametersWithFilteredNull() {
+	void getParametersWithFilteredNull() {
 		final Map<String, String> parameters = resource.getSubscriptionParameters(getSubscription("MDA"));
 		// User and password are empty, so not returned
 		Assertions.assertEquals(5, parameters.size());
@@ -638,7 +638,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getParameters() {
+	void getParameters() {
 		final Map<String, String> parameters = resource
 				.getSubscriptionParameters(getSubscription("gStack", BuildResource.SERVICE_KEY));
 		Assertions.assertEquals(4, parameters.size());
@@ -649,7 +649,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteBySubscription() {
+	void deleteBySubscription() {
 		final int subscription = getSubscription("MDA");
 
 		// There are 5 parameters from the node, and 2 from the subscription
@@ -666,7 +666,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void createInternal() {
+	void createInternal() {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
@@ -692,14 +692,14 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteNotExist() {
+	void deleteNotExist() {
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.delete(-1);
 		});
 	}
 
 	@Test
-	public void deleteNotVisible() {
+	void deleteNotVisible() {
 		initSpringSecurityContext("any");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
@@ -707,7 +707,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteNotExists() {
+	void deleteNotExists() {
 		final Integer id = repository.findBy("parameter.id", "service:kpi:sonar:project").getId();
 		Assertions.assertThrows(EntityNotFoundException.class, () -> {
 			resource.delete(id);
@@ -715,14 +715,14 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteMandatoryUsed() {
+	void deleteMandatoryUsed() {
 		Assertions.assertThrows(ValidationJsonException.class, () -> {
 			resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
 		});
 	}
 
 	@Test
-	public void deleteMandatoryUnused() {
+	void deleteMandatoryUnused() {
 		final ParameterValue value = newParameterValue();
 		Assertions.assertTrue(repository.existsById(value.getId()));
 		resource.delete(value.getId());
@@ -730,7 +730,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void deleteNotMandatory() {
+	void deleteNotMandatory() {
 		final Integer id = repository.findBy("parameter.id", "service:id:ldap:quarantine-dn").getId();
 		Assertions.assertTrue(repository.existsById(id));
 		resource.delete(id);
@@ -740,12 +740,12 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	/**
 	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
 	 */
-	protected int getSubscription(final String project) {
+	private int getSubscription(final String project) {
 		return getSubscription(project, BugTrackerResource.SERVICE_KEY);
 	}
 
 	@Test
-	public void checkOwnershipDisjunction() {
+	void checkOwnershipDisjunction() {
 		final Node node = new Node();
 		node.setId("service:id");
 		final Parameter parameter = new Parameter();
@@ -761,7 +761,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void checkOwnership() {
+	void checkOwnership() {
 		final Node node = new Node();
 		node.setId("service:id");
 		final Parameter parameter = new Parameter();
@@ -773,7 +773,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void updateListUntouchedNotExist() {
+	void updateListUntouchedNotExist() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setUntouched(true);
 		parameterValue.setParameter("any");
@@ -786,7 +786,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void updateListUntouchedExists() {
+	void updateListUntouchedExists() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setUntouched(true);
 		parameterValue.setParameter("service:id:ldap:quarantine-dn");
@@ -797,7 +797,7 @@ public class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void findAll() {
+	void findAll() {
 		final int projectId = projectRepository.findByName("MDA").getId();
 		final List<ParameterValueVo> parameterValues = new ArrayList<>(
 				resource.findAll(projectId, "service:bt:jira:pkey", "service:bt:jira:4", "MD"));

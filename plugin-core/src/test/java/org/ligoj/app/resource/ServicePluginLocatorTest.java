@@ -28,37 +28,37 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ContextConfiguration(locations = "classpath:/META-INF/spring/application-context-test.xml")
 @Rollback
 @Transactional
-public class ServicePluginLocatorTest extends AbstractAppTest {
+class ServicePluginLocatorTest extends AbstractAppTest {
 
 	@Autowired
 	private ServicePluginLocator component;
 
 	@Test
-	public void getResourceNotExist() {
+	void getResourceNotExist() {
 		Assertions.assertNull(component.getResource("any"));
 	}
 
 	@Test
-	public void getResourceExpectedNotExist() {
+	void getResourceExpectedNotExist() {
 		Assertions.assertEquals("any", Assertions.assertThrows(PluginNotFoundException.class, () -> {
 			component.getResourceExpected("any", ServicePlugin.class);
 		}).getPlugin());
 	}
 
 	@Test
-	public void getResourceNull() {
+	void getResourceNull() {
 		Assertions.assertNull(component.getResource(null, ConfigurablePlugin.class));
 	}
 
 	@Test
-	public void getResourceType() {
+	void getResourceType() {
 		final ConfigurablePlugin resource = component.getResource(JiraBaseResource.KEY, ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
 		Assertions.assertTrue(resource instanceof BugTrackerResource);
 	}
 
 	@Test
-	public void getResourceTypeParent() {
+	void getResourceTypeParent() {
 		final ConfigurablePlugin resource = component.getResource(JiraBaseResource.KEY + ":any",
 				ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
@@ -66,59 +66,59 @@ public class ServicePluginLocatorTest extends AbstractAppTest {
 	}
 
 	@Test
-	public void getResourceTypeNull() {
+	void getResourceTypeNull() {
 		Assertions.assertNull(component.getResource(ConfluencePluginResource.KEY, ConfigurablePlugin.class));
 	}
 
 	@Test
-	public void getResource() {
+	void getResource() {
 		Assertions.assertEquals(JiraBaseResource.KEY, component.getResource(JiraBaseResource.KEY).getKey());
 	}
 
 	@Test
-	public void getResourceExpected() {
+	void getResourceExpected() {
 		Assertions.assertEquals(JiraBaseResource.KEY,
 				component.getResourceExpected(JiraBaseResource.KEY, ServicePlugin.class).getKey());
 	}
 
 	@Test
-	public void getResourceParent() {
+	void getResourceParent() {
 		Assertions.assertEquals(BugTrackerResource.SERVICE_KEY,
 				component.getResource(BugTrackerResource.SERVICE_KEY + ":any").getKey());
 	}
 
 	@Test
-	public void isEnabledTool() {
+	void isEnabledTool() {
 		Assertions.assertTrue(component.isEnabled(JiraBaseResource.KEY));
 	}
 
 	@Test
-	public void isEnabledToolNo() {
+	void isEnabledToolNo() {
 		Assertions.assertFalse(component.isEnabled(BugTrackerResource.SERVICE_KEY + ":any"));
 	}
 
 	@Test
-	public void isEnabledNode() {
+	void isEnabledNode() {
 		Assertions.assertTrue(component.isEnabled(JiraBaseResource.KEY + ":any"));
 	}
 
 	@Test
-	public void isEnabledService() {
+	void isEnabledService() {
 		Assertions.assertTrue(component.isEnabled(BugTrackerResource.SERVICE_KEY));
 	}
 
 	@Test
-	public void isEnabledServiceRoot() {
+	void isEnabledServiceRoot() {
 		Assertions.assertFalse(component.isEnabled(AbstractServicePlugin.BASE_KEY));
 	}
 
 	@Test
-	public void isEnabledServiceEmpty() {
+	void isEnabledServiceEmpty() {
 		Assertions.assertFalse(component.isEnabled(""));
 	}
 
 	@Test
-	public void isEnabledServiceNull() {
+	void isEnabledServiceNull() {
 		Assertions.assertFalse(component.isEnabled(null));
 	}
 }
