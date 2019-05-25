@@ -169,6 +169,11 @@ public class ServicePluginLocator implements ApplicationContextAware {
 		return service.substring(0, service.lastIndexOf(':'));
 	}
 
+	/**
+	 * Return the plug-in activation.
+	 * @param id The tested plug-in identifier.
+	 * @return  The plug-in activation.
+	 */
 	@CacheResult(cacheName = "node-enablement")
 	public boolean isEnabled(String id) {
 		return getResource(id, ToolPlugin.class) != null

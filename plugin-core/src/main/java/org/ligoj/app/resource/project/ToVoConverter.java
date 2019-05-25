@@ -49,6 +49,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	/**
 	 * Constructor holding the data used to convert a {@link Project} to {@link ProjectVo}.
 	 * 
+	 * @param locator               The locator instance.
 	 * @param userConverter         The {@link Function} used to convert internal user identifier to described user.
 	 * @param subscriptionsAndParam The subscription (index 0, type {@link Subscription}) with parameter values (index
 	 *                              1, type {@link ParameterValue}).

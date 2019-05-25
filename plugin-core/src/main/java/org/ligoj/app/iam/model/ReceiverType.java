@@ -8,11 +8,19 @@ package org.ligoj.app.iam.model;
  */
 public enum ReceiverType {
 
+	/**
+	 * User receiver.
+	 */
 	USER,
-	
+
+	/**
+	 * Group receiver.
+	 */
 	GROUP,
-	
+
+	/**
+	 * Company receiver.
+	 */
 	COMPANY
-	
-	
+
 }

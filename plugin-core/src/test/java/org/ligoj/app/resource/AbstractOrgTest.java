@@ -52,7 +52,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 	private CacheGroupRepository cacheGroupRepository;
 
 	@BeforeEach
-	public void setUpEntities() throws IOException {
+	protected void setUpEntities() throws IOException {
 		persistSystemEntities();
 
 		// Prepare the standard data

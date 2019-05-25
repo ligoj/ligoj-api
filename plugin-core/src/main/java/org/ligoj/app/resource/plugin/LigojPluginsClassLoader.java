@@ -21,6 +21,11 @@ import lombok.Getter;
 @Getter
 public class LigojPluginsClassLoader extends PluginsClassLoader {
 
+	/**
+	 * Default constructor.
+	 * @throws IOException
+	 *             exception when reading plug-ins directory
+	 */
 	public LigojPluginsClassLoader() throws IOException {
 		super();
 	}

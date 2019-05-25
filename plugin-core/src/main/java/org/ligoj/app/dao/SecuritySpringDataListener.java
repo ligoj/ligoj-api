@@ -25,12 +25,14 @@ import org.springframework.stereotype.Component;
 import lombok.Getter;
 
 /**
- * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation. An human readable form is available on GitHub wiki page.
+ * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation.
+ * An human readable form is available on GitHub wiki page.
+ * 
  * @see <a href="https://github.com/ligoj/ligoj/wiki/Security">Security</a>
  */
 @Component
 public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListener {
-	private static final String VISIBLE_GROUP   = "$exists $memberR($arg,s_cmg0,$cm,$cg,$q(group),$q(user)) $end OR ";
+	private static final String VISIBLE_GROUP = "$exists $memberR($arg,s_cmg0,$cm,$cg,$q(group),$q(user)) $end OR ";
 	private static final String VISIBLE_COMPANY = "$exists $memberR($arg,s_cc0,$cu,$cc,company,id) $end OR ";
 	private static final String VISIBLE_PROJECT = "$project.team_leader=$user OR " + VISIBLE_GROUP;
 	private static final String DELEGATED = "$exists ($select_do(s_d1,USER)    AND s_d1.receiver=$user)               AS s_d1 WHERE $parent_dn(s_d1.dn,$arg) $end"
@@ -54,6 +56,11 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	private final Map<String, SQLFunction> sqlFunctions;
 	private final Dialect dialect;
 
+	/**
+	 * Listener with EMF as context.
+	 * 
+	 * @param emf The current EMF.
+	 */
 	@SuppressWarnings("unchecked")
 	@Autowired
 	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) {
@@ -163,8 +170,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		/**
 		 * Construct a standard SQL function definition with a static return type.
 		 *
-		 * @param name
-		 *            The name of the function.
+		 * @param name The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final String query,
 				final String access, final BiFunction<String, List<?>, String> callback) {
@@ -174,8 +180,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		/**
 		 * Construct a standard SQL function definition with a static return type.
 		 *
-		 * @param name
-		 *            The name of the function.
+		 * @param name The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final int userIndex,
 				final String query, final String access, final BiFunction<String, List<?>, String> callback) {
@@ -189,7 +194,8 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		@Override
-		public String render(final Type type, @SuppressWarnings("rawtypes") final List args, SessionFactoryImplementor arg2) {
+		public String render(final Type type, @SuppressWarnings("rawtypes") final List args,
+				SessionFactoryImplementor arg2) {
 			if (args.size() != nbArgs) {
 				throw new QueryException("The function requires " + nbArgs + " arguments");
 			}

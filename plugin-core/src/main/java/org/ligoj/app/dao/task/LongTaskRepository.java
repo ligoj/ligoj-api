@@ -12,6 +12,12 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  * {@link AbstractLongTask} repository.
+ * @param <T>
+ *            Type of task entity.
+ * @param <L>
+ *            The locked type during while this task is running.
+ * @param <I>
+ *            The locked's identifier type during while this task is running.
  */
 @NoRepositoryBean
 public interface LongTaskRepository<T extends AbstractLongTask<L, I>, L extends Persistable<I>, I extends Serializable>

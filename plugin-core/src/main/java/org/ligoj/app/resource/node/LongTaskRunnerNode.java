@@ -25,6 +25,10 @@ import org.ligoj.bootstrap.core.resource.OnNullReturn404;
  * <li>When a task is started, is will always ends.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
+ * @param <T>
+ *            Type of task entity.
+ * @param <R>
+ *            Repository managing the task entity.
  */
 public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends LongTaskNodeRepository<T>>
 		extends LongTaskRunner<T, R, Node, String, NodeRepository, NodeResource> {

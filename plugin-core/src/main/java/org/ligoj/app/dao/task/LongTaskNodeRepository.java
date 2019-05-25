@@ -13,6 +13,8 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  * {@link AbstractLongTask} base repository for Node.
+ * @param <T>
+ *            Type of task entity.
  */
 @NoRepositoryBean
 public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>> extends LongTaskRepository<T, Node, String> {

@@ -11,7 +11,15 @@ import lombok.Getter;
  * Container type.
  */
 public enum ContainerType {
-	GROUP(DelegateType.GROUP), COMPANY(DelegateType.COMPANY);
+	/**
+	 * Group container.
+	 */
+	GROUP(DelegateType.GROUP), 
+	
+	/**
+	 * Company container.
+	 */
+	COMPANY(DelegateType.COMPANY);
 
 	/**
 	 * Corresponding {@link DelegateType}
