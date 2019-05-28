@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -42,7 +43,7 @@ class LigojPluginsClassLoaderTest {
 	}
 
 	@Test
-	void toFile() throws IOException {
+	void toFile() throws IOException, NoSuchAlgorithmException {
 		final File file = new File(USER_HOME_DIRECTORY, ".ligoj/service-id/ldap/server1/42/foo/bar.log");
 		final File subscriptionParent = new File(USER_HOME_DIRECTORY, ".ligoj/service-id");
 		FileUtils.deleteQuietly(subscriptionParent);
@@ -78,7 +79,7 @@ class LigojPluginsClassLoaderTest {
 		return subscription;
 	}
 
-	private LigojPluginsClassLoader checkClassLoader() throws IOException {
+	private LigojPluginsClassLoader checkClassLoader() throws IOException, NoSuchAlgorithmException {
 		final LigojPluginsClassLoader classLoader = new LigojPluginsClassLoader();
 		Assertions.assertEquals(3, classLoader.getURLs().length);
 

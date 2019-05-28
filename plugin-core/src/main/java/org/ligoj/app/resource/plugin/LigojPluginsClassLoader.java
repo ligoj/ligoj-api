@@ -5,6 +5,7 @@ package org.ligoj.app.resource.plugin;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,8 +26,9 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * Default constructor.
 	 * @throws IOException
 	 *             exception when reading plug-ins directory
+	 * @throws NoSuchAlgorithmException MD5 digest is unavailable for version ciphering.
 	 */
-	public LigojPluginsClassLoader() throws IOException {
+	public LigojPluginsClassLoader() throws IOException, NoSuchAlgorithmException {
 		super();
 	}
 
