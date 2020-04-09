@@ -4,7 +4,6 @@
 package org.ligoj.app.resource.project;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
@@ -30,9 +29,7 @@ import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
-import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.json.PaginationJson;
@@ -40,7 +37,6 @@ import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 /**
@@ -97,14 +93,13 @@ public class ProjectResource {
 	 */
 	public ProjectVo toVo(final Project project) {
 		// Get subscriptions
-		final List<Object[]> subscriptionsResultSet = subscriptionRepository
-				.findAllWithValuesSecureByProject(project.getId());
+		final var subscriptionsResultSet = subscriptionRepository.findAllWithValuesSecureByProject(project.getId());
 
 		// Get subscriptions status
-		final Map<Integer, EventVo> subscriptionStatus = subscriptionResource.getStatusByProject(project.getId());
+		final var subscriptionStatus = subscriptionResource.getStatusByProject(project.getId());
 
 		// Convert users, project and subscriptions
-		final ProjectVo projectVo = new ToVoConverter(locator, toUser(), subscriptionsResultSet, subscriptionStatus)
+		final var projectVo = new ToVoConverter(locator, toUser(), subscriptionsResultSet, subscriptionStatus)
 				.apply(project);
 		projectVo.setManageSubscriptions(repository.isManageSubscription(project.getId(), securityHelper.getLogin()));
 		return projectVo;
@@ -121,7 +116,7 @@ public class ProjectResource {
 	 * @return The project description with subscription counter.
 	 */
 	public ProjectLightVo toVoLightCount(final Object[] resultset) { // NOSONAR -- varargs
-		final ProjectLightVo vo = toVoLight((Project) resultset[0]);
+		final var vo = toVoLight((Project) resultset[0]);
 		vo.setNbSubscriptions(((Long) resultset[1]).intValue());
 		return vo;
 	}
@@ -135,7 +130,7 @@ public class ProjectResource {
 	public ProjectLightVo toVoLight(final Project entity) {
 
 		// Convert users, project and subscriptions
-		final ProjectLightVo vo = new ProjectLightVo();
+		final var vo = new ProjectLightVo();
 		vo.copyAuditData(entity, toUser());
 		DescribedBean.copy(entity, vo);
 		vo.setPkey(entity.getPkey());
@@ -147,7 +142,7 @@ public class ProjectResource {
 	 * /** Converter from {@link ProjectEditionVo} to {@link Project}
 	 */
 	private static Project toEntity(final ProjectEditionVo vo) {
-		final Project entity = new Project();
+		final var entity = new Project();
 		// map project
 		DescribedBean.copy(vo, entity);
 		entity.setPkey(vo.getPkey());
@@ -165,8 +160,8 @@ public class ProjectResource {
 	@GET
 	public TableItem<ProjectLightVo> findAll(@Context final UriInfo uriInfo,
 			@QueryParam(DataTableAttributes.SEARCH) final String criteria) {
-		final Page<Object[]> findAll = repository.findAllLight(securityHelper.getLogin(),
-				StringUtils.trimToEmpty(criteria), paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
+		final var findAll = repository.findAllLight(securityHelper.getLogin(), StringUtils.trimToEmpty(criteria),
+				paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, this::toVoLightCount);
@@ -226,8 +221,8 @@ public class ProjectResource {
 	@PUT
 	public void update(final ProjectEditionVo vo) {
 		// pkey can't be updated if there is at least subscription.
-		final Project project = repository.findOneExpected(vo.getId());
-		final long nbSubscriptions = subscriptionRepository.countByProject(vo.getId());
+		final var project = repository.findOneExpected(vo.getId());
+		final var nbSubscriptions = subscriptionRepository.countByProject(vo.getId());
 		if (nbSubscriptions == 0) {
 			project.setPkey(vo.getPkey());
 		}
@@ -246,8 +241,8 @@ public class ProjectResource {
 	@DELETE
 	@Path("{id:\\d+}")
 	public void delete(@PathParam("id") final int id) throws Exception {
-		final Project project = findOneVisible(repository::findOneVisible, id, Function.identity());
-		for (final Subscription subscription : project.getSubscriptions()) {
+		final var project = findOneVisible(repository::findOneVisible, id, Function.identity());
+		for (final var subscription : project.getSubscriptions()) {
 			subscriptionResource.delete(subscription.getId());
 		}
 		repository.delete(project);

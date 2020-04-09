@@ -72,10 +72,10 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 		vo.setTeamLeader(userConverter.apply(entity.getTeamLeader()));
 
 		// Build the subscriptions
-		final Map<Integer, SubscriptionVo> subscriptions = new TreeMap<>();
-		for (final Object[] resultSet : this.subscriptionsAndParam) {
+		final var subscriptions = new TreeMap<Integer, SubscriptionVo>();
+		for (final var resultSet : this.subscriptionsAndParam) {
 			// Add subscription value
-			final ParameterValue parameterValue = (ParameterValue) resultSet[1];
+			final var parameterValue = (ParameterValue) resultSet[1];
 			addVo(subscriptions, (Subscription) resultSet[0]).getParameters().put(parameterValue.getParameter().getId(),
 					ParameterValueResource.parseValue(parameterValue, new ParameterValueVo()));
 		}
@@ -101,7 +101,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	private SubscriptionVo addVo(final Map<Integer, SubscriptionVo> subscriptions, final Subscription entity) {
 		return subscriptions.computeIfAbsent(entity.getId(), id -> {
 			// Build the subscription root instance
-			final SubscriptionVo vo = new SubscriptionVo();
+			final var vo = new SubscriptionVo();
 			vo.copyAuditData(entity, userConverter);
 			vo.setId(entity.getId());
 			vo.setNode(NodeResource.toVo(entity.getNode(), locator));
@@ -109,7 +109,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 			subscriptions.put(entity.getId(), vo);
 
 			// Add subscription status
-			final EventVo lastEvent = subscriptionStatus.get(entity.getId());
+			final var lastEvent = subscriptionStatus.get(entity.getId());
 			if (lastEvent != null) {
 				vo.setStatus(NodeStatus.valueOf(lastEvent.getValue()));
 			}

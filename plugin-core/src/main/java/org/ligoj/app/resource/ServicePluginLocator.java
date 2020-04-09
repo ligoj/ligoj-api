@@ -62,14 +62,14 @@ public class ServicePluginLocator implements ApplicationContextAware {
 		}
 
 		// Search the resource
-		final String name = self.getResourceName(service);
+		final var name = self.getResourceName(service);
 		if (name == null) {
 			// Bean does not exists
 			return null;
 		}
 
 		// Check the type
-		final ServicePlugin bean = applicationContext.getBean(name, ServicePlugin.class);
+		final var bean = applicationContext.getBean(name, ServicePlugin.class);
 		if (requiredType.isInstance(bean)) {
 			return (T) bean;
 		}
@@ -122,7 +122,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	 * Return the resource of required service.
 	 */
 	private List<String> getResources(final String[] registeredServices, final String service) {
-		final List<String> result = getExactResources(registeredServices, service);
+		final var result = getExactResources(registeredServices, service);
 		if (result.isEmpty()) {
 			return getParentResources(registeredServices, service, result);
 		}
@@ -135,7 +135,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	private List<String> getParentResources(final String[] registeredServices, final String service,
 			final List<String> result) {
 		// Try the parent
-		final String parentService = getParent(service);
+		final var parentService = getParent(service);
 		if (parentService == null) {
 			return result;
 		}
@@ -146,9 +146,9 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	 * Return the resources implementing the exact given service key.
 	 */
 	private List<String> getExactResources(final String[] registeredServices, final String service) {
-		final List<String> result = new ArrayList<>();
-		for (final String plugin : registeredServices) {
-			final ServicePlugin bean = applicationContext.getBean(plugin, ServicePlugin.class);
+		final var result = new ArrayList<String>();
+		for (final var plugin : registeredServices) {
+			final var bean = applicationContext.getBean(plugin, ServicePlugin.class);
 			if (service.equals(bean.getKey())) {
 				result.add(plugin);
 			}
@@ -171,8 +171,9 @@ public class ServicePluginLocator implements ApplicationContextAware {
 
 	/**
 	 * Return the plug-in activation.
+	 * 
 	 * @param id The tested plug-in identifier.
-	 * @return  The plug-in activation.
+	 * @return The plug-in activation.
 	 */
 	@CacheResult(cacheName = "node-enablement")
 	public boolean isEnabled(String id) {

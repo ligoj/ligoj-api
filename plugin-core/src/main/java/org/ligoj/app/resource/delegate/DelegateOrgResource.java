@@ -5,7 +5,6 @@ package org.ligoj.app.resource.delegate;
 
 import java.util.EnumMap;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -46,8 +45,6 @@ import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 /**
@@ -103,12 +100,11 @@ public class DelegateOrgResource {
 	/**
 	 * Converter from {@link DelegateOrg} to {@link DelegateOrgLightVo}
 	 * 
-	 * @param entity
-	 *            The entity to convert.
+	 * @param entity The entity to convert.
 	 * @return The initialized bean corresponding to the entity with fetched description for related user and group.
 	 */
 	public DelegateOrgLightVo toVo(final DelegateOrg entity) {
-		final DelegateOrgLightVo vo = new DelegateOrgLightVo();
+		final var vo = new DelegateOrgLightVo();
 		NamedBean.copy(entity, vo);
 		vo.copyAuditData(entity, (Function<String, UserOrg>) getUser()::toUser);
 
@@ -150,10 +146,8 @@ public class DelegateOrgResource {
 	/**
 	 * Retrieve all elements with pagination
 	 * 
-	 * @param uriInfo
-	 *            pagination data.
-	 * @param typeSearch
-	 *            Optional {@link DelegateType} search.
+	 * @param uriInfo    pagination data.
+	 * @param typeSearch Optional {@link DelegateType} search.
 	 * @return all elements with pagination.
 	 */
 	@GET
@@ -162,9 +156,9 @@ public class DelegateOrgResource {
 		// Trigger cache loading
 		getUser().findAll();
 
-		final PageRequest pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
-		final Page<DelegateOrg> findAll = repository.findAll(securityHelper.getLogin(),
-				DataTableAttributes.getSearch(uriInfo), typeSearch, pageRequest);
+		final var pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
+		final var findAll = repository.findAll(securityHelper.getLogin(), DataTableAttributes.getSearch(uriInfo),
+				typeSearch, pageRequest);
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, this::toVo);
@@ -179,8 +173,7 @@ public class DelegateOrgResource {
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
 	 * 
-	 * @param vo
-	 *            the object to create.
+	 * @param vo the object to create.
 	 * @return the entity's identifier.
 	 */
 	@POST
@@ -206,14 +199,14 @@ public class DelegateOrgResource {
 	 * @return the created/update {@link DelegateOrg}
 	 */
 	private DelegateOrg validateSaveOrUpdate(final DelegateOrgEditionVo importEntry) {
-		final Map<String, CompanyOrg> allCompanies = getCompany().findAll();
-		final Map<String, GroupOrg> allGroups = getGroup().findAll();
+		final var allCompanies = getCompany().findAll();
+		final var allGroups = getGroup().findAll();
 
 		// Save the delegate with normalized name
-		final DelegateOrg entity = toEntity(importEntry);
+		final var entity = toEntity(importEntry);
 
 		// Get all delegates of current user
-		String dn = "n/a";
+		var dn = "n/a";
 		if (importEntry.getType() == DelegateType.COMPANY) {
 			dn = validateCompany(importEntry, allCompanies, dn);
 		} else if (importEntry.getType() == DelegateType.GROUP) {
@@ -249,15 +242,14 @@ public class DelegateOrgResource {
 	/**
 	 * Build the entity from the import entry.
 	 * 
-	 * @param importEntry
-	 *            The new delegate.
+	 * @param importEntry The new delegate.
 	 * @return The JPA entity form with validated inputs.
 	 */
 	private DelegateOrg toEntity(final DelegateOrgEditionVo importEntry) {
 		// Validate the related receiver of this delegate
-		final ResourceOrg receiver = toReceiver.get(importEntry.getReceiverType()).apply(importEntry.getReceiver());
+		final var receiver = toReceiver.get(importEntry.getReceiverType()).apply(importEntry.getReceiver());
 
-		final DelegateOrg entity = new DelegateOrg();
+		final var entity = new DelegateOrg();
 		entity.setId(importEntry.getId());
 		entity.setName(Normalizer.normalize(importEntry.getName()));
 		entity.setCanAdmin(importEntry.isCanAdmin());
@@ -289,8 +281,8 @@ public class DelegateOrgResource {
 	 */
 	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupOrg> allGroups,
 			final String dn) {
-		final String normalizedCN = Normalizer.normalize(importEntry.getName());
-		final GroupOrg group = allGroups.get(normalizedCN);
+		final var normalizedCN = Normalizer.normalize(importEntry.getName());
+		final var group = allGroups.get(normalizedCN);
 		if (group != null) {
 			importEntry.setName(normalizedCN);
 			return group.getDn();
@@ -303,7 +295,7 @@ public class DelegateOrgResource {
 	 */
 	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyOrg> allCompanies,
 			final String dn) {
-		final String normalizedCN = Normalizer.normalize(importEntry.getName());
+		final var normalizedCN = Normalizer.normalize(importEntry.getName());
 		if (allCompanies.containsKey(normalizedCN)) {
 			importEntry.setName(normalizedCN);
 			return allCompanies.get(normalizedCN).getDn();
@@ -314,8 +306,7 @@ public class DelegateOrgResource {
 	/**
 	 * Update entity.
 	 * 
-	 * @param vo
-	 *            the object to update.
+	 * @param vo the object to update.
 	 */
 	@PUT
 	public void update(final DelegateOrgEditionVo vo) {
@@ -331,8 +322,7 @@ public class DelegateOrgResource {
 	 * </ul>
 	 * Attention, DN is case sensitive.
 	 * 
-	 * @param id
-	 *            the entity identifier.
+	 * @param id the entity identifier.
 	 */
 	@DELETE
 	@Path("{id:\\d+}")
@@ -348,18 +338,16 @@ public class DelegateOrgResource {
 	/**
 	 * Check the principal user can delete this delegate. 'canAdmin' flag must be enabled.
 	 * 
-	 * @param id
-	 *            the entity identifier.
+	 * @param id the entity identifier.
 	 */
 	private void validateWriteAccess(final int id) {
 
 		// Get the related delegate
-		final DelegateOrg delegate = repository.findOneExpected(id);
+		final var delegate = repository.findOneExpected(id);
 
 		// Check the related DN
-		final String dn = delegate.getDn();
-		final List<Integer> ids = repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn,
-				delegate.getType());
+		final var dn = delegate.getDn();
+		final var ids = repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn, delegate.getType());
 		if (ids.isEmpty()) {
 			throw new ForbiddenException();
 		}

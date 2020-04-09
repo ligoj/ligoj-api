@@ -98,16 +98,13 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * {@link SubscriptionEditionVo} to JPA entity transformer.
 	 *
-	 * @param vo
-	 *            The object to convert.
-	 * @param project
-	 *            The related project.
-	 * @param node
-	 *            The related node.
+	 * @param vo      The object to convert.
+	 * @param project The related project.
+	 * @param node    The related node.
 	 * @return The mapped entity.
 	 */
 	public static Subscription toEntity(final SubscriptionEditionVo vo, final Project project, final Node node) {
-		final Subscription entity = new Subscription();
+		final var entity = new Subscription();
 		entity.setProject(project);
 		entity.setId(vo.getId());
 		entity.setNode(node);
@@ -119,8 +116,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * current user to check it is visible. Secured parameters (even the encrypted ones) are not returned. The
 	 * visibility of this subscription is checked.
 	 *
-	 * @param id
-	 *            The subscription identifier.
+	 * @param id The subscription identifier.
 	 * @return secured associated parameters values. Key of returned map is the identifier of
 	 *         {@link org.ligoj.app.model.Parameter}
 	 */
@@ -134,11 +130,9 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Return tools specific configuration. Only non secured parameters are returned.
 	 *
-	 * @param id
-	 *            The subscription identifier.
+	 * @param id The subscription identifier.
 	 * @return tools specific configuration.
-	 * @throws Exception
-	 *             When the configuration gathering fails. Managed at JAX-RS level.
+	 * @throws Exception When the configuration gathering fails. Managed at JAX-RS level.
 	 */
 	@GET
 	@Path("{id:\\d+}/configuration")
@@ -146,8 +140,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	public ConfigurationVo getConfiguration(@PathParam("id") final int id) throws Exception {
 
 		// Copy subscription details
-		final Subscription entity = checkVisible(id);
-		final ConfigurationVo vo = new ConfigurationVo();
+		final var entity = checkVisible(id);
+		final var vo = new ConfigurationVo();
 		vo.setNode(NodeResource.toVo(entity.getNode(), locator));
 		vo.setParameters(getNonSecuredParameters(id));
 		vo.setSubscription(id);
@@ -167,8 +161,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * user to check it is visible. Beware, these parameters must not be returned to user, since clear encrypted
 	 * parameters are present.
 	 *
-	 * @param id
-	 *            The subscription identifier.
+	 * @param id The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
 	 *         {@link org.ligoj.app.model.Parameter}
 	 */
@@ -182,8 +175,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Return all parameters values related to the subscription. The visibility of attached project is not checked in
 	 * this case. Secured (encrypted) parameters are decrypted.
 	 *
-	 * @param id
-	 *            The subscription identifier.
+	 * @param id The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
 	 *         {@link org.ligoj.app.model.Parameter}
 	 */
@@ -195,20 +187,18 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Create subscription.
 	 *
-	 * @param vo
-	 *            the subscription.
+	 * @param vo the subscription.
 	 * @return the created {@link Subscription}.
-	 * @throws Exception
-	 *             When the creation fails. Managed at JAX-RS level.
+	 * @throws Exception When the creation fails. Managed at JAX-RS level.
 	 */
 	@POST
 	public int create(final SubscriptionEditionVo vo) throws Exception {
 
 		// Validate entities
-		final Project project = checkVisibleProject(vo.getProject());
+		final var project = checkVisibleProject(vo.getProject());
 		checkManagedProject(vo.getProject());
-		final Node node = checkManagedNodeForSubscription(vo.getNode());
-		final List<Parameter> acceptedParameters = checkInputParameters(vo);
+		final var node = checkManagedNodeForSubscription(vo.getNode());
+		final var acceptedParameters = checkInputParameters(vo);
 
 		// Create subscription and parameters that would be removed in case of
 		// roll-back because of invalid parameters
@@ -235,11 +225,10 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Delegates the creation to the hierarchy of the related plug-in, and starting from the related plug-in. <br>
 	 * Exception appearing there causes to roll-back the previous persists.
 	 *
-	 * @throws Exception
-	 *             When the link/create fails. Managed at upper level.
+	 * @throws Exception When the link/create fails. Managed at upper level.
 	 */
 	private void delegateToPlugin(final SubscriptionEditionVo vo, final Subscription entity) throws Exception {
-		for (ServicePlugin p = locator.getResource(vo.getNode()); p != null; p = locator
+		for (var p = locator.getResource(vo.getNode()); p != null; p = locator
 				.getResource(locator.getParent(p.getKey()))) {
 			if (vo.getMode() == SubscriptionMode.CREATE) {
 				// Create mode
@@ -255,7 +244,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Check the parameters that are being attached to this subscription.
 	 */
 	private List<Parameter> checkInputParameters(final SubscriptionEditionVo vo) {
-		final List<Parameter> acceptedParameters = nodeResource.checkInputParameters(vo);
+		final var acceptedParameters = nodeResource.checkInputParameters(vo);
 
 		// Check all mandatory parameters for the current subscription mode
 		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
@@ -266,13 +255,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Check the principal user can subscribe a project to the given visible node.
 	 *
-	 * @param node
-	 *            The node identifier to subscribe.
+	 * @param node The node identifier to subscribe.
 	 * @return The found visible node. Never <code>null</code>.
 	 */
 	private Node checkManagedNodeForSubscription(final String node) {
 		// Check the node can be subscribed by the principal user
-		final Node entity = Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin()))
+		final var entity = Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin()))
 				.orElseThrow(() -> new ValidationJsonException("node", BusinessException.KEY_UNKNOWN_ID, "0", node));
 
 		// Check the node accept subscription
@@ -285,12 +273,9 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Check mandatory parameters are provided.
 	 *
-	 * @param parameters
-	 *            The updated parameters to check.
-	 * @param acceptedParameters
-	 *            The accepted parameters.
-	 * @param mode
-	 *            The related mode.
+	 * @param parameters         The updated parameters to check.
+	 * @param acceptedParameters The accepted parameters.
+	 * @param mode               The related mode.
 	 */
 	protected void checkMandatoryParameters(final List<ParameterValueCreateVo> parameters,
 			final List<Parameter> acceptedParameters, final SubscriptionMode mode) {
@@ -317,10 +302,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Delete entity and cascaded associations : parameters, events then subscription. Note that remote data are not
 	 * deleted. Links are just destroyed.
 	 *
-	 * @param id
-	 *            the entity identifier.
-	 * @throws Exception
-	 *             When the delete fails. Managed at JAX-RS level.
+	 * @param id the entity identifier.
+	 * @throws Exception When the delete fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}")
 	@DELETE
@@ -332,18 +315,15 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Delete entity and cascaded associations : parameters, events then subscription.
 	 *
-	 * @param id
-	 *            the entity identifier.
-	 * @param deleteRemoteData
-	 *            When <code>true</code>, remote data will be also destroyed.
-	 * @throws Exception
-	 *             When the delete fails. Managed at JAX-RS level.
+	 * @param id               the entity identifier.
+	 * @param deleteRemoteData When <code>true</code>, remote data will be also destroyed.
+	 * @throws Exception When the delete fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}/{deleteRemoteData}")
 	@DELETE
 	public void delete(@PathParam("id") final int id, @PathParam("deleteRemoteData") final boolean deleteRemoteData)
 			throws Exception {
-		final Subscription entity = checkVisible(id);
+		final var entity = checkVisible(id);
 		checkManagedProject(entity.getProject().getId());
 
 		// Delete the events
@@ -376,12 +356,11 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Check the associated project is visible for current user.
 	 *
-	 * @param id
-	 *            Project's identifier.
+	 * @param id Project's identifier.
 	 * @return the loaded project.
 	 */
 	public Project checkVisibleProject(final int id) {
-		final Project project = projectRepository.findOneVisible(id, securityHelper.getLogin());
+		final var project = projectRepository.findOneVisible(id, securityHelper.getLogin());
 		if (project == null) {
 			// Associated project is not visible
 			throw new EntityNotFoundException(String.valueOf(id));
@@ -391,7 +370,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	@Override
 	public Subscription checkVisible(final Integer id) {
-		final Subscription entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
 			// Associated project is not visible, reject the subscription access
 			throw new EntityNotFoundException(String.valueOf(id));
@@ -408,13 +387,13 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public SubscriptionListVo findAll() {
-		final SubscriptionListVo result = new SubscriptionListVo();
+		final var result = new SubscriptionListVo();
 
 		// First, list visible projects having at least one subscription
-		final List<Object[]> projects = projectRepository.findAllHavingSubscription(securityHelper.getLogin());
+		final var projects = projectRepository.findAllHavingSubscription(securityHelper.getLogin());
 
 		// Fill the projects
-		final Map<Integer, SubscribingProjectVo> projectsMap = toProjects(projects);
+		final var projectsMap = toProjects(projects);
 		result.setProjects(projectsMap.values());
 
 		/*
@@ -436,7 +415,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	private Map<String, SubscribedNodeVo> toNodes(final Map<String, NodeVo> nodes,
 			final Collection<SubscriptionLightVo> subscriptions) {
-		final Map<String, SubscribedNodeVo> filteredNodes = new TreeMap<>();
+		final var filteredNodes = new TreeMap<String, SubscribedNodeVo>();
 		// Add the related node of each subscription
 		subscriptions.stream().map(SubscriptionLightVo::getNode).map(nodes::get)
 				.forEach(n -> addNodeAsNeeded(filteredNodes, nodes, n));
@@ -468,7 +447,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	private Map<Integer, SubscribingProjectVo> toProjects(final List<Object[]> projects) {
 		return projects.stream().map(rs -> {
 			// Build the project
-			final SubscribingProjectVo project = new SubscribingProjectVo();
+			final var project = new SubscribingProjectVo();
 			project.setId((Integer) rs[0]);
 			project.setName((String) rs[1]);
 			project.setPkey((String) rs[2]);
@@ -486,7 +465,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		if (!filteredNodes.containsKey(node.getId())) {
 
 			// Build the node wrapper
-			final SubscribedNodeVo subscribedNode = new SubscribedNodeVo();
+			final var subscribedNode = new SubscribedNodeVo();
 			NamedBean.copy(node, subscribedNode);
 			subscribedNode.setTag(node.getTag());
 			subscribedNode.setTagUiClasses(node.getTagUiClasses());
@@ -508,8 +487,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Retrieve the last known status of subscriptions of given project .
 	 *
-	 * @param project
-	 *            project identifier
+	 * @param project project identifier
 	 * @return Status of each subscription of given project.
 	 */
 	@Path("status/{project:\\d+}")
@@ -524,8 +502,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Get fresh status of given subscription. This fresh status is also stored in the data base. The project must be
 	 * visible to current user.
 	 *
-	 * @param id
-	 *            Node identifier
+	 * @param id Node identifier
 	 * @return Status of each subscription of given project.
 	 */
 	@Path("status/{id:\\d+}/refresh")
@@ -537,8 +514,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Get fresh status of a set of subscriptions. This a loop shortcut of the per-subscription call.
 	 *
-	 * @param ids
-	 *            Node identifiers
+	 * @param ids Node identifiers
 	 * @return Status of each subscription of given project. Order is not guaranteed.
 	 * @see #refreshStatus(int)
 	 */
@@ -553,9 +529,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Refresh given subscriptions and return their status.
 	 */
 	private SubscriptionStatusWithData refreshSubscription(final Subscription subscription) {
-		final Map<String, String> parameters = getParameters(subscription.getId());
-		final SubscriptionStatusWithData statusWithData = nodeResource.checkSubscriptionStatus(subscription,
-				parameters);
+		final var parameters = getParameters(subscription.getId());
+		final var statusWithData = nodeResource.checkSubscriptionStatus(subscription, parameters);
 		statusWithData.setId(subscription.getId());
 		statusWithData.setProject(subscription.getProject().getId());
 		statusWithData.setParameters(parameterValueResource.getNonSecuredSubscriptionParameters(subscription.getId()));

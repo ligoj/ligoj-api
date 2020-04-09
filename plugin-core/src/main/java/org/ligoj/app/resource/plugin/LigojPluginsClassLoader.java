@@ -71,7 +71,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * @since 2.2.4
 	 */
 	public Path toPath(final Node node) throws IOException {
-		final Path file = toPath(toFragments(node));
+		final var file = toPath(toFragments(node));
 		FileUtils.forceMkdir(file.toFile());
 		return file;
 	}
@@ -84,7 +84,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * @return The computed sibling path.
 	 */
 	private String[] toFragments(final Node node) {
-		final List<String> fragments = new ArrayList<>();
+		final var fragments = new ArrayList<String>();
 		toFragments(node, fragments);
 		return fragments.toArray(new String[fragments.size()]);
 	}

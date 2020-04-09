@@ -28,27 +28,24 @@ public class VersionUtils {
 	/**
 	 * Return the lasted version for the given JIRA project.
 	 *
-	 * @param serverUrl
-	 *            The server base URL like "http://jira.codehaus.org"
-	 * @param project
-	 *            The JIRA project identifier.
+	 * @param serverUrl The server base URL like "http://jira.codehaus.org"
+	 * @param project   The JIRA project identifier.
 	 * @return <code>null</code> or latest version
-	 * @throws IOException
-	 *             When version cannot be read from the remote URL.
+	 * @throws IOException When version cannot be read from the remote URL.
 	 */
 	public AtlassianVersion getLatestReleasedVersion(final String serverUrl, final String project) throws IOException {
 		// Get the download index
-		try (final CurlProcessor processor = new CurlProcessor()) {
-			final String versionsAsJson = ObjectUtils
+		try (final var processor = new CurlProcessor()) {
+			final var versionsAsJson = ObjectUtils
 					.defaultIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"), "[]");
-			final List<AtlassianVersion> versionsRaw = new ObjectMapper().readValue(versionsAsJson,
+			final var versionsRaw = new ObjectMapper().readValue(versionsAsJson,
 					new TypeReference<List<AtlassianVersion>>() {
 						// Nothing to override
 					});
 
 			// Find the last download link
 			AtlassianVersion lastVersion = null;
-			for (final AtlassianVersion jiraVersion : versionsRaw) {
+			for (final var jiraVersion : versionsRaw) {
 				if (isValidVersion(lastVersion, jiraVersion)) {
 					lastVersion = jiraVersion;
 				}
@@ -62,10 +59,8 @@ public class VersionUtils {
 	/**
 	 * Check the given version is valid and greater/newer than the last one.
 	 *
-	 * @param lastVersion
-	 *            The last validated version.
-	 * @param jiraVersion
-	 *            The version to validate.
+	 * @param lastVersion The last validated version.
+	 * @param jiraVersion The version to validate.
 	 * @return <code>true</code> when the version is newer then the previous one.
 	 */
 	protected boolean isValidVersion(final AtlassianVersion lastVersion, final AtlassianVersion jiraVersion) {
@@ -81,16 +76,13 @@ public class VersionUtils {
 	/**
 	 * Return the lasted version name for the given Jira project.
 	 *
-	 * @param serverUrl
-	 *            The server base URL like "http://jira.codehaus.org"
-	 * @param project
-	 *            The JIRA project identifier.
+	 * @param serverUrl The server base URL like "http://jira.codehaus.org"
+	 * @param project   The JIRA project identifier.
 	 * @return <code>null</code> or latest version name.
-	 * @throws IOException
-	 *             When version cannot be read from the remote URL.
+	 * @throws IOException When version cannot be read from the remote URL.
 	 */
 	public String getLatestReleasedVersionName(final String serverUrl, final String project) throws IOException {
-		final AtlassianVersion version = getLatestReleasedVersion(serverUrl, project);
+		final var version = getLatestReleasedVersion(serverUrl, project);
 		if (version != null) {
 			return version.getName();
 		}
