@@ -16,7 +16,7 @@ class SimpleUserTest {
 	void valid() {
 		Assertions.assertTrue("name".matches(SimpleUser.USER_PATTERN_WRAPPER));
 		Assertions.assertTrue("name-2".matches(SimpleUser.USER_PATTERN_WRAPPER));
-		Assertions.assertTrue("3@name".matches(SimpleUser.USER_PATTERN_WRAPPER));
+		Assertions.assertTrue("3@n.ame".matches(SimpleUser.USER_PATTERN_WRAPPER));
 	}
 
 	@Test

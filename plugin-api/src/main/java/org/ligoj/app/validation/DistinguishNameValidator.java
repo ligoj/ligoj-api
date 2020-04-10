@@ -34,7 +34,7 @@ public class DistinguishNameValidator implements ConstraintValidator<Distinguish
 		try {
 			final String dn = StringUtils.trimToEmpty(value);
 			// Check against Rfc2253
-			new LdapName(dn);
+			new LdapName(dn).hashCode();
 			
 			// Check against our rules
 			return DN_PATTERN.matcher(dn).matches();
