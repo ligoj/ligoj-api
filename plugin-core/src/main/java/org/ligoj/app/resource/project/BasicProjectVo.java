@@ -10,11 +10,11 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.SafeHtml;
 import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.bootstrap.core.IDescribableBean;
 import org.ligoj.bootstrap.core.NamedAuditedBean;
 import org.ligoj.bootstrap.core.validation.LowerCase;
+import org.ligoj.bootstrap.core.validation.SafeHtml;
 
 import lombok.Getter;
 import lombok.Setter;

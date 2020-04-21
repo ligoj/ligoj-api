@@ -15,12 +15,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.Length;
-import org.hibernate.validator.constraints.SafeHtml;
-import org.hibernate.validator.constraints.SafeHtml.Attribute;
-import org.hibernate.validator.constraints.SafeHtml.Tag;
 import org.ligoj.bootstrap.core.IDescribableBean;
 import org.ligoj.bootstrap.core.model.AbstractNamedAuditedEntity;
 import org.ligoj.bootstrap.core.validation.LowerCase;
+import org.ligoj.bootstrap.core.validation.SafeHtml;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -68,7 +66,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	 * Human readable description.
 	 */
 	@Length(max = 1024)
-	@SafeHtml(additionalTagsWithAttributes = @Tag(name = "a", attributesWithProtocols = @Attribute(name = "href", protocols = "#")))
+	@SafeHtml
 	private String description;
 
 	/**
