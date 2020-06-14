@@ -196,7 +196,7 @@ public class ParameterValueResource {
 	 */
 	public static <T> T parseValue(final ParameterValue entity, final BasicParameterValueVo vo) {
 		@SuppressWarnings("unchecked")
-		final var<T> valueMapper = (ParameterValueMapper<T>) TO_VALUE.get(entity.getParameter().getType());
+		final var valueMapper = (ParameterValueMapper<T>) TO_VALUE.get(entity.getParameter().getType());
 		final var parsedValue = valueMapper.toValue.apply(entity.getData());
 		valueMapper.setter.accept(vo, parsedValue);
 		return parsedValue;
