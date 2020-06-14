@@ -42,6 +42,7 @@ import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
+import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
@@ -170,7 +171,8 @@ public class ParameterValueResource {
 	 */
 	public ParameterValueVo toVo(final ParameterValue entity) {
 		final var vo = new ParameterValueVo();
-		vo.copyAuditData(entity, iamProvider[0].getConfiguration().getUserRepository()::toUser);
+		vo.copyAuditData(entity,
+				(Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
 		vo.setParameter(ParameterResource.toVo(entity.getParameter()));
 
