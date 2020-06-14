@@ -212,9 +212,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findByIdInvalid() {
 		initSpringSecurityContext("alongchu");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.findById(0);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(0));
 	}
 
 	/**
@@ -224,9 +222,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 	void findByIdNotVisible() {
 		final Project byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.findById(byName.getId());
-		});
+		final var id = byName.getId();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(id));
 	}
 
 	/**
@@ -234,11 +231,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByPKeyFullNotVisible() {
-		final Project byName = repository.findByName("gStack");
+		final var byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.findByPKeyFull(byName.getPkey());
-		});
+		final var pkey = byName.getPkey();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findByPKeyFull(pkey));
 	}
 
 	/**
@@ -247,10 +243,9 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findByIdVisibleSinceAdmin() {
 		initSpringSecurityContext("admin");
-		final Project byName = repository.findByName("gStack");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.findById(byName.getId());
-		});
+		final var byName = repository.findByName("gStack");
+		final var id = byName.getId();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(id));
 	}
 
 	/**
@@ -328,9 +323,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findByPKeyNotExists() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			checkProject(resource.findByPKey("mda"));
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findByPKey("mda"));
 	}
 
 	private void checkProject(final BasicProjectVo project) {
@@ -482,9 +475,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 	void deleteNotVisible() {
 		em.clear();
 		initSpringSecurityContext("mlavoine");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(testProject.getId());
-		});
+		final var id = testProject.getId();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(id));
 	}
 
 	/**
@@ -493,9 +485,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void deleteNotExists() {
 		em.clear();
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(-1);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(-1));
 	}
 
 	@Test

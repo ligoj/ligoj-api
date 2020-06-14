@@ -6,7 +6,6 @@ package org.ligoj.app.resource.subscription;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -26,7 +25,6 @@ import org.ligoj.app.api.ConfigurationVo;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.dao.DelegateNodeRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
@@ -49,7 +47,6 @@ import org.ligoj.app.model.Subscription;
 import org.ligoj.app.model.TaskSampleSubscription;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.ServicePluginLocator;
-import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.ParameterValueCreateVo;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.IdentityResource;
@@ -614,23 +611,24 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createMissingParameter() {
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(newCreateVoBadParameters());
-		}), "service:bt:jira:pkey", "NotNull");
+		final var newCreateVoBadParameters = newCreateVoBadParameters();
+		MatcherUtil.assertThrows(
+				Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(newCreateVoBadParameters)),
+				"service:bt:jira:pkey", "NotNull");
 	}
 
 	private SubscriptionEditionVo newCreateVoBadParameters() {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
-		final Project project = new Project();
+		final var project = new Project();
 		project.setName("TEST");
 		project.setPkey("test");
 		project.setTeamLeader(getAuthenticationName());
 		em.persist(project);
 
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
-		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
-		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
+		final var vo = new SubscriptionEditionVo();
+		final var parameters = new ArrayList<ParameterValueCreateVo>();
+		final var parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter("service:bt:jira:project");
 		parameterValueEditionVo.setInteger(1007400);
 		parameters.add(parameterValueEditionVo);
@@ -643,12 +641,12 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void findAll() {
-		final SubscriptionListVo subscriptionList = resource.findAll();
+		final var subscriptionList = resource.findAll();
 
 		// Check nodes
-		final Collection<SubscribedNodeVo> nodes = subscriptionList.getNodes();
+		final var nodes = subscriptionList.getNodes();
 		Assertions.assertTrue(nodes.size() > 30);
-		final List<SubscribedNodeVo> subscribedNodes = new ArrayList<>(nodes);
+		final var subscribedNodes = new ArrayList<>(nodes);
 		Assertions.assertEquals("service:bt", subscribedNodes.get(0).getId());
 		Assertions.assertNull(subscribedNodes.get(0).getRefined());
 		Assertions.assertEquals("Bug Tracker", subscribedNodes.get(0).getName());
@@ -663,19 +661,19 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 		// Check subscriptions
 		Assertions.assertTrue(subscriptionList.getSubscriptions().size() >= 13);
-		final List<SubscriptionLightVo> subscriptions = new ArrayList<>(subscriptionList.getSubscriptions());
+		final var subscriptions = new ArrayList<>(subscriptionList.getSubscriptions());
 
 		// Check project order
 
 		// GSTACK Project
-		final SubscriptionLightVo subscription0 = subscriptions.get(0);
+		final var subscription0 = subscriptions.get(0);
 		Assertions.assertTrue(subscription0.getId() > 0);
 		Assertions.assertTrue(subscription0.getProject() > 0);
 		Assertions.assertEquals("gStack", subscriptionList.getProjects().stream()
 				.filter(p -> p.getId().equals(subscription0.getProject())).findFirst().get().getName());
 
 		// MDA Project (last subscription), only JIRA4 subscription
-		final SubscriptionLightVo subscription = subscriptions.get(subscriptions.size() - 1);
+		final var subscription = subscriptions.get(subscriptions.size() - 1);
 		Assertions.assertTrue(subscription.getId() > 0);
 		Assertions.assertTrue(subscription.getProject() > 0);
 		Assertions.assertEquals("MDA", subscriptionList.getProjects().stream()
@@ -683,18 +681,18 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("service:bt:jira:4", subscription.getNode());
 
 		// Check projects
-		final Collection<SubscribingProjectVo> projects = subscriptionList.getProjects();
+		final var projects = subscriptionList.getProjects();
 		Assertions.assertEquals(2, projects.size());
 
 		// Check subscription project
-		final SubscribingProjectVo projectVo = projects.stream()
-				.filter(p -> Objects.equals(p.getId(), subscription.getProject())).findFirst().get();
+		final var projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), subscription.getProject()))
+				.findFirst().get();
 		Assertions.assertEquals("MDA", projectVo.getName());
 		Assertions.assertEquals("mda", projectVo.getPkey());
 
 		// Check subscription node
-		final SubscribedNodeVo nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), subscription.getNode()))
-				.findFirst().get();
+		final var nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), subscription.getNode())).findFirst()
+				.get();
 		Assertions.assertEquals("JIRA 4", nodeVo.getName());
 		Assertions.assertEquals("service:bt:jira:4", nodeVo.getId());
 
@@ -703,13 +701,12 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void refreshStatuses() throws IOException {
 		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
-		final int projectId = projectRepository.findByName("MDA").getId();
-		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
+		final var projectId = projectRepository.findByName("MDA").getId();
+		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
-		final Map<Integer, SubscriptionStatusWithData> statuses = resource
-				.refreshStatuses(Collections.singleton(subscription));
+		final var statuses = resource.refreshStatuses(Collections.singleton(subscription));
 		Assertions.assertEquals(1, statuses.size());
-		final SubscriptionStatusWithData status = statuses.get(subscription);
+		final var status = statuses.get(subscription);
 		Assertions.assertEquals(subscription, status.getId().intValue());
 		Assertions.assertEquals(NodeStatus.UP, status.getStatus());
 		Assertions.assertEquals("service:bt:jira:4", status.getNode());
@@ -724,23 +721,23 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void getStatusByProject() throws IOException {
 		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
-		final int projectId = projectRepository.findByName("gStack").getId();
-		final Map<Integer, EventVo> subscriptionStatus = resource.getStatusByProject(projectId);
+		final var projectId = projectRepository.findByName("gStack").getId();
+		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
 		Assertions.assertEquals("JIRA 6", subscriptionStatus.values().iterator().next().getNode().getName());
 	}
 
 	@Test
 	void checkSubscriptionStatus() {
-		JiraPluginResource service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
-		final SubscriptionStatusWithData status = service.checkSubscriptionStatus(null);
+		final var service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
+		final var status = service.checkSubscriptionStatus(null);
 		Assertions.assertNotNull(status);
 		Assertions.assertEquals("value", status.getData().get("property"));
 	}
 
 	@Test
 	void servicePlugin() {
-		JiraPluginResource service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
+		final var service = servicePluginLocator.getResource("service:bt:jira:4", JiraPluginResource.class);
 		Assertions.assertEquals("Jira", service.getName());
 		Assertions.assertNull(service.getVendor());
 		Assertions.assertNull(service.getVersion());

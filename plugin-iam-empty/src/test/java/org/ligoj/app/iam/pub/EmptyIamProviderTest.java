@@ -64,9 +64,8 @@ class EmptyIamProviderTest {
 
 	@Test
 	void getConfigurationFindByIdDefault() {
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			Assertions.assertNotNull(new MockUserRepository().findByIdExpected("some"));
-		});
+		final var repository = new MockUserRepository();
+		Assertions.assertThrows(ValidationJsonException.class, () -> repository.findByIdExpected("some"));
 	}
 
 	@Test
