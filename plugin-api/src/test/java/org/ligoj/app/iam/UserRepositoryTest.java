@@ -22,7 +22,7 @@ class UserRepositoryTest {
 
 	@Test
 	void coverage() {
-		final IUserRepository repository = new IUserRepository() {
+		final var repository = new IUserRepository() {
 
 			@Override
 			public void updateUser(UserOrg user) {
@@ -154,7 +154,7 @@ class UserRepositoryTest {
 
 	@Test
 	void toUser() {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		final var configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertNotNull(configuration);
 		Assertions.assertNotNull(configuration.getUserRepository());
 		Assertions.assertEquals("login", configuration.getUserRepository().toUser("login").getId());
@@ -178,24 +178,22 @@ class UserRepositoryTest {
 
 	@Test
 	void findByIdExpectedNotFound() {
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			new MockUserRepository().findByIdExpected("user1", "user2");
-		});
+		final var repository = new MockUserRepository();
+		Assertions.assertThrows(ValidationJsonException.class, () -> repository.findByIdExpected("user1", "user2"));
 	}
 
 	@Test
 	void findByIdExpectedCompanyNotExists() {
-		final EmptyUserRepository emptyUserRepository = new EmptyUserRepository();
+		final var emptyUserRepository = new EmptyUserRepository();
 		emptyUserRepository.setCompanyRepository(Mockito.mock(ICompanyRepository.class));
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			emptyUserRepository.findByIdExpected("user1", "user2");
-		});
+		Assertions.assertThrows(ValidationJsonException.class,
+				() -> emptyUserRepository.findByIdExpected("user1", "user2"));
 	}
 
 	@Test
 	void findByIdExpected() {
-		final EmptyUserRepository emptyUserRepository = new EmptyUserRepository();
-		final ICompanyRepository companyRepository = Mockito.mock(ICompanyRepository.class);
+		final var emptyUserRepository = new EmptyUserRepository();
+		final var companyRepository = Mockito.mock(ICompanyRepository.class);
 		Mockito.when(companyRepository.findById("user1", "company")).thenReturn(new CompanyOrg("", ""));
 		emptyUserRepository.setCompanyRepository(companyRepository);
 		Assertions.assertEquals("user2", emptyUserRepository.findByIdExpected("user1", "user2").getId());

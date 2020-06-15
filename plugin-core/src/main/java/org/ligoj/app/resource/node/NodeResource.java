@@ -45,6 +45,8 @@ import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
+import org.ligoj.app.dao.task.LongTaskNodeRepository;
+import org.ligoj.app.model.AbstractLongTaskNode;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
@@ -642,8 +644,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public NodeVo findById(@PathParam("id") final String id) {
 		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
-				.map(n -> toVoLight(n, locator)).orElseThrow(
-						() -> new ValidationJsonException("id", BusinessException.KEY_UNKNOWN_ID, "0", "node", "1", id));
+				.map(n -> toVoLight(n, locator)).orElseThrow(() -> new ValidationJsonException("id",
+						BusinessException.KEY_UNKNOWN_ID, "0", "node", "1", id));
 	}
 
 	/**
@@ -765,7 +767,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	protected Class<? extends LongTaskRunner<?, ?, ?, String, ?, AbstractLockedResource<Node, String>>> getLongTaskRunnerClass() {
+	protected Class<? extends LongTaskRunner<AbstractLongTaskNode, LongTaskNodeRepository<AbstractLongTaskNode>, Node, String, NodeRepository, AbstractLockedResource<Node, String>>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerNode.class;
 	}
 

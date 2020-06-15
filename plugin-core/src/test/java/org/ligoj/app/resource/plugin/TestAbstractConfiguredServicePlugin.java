@@ -27,8 +27,7 @@ import org.mockito.Mockito;
  */
 class TestAbstractConfiguredServicePlugin {
 
-	private interface NamedConfigurable
-			extends Configurable<PluginConfiguration, Integer>, INamableBean<Integer> {
+	private interface NamedConfigurable extends Configurable<PluginConfiguration, Integer>, INamableBean<Integer> {
 	}
 
 	private AbstractConfiguredServicePlugin<PluginConfiguration> resource;
@@ -90,9 +89,7 @@ class TestAbstractConfiguredServicePlugin {
 	@Test
 	void deletedConfiguredKo() {
 		project.setId(-1);
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.deletedConfigured(repository, 1);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.deletedConfigured(repository, 1));
 	}
 
 	@Test
@@ -108,18 +105,15 @@ class TestAbstractConfiguredServicePlugin {
 
 	@Test
 	void findConfiguredByNameNotFound() {
-		Assertions.assertEquals("not-found", Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			Assertions.assertEquals(configurable,
-					resource.findConfiguredByName(repository, "not-found", subscription.getId()));
-		}).getMessage());
+		final var id = subscription.getId();
+		Assertions.assertEquals("not-found", Assertions.assertThrows(EntityNotFoundException.class,
+				() -> resource.findConfiguredByName(repository, "not-found", id)).getMessage());
 	}
 
 	@Test
 	void findConfiguredKo() {
 		project.setId(-1);
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.findConfigured(repository, 1);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findConfigured(repository, 1));
 	}
 
 	@Test
@@ -140,8 +134,6 @@ class TestAbstractConfiguredServicePlugin {
 		node.setId("service:s:t:i");
 		subscription.setNode(node);
 		subscription.setId(2000);
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.checkVisibility(subscription, "any");
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.checkVisibility(subscription, "any"));
 	}
 }
