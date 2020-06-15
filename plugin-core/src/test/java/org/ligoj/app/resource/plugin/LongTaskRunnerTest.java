@@ -72,9 +72,10 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void cancelNotRunnging() {
-		final TaskSampleNode task = newTaskSampleNode();
+		final var task = newTaskSampleNode();
 		repositoryNode.saveAndFlush(task);
-		Assertions.assertThrows(BusinessException.class, () -> resourceNode.cancel(task.getLocked().getId()));
+		final var id = task.getLocked().getId();
+		Assertions.assertThrows(BusinessException.class, () -> resourceNode.cancel(id));
 	}
 
 	@Test
@@ -89,11 +90,12 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void cancelSubscriptionNotRunnging() {
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		repository.saveAndFlush(task);
 		em.flush();
 		em.clear();
-		Assertions.assertThrows(BusinessException.class, () -> resource.cancel(task.getLocked().getId()));
+		final var id = task.getLocked().getId();
+		Assertions.assertThrows(BusinessException.class, () -> resource.cancel(id));
 	}
 
 	@Test
@@ -103,7 +105,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void deleteTaskNotRunning() {
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		repository.saveAndFlush(task);
 		em.flush();
 		em.clear();
@@ -113,7 +115,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void deleteTaskRunning() {
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
 		em.flush();
@@ -122,7 +124,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	private TaskSampleSubscription newTaskSample() {
-		final TaskSampleSubscription task = new TaskSampleSubscription();
+		final var task = new TaskSampleSubscription();
 		task.setAuthor(DEFAULT_USER);
 		task.setData("custom");
 		task.setStart(new Date());
@@ -132,7 +134,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	private TaskSampleNode newTaskSampleNode() {
-		final TaskSampleNode task = new TaskSampleNode();
+		final var task = new TaskSampleNode();
 		task.setAuthor(DEFAULT_USER);
 		task.setData("custom");
 		task.setStart(new Date());
@@ -144,7 +146,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	@Test
 	void getTask() {
 		repository.saveAndFlush(newTaskSample());
-		final TaskSampleSubscription task = resource.getTask(subscription);
+		final var task = resource.getTask(subscription);
 		assertTask(task);
 		Assertions.assertNotNull(task.getEnd());
 	}
@@ -165,7 +167,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void endTask() {
-		final TaskSampleSubscription newTaskSample = newTaskSample();
+		final var newTaskSample = newTaskSample();
 		newTaskSample.setEnd(null);
 		repository.saveAndFlush(newTaskSample);
 		resource.endTask(subscription, true);
@@ -178,15 +180,13 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	@Test
 	void endTaskAlreadyFinished() {
 		repository.saveAndFlush(newTaskSample());
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.endTask(subscription, true);
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.endTask(subscription, true));
 	}
 
 	@Test
 	void startTask() {
 		resource.startTask(subscription, task -> task.setData("init"));
-		final TaskSampleSubscription task = resource.getTask(subscription);
+		final var task = resource.getTask(subscription);
 		assertTask(task, "init");
 		Assertions.assertFalse(task.isFailed());
 		Assertions.assertNull(task.getEnd());
@@ -195,7 +195,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	@Test
 	void startTaskNode() {
 		resourceNode.startTask("service:bt:jira", task -> task.setData("init"));
-		final TaskSampleNode task = resourceNode.getTask("service:bt:jira");
+		final var task = resourceNode.getTask("service:bt:jira");
 		Assertions.assertFalse(task.isFailed());
 		Assertions.assertNull(task.getEnd());
 	}
@@ -204,7 +204,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	void startTaskNotRunning() {
 		repository.saveAndFlush(newTaskSample());
 		resource.startTask(subscription, task -> task.setData("init"));
-		final TaskSampleSubscription task = resource.getTask(subscription);
+		final var task = resource.getTask(subscription);
 		assertTask(task, "init");
 		Assertions.assertNull(task.getEnd());
 		Assertions.assertFalse(task.isFailed());
@@ -212,7 +212,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void nextStep() {
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
 		resource.nextStep(subscription, t -> t.setData("step2"));
@@ -221,15 +221,13 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void nextStepNotFound() {
-		Assertions.assertThrows(EntityNotFoundException.class,
-				() -> resource.nextStep(subscription, t -> t.setData("step2")));
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.nextStep(subscription, null));
 	}
 
 	@Test
 	void nextStepAlreadyFinished() {
 		repository.saveAndFlush(newTaskSample());
-		Assertions.assertThrows(BusinessException.class,
-				() -> resource.nextStep(subscription, t -> t.setData("step2")));
+		Assertions.assertThrows(BusinessException.class, () -> resource.nextStep(subscription, null));
 	}
 
 	/**
@@ -240,8 +238,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 		final TaskSampleSubscription task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
-		Assertions.assertThrows(BusinessException.class,
-				() -> resource.startTask(subscription, t -> t.setData("init")));
+		Assertions.assertThrows(BusinessException.class, () -> resource.startTask(subscription, null));
 	}
 
 	/**
@@ -261,8 +258,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 		final TaskSampleSubscription task = newTaskSample();
 		repository.saveAndFlush(task);
-		Assertions.assertThrows(BusinessException.class,
-				() -> resource.startTask(subscription, t -> t.setData("init")));
+		Assertions.assertThrows(BusinessException.class, () -> resource.startTask(subscription, null));
 	}
 
 	private void assertTask(TaskSampleSubscription task) {

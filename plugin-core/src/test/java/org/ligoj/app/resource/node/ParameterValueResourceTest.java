@@ -141,9 +141,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_17").getId());
 		parameterValue.setText("1a");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -167,9 +165,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void createIndexNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -177,9 +173,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
 		parameterValue.setIndex(-1);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -187,9 +181,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
 		parameterValue.setIndex(3);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -216,9 +208,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void createIntegerNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -226,9 +216,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(-1);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -236,9 +224,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(100);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -246,9 +232,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
 		parameterValue.setInteger(0);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -265,9 +249,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void createBooleanNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_5").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -287,18 +269,14 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final Date date = new Date();
 		date.setTime(0);
 		parameterValue.setDate(date);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
 	void createDateNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_6").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -321,18 +299,14 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<String> tags = new ArrayList<>();
 		tags.add("\t");
 		parameterValue.setTags(tags);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
 	void createTagsNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -352,9 +326,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void createMultipleNull() {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -364,9 +336,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<Integer> tags = new ArrayList<>();
 		tags.add(-1);
 		parameterValue.setSelections(tags);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -376,9 +346,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<Integer> tags = new ArrayList<>();
 		tags.add(8);
 		parameterValue.setSelections(tags);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -388,9 +356,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<Integer> tags = new ArrayList<>();
 		parameterValue.setSelections(tags);
 		parameterValue.setText("ignore but dirty");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.createInternal(parameterValue);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
 	@Test
@@ -402,9 +368,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		Mockito.when(badList.isEmpty()).thenReturn(Boolean.FALSE);
 		Mockito.when(badList.iterator()).thenThrow(new IllegalStateException());
 		parameterValue.setTags(badList);
-		Assertions.assertThrows(TechnicalException.class, () -> {
-			ParameterValueResource.toData(parameterValue);
-		});
+		Assertions.assertThrows(TechnicalException.class, () -> ParameterValueResource.toData(parameterValue));
 	}
 
 	@Test
@@ -537,9 +501,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void findInvalidJSonData() {
 		final Parameter parameter = parameterRepository.findOne("c_22");
 		final ParameterValue parameterValueEntity = newParameterValue("'", parameter);
-		Assertions.assertThrows(TechnicalException.class, () -> {
-			resource.toVo(parameterValueEntity);
-		});
+		Assertions.assertThrows(TechnicalException.class, () -> resource.toVo(parameterValueEntity));
 	}
 
 	@Test
@@ -547,9 +509,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final Parameter parameter = parameterRepository.findOne("c_4");
 		parameter.setData("'{");
 		final ParameterValue parameterValueEntity = newParameterValue("'", parameter);
-		Assertions.assertThrows(TechnicalException.class, () -> {
-			resource.toVo(parameterValueEntity);
-		});
+		Assertions.assertThrows(TechnicalException.class, () -> resource.toVo(parameterValueEntity));
 	}
 
 	private SystemRole newUser(final String name, final int id) {
@@ -693,32 +653,26 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void deleteNotExist() {
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(-1);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(-1));
 	}
 
 	@Test
 	void deleteNotVisible() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
-		});
+		final var id = repository.findBy("parameter.id", "service:kpi:sonar:user").getId();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(id));
 	}
 
 	@Test
 	void deleteNotExists() {
-		final Integer id = repository.findBy("parameter.id", "service:kpi:sonar:project").getId();
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(id);
-		});
+		final var id = repository.findBy("parameter.id", "service:kpi:sonar:project").getId();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(id));
 	}
 
 	@Test
 	void deleteMandatoryUsed() {
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.delete(repository.findBy("parameter.id", "service:kpi:sonar:user").getId());
-		});
+		final var id = repository.findBy("parameter.id", "service:kpi:sonar:user").getId();
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.delete(id));
 	}
 
 	@Test
@@ -755,9 +709,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final Node node3 = new Node();
 		node3.setId("service:other:sub");
 		node3.setRefined(node2);
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.checkOwnership(parameter, node3);
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.checkOwnership(parameter, node3));
 	}
 
 	@Test
@@ -780,9 +732,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<ParameterValueCreateVo> values = Collections.singletonList(parameterValue);
 		final Node node = new Node();
 		node.setId("service:id:ldap");
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.update(values, node);
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.update(values, node));
 	}
 
 	@Test
