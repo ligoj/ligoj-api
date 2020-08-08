@@ -5,13 +5,13 @@
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>parent</artifactId>
-		<version>3.2.6-SNAPSHOT</version>
+		<version>3.2.6</version>
 		<relativePath>parent/pom.xml</relativePath>
 	</parent>
 	
 	<artifactId>root</artifactId>
 	<packaging>pom</packaging>
-	<version>3.2.6-SNAPSHOT</version> <!-- Required by versions plugin -->
+	<version>3.2.6</version> <!-- Required by versions plugin -->
 	<name>Ligoj - API</name>
 	<description>Ligoj - API components to test and build</description>
 	<url>https://github.com/ligoj/ligoj-api</url>
