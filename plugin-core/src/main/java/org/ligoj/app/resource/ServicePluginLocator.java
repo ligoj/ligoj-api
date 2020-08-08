@@ -166,7 +166,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 		if (StringUtils.countMatches(service, ':') <= 1) {
 			return null;
 		}
-		return service.substring(0, service.lastIndexOf(':'));
+		return StringUtils.substringBeforeLast(service, ":");
 	}
 
 	/**
