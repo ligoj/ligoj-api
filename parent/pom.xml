@@ -26,7 +26,7 @@
 				<repository>
 					<id>github-ligoj</id>
 					<name>GitHub Packages</name>
-					<url>https://maven.pkg.github.com/ligoj/bootstrap</url>
+					<url>https://maven.pkg.github.com/ligoj/ligoj-api</url>
 				</repository>
 			</distributionManagement>
 		</profile>
