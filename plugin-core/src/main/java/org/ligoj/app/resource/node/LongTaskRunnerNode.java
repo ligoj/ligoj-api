@@ -57,11 +57,11 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 	NodeResource getNodeResource();
 
 	/**
-	 * Return status of import.
+	 * Return status of the task.
 	 * 
 	 * @param node
 	 *            The locked node identifier.
-	 * @return status of import. May <code>null</code> when there is no previous task.
+	 * @return status of the task. May <code>null</code> when there is no previous task.
 	 */
 	@GET
 	@Path("{node:service:.+}/task")
@@ -71,7 +71,7 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 	}
 
 	/**
-	 * Cancel (stop) current the catalog update. Synchronous operation, flag the task as failed.
+	 * Cancel (stop) current the task. Synchronous operation, flag the task as failed.
 	 * 
 	 * @param node
 	 *            The node (provider) to cancel update.
