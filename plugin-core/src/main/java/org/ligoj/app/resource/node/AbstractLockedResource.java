@@ -18,7 +18,7 @@ import org.springframework.data.domain.Persistable;
 /**
  * Base class for resource that can be locked.
  *
- * @param <T> Type of locked resource.
+ * @param <L> Type of locked resource.
  * @param <I> Identifier type of locked resource.
  */
 public abstract class AbstractLockedResource<L extends Persistable<I>, I extends Serializable> {
