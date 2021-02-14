@@ -5,6 +5,7 @@ addons:
 before_cache: 
   - "find $HOME/.m2 -name resolver-status.properties -exec rm {} \\;"
 before_install:
+  - nvm install 12
   - "chmod +x ./travis.sh"
 install: java --version 
 cache: 
@@ -14,6 +15,8 @@ cache:
     - $HOME/.cache
     - $HOME/maven
 jdk: openjdk14
+node_js:
+  - "12"
 dist: xenial
 env: 
   - TARGET=BUILD
@@ -24,5 +27,5 @@ branches:
 language: java
 notifications: 
   email: false
-sudo: false
+os: linux
 script: "./travis.sh"
