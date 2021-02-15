@@ -10,8 +10,8 @@
 	</parent>
 	
 	<artifactId>root</artifactId>
-	<packaging>pom</packaging>
 	<version>3.2.9-SNAPSHOT</version> <!-- Required by versions plugin -->
+	<packaging>pom</packaging>
 	<name>Ligoj - API</name>
 	<description>Ligoj - API components to test and build</description>
 	<url>https://github.com/ligoj/ligoj-api</url>

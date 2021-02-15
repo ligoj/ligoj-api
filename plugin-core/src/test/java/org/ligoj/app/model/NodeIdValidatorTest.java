@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.model;
 
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -25,6 +26,7 @@ class NodeIdValidatorTest {
 		Assertions.assertFalse(new NodeIdValidator().isValid("", null));
 		Assertions.assertFalse(new NodeIdValidator().isValid(null, null));
 		Assertions.assertFalse(new NodeIdValidator().isValid(" ", null));
+		Assertions.assertFalse(new NodeIdValidator().isValid(StringUtils.repeat('a', 102), null));
 	}
 
 	@Test

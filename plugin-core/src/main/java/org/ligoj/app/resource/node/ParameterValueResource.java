@@ -356,6 +356,13 @@ public class ParameterValueResource {
 	}
 
 	/**
+	 * Remove an entity from a specific cache.
+	 */
+	private void evict(final String cache, final Persistable<?> entity) {
+		Optional.ofNullable(cacheManager.getCache("node-parameters")).ifPresent(c -> c.evict(entity.getId()));
+	}
+
+	/**
 	 * Update the given node parameter values. The old not updated values are deleted.
 	 * 
 	 * @param values the parameter values to persist.
@@ -374,7 +381,7 @@ public class ParameterValueResource {
 
 		// Delete the existing but not provided values
 		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
-		cacheManager.getCache("node-parameters").evict(node.getId());
+		evict("node-parameters", node);
 	}
 
 	/**
@@ -385,7 +392,7 @@ public class ParameterValueResource {
 	 */
 	public void create(final List<ParameterValueCreateVo> values, final Subscription subscription) {
 		create(values, v -> v.setSubscription(subscription));
-		cacheManager.getCache("subscription-parameters").evict(subscription.getId());
+		evict("subscription-parameters", subscription);
 	}
 
 	/**
@@ -396,7 +403,7 @@ public class ParameterValueResource {
 	 */
 	public void create(final List<ParameterValueCreateVo> values, final Node node) {
 		create(values, v -> v.setNode(node));
-		cacheManager.getCache("node-parameters").evict(node.getId());
+		evict("node-parameters", node);
 	}
 
 	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {

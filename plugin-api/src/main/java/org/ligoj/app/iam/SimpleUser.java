@@ -34,7 +34,7 @@ public class SimpleUser implements INamableBean<String> {
 	/**
 	 * User identifier pattern.
 	 */
-	public static final String USER_PATTERN = "[a-z0-9](?:-?[\\-a-z\\.@_0-9])+";
+	public static final String USER_PATTERN = "[a-z0-9](?:-?[\\-a-z\\.@_0-9]){1,100}";
 
 	/**
 	 * User identifier pattern in REST path.

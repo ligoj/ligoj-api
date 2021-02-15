@@ -77,15 +77,20 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		repository.findAll().iterator().next().getSubscription();
 	}
 
-	@Test
-	void createText() {
+	private ParameterValue assertValue(final String name, final String value) {
 		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_2").getId());
-		parameterValue.setText("value");
+		parameterValue.setParameter(parameterRepository.findOne(name).getId());
+		parameterValue.setText(value);
 		final ParameterValue entity = resource.createInternal(parameterValue);
 
 		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
-		Assertions.assertEquals("value", entity.getData());
+		Assertions.assertEquals(value, entity.getData());
+		return entity;
+	}
+
+	@Test
+	void createText() {
+		assertValue("c_2", "value");
 	}
 
 	@Test
@@ -116,24 +121,12 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createTextPattern() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_17").getId());
-		parameterValue.setText("va-l-u-9e");
-		final ParameterValue entity = resource.createInternal(parameterValue);
-
-		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
-		Assertions.assertEquals("va-l-u-9e", entity.getData());
+		assertValue("c_17", "va-l-u-9e");
 	}
 
 	@Test
 	void createTextEmptyPattern() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_170").getId());
-		parameterValue.setText("va-l-u-9e");
-		final ParameterValue entity = resource.createInternal(parameterValue);
-
-		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
-		Assertions.assertEquals("va-l-u-9e", entity.getData());
+		assertValue("c_170", "va-l-u-9e");
 	}
 
 	@Test
