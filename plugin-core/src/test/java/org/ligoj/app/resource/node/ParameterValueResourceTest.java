@@ -161,9 +161,15 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
 	}
 
+	private void createNull(final String name) {
+		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
+		parameterValue.setParameter(parameterRepository.findOne(name).getId());
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+	}
+
 	@Test
 	void createIndexNull() {
-		createIndexError("c_3", null);
+		createNull("c_3");
 	}
 
 	@Test
@@ -205,7 +211,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createIntegerNull() {
-		createIntegerError("c_4", null);
+		createNull("c_4");
 	}
 
 	@Test
@@ -235,9 +241,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createBooleanNull() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_5").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createNull("c_5");
 	}
 
 	@Test
@@ -262,9 +266,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createDateNull() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_6").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createNull("c_6");
 	}
 
 	@Test
@@ -292,9 +294,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createTagsNull() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createNull("c_22");
 	}
 
 	@Test
@@ -312,9 +312,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createMultipleNull() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_23").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createNull("c_23");
 	}
 
 	@Test
