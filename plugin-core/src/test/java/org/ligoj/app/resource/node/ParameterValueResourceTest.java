@@ -154,27 +154,26 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("1", entity.getData());
 	}
 
+	private void createIndexError(final String name, final Integer index) {
+		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
+		parameterValue.setParameter(parameterRepository.findOne(name).getId());
+		parameterValue.setIndex(index);
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+	}
+
 	@Test
 	void createIndexNull() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIndexError("c_3", null);
 	}
 
 	@Test
 	void createIndexMin() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
-		parameterValue.setIndex(-1);
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIndexError("c_3", -1);
 	}
 
 	@Test
 	void createIndexMax() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_3").getId());
-		parameterValue.setIndex(3);
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIndexError("c_3", 3);
 	}
 
 	@Test
@@ -197,35 +196,31 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("-100", entity.getData());
 	}
 
+	private void createIntegerError(final String name, final Integer integer) {
+		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
+		parameterValue.setParameter(parameterRepository.findOne(name).getId());
+		parameterValue.setInteger(integer);
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+	}
+
 	@Test
 	void createIntegerNull() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIntegerError("c_4", null);
 	}
 
 	@Test
 	void createIntegerMin() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
-		parameterValue.setInteger(-1);
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIntegerError("c_4", -1);
 	}
 
 	@Test
 	void createIntegerMax() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
-		parameterValue.setInteger(100);
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIntegerError("c_4", 100);
 	}
 
 	@Test
 	void createMissingProject() {
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
-		parameterValue.setParameter(parameterRepository.findOne("c_4").getId());
-		parameterValue.setInteger(0);
-		Assertions.assertThrows(ValidationJsonException.class, () -> resource.createInternal(parameterValue));
+		createIntegerError("c_4", 0);
 	}
 
 	@Test

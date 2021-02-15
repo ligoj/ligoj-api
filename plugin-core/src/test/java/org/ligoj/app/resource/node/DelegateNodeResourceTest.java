@@ -48,42 +48,33 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@BeforeEach
 	void prepare() throws IOException {
-		persistEntities("csv",
-				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, DelegateNode.class },
-				StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
+				ParameterValue.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
+	}
+
+	private void createNotFound(final String user, final String node) {
+		initSpringSecurityContext(user);
+		final DelegateNode delegate = new DelegateNode();
+		delegate.setNode(node);
+		delegate.setReceiver("user1");
+		Assertions.assertThrows(NotFoundException.class, () -> {
+			resource.create(delegate);
+		});
 	}
 
 	@Test
 	void createNotExistsUser() {
-		initSpringSecurityContext("any");
-		final DelegateNode delegate = new DelegateNode();
-		delegate.setNode("service");
-		delegate.setReceiver("user1");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			resource.create(delegate);
-		});
+		createNotFound("any", "service");
 	}
 
 	@Test
 	void createNoRightAtThisLevel() {
-		initSpringSecurityContext("user1");
-		final DelegateNode delegate = new DelegateNode();
-		delegate.setNode("service:build");
-		delegate.setReceiver("user1");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			resource.create(delegate);
-		});
+		createNotFound("user1", "service:build");
 	}
 
 	@Test
 	void createNoRightAtThisLevel2() {
-		initSpringSecurityContext("user1");
-		final DelegateNode delegate = new DelegateNode();
-		delegate.setNode("");
-		delegate.setReceiver("user1");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			resource.create(delegate);
-		});
+		createNotFound("user1", "");
 	}
 
 	@Test

@@ -359,7 +359,7 @@ public class ParameterValueResource {
 	 * Remove an entity from a specific cache.
 	 */
 	private void evict(final String cache, final Persistable<?> entity) {
-		Optional.ofNullable(cacheManager.getCache("node-parameters")).ifPresent(c -> c.evict(entity.getId()));
+		Optional.ofNullable(cacheManager.getCache(cache)).ifPresent(c -> c.evict(entity.getId()));
 	}
 
 	/**

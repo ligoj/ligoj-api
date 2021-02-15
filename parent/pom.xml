@@ -19,6 +19,12 @@
 	<description>API Parent pom for all plug-in</description>
 	<url>https://github.com/ligoj/ligoj-api/parent</url>
 
+	<scm>
+		<connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
+		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
+		<url>https://github.com/ligoj/ligoj-api.git</url>
+	</scm>
+
 	<profiles>
 		<profile>
 			<id>github</id>
@@ -31,9 +37,4 @@
 			</distributionManagement>
 		</profile>
 	</profiles>
-	<scm>
-		<connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
-		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
-		<url>https://github.com/ligoj/ligoj-api.git</url>
-	</scm>
 </project>
