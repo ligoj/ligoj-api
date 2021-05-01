@@ -23,7 +23,7 @@ public class VersionUtils {
 	/**
 	 * Valid version pattern.
 	 */
-	private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9]+.*$");
+	private static final Pattern VERSION_PATTERN = Pattern.compile("^[0-9].*$");
 
 	/**
 	 * Return the lasted version for the given JIRA project.
