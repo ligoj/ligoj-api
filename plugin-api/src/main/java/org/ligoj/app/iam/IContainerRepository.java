@@ -16,15 +16,13 @@ import org.springframework.data.domain.Pageable;
 /**
  * Container repository contract.
  *
- * @param <T>
- *            The container type.
+ * @param <T> The container type.
  */
 public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Return the container corresponding to the given identifier using the user cache.
 	 *
-	 * @param id
-	 *            The container's identifier. Case is sensitive. Corresponds to the normalized container's name.
+	 * @param id The container's identifier. Case is sensitive. Corresponds to the normalized container's name.
 	 * @return The container corresponding to the given identifier. May be <code>null</code>
 	 */
 	default T findById(final String id) {
@@ -34,10 +32,8 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Find a container from its identifier. Security is applied regarding the given user.
 	 *
-	 * @param principal
-	 *            The user requesting this container.
-	 * @param id
-	 *            The container's identifier. Will be normalized.
+	 * @param principal The user requesting this container.
+	 * @param id        The container's identifier. Will be normalized.
 	 * @return The container from its identifier. <code>null</code> if the container is not found or cannot be seen by
 	 *         the given principal user.
 	 */
@@ -48,13 +44,10 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Find a container from its identifier. Security is applied regarding the given user.
 	 *
-	 * @param principal
-	 *            The user requesting this container.
-	 * @param id
-	 *            The container's identifier. Will be normalized.
+	 * @param principal The user requesting this container.
+	 * @param id        The container's identifier. Will be normalized.
 	 * @return The container from its identifier. Never <code>null</code>.
-	 * @throws ValidationJsonException
-	 *             If the container is not found or cannot be seen by the given user.
+	 * @throws ValidationJsonException If the container is not found or cannot be seen by the given user.
 	 */
 	default T findByIdExpected(String principal, String id) {
 		// Check the container exists and return the in memory object.
@@ -74,15 +67,11 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Return the containers matching to the given pattern.
 	 *
-	 * @param containers
-	 *            the visible containers.
-	 * @param criteria
-	 *            the optional criteria used to check name (CN).
-	 * @param pageable
-	 *            the ordering and page data.
-	 * @param customComparators
-	 *            The custom comparators used to order the result. The key is the ordered property name. When no
-	 *            comparator is found within this map, natural order is used.
+	 * @param containers        the visible containers.
+	 * @param criteria          the optional criteria used to check name (CN).
+	 * @param pageable          the ordering and page data.
+	 * @param customComparators The custom comparators used to order the result. The key is the ordered property name.
+	 *                          When no comparator is found within this map, natural order is used.
 	 * @return the UID of users matching all above criteria.
 	 */
 	Page<T> findAll(Set<T> containers, String criteria, Pageable pageable,
@@ -105,10 +94,8 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * Create a new container. There is no synchronized block, so error could occur; this is assumed for performance
 	 * purpose.
 	 *
-	 * @param dn
-	 *            The DN of new container. Must ends with the CN.
-	 * @param cn
-	 *            The formatted CN.
+	 * @param dn The DN of new container. Must ends with the CN.
+	 * @param cn The formatted CN.
 	 * @return The created container. This corresponds to the internal instance stored in cache.
 	 */
 	T create(String dn, String cn);
@@ -116,8 +103,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Delete the given container. Cascaded deletion and cache are managed.
 	 *
-	 * @param container
-	 *            The container to delete.
+	 * @param container The container to delete.
 	 */
 	void delete(T container);
 

@@ -22,7 +22,7 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	protected IamProvider[] iamProviders;
 
 	protected IamProvider iamProvider;
-	
+
 	@BeforeEach
 	protected void copyIamProvider() {
 		iamProvider = iamProviders == null ? null : iamProviders[0];
@@ -63,7 +63,7 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	 * @return A new mocked {@link UriInfo} instance with a search criteria.
 	 */
 	protected UriInfo newUriInfoAscSearch(final String orderedProperty, final String search) {
-		final UriInfo uriInfo = newUriInfo(orderedProperty, "asc");
+		final var uriInfo = newUriInfo(orderedProperty, "asc");
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, search);
 		return uriInfo;
 	}
@@ -96,7 +96,7 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	 * @return a new mocked {@link UriInfo} instance.
 	 */
 	protected UriInfo newUriInfo(final String orderedProperty, final String order) {
-		final UriInfo uriInfo = newUriInfo();
+		final var uriInfo = newUriInfo();
 		uriInfo.getQueryParameters().add(DataTableAttributes.PAGE_LENGTH, "100");
 		uriInfo.getQueryParameters().add(DataTableAttributes.SORTED_COLUMN, "2");
 		uriInfo.getQueryParameters().add("columns[2][data]", orderedProperty);

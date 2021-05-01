@@ -100,9 +100,8 @@ public class SimpleUser implements INamableBean<String> {
 
 	/**
 	 * Copy all non secured data.
-	 * 
-	 * @param to
-	 *            the target object.
+	 *
+	 * @param to the target object.
 	 */
 	public void copy(final SimpleUser to) {
 		to.setId(getId());

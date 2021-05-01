@@ -46,16 +46,14 @@ public class SimpleUserOrg extends SimpleUser {
 
 	/**
 	 * When not <code>null</code> this user is in a quarantine zone and this value corresponds to the old normalized
-	 * company name. This
-	 * value is used to restore the user inside this company if it exists yet.
+	 * company name. This value is used to restore the user inside this company if it exists yet.
 	 */
 	private String isolated;
 
 	/**
 	 * Copy all non secured data.
-	 * 
-	 * @param to
-	 *            the target object.
+	 *
+	 * @param to the target object.
 	 */
 	public void copy(final SimpleUserOrg to) {
 		super.copy(to);

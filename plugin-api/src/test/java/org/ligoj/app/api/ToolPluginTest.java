@@ -32,7 +32,7 @@ class ToolPluginTest {
 
 	@Test
 	void checkSubscriptionStatus() throws Exception {
-		final SubscriptionStatusWithData data = plugin.checkSubscriptionStatus(0, null, null);
+		final var data = plugin.checkSubscriptionStatus(0, null, null);
 		data.put("some", "value");
 		Assertions.assertTrue(data.getStatus().isUp());
 		Assertions.assertEquals(1, data.getData().size());

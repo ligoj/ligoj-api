@@ -17,12 +17,12 @@ public class SubscriptionLightVo {
 	 * Subscription identifier.
 	 */
 	private int id;
-	
+
 	/**
 	 * Subscribed node.
 	 */
 	private String node;
-	
+
 	/**
 	 * Subscribing project.
 	 */

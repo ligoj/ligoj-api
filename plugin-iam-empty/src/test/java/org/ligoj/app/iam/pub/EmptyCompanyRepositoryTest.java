@@ -7,7 +7,6 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.ligoj.app.iam.CompanyOrg;
 import org.ligoj.app.iam.empty.EmptyCompanyRepository;
 
 /**
@@ -27,7 +26,7 @@ class EmptyCompanyRepositoryTest {
 
 	@Test
 	void create() {
-		final CompanyOrg companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
+		final var companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", companyLdap.getDn());
 		Assertions.assertEquals("Name", companyLdap.getName());
 		Assertions.assertEquals("name", companyLdap.getId());
@@ -40,7 +39,8 @@ class EmptyCompanyRepositoryTest {
 
 	@Test
 	void findAllPage() {
-		Assertions.assertEquals(0, new EmptyCompanyRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
+		Assertions.assertEquals(0, new EmptyCompanyRepository()
+				.findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
 	}
 
 }

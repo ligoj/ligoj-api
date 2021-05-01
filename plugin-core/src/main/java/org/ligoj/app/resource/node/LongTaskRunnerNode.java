@@ -25,10 +25,9 @@ import org.ligoj.bootstrap.core.resource.OnNullReturn404;
  * <li>When a task is started, is will always ends.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
- * @param <T>
- *            Type of task entity.
- * @param <R>
- *            Repository managing the task entity.
+ *
+ * @param <T> Type of task entity.
+ * @param <R> Repository managing the task entity.
  */
 public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends LongTaskNodeRepository<T>>
 		extends LongTaskRunner<T, R, Node, String, NodeRepository, NodeResource> {
@@ -44,23 +43,22 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 
 	/**
 	 * Return the {@link NodeRepository}.
-	 * 
+	 *
 	 * @return The repository used to fetch related node entity of a task.
 	 */
 	NodeRepository getNodeRepository();
 
 	/**
 	 * Return the {@link NodeResource}.
-	 * 
+	 *
 	 * @return The resource used to fetch related node entity of a task.
 	 */
 	NodeResource getNodeResource();
 
 	/**
 	 * Return status of the task.
-	 * 
-	 * @param node
-	 *            The locked node identifier.
+	 *
+	 * @param node The locked node identifier.
 	 * @return status of the task. May <code>null</code> when there is no previous task.
 	 */
 	@GET
@@ -72,9 +70,8 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 
 	/**
 	 * Cancel (stop) current the task. Synchronous operation, flag the task as failed.
-	 * 
-	 * @param node
-	 *            The node (provider) to cancel update.
+	 *
+	 * @param node The node (provider) to cancel update.
 	 * @return The ended task if present or <code>null</code>.
 	 */
 	@DELETE

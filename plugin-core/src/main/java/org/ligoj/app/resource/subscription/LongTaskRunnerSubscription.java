@@ -25,10 +25,9 @@ import org.ligoj.bootstrap.core.resource.OnNullReturn404;
  * <li>When a task is started, is will always ends.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
- * @param <T>
- *            Type of task entity.
- * @param <R>
- *            Repository managing the task entity.
+ *
+ * @param <T> Type of task entity.
+ * @param <R> Repository managing the task entity.
  */
 public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscription, R extends LongTaskSubscriptionRepository<T>>
 		extends LongTaskRunner<T, R, Subscription, Integer, SubscriptionRepository, SubscriptionResource> {
@@ -59,8 +58,7 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 	/**
 	 * Return status of the task.
 	 *
-	 * @param subscription
-	 *            The locked subscription identifier.
+	 * @param subscription The locked subscription identifier.
 	 * @return status of task. May <code>null</code> when there is no previous task.
 	 */
 	@GET
@@ -73,8 +71,7 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 	/**
 	 * Cancel (stop) the current task. Synchronous operation, flag the task as failed.
 	 *
-	 * @param subscription
-	 *            The locked subscription identifier.
+	 * @param subscription The locked subscription identifier.
 	 * @return The ended task if present or <code>null</code>.
 	 */
 	@DELETE

@@ -20,7 +20,6 @@ import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.iam.model.ReceiverType;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.bootstrap.MatcherUtil;
-import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
@@ -60,15 +59,15 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllFewVisible() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("someone");
 
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(4, result.getData().size());
 		Assertions.assertEquals(4, result.getRecordsTotal());
 
 		// someone;group;dig rha;false;false;cn=dig rha,cn=dig as,cn=dig,ou=function,ou=groups,dc=sample,dc=com
-		DelegateOrgLightVo entity = result.getData().get(2);
+		var entity = result.getData().get(2);
 		Assertions.assertEquals("DIG RHA", entity.getName());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
 		Assertions.assertNotNull(entity.getCreatedDate());
@@ -106,15 +105,15 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllSelf() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("mlavoine");
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(3, result.getData().size());
 		Assertions.assertEquals(3, result.getRecordsTotal());
 
 		// mlavoine;tree;cn=Biz Agency,ou=tools;false;false;cn=Biz
 		// Agency,ou=tools,dc=sample,dc=com
-		final DelegateOrgLightVo entity = result.getData().get(0);
+		final var entity = result.getData().get(0);
 		Assertions.assertEquals("cn=biz agency,ou=tools,dc=sample,dc=com", entity.getName());
 		Assertions.assertEquals(DelegateType.TREE, entity.getType());
 		Assertions.assertNotNull(entity.getCreatedDate());
@@ -139,10 +138,10 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAll() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().putSingle("length", "12");
 
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(12, result.getData().size());
 		Assertions.assertEquals(23, result.getRecordsTotal());
 
@@ -151,19 +150,18 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * A delegate visible by user "alongchu". This delegate add visibility of
-	 * company "ing" for all mambers of "ligoj-gstack". And user "alongchu" is
-	 * member of group "ligoj-gstack".
+	 * A delegate visible by user "alongchu". This delegate add visibility of company "ing" for all mambers of
+	 * "ligoj-gstack". And user "alongchu" is member of group "ligoj-gstack".
 	 */
 	@Test
 	void findAllReceiverGroup() {
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("alongchu");
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsTotal());
 
-		final DelegateOrgLightVo vo = result.getData().get(0);
+		final var vo = result.getData().get(0);
 		Assertions.assertEquals("ing", vo.getName());
 		Assertions.assertEquals(DelegateType.COMPANY, vo.getType());
 		Assertions.assertEquals("ligoj-gstack", vo.getReceiver().getId());
@@ -173,13 +171,13 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllReceiverCompany() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("jdoe5");
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsTotal());
 
-		final DelegateOrgLightVo entity = result.getData().get(0);
+		final var entity = result.getData().get(0);
 		Assertions.assertEquals("Business Solution", entity.getName());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
 		Assertions.assertEquals("ing", entity.getReceiver().getId());
@@ -189,10 +187,10 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllGlobalSearch() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(3, result.getData().size());
 
 		checkDelegateGroup(result.getData().get(1));
@@ -201,10 +199,10 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllGlobalSearchGroup() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, DelegateType.GROUP);
+		final var result = resource.findAll(uriInfo, DelegateType.GROUP);
 		Assertions.assertEquals(3, result.getData().size());
 
 		checkDelegateGroup(result.getData().get(1));
@@ -213,10 +211,10 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllGlobalSearchCompany() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().add(DataTableAttributes.SEARCH, "dig");
 
-		final TableItem<DelegateOrgLightVo> result = resource.findAll(uriInfo, DelegateType.COMPANY);
+		final var result = resource.findAll(uriInfo, DelegateType.COMPANY);
 		Assertions.assertEquals(0, result.getData().size());
 	}
 
@@ -256,7 +254,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	}
 
 	private UriInfo newFindAllParameters() {
-		final UriInfo uriInfo = Mockito.mock(UriInfo.class);
+		final var uriInfo = Mockito.mock(UriInfo.class);
 		Mockito.when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
 		uriInfo.getQueryParameters().add("draw", "1");
 		uriInfo.getQueryParameters().add("start", "0");
@@ -269,19 +267,20 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createOnGroup() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("hUb Paris");
 		vo.setType(DelegateType.GROUP);
 		vo.setReceiver("fdaugan");
-		final int id = resource.create(vo);
+		final var id = resource.create(vo);
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 
 		// Check the stored name is normalized
 		Assertions.assertEquals("hub paris", entity.getName());
-		Assertions.assertEquals("cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com", entity.getDn());
+		Assertions.assertEquals("cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com",
+				entity.getDn());
 		Assertions.assertNull(entity.getReceiverDn());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
 		Assertions.assertEquals(DEFAULT_USER, entity.getCreatedBy());
@@ -293,17 +292,17 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createDelegateCompany() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("socygan");
 		vo.setType(DelegateType.COMPANY);
 		vo.setReceiver("fdaugan");
 		vo.setCanAdmin(true);
 		vo.setCanWrite(true);
-		final int id = resource.create(vo);
+		final var id = resource.create(vo);
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 		Assertions.assertEquals("socygan", entity.getName());
 		Assertions.assertEquals("ou=socygan,ou=external,ou=people,dc=sample,dc=com", entity.getDn());
 		Assertions.assertNull(entity.getReceiverDn());
@@ -319,17 +318,17 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	void createDelegateCompanyReceiverCompany() {
 		initSpringSecurityContext("mtuyer");
 
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("InG");
 		vo.setType(DelegateType.COMPANY);
 		vo.setReceiver("ing");
 		vo.setReceiverType(ReceiverType.COMPANY);
 		vo.setCanAdmin(true);
-		final int id = resource.create(vo);
+		final var id = resource.create(vo);
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 		Assertions.assertEquals("ing", entity.getName());
 		Assertions.assertEquals("ou=ing,ou=external,ou=people,dc=sample,dc=com", entity.getDn());
 		Assertions.assertEquals(DelegateType.COMPANY, entity.getType());
@@ -344,17 +343,17 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	void createDelegateCompanyReceiverGroup() {
 		initSpringSecurityContext("mtuyer");
 
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("ing");
 		vo.setType(DelegateType.COMPANY);
 		vo.setReceiver("DIG");
 		vo.setReceiverType(ReceiverType.GROUP);
 		vo.setCanAdmin(true);
-		final int id = resource.create(vo);
+		final var id = resource.create(vo);
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 		Assertions.assertEquals("ing", entity.getName());
 		Assertions.assertEquals("ou=ing,ou=external,ou=people,dc=sample,dc=com", entity.getDn());
 		Assertions.assertEquals(DelegateType.COMPANY, entity.getType());
@@ -367,7 +366,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createOnTreePartialDn() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("cn=myDn");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
@@ -378,7 +377,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createInvalidDn() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("cn=my,invalidDn,dc=sample,dc=com");
 		vo.setName("myDn*Partial");
 		vo.setReceiver("fdaugan");
@@ -390,7 +389,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createOnUnkownCompany() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("any");
 		vo.setType(DelegateType.COMPANY);
 		vo.setReceiver("fdaugan");
@@ -401,15 +400,15 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createOnSubTree() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("cn=Any,dc=sample,dc=com");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
-		final int id = resource.create(vo);
+		final var id = resource.create(vo);
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 		Assertions.assertEquals("-", entity.getName());
 		Assertions.assertEquals("cn=any,dc=sample,dc=com", entity.getDn());
 		Assertions.assertEquals(DelegateType.TREE, entity.getType());
@@ -422,7 +421,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createOnSubTreeInvalidDn() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("myDn,dc=sample,dc=com");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
@@ -434,7 +433,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateForbiddenNotAdminDn() {
 		initSpringSecurityContext("mlavoine");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(expected.getId());
 		vo.setName("Biz Agency");
 		vo.setReceiver("mlavoine");
@@ -447,7 +446,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateInvisibleDelegateUser() {
 		initSpringSecurityContext("mlavoine");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(expected.getId());
 		vo.setName("Biz Agency");
 		vo.setReceiver("any");
@@ -461,8 +460,9 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	void updateInvisibleDelegateCompany() {
 		initSpringSecurityContext("mtuyer");
 		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class)
-				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com").getSingleResult();
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com")
+				.getSingleResult();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(id);
 		vo.setName("socygan");
 		vo.setReceiver("mtuyer");
@@ -475,7 +475,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateInvisibleReceiverUser() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(expected.getId());
 		vo.setName("ing");
 		vo.setReceiver("fdaugan");
@@ -488,7 +488,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateInvisibleReceiverCompany() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(expected.getId());
 		vo.setName("ing");
 		vo.setReceiver("socygan");
@@ -502,7 +502,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateInvisibleReceiverGroup() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(expected.getId());
 		vo.setName("ing");
 		vo.setReceiver("biz agency");
@@ -516,7 +516,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateForbiddenInvalidDelegateType() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(expected.getId());
 		vo.setName("ing");
 		vo.setReceiver("mtuyer");
@@ -530,8 +530,9 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	void updateForbiddenInvalidDelegateTree() {
 		initSpringSecurityContext("mtuyer");
 		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class)
-				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com").getSingleResult();
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com")
+				.getSingleResult();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(id);
 		vo.setName("ou=z,ou=groups,dc=sample,dc=com");
 		vo.setReceiver("mtuyer");
@@ -546,7 +547,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		initSpringSecurityContext("mtuyer");
 		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND type=:type", Integer.class)
 				.setParameter("type", DelegateType.COMPANY).setParameter("user", "mtuyer").getSingleResult();
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(id);
 		vo.setName("cn=any,ou=fonction,ou=groups,dc=sample,dc=com");
 		vo.setReceiver("mtuyer");
@@ -557,7 +558,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOne(id);
+		final var entity = repository.findOne(id);
 		Assertions.assertEquals("-", entity.getName());
 		Assertions.assertEquals("cn=any,ou=fonction,ou=groups,dc=sample,dc=com", entity.getDn());
 		Assertions.assertEquals(DelegateType.TREE, entity.getType());
@@ -573,7 +574,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateNotExist() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setId(-5);
 		vo.setName("ing");
 		vo.setReceiver("mtuyer");
@@ -586,17 +587,18 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateToSubTree() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("cn=any,ou=fonction,ou=groups,dc=sample,dc=com");
 		vo.setReceiver("mtuyer");
-		final DelegateOrg entity = updateNoChangeBase("mtuyer", vo);
+		final var entity = updateNoChangeBase("mtuyer", vo);
 		Assertions.assertTrue(entity.isCanAdmin());
 		Assertions.assertFalse(entity.isCanWrite());
 	}
 
 	private DelegateOrg updateNoChangeBase(final String user, final DelegateOrgEditionVo vo) {
 		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class)
-				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com").getSingleResult();
+				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com")
+				.getSingleResult();
 		vo.setId(id);
 		vo.setType(DelegateType.TREE);
 		vo.setCanAdmin(true);
@@ -604,7 +606,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		final DelegateOrg entity = repository.findOne(id);
+		final var entity = repository.findOne(id);
 		Assertions.assertEquals("-", entity.getName());
 		Assertions.assertEquals(vo.getName().trim(), entity.getDn());
 		Assertions.assertEquals(DelegateType.TREE, entity.getType());
@@ -616,31 +618,31 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void updateNoChange() {
 		initSpringSecurityContext("mtuyer");
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 
 		// Add space that would be trimmed
 		vo.setName("ou=fonction,ou=groups,dc=sample,dc=com  ");
 		vo.setReceiver("mtuyer");
 		vo.setCanWrite(true);
-		final DelegateOrg entity = updateNoChangeBase("mtuyer", vo);
+		final var entity = updateNoChangeBase("mtuyer", vo);
 		Assertions.assertTrue(entity.isCanWrite());
 		Assertions.assertTrue(entity.isCanAdmin());
 	}
 
 	@Test
 	void updateNoChangeFromAnother() {
-		final DelegateOrgEditionVo vo = new DelegateOrgEditionVo();
+		final var vo = new DelegateOrgEditionVo();
 		vo.setName("ou=fonction,ou=groups,dc=sample,dc=com");
 		vo.setReceiver("fdaugan");
 		vo.setCanWrite(true);
-		final DelegateOrg entity = updateNoChangeBase("fdaugan", vo);
+		final var entity = updateNoChangeBase("fdaugan", vo);
 		Assertions.assertTrue(entity.isCanWrite());
 		Assertions.assertTrue(entity.isCanAdmin());
 	}
 
 	@Test
 	void deleteFromBaseDn() {
-		final long initCount = repository.count();
+		final var initCount = repository.count();
 		em.clear();
 		resource.delete(expected.getId());
 		em.flush();
@@ -653,7 +655,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		initSpringSecurityContext("fdaugan");
 		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class)
 				.setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
-		final long initCount = repository.count();
+		final var initCount = repository.count();
 		em.clear();
 		resource.delete(id);
 		em.flush();
@@ -663,7 +665,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void delete() {
-		final long initCount = repository.count();
+		final var initCount = repository.count();
 		em.clear();
 		resource.delete(expected.getId());
 		em.flush();

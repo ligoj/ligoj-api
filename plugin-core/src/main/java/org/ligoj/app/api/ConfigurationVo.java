@@ -6,6 +6,7 @@ package org.ligoj.app.api;
 import java.util.Map;
 
 import org.ligoj.bootstrap.core.IDescribableBean;
+
 import lombok.Getter;
 import lombok.Setter;
 

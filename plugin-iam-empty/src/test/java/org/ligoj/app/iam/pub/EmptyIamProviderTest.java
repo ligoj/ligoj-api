@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.empty.EmptyIamProvider;
 import org.ligoj.app.iam.empty.IamEmptyCache;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -33,13 +32,13 @@ class EmptyIamProviderTest {
 
 	@Test
 	void authenticate() {
-		final Authentication mock = Mockito.mock(Authentication.class);
+		final var mock = Mockito.mock(Authentication.class);
 		Assertions.assertSame(mock, provider.authenticate(mock));
 	}
 
 	@Test
 	void getConfiguration() {
-		final IamConfiguration configuration = provider.getConfiguration();
+		final var configuration = provider.getConfiguration();
 		Assertions.assertNotNull(configuration);
 		Assertions.assertNotNull(configuration.getCompanyRepository());
 		Assertions.assertNotNull(configuration.getUserRepository());
@@ -49,7 +48,7 @@ class EmptyIamProviderTest {
 
 	@Test
 	void getConfigurationFindById() {
-		final IamConfiguration configuration = provider.getConfiguration();
+		final var configuration = provider.getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findById("any").getId());
 		Assertions.assertNull(configuration.getGroupRepository().findById("any"));
 		Assertions.assertNull(configuration.getCompanyRepository().findById("any"));
@@ -58,7 +57,7 @@ class EmptyIamProviderTest {
 
 	@Test
 	void getConfigurationFindByIdExpected() {
-		final IamConfiguration configuration = provider.getConfiguration();
+		final var configuration = provider.getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
 	}
 

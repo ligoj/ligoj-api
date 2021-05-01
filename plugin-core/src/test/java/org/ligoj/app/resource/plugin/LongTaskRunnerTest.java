@@ -62,7 +62,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void cancel() {
-		final TaskSampleNode task = newTaskSampleNode();
+		final var task = newTaskSampleNode();
 		task.setEnd(null);
 		Assertions.assertFalse(task.isFailed());
 		repositoryNode.saveAndFlush(task);
@@ -80,7 +80,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Test
 	void cancelSubscription() {
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		task.setEnd(null);
 		Assertions.assertFalse(task.isFailed());
 		repository.saveAndFlush(task);
@@ -171,7 +171,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 		newTaskSample.setEnd(null);
 		repository.saveAndFlush(newTaskSample);
 		resource.endTask(subscription, true);
-		TaskSampleSubscription task = resource.getTask(subscription);
+		var task = resource.getTask(subscription);
 		assertTask(task);
 		Assertions.assertTrue(task.isFailed());
 		Assertions.assertNotNull(task.getEnd());
@@ -235,7 +235,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	 */
 	@Test
 	void startTaskRunning() {
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		task.setEnd(null);
 		repository.saveAndFlush(task);
 		Assertions.assertThrows(BusinessException.class, () -> resource.startTask(subscription, null));
@@ -256,7 +256,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 		};
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
 
-		final TaskSampleSubscription task = newTaskSample();
+		final var task = newTaskSample();
 		repository.saveAndFlush(task);
 		Assertions.assertThrows(BusinessException.class, () -> resource.startTask(subscription, null));
 	}

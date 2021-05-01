@@ -23,7 +23,7 @@ public class PluginException extends RuntimeException {
 
 	/**
 	 * All arguments constructor.
-	 * 
+	 *
 	 * @param plugin  The requested plug-in of node identifier.
 	 * @param message The related message for this plug-in.
 	 */
@@ -33,7 +33,7 @@ public class PluginException extends RuntimeException {
 
 	/**
 	 * All arguments constructor.
-	 * 
+	 *
 	 * @param plugin  The requested plug-in of node identifier.
 	 * @param message The related message for this plug-in.
 	 * @param cause   the cause (which is saved for later retrieval by the {@link #getCause()} method). (A

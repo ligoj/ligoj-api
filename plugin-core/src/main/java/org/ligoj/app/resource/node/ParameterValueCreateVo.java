@@ -14,15 +14,15 @@ import lombok.Setter;
 @Getter
 @Setter
 public class ParameterValueCreateVo extends BasicParameterValueVo {
-	
+
 	/**
 	 * Parameter's identifier.
 	 */
 	@NotNull
 	private String parameter;
-	
+
 	/**
-	 * When <code>true</code>,  the values is considered as set to its old value.
+	 * When <code>true</code>, the values is considered as set to its old value.
 	 */
 	private boolean untouched;
 }

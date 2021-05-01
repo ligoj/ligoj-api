@@ -19,13 +19,10 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	/**
 	 * Return all parameters associated to a node but without specified value for the given node or its parent. The
 	 * parameters are filtered by the requested mode. Also check the node is visible for the given user.
-	 * 
-	 * @param node
-	 *            The parent node identifier.
-	 * @param mode
-	 *            Expected mode.
-	 * @param user
-	 *            The user requesting the nodes.
+	 *
+	 * @param node The parent node identifier.
+	 * @param mode Expected mode.
+	 * @param user The user requesting the nodes.
 	 * @return all parameters associated to a node but without a value.
 	 */
 	@Query("SELECT DISTINCT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2"
@@ -40,13 +37,10 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * parameters are filtered by the requested mode. Also check the node is visible for the given user. Parameter
 	 * having a value associated directly to the given node will be returned. This is the sole difference with
 	 * {@link #getOrphanParameters(String, SubscriptionMode, String)}
-	 * 
-	 * @param node
-	 *            The parent node identifier.
-	 * @param mode
-	 *            Expected mode.
-	 * @param user
-	 *            The user requesting the nodes.
+	 *
+	 * @param node The parent node identifier.
+	 * @param mode Expected mode.
+	 * @param user The user requesting the nodes.
 	 * @return all parameters associated to a node but without a value.
 	 */
 	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :node AND (o=n OR o=n1 OR o=n2)"
@@ -57,11 +51,9 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 
 	/**
 	 * Return the parameter with the given identifier and associated to a visible node by the given user.
-	 * 
-	 * @param id
-	 *            The parameter identifier.
-	 * @param user
-	 *            The user principal requesting this parameter.
+	 *
+	 * @param id   The parameter identifier.
+	 * @param user The user principal requesting this parameter.
 	 * @return The visible parameter or <code>null</code> when not found.
 	 */
 	@Query("FROM Parameter p INNER JOIN p.owner n WHERE p.id=:id AND " + NodeRepository.VISIBLE_NODES)
@@ -69,9 +61,8 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 
 	/**
 	 * Delete all parameters related to the given node or sub-nodes.
-	 * 
-	 * @param node
-	 *            The node identifier.
+	 *
+	 * @param node The node identifier.
 	 */
 	@Modifying
 	@Query("DELETE Parameter WHERE owner.id = :node OR owner.id LIKE CONCAT(:node, ':%')")

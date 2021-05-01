@@ -6,10 +6,10 @@ package org.ligoj.app.resource.subscription;
 import java.io.Serializable;
 import java.util.Map;
 
-import org.ligoj.bootstrap.core.AuditedBean;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.iam.SimpleUser;
+import org.ligoj.bootstrap.core.AuditedBean;
 
 import lombok.Getter;
 import lombok.Setter;

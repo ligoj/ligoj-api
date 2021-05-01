@@ -4,6 +4,7 @@
 package org.ligoj.app.resource.subscription;
 
 import org.ligoj.bootstrap.core.NamedBean;
+
 import lombok.Getter;
 import lombok.Setter;
 

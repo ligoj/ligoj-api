@@ -40,6 +40,7 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
 	/**
 	 * Refresh the configuration.
+	 *
 	 * @return Ignored.
 	 */
 	@CacheResult(cacheName = "iam-empty-configuration")
@@ -49,11 +50,11 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 	}
 
 	private IamConfiguration refreshConfiguration() {
-		final IamConfiguration configuration = new IamConfiguration();
-		final EmptyCompanyRepository companyRepository = new EmptyCompanyRepository();
+		final var configuration = new IamConfiguration();
+		final var companyRepository = new EmptyCompanyRepository();
 		configuration.setCompanyRepository(companyRepository);
 		configuration.setGroupRepository(new EmptyGroupRepository());
-		final EmptyUserRepository userRepository = new EmptyUserRepository();
+		final var userRepository = new EmptyUserRepository();
 		configuration.setUserRepository(userRepository);
 
 		// Also link user/company repositories

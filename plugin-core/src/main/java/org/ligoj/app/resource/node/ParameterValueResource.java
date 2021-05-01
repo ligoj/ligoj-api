@@ -165,7 +165,7 @@ public class ParameterValueResource {
 
 	/**
 	 * {@link ParameterValue} JPA to business object transformer.
-	 * 
+	 *
 	 * @param entity The parameter value.
 	 * @return The parameter value with parameter definition.
 	 */
@@ -188,7 +188,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Parse the raw data to the target type and return this value.
-	 * 
+	 *
 	 * @param entity {@link ParameterValue} to be parsed.
 	 * @param vo     Target object receiving the typed value.
 	 * @return the parsed and typed value.
@@ -204,7 +204,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Return the data String from the true data value.
-	 * 
+	 *
 	 * @param vo The object to convert.
 	 * @return The String data to persist.
 	 */
@@ -220,7 +220,7 @@ public class ParameterValueResource {
 		Arrays.stream(new Supplier<?>[] { vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger,
 				vo::getTags, vo::getSelections }).map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst()
 				.ifPresent(e -> {
-					final ValidationJsonException exception = new ValidationJsonException();
+					final var exception = new ValidationJsonException();
 					exception.addError(parameter.getId(), "Too many values");
 					throw exception;
 				});
@@ -309,7 +309,7 @@ public class ParameterValueResource {
 			final var patternString = stringProperties.get("pattern");
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
-				final Pattern pattern = Pattern.compile(patternString);
+				final var pattern = Pattern.compile(patternString);
 				assertTrue(pattern.matcher(vo.getText()).matches(),
 						javax.validation.constraints.Pattern.class.getSimpleName(), parameter.getId(), "regexp",
 						pattern.pattern());
@@ -337,7 +337,7 @@ public class ParameterValueResource {
 	/**
 	 * Delete a {@link ParameterValue}. A value can be deleted only where there is no subscription on the related node,
 	 * or the related parameter is not mandatory.
-	 * 
+	 *
 	 * @param id The entity's identifier.
 	 */
 	public void delete(final int id) {
@@ -364,7 +364,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Update the given node parameter values. The old not updated values are deleted.
-	 * 
+	 *
 	 * @param values the parameter values to persist.
 	 * @param node   The related node.
 	 */
@@ -386,7 +386,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Create the given subscription parameter values. Value validity is checked.
-	 * 
+	 *
 	 * @param values       the parameter values to persist.
 	 * @param subscription The related subscription.
 	 */
@@ -397,7 +397,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Create the given node parameter values.
-	 * 
+	 *
 	 * @param values the parameter values to persist.
 	 * @param node   The related node.
 	 */
@@ -418,7 +418,7 @@ public class ParameterValueResource {
 	/**
 	 * Return a visible {@link ParameterValue} for the current user. Only values associated to a node are considered as
 	 * valid values.
-	 * 
+	 *
 	 * @param id The entity's identifier.
 	 * @return The visible {@link ParameterValue}.
 	 */
@@ -429,7 +429,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Check the parameter value is not used in a subscription when the target value becomes <code>null</code> or empty.
-	 * 
+	 *
 	 * @param entity The {@link ParameterValue} entity to check.
 	 */
 	private void checkUnusedValue(final ParameterValue entity) {
@@ -444,7 +444,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Check transition and convert to ParameterValue.
-	 * 
+	 *
 	 * @param vo new {@link ParameterValueCreateVo} to persist.
 	 * @return corresponding entity.
 	 */
@@ -454,7 +454,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Check transition and convert to entity.
-	 * 
+	 *
 	 * @param vo        new {@link ParameterValueCreateVo} to persist.
 	 * @param parameter The resolved parameter related to the {@link ParameterValue}
 	 * @return corresponding entity.
@@ -465,7 +465,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Check transition and convert to entity.
-	 * 
+	 *
 	 * @param vo        new {@link ParameterValueCreateVo} to be merged into the entity.
 	 * @param parameter The resolved parameter related to the {@link ParameterValue}
 	 * @param entity    The entity to update.
@@ -497,7 +497,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Check the parameter is related to the given node.
-	 * 
+	 *
 	 * @param parameter The parameter to check.
 	 * @param node      The node scope the parameter must be related to.
 	 */
@@ -515,7 +515,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Return non secured parameters values related to the subscription. Secured parameters are not returned.
-	 * 
+	 *
 	 * @param subscription The subscription identifier.
 	 * @return secured associated parameters values. Key of returned map is the identifier of
 	 *         {@link org.ligoj.app.model.Parameter}
@@ -526,7 +526,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Return all parameters values related to the subscription. Secured (encrypted) parameters are decrypted.
-	 * 
+	 *
 	 * @param subscription The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
 	 *         {@link org.ligoj.app.model.Parameter}
@@ -545,7 +545,7 @@ public class ParameterValueResource {
 		}
 
 		// Updated or created value
-		final ParameterValue entity = existing.get(value.getParameter());
+		final var entity = existing.get(value.getParameter());
 		if (entity == null) {
 			// Need to parse and recreate the value
 			return createInternal(value);
@@ -557,7 +557,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Delete all parameter values associated to given subscription.
-	 * 
+	 *
 	 * @param subscription the associated subscription to delete.
 	 */
 	@CacheRemove(cacheName = "subscription-parameters")
@@ -567,7 +567,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Delete all parameter values associated to given node. This includes the related subscriptions parameter values.
-	 * 
+	 *
 	 * @param node The parent node.
 	 */
 	@CacheRemove(cacheName = "node-parameters")
@@ -577,7 +577,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Transform {@link List} to {@link Map} where key is the parameter name. Secured parameters are decrypted.
-	 * 
+	 *
 	 * @param values The parameters list.
 	 * @return the corresponding key/values. Never <code>null</code>.
 	 */
@@ -604,7 +604,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Transform {@link List} to {@link Map} where K is the item's identifier, and VALUE is the original item.
-	 * 
+	 *
 	 * @param items The items list.
 	 * @param <K>   The entity's identifier type.
 	 * @param <V>   The entity type.
@@ -619,7 +619,7 @@ public class ParameterValueResource {
 	/**
 	 * Return the parameter values associated to the given node. Not exposed as web-service, contains secured data. The
 	 * result is cached.
-	 * 
+	 *
 	 * @param node the node identifier.
 	 * @return the parameters of given node as {@link Map}.
 	 */
@@ -633,7 +633,7 @@ public class ParameterValueResource {
 	/**
 	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. When
 	 * defined, the current value is specified.
-	 * 
+	 *
 	 * @param node The node identifier.
 	 * @param mode Subscription mode.
 	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
@@ -664,7 +664,7 @@ public class ParameterValueResource {
 
 	/**
 	 * Returns the list of {@link ParameterValue} with given node and project.
-	 * 
+	 *
 	 * @param node      The node identifier subscribed.
 	 * @param project   Project identifier
 	 * @param parameter The id of the parameter.

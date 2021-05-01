@@ -16,13 +16,13 @@ class IamProviderTest {
 
 	@Test
 	void authenticate() {
-		final Authentication mock = Mockito.mock(Authentication.class);
+		final var mock = Mockito.mock(Authentication.class);
 		Assertions.assertSame(mock, new EmptyIamProvider().authenticate(mock));
 	}
 
 	@Test
 	void getConfiguration() {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		final var configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertNotNull(configuration);
 		Assertions.assertNotNull(configuration.getCompanyRepository());
 		Assertions.assertNotNull(configuration.getUserRepository());
@@ -31,7 +31,7 @@ class IamProviderTest {
 
 	@Test
 	void getConfigurationFindById() {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		final var configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findById("any").getId());
 		Assertions.assertNull(configuration.getGroupRepository().findById("any"));
 		Assertions.assertNull(configuration.getCompanyRepository().findById("any"));
@@ -40,7 +40,7 @@ class IamProviderTest {
 
 	@Test
 	void getConfigurationFindByIdExpected() {
-		final IamConfiguration configuration = new EmptyIamProvider().getConfiguration();
+		final var configuration = new EmptyIamProvider().getConfiguration();
 		Assertions.assertEquals("any", configuration.getUserRepository().findByIdExpected("any").getId());
 	}
 

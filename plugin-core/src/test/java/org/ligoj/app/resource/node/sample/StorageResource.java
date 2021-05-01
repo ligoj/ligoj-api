@@ -6,8 +6,6 @@ package org.ligoj.app.resource.node.sample;
 import org.ligoj.app.resource.plugin.AbstractServicePlugin;
 import org.springframework.stereotype.Component;
 
-
-
 /**
  * The storage service.
  */

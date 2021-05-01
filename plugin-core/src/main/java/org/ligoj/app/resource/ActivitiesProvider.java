@@ -16,11 +16,9 @@ public interface ActivitiesProvider {
 
 	/**
 	 * Return activities of given users
-	 * 
-	 * @param subscription
-	 *            the subscription's identifier.
-	 * @param users
-	 *            User to collect activities.
+	 *
+	 * @param subscription the subscription's identifier.
+	 * @param users        User to collect activities.
 	 * @return activities. User without activity are not in this result.
 	 * @throws Exception When activities cannot be gathered. Managed at upper level.
 	 */

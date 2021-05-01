@@ -103,7 +103,7 @@ public interface IUserRepository {
 	 */
 	default UserOrg findByIdExpected(final String principal, final String id) {
 		// Check the user exists
-		final UserOrg rawUser = findByIdExpected(id);
+		final var rawUser = findByIdExpected(id);
 		if (getCompanyRepository().findById(principal, rawUser.getCompany()) == null) {
 			// No available delegation -> no result
 			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOWN_ID, "0", "user", "1", principal);
@@ -191,7 +191,7 @@ public interface IUserRepository {
 		}
 
 		// Non null user name
-		UserOrg result = findById(id);
+		var result = findById(id);
 		if (result == null) {
 			result = new UserOrg();
 			result.setId(id);

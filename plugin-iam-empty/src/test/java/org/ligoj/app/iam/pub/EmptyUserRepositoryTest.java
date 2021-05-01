@@ -97,7 +97,7 @@ class EmptyUserRepositoryTest {
 
 	@Test
 	void create() {
-		final UserOrg entry = new UserOrg();
+		final var entry = new UserOrg();
 		Assertions.assertSame(entry, new EmptyUserRepository().create(entry));
 	}
 

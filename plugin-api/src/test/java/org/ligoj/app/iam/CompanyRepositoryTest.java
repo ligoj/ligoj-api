@@ -28,7 +28,7 @@ class CompanyRepositoryTest {
 
 	@Test
 	void create() {
-		final CompanyOrg companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
+		final var companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", companyLdap.getDn());
 		Assertions.assertEquals("Name", companyLdap.getName());
 		Assertions.assertEquals("name", companyLdap.getId());

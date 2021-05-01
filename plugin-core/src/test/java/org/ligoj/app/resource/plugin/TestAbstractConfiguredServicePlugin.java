@@ -118,8 +118,8 @@ class TestAbstractConfiguredServicePlugin {
 
 	@Test
 	void checkVisibility() {
-		final Subscription subscription = new Subscription();
-		final Node node = new Node();
+		final var subscription = new Subscription();
+		final var node = new Node();
 		node.setId("service:s:t:i");
 		subscription.setNode(node);
 		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s"));
@@ -129,8 +129,8 @@ class TestAbstractConfiguredServicePlugin {
 
 	@Test
 	void checkVisibilityKo() {
-		final Subscription subscription = new Subscription();
-		final Node node = new Node();
+		final var subscription = new Subscription();
+		final var node = new Node();
 		node.setId("service:s:t:i");
 		subscription.setNode(node);
 		subscription.setId(2000);

@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.persistence.EntityNotFoundException;
@@ -21,7 +20,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.ligoj.app.api.ConfigurationVo;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
@@ -117,8 +115,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void toStringTest() {
-		final Subscription subscription = repository.findOneExpected(this.subscription);
-		final String subscriptionStr = subscription.toString();
+		final var subscription = repository.findOneExpected(this.subscription);
+		final var subscriptionStr = subscription.toString();
 		Assertions.assertTrue(subscriptionStr
 				.startsWith("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: "));
 		Assertions.assertTrue(subscriptionStr.endsWith(
@@ -132,10 +130,10 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	void checkMandatoryParameters() {
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
-		final ParameterValueCreateVo parameterValue = new ParameterValueCreateVo();
+		final var parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter("p");
 		parameters.add(parameterValue);
-		final Parameter parameter = new Parameter();
+		final var parameter = new Parameter();
 		parameter.setId("p");
 		acceptedParameters.add(parameter);
 		resource.checkMandatoryParameters(parameters, acceptedParameters, null);
@@ -145,7 +143,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	void checkMandatoryParametersMandatory() {
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
-		final Parameter parameter = new Parameter();
+		final var parameter = new Parameter();
 		parameter.setId("p");
 		parameter.setMandatory(true);
 		acceptedParameters.add(parameter);
@@ -158,7 +156,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	void checkMandatoryParametersMandatoryNotMode() {
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
-		final Parameter parameter = new Parameter();
+		final var parameter = new Parameter();
 		parameter.setId("p");
 		parameter.setMandatory(true);
 		parameter.setMode(SubscriptionMode.CREATE);
@@ -170,7 +168,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	void checkMandatoryParametersMandatoryMode() {
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final List<Parameter> acceptedParameters = new ArrayList<>();
-		final Parameter parameter = new Parameter();
+		final var parameter = new Parameter();
 		parameter.setId("p");
 		parameter.setMandatory(true);
 		parameter.setMode(SubscriptionMode.CREATE);
@@ -182,7 +180,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void getParameters() {
-		final Map<String, String> parameters = resource.getParameters(subscription);
+		final var parameters = resource.getParameters(subscription);
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-user"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-password"));
 		Assertions.assertEquals("jdbc:hsqldb:mem:dataSource", parameters.get("service:bt:jira:jdbc-url"));
@@ -195,7 +193,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void getConfiguration() throws Exception {
 		final int subscription = repository.findByExpected("node.id", "service:vm:vcloud:sample").getId();
-		final ConfigurationVo configuration = resource.getConfiguration(subscription);
+		final var configuration = resource.getConfiguration(subscription);
 
 		// Not secured parameter
 		Assertions.assertEquals("http://localhost:8120", configuration.getParameters().get("service:vm:vcloud:url"));
@@ -211,7 +209,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void getConfigurationNone() throws Exception {
 		final int subscription = repository.findByExpected("node.id", "service:km:confluence:dig").getId();
-		final ConfigurationVo configuration = resource.getConfiguration(subscription);
+		final var configuration = resource.getConfiguration(subscription);
 		Assertions.assertEquals(subscription, configuration.getSubscription());
 		Assertions.assertEquals("gStack", configuration.getProject().getName());
 		Assertions.assertEquals("service:km:confluence:dig", configuration.getNode().getId());
@@ -222,7 +220,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void getNonSecuredParameters() {
-		final Map<String, String> parameters = resource.getNonSecuredParameters(getSubscription("gStack"));
+		final var parameters = resource.getNonSecuredParameters(getSubscription("gStack"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-user"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-password"));
 		Assertions.assertNull(parameters.get("service:bt:jira:jdbc-url"));
@@ -255,11 +253,11 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void deleteTasksSubscription() {
-		final TaskSampleSubscriptionResource sampleResource = registerSingleton("taskSampleResource",
+		final var sampleResource = registerSingleton("taskSampleResource",
 				applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleSubscriptionResource.class));
 
 		try {
-			final TaskSampleSubscription entity = new TaskSampleSubscription();
+			final var entity = new TaskSampleSubscription();
 			entity.setLocked(repository.findOne(subscription));
 			entity.setStart(new Date());
 			entity.setAuthor(DEFAULT_USER);
@@ -279,7 +277,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void deleteNotVisibleProject() {
-		final Subscription one = repository.findOne(subscription);
+		final var one = repository.findOne(subscription);
 		final int project = one.getProject().getId();
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
 		em.clear();
@@ -317,7 +315,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 
 		// Persist the delegate and the related group to the project
-		final DelegateOrg delegate = prepareDelegate();
+		final var delegate = prepareDelegate();
 		delegate.setCanWrite(true);
 		em.flush();
 
@@ -334,7 +332,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 
 		// Persist the delegate and the related group to the project
-		final DelegateOrg delegate = prepareDelegate();
+		final var delegate = prepareDelegate();
 		delegate.setCanWrite(true);
 		em.flush();
 		em.clear();
@@ -351,7 +349,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		projectRepository.findAll().forEach(d -> d.setTeamLeader(null));
 
 		// Persist the delegate and the related group to the project
-		final DelegateOrg delegate = prepareDelegate();
+		final var delegate = prepareDelegate();
 		delegate.setCanWrite(false);
 
 		newDelegateNode();
@@ -362,7 +360,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	private DelegateNode newDelegateNode() {
-		final DelegateNode delegateNode = new DelegateNode();
+		final var delegateNode = new DelegateNode();
 		delegateNode.setReceiver("fdaugan");
 		delegateNode.setReceiverType(ReceiverType.USER);
 		delegateNode.setNode("service");
@@ -377,13 +375,13 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	private DelegateOrg prepareDelegate() {
 
 		// Persist the delegate and the related group to the project
-		final CacheProjectGroup projectGroup = new CacheProjectGroup();
-		final CacheGroup group = new CacheGroup();
+		final var projectGroup = new CacheProjectGroup();
+		final var group = new CacheGroup();
 		group.setId("group-project");
 		group.setName("group-project");
 		group.setDescription("cn=group-project,ou=parent");
 		em.persist(group);
-		final CacheMembership membership = new CacheMembership();
+		final var membership = new CacheMembership();
 		membership.setGroup(group);
 		membership.setUser(em.find(CacheUser.class, "fdaugan"));
 		em.persist(membership);
@@ -391,7 +389,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		projectGroup.setProject(repository.findOne(subscription).getProject());
 		em.persist(projectGroup);
 
-		final DelegateOrg delegate = new DelegateOrg();
+		final var delegate = new DelegateOrg();
 		delegate.setReceiver("fdaugan");
 		delegate.setReceiverType(ReceiverType.USER);
 		delegate.setReceiverDn("uid=fdaugan,ou=company");
@@ -405,7 +403,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	private void assertDelete() throws Exception {
-		final Subscription one = repository.findOne(subscription);
+		final var one = repository.findOne(subscription);
 		final int project = one.getProject().getId();
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
 		em.clear();
@@ -438,7 +436,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void create() throws Exception {
-		final int subscription = resource.create(newCreateVo());
+		final var subscription = resource.create(newCreateVo());
 		em.flush();
 		em.clear();
 
@@ -456,7 +454,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void createNotManagedProject() {
 		initSpringSecurityContext("alongchu");
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		final var vo = new SubscriptionEditionVo();
 		vo.setParameters(new ArrayList<>());
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
@@ -475,11 +473,11 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		delegateNodeRepository.findAll().forEach(d -> d.setCanSubscribe(false));
 
 		// Make the project visible for this user
-		final Project project = projectRepository.findByName("gStack");
+		final var project = projectRepository.findByName("gStack");
 		project.setTeamLeader("user1");
 		em.merge(project);
 
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		final var vo = new SubscriptionEditionVo();
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(project.getId());
 		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
@@ -492,16 +490,16 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	void createNoSubscribeRight() {
 		initSpringSecurityContext("user1");
 		delegateNodeRepository.findAll().forEach(d -> d.setCanSubscribe(false));
-		DelegateNode delegateNode = newDelegateNode();
+		var delegateNode = newDelegateNode();
 		delegateNode.setReceiver("user1");
 		delegateNode.setNode("service:some:other");
 
 		// Make the project visible for this user
-		final Project project = projectRepository.findByName("gStack");
+		final var project = projectRepository.findByName("gStack");
 		project.setTeamLeader("user1");
 		em.merge(project);
 
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		final var vo = new SubscriptionEditionVo();
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(project.getId());
 		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo));
@@ -509,14 +507,14 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void createCreateModeNotSupported() {
-		final SubscriptionEditionVo vo = newCreateVo();
+		final var vo = newCreateVo();
 		vo.setMode(SubscriptionMode.CREATE);
 		Assertions.assertThrows(NotImplementedException.class, () -> resource.create(vo));
 	}
 
 	@Test
 	void createNoneModeNotAllowed() {
-		final SubscriptionEditionVo vo = newCreateVo();
+		final var vo = newCreateVo();
 		nodeRepository.findOne("service:bt:jira:4").setMode(SubscriptionMode.NONE);
 		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo)),
 				"node", "invalid-mode");
@@ -525,13 +523,13 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	private SubscriptionEditionVo newCreateVo() {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		final var vo = new SubscriptionEditionVo();
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
-		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
+		final var parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter(JiraBaseResource.PARAMETER_PROJECT);
 		parameterValueEditionVo.setInteger(10074);
 		parameters.add(parameterValueEditionVo);
-		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
+		final var parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter(JiraBaseResource.PARAMETER_PKEY);
 		parameterValueEditionVo2.setText("MDA");
 		parameters.add(parameterValueEditionVo2);
@@ -544,24 +542,24 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void createCreateMode() throws Exception {
 		// Prepare data
-		final int subscription = createCreateBase("ligoj-gstack", "ligoj-gstack-client");
+		final var subscription = createCreateBase("ligoj-gstack", "ligoj-gstack-client");
 		Assertions.assertEquals("ligoj-gstack", parameterValueRepository.getSubscriptionParameterValue(subscription,
 				IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
 	private int createCreateBase(final String parent, final String group) throws Exception {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
-		final SubscriptionEditionVo vo = new SubscriptionEditionVo();
+		final var vo = new SubscriptionEditionVo();
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
-		final ParameterValueCreateVo parameterValueEditionVo = new ParameterValueCreateVo();
+		final var parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter(IdentityResource.PARAMETER_OU);
 		parameterValueEditionVo.setText("ligoj");
 		parameters.add(parameterValueEditionVo);
-		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
+		final var parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter(IdentityResource.PARAMETER_PARENT_GROUP);
 		parameterValueEditionVo2.setText(parent);
 		parameters.add(parameterValueEditionVo2);
-		final ParameterValueCreateVo parameterValueEditionVo3 = new ParameterValueCreateVo();
+		final var parameterValueEditionVo3 = new ParameterValueCreateVo();
 		parameterValueEditionVo3.setParameter(IdentityResource.PARAMETER_GROUP);
 		parameterValueEditionVo3.setText(group);
 		parameters.add(parameterValueEditionVo3);
@@ -572,7 +570,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
 
 		initSpringSecurityContext(DEFAULT_USER);
-		final int subscription = resource.create(vo);
+		final var subscription = resource.create(vo);
 
 		Assertions.assertEquals(group,
 				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
@@ -586,20 +584,20 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void createCreateModeBlank() throws Exception {
-		final int subscription = createCreateBase("", "ligoj-gstack-client2");
+		final var subscription = createCreateBase("", "ligoj-gstack-client2");
 		Assertions.assertNull(parameterValueRepository.getSubscriptionParameterValue(subscription,
 				IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
 	@Test
 	void createNotAcceptedParameter() {
-		final SubscriptionEditionVo vo = newCreateVoBadParameters();
-		final ParameterValueCreateVo parameterValueEditionVo2 = new ParameterValueCreateVo();
+		final var vo = newCreateVoBadParameters();
+		final var parameterValueEditionVo2 = new ParameterValueCreateVo();
 		parameterValueEditionVo2.setParameter("service:bt:jira:pkey");
 		parameterValueEditionVo2.setText("MYPROJECT");
 		vo.getParameters().add(parameterValueEditionVo2);
 
-		final ParameterValueCreateVo parameterValueEditionVo3 = new ParameterValueCreateVo();
+		final var parameterValueEditionVo3 = new ParameterValueCreateVo();
 		parameterValueEditionVo3.setParameter("service:bt:jira:jdbc-password");
 		parameterValueEditionVo3.setInteger(1007400);
 		vo.getParameters().add(parameterValueEditionVo3);

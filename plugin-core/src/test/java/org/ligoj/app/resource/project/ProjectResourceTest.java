@@ -5,7 +5,6 @@ package org.ligoj.app.resource.project;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
@@ -16,7 +15,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
@@ -27,8 +25,6 @@ import org.ligoj.app.model.Event;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.AbstractOrgTest;
-import org.ligoj.app.resource.subscription.SubscriptionVo;
-import org.ligoj.bootstrap.core.json.TableItem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -74,12 +70,12 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findAll() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("fdaugan");
-		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, null);
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(2, result.getData().size());
 
-		final ProjectLightVo project = result.getData().get(0);
+		final var project = result.getData().get(0);
 		checkProjectMDA(project);
 
 		Assertions.assertEquals("gStack", result.getData().get(1).getName());
@@ -91,7 +87,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllByPkeyOrName() {
 		initSpringSecurityContext("fdaugan");
-		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "mda");
+		final var result = resource.findAll(newUriInfo(), "mda");
 		Assertions.assertEquals(1, result.getData().size());
 		checkProjectMDA(result.getData().get(0));
 	}
@@ -99,7 +95,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllByPkey() {
 		initSpringSecurityContext("fdaugan");
-		final TableItem<ProjectLightVo> result = resource.findAll(newUriInfo(), "ligoj-gstack");
+		final var result = resource.findAll(newUriInfo(), "ligoj-gstack");
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsFiltered());
 		Assertions.assertEquals(1, result.getRecordsTotal());
@@ -108,7 +104,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 
 	@Test
 	void findAllNotMemberButDelegateGroupVisible() {
-		final DelegateOrg delegate = new DelegateOrg();
+		final var delegate = new DelegateOrg();
 		delegate.setType(DelegateType.GROUP);
 		delegate.setReceiver("user");
 		delegate.setDn("cn=ligoj-gstack,ou=ligoj,ou=project,dc=sample,dc=com");
@@ -118,9 +114,9 @@ class ProjectResourceTest extends AbstractOrgTest {
 		em.clear();
 
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("user");
-		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "gStack");
+		final var result = resource.findAll(uriInfo, "gStack");
 		Assertions.assertEquals(1, result.getData().size());
 
 		Assertions.assertEquals("gStack", result.getData().get(0).getName());
@@ -135,8 +131,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 		em.createQuery("DELETE FROM SystemRoleAssignment").executeUpdate();
 
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
-		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, null);
+		final var uriInfo = newFindAllParameters();
+		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(1, result.getData().size());
 
 		// "gStack" is visible because of :
@@ -151,36 +147,36 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllNotVisible() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 
 		initSpringSecurityContext("any");
-		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "MDA");
+		final var result = resource.findAll(uriInfo, "MDA");
 		Assertions.assertEquals(0, result.getData().size());
 	}
 
 	@Test
 	void findAllTeamLeader() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 
 		initSpringSecurityContext("fdaugan");
-		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "mdA");
+		final var result = resource.findAll(uriInfo, "mdA");
 		Assertions.assertEquals(1, result.getData().size());
 
-		final ProjectLightVo project = result.getData().get(0);
+		final var project = result.getData().get(0);
 		checkProjectMDA(project);
 	}
 
 	@Test
 	void findAllMember() {
 		// create a mock URI info with pagination information
-		final UriInfo uriInfo = newFindAllParameters();
+		final var uriInfo = newFindAllParameters();
 
 		initSpringSecurityContext("alongchu");
-		final TableItem<ProjectLightVo> result = resource.findAll(uriInfo, "gStack");
+		final var result = resource.findAll(uriInfo, "gStack");
 		Assertions.assertEquals(1, result.getData().size());
 
-		final ProjectLightVo project = result.getData().get(0);
+		final var project = result.getData().get(0);
 		Assertions.assertEquals("gStack", project.getName());
 	}
 
@@ -197,7 +193,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	private UriInfo newFindAllParameters() {
-		final UriInfo uriInfo = newUriInfo();
+		final var uriInfo = newUriInfo();
 		uriInfo.getQueryParameters().add("draw", "1");
 		uriInfo.getQueryParameters().add("length", "10");
 		uriInfo.getQueryParameters().add("columns[0][data]", "name");
@@ -220,7 +216,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByIdNotVisible() {
-		final Project byName = repository.findByName("gStack");
+		final var byName = repository.findByName("gStack");
 		initSpringSecurityContext("any");
 		final var id = byName.getId();
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(id));
@@ -253,15 +249,15 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByIdWithSubscription() throws IOException {
-		final Project byName = repository.findByName("gStack");
+		final var byName = repository.findByName("gStack");
 		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
 
 		initSpringSecurityContext("alongchu");
-		final ProjectVo project = resource.findById(byName.getId());
+		final var project = resource.findById(byName.getId());
 
 		// Check subscription
 		Assertions.assertTrue(project.getSubscriptions().size() >= 6);
-		for (final SubscriptionVo subscription : project.getSubscriptions()) {
+		for (final var subscription : project.getSubscriptions()) {
 			if (subscription.getStatus() != null) {
 				return;
 			}
@@ -293,7 +289,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		final Subscription subscription = new Subscription();
+		final var subscription = new Subscription();
 		subscription.setProject(testProject);
 		subscription.setNode(nodeRepository.findOneExpected("service:build:jenkins"));
 		subscriptionRepository.saveAndFlush(subscription);
@@ -301,7 +297,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		em.clear();
 
 		// Post check
-		final List<SubscriptionVo> subscriptions = resource.findById(testProject.getId()).getSubscriptions();
+		final var subscriptions = resource.findById(testProject.getId()).getSubscriptions();
 		Assertions.assertEquals(2, subscriptions.size());
 		Assertions.assertEquals("service:bt:jira:4", subscriptions.get(0).getNode().getId());
 		Assertions.assertEquals("service:build:jenkins", subscriptions.get(1).getNode().getId());
@@ -344,7 +340,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 
 		// Check subscription
 		Assertions.assertEquals(1, project.getSubscriptions().size());
-		final SubscriptionVo subscription = project.getSubscriptions().iterator().next();
+		final var subscription = project.getSubscriptions().iterator().next();
 		Assertions.assertNotNull(subscription.getCreatedDate());
 		Assertions.assertNotNull(subscription.getLastModifiedDate());
 		Assertions.assertNotNull(subscription.getId());
@@ -352,7 +348,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(DEFAULT_USER, subscription.getLastModifiedBy().getId());
 
 		// Check service (ordered by id)
-		final NodeVo service = subscription.getNode();
+		final var service = subscription.getNode();
 		Assertions.assertNotNull(service);
 		Assertions.assertEquals("JIRA 4", service.getName());
 		Assertions.assertNotNull(service.getId());
@@ -374,15 +370,15 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void create() {
-		final ProjectEditionVo vo = new ProjectEditionVo();
+		final var vo = new ProjectEditionVo();
 		vo.setName("Name");
 		vo.setDescription("Description");
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
-		final int id = resource.create(vo);
+		final var id = resource.create(vo);
 		em.clear();
 
-		final Project entity = repository.findOneExpected(id);
+		final var entity = repository.findOneExpected(id);
 		Assertions.assertEquals("Name", entity.getName());
 		Assertions.assertEquals("Description", entity.getDescription());
 		Assertions.assertEquals("artifact-id", entity.getPkey());
@@ -394,7 +390,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void updateWithSubscriptions() {
-		final ProjectEditionVo vo = new ProjectEditionVo();
+		final var vo = new ProjectEditionVo();
 		vo.setId(testProject.getId());
 		vo.setName("Name");
 		vo.setDescription("Description");
@@ -404,7 +400,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 
-		final Project projFromDB = repository.findOne(testProject.getId());
+		final var projFromDB = repository.findOne(testProject.getId());
 		Assertions.assertEquals("Name", projFromDB.getName());
 		Assertions.assertEquals("Description", projFromDB.getDescription());
 		Assertions.assertEquals("mda", projFromDB.getPkey());
@@ -417,8 +413,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void update() {
 		create();
-		final Project project = repository.findByName("Name");
-		final ProjectEditionVo vo = new ProjectEditionVo();
+		final var project = repository.findByName("Name");
+		final var vo = new ProjectEditionVo();
 		vo.setId(project.getId());
 		vo.setName("Name");
 		vo.setDescription("D<small>e</small>s<a href=\"#/\">cription</a>");
@@ -427,7 +423,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		resource.update(vo);
 		em.clear();
 
-		final Project projFromDB = repository.findOne(project.getId());
+		final var projFromDB = repository.findOne(project.getId());
 		Assertions.assertEquals("Name", projFromDB.getName());
 		Assertions.assertEquals("D<small>e</small>s<a href=\"#/\">cription</a>", projFromDB.getDescription());
 		Assertions.assertEquals("artifact-id", projFromDB.getPkey());
@@ -440,8 +436,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void updateInvalidDescription() {
 		create();
-		final Project project = repository.findByName("Name");
-		final ProjectEditionVo vo = new ProjectEditionVo();
+		final var project = repository.findByName("Name");
+		final var vo = new ProjectEditionVo();
 		vo.setId(project.getId());
 		vo.setName("Name");
 		vo.setDescription("Description<script some=\"..\">Bad there</script>");
@@ -458,8 +454,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void updateInvalidDescription2() {
 		create();
-		final Project project = repository.findByName("Name");
-		final ProjectEditionVo vo = new ProjectEditionVo();
+		final var project = repository.findByName("Name");
+		final var vo = new ProjectEditionVo();
 		vo.setId(project.getId());
 		vo.setName("Name");
 		vo.setDescription("Description<script >Bad there</script>");
@@ -490,7 +486,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 
 	@Test
 	void delete() throws Exception {
-		final long initCount = repository.count();
+		final var initCount = repository.count();
 		em.clear();
 		resource.delete(testProject.getId());
 		em.flush();

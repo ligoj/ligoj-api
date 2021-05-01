@@ -15,11 +15,9 @@ public interface IAuthenticationContributor {
 
 	/**
 	 * Call to contribute to the final response after the authentication.
-	 * 
-	 * @param response
-	 *            The current {@link ResponseBuilder}. May have already been visited.
-	 * @param authentication
-	 *            The current authentication. Should be while building the response.
+	 *
+	 * @param response       The current {@link ResponseBuilder}. May have already been visited.
+	 * @param authentication The current authentication. Should be while building the response.
 	 */
 	void accept(ResponseBuilder response, Authentication authentication);
 }

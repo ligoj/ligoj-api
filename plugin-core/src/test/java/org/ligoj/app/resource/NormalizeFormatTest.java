@@ -13,7 +13,8 @@ class NormalizeFormatTest {
 
 	@Test
 	void testFormat() {
-		Assertions.assertEquals("oneTWOOAC", new NormalizeFormat().format("twoÖÀç", new StringBuffer("one"), null).toString());
+		Assertions.assertEquals("oneTWOOAC",
+				new NormalizeFormat().format("twoÖÀç", new StringBuffer("one"), null).toString());
 	}
 
 	@Test

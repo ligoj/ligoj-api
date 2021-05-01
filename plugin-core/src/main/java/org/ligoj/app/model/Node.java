@@ -65,7 +65,7 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 
 	/**
 	 * Return <code>true</code> when this node is a service level.
-	 * 
+	 *
 	 * @return <code>true</code> when this node is a service level.
 	 */
 	@JsonIgnore
@@ -75,7 +75,7 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 
 	/**
 	 * Return <code>true</code> when this node is a service level.
-	 * 
+	 *
 	 * @return <code>true</code> when this node is a service level.
 	 */
 	@JsonIgnore
@@ -85,7 +85,7 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 
 	/**
 	 * Return <code>true</code> when this node is a node/instance level.
-	 * 
+	 *
 	 * @return <code>true</code> when this node is a node/instance level.
 	 */
 	@JsonIgnore
@@ -95,7 +95,7 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 
 	/**
 	 * Return the tool instance if is an instance.
-	 * 
+	 *
 	 * @return The tool instance if is an instance.
 	 */
 	@JsonIgnore

@@ -45,7 +45,7 @@ public enum ParameterType {
 
 	/**
 	 * Return true is this criteria is based on a fixed length choice.
-	 * 
+	 *
 	 * @return true is this criteria is based on a fixed length choice.
 	 */
 	public boolean isArray() {

@@ -18,9 +18,8 @@ public class PluginNotFoundException extends PluginException {
 
 	/**
 	 * All arguments constructor.
-	 * 
-	 * @param plugin
-	 *            The requested plug-in of node identifier.
+	 *
+	 * @param plugin The requested plug-in of node identifier.
 	 */
 	public PluginNotFoundException(final String plugin) {
 		super(plugin, "Not found");

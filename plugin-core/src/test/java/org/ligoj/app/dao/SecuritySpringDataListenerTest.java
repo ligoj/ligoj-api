@@ -41,7 +41,7 @@ class SecuritySpringDataListenerTest {
 	}
 
 	private String assertFunction(final String name, final int nbQueryParam, final String sql, String... args) {
-		final String query = listener.getSqlFunctions().get(name).render(null, Arrays.asList(args), null);
+		final var query = listener.getSqlFunctions().get(name).render(null, Arrays.asList(args), null);
 		Assertions.assertEquals(nbQueryParam, StringUtils.countMatches(query, '?'));
 		Assertions.assertTrue(query.contains(sql), query + "-- not contains --" + sql);
 		return query;
@@ -75,8 +75,7 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void inproject() {
-		final String assertFunction = assertFunction("inproject", 2, "team_leader=?user__", Q_USER, ALIAS, Q_USER,
-				ALIAS);
+		final var assertFunction = assertFunction("inproject", 2, "team_leader=?user__", Q_USER, ALIAS, Q_USER, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("pj10.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
 		Assertions.assertTrue(assertFunction.contains("s_pj9.id=_arg__"));
@@ -84,8 +83,7 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void inproject2() {
-		final String assertFunction = assertFunction("inproject2", 4, "team_leader=?user__", Q_USER, Q_ARG, Q_USER,
-				Q_ARG);
+		final var assertFunction = assertFunction("inproject2", 4, "team_leader=?user__", Q_USER, Q_ARG, Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
 		Assertions.assertTrue(assertFunction.contains("cpg.project=?dn__"));
@@ -93,7 +91,7 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void inprojectkey() {
-		final String assertFunction = assertFunction("inprojectkey", 2, "team_leader=?user__", Q_USER, ALIAS, Q_USER,
+		final var assertFunction = assertFunction("inprojectkey", 2, "team_leader=?user__", Q_USER, ALIAS, Q_USER,
 				ALIAS);
 		Assertions.assertTrue(assertFunction.contains("pj11.pkey=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
@@ -102,35 +100,35 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void inprojectkey2() {
-		final String assertFunction = assertFunction("inprojectkey2", 4, "team_leader=?user__ AND pkey=?dn__", Q_USER,
+		final var assertFunction = assertFunction("inprojectkey2", 4, "team_leader=?user__ AND pkey=?dn__", Q_USER,
 				Q_ARG, Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__ AND pj.pkey=?dn__"));
 	}
 
 	@Test
 	void ingroup() {
-		final String assertFunction = assertFunction("ingroup", 1, "cm.\"user\"=?user__", Q_USER, ALIAS, ALIAS);
+		final var assertFunction = assertFunction("ingroup", 1, "cm.\"user\"=?user__", Q_USER, ALIAS, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("s_cg6.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("id=_arg__"));
 	}
 
 	@Test
 	void incompany() {
-		final String assertFunction = assertFunction("incompany", 1, "cu.id=?user__", Q_USER, ALIAS, ALIAS);
+		final var assertFunction = assertFunction("incompany", 1, "cu.id=?user__", Q_USER, ALIAS, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("s_cc7.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("id=_arg__"));
 	}
 
 	@Test
 	void ingroup2() {
-		final String assertFunction = assertFunction("ingroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER,
-				Q_ARG, Q_ARG);
+		final var assertFunction = assertFunction("ingroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER, Q_ARG,
+				Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 	}
 
 	@Test
 	void incompany2() {
-		final String assertFunction = assertFunction("incompany2", 3, "cu.id=?user__", Q_USER, Q_ARG, Q_ARG);
+		final var assertFunction = assertFunction("incompany2", 3, "cu.id=?user__", Q_USER, Q_ARG, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("cc.id=?dn__"));
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 	}

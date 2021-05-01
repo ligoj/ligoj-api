@@ -26,9 +26,8 @@ public class NodeStatisticsVo {
 
 	/**
 	 * Constructor ensuring a provided node.
-	 * 
-	 * @param node
-	 *            Node identifier.
+	 *
+	 * @param node Node identifier.
 	 */
 	public NodeStatisticsVo(final String node) {
 		this.node = node;

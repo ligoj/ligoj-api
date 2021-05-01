@@ -13,7 +13,7 @@ class PluginExceptionTest {
 
 	@Test
 	void getPlugin() {
-		PluginException exception = new PluginException("some", "message");
+		var exception = new PluginException("some", "message");
 		Assertions.assertEquals("some", exception.getPlugin());
 		Assertions.assertEquals("Plugin issue for some:message", exception.getMessage());
 	}
@@ -24,5 +24,5 @@ class PluginExceptionTest {
 		Assertions.assertEquals("some", exception.getPlugin());
 		Assertions.assertEquals("Plugin issue for some:Not found", exception.getMessage());
 	}
-	
+
 }

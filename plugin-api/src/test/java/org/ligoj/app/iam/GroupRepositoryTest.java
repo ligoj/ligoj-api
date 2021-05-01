@@ -31,7 +31,7 @@ class GroupRepositoryTest {
 
 	@Test
 	void create() {
-		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
+		final var groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", groupLdap.getDn());
 		Assertions.assertEquals("Name", groupLdap.getName());
 		Assertions.assertEquals("name", groupLdap.getId());

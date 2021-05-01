@@ -47,7 +47,7 @@ public class SubscriptionStatusWithData {
 	 * retrieve.
 	 */
 	private Map<String, Object> data = new HashMap<>();
-	
+
 	/**
 	 * Subscription parameter values. Only not secured parameters are there.
 	 */
@@ -64,9 +64,8 @@ public class SubscriptionStatusWithData {
 
 	/**
 	 * Default constructor with a status parameter.
-	 * 
-	 * @param status
-	 *            The status value.
+	 *
+	 * @param status The status value.
 	 */
 	public SubscriptionStatusWithData(final boolean status) {
 		this.status = NodeStatus.getValue(status);
@@ -74,11 +73,9 @@ public class SubscriptionStatusWithData {
 
 	/**
 	 * Put a data along this status.
-	 * 
-	 * @param property
-	 *            The property name.
-	 * @param value
-	 *            The data value.
+	 *
+	 * @param property The property name.
+	 * @param value    The data value.
 	 */
 	public void put(@NotNull final String property, final Object value) {
 		data.put(property, value);

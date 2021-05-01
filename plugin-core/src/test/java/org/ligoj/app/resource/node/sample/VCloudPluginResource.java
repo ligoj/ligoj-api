@@ -23,7 +23,7 @@ public class VCloudPluginResource extends AbstractToolPluginResource {
 
 	/**
 	 * vCloud API base URL.
-	 * 
+	 *
 	 * @see "https://flexible-computing-advanced.sample.com/api"
 	 */
 	public static final String PARAMETER_URL = KEY + ":url";

@@ -18,7 +18,7 @@ public enum NodeStatus {
 
 	/**
 	 * is status up ?
-	 * 
+	 *
 	 * @return true if up
 	 */
 	public boolean isUp() {
@@ -27,9 +27,8 @@ public enum NodeStatus {
 
 	/**
 	 * get status
-	 * 
-	 * @param isUp
-	 *            is up ?
+	 *
+	 * @param isUp is up ?
 	 * @return status
 	 */
 	public static NodeStatus getValue(final boolean isUp) {

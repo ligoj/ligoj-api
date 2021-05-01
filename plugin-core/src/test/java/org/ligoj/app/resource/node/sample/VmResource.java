@@ -9,7 +9,6 @@ import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.resource.plugin.AbstractServicePlugin;
 import org.springframework.stereotype.Component;
 
-
 /**
  * The Virtual Machine service.
  */

@@ -31,23 +31,19 @@ public class EventResource {
 	private EventRepository repository;
 
 	/**
-	 * Register an event on a node. The event will be registered only if the
-	 * value is new.
-	 * 
-	 * @param node
-	 *            node
-	 * @param eventType
-	 *            event type
-	 * @param value
-	 *            new value
+	 * Register an event on a node. The event will be registered only if the value is new.
+	 *
+	 * @param node      node
+	 * @param eventType event type
+	 * @param value     new value
 	 * @return <code>true</code> if the event has been registered in database.
 	 */
 	public boolean registerEvent(final Node node, final EventType eventType, final String value) {
-		final Event lastEvent = repository.findFirstByNodeAndTypeOrderByIdDesc(node, eventType);
+		final var lastEvent = repository.findFirstByNodeAndTypeOrderByIdDesc(node, eventType);
 
 		// Register event if it is a discovered node, or a status change
 		if (lastEvent == null || !value.equals(lastEvent.getValue())) {
-			final Event newEvent = new Event();
+			final var newEvent = new Event();
 			newEvent.setNode(node);
 			saveEvent(newEvent, eventType, value);
 			return true;
@@ -58,21 +54,17 @@ public class EventResource {
 	}
 
 	/**
-	 * register an event on a subscription. The event will be registered only if
-	 * the value is new.
-	 * 
-	 * @param subscription
-	 *            The related subscription.
-	 * @param eventType
-	 *            The new event type.
-	 * @param value
-	 *            The new event value.
+	 * register an event on a subscription. The event will be registered only if the value is new.
+	 *
+	 * @param subscription The related subscription.
+	 * @param eventType    The new event type.
+	 * @param value        The new event value.
 	 * @return <code>true</code> if an event has been saved in database.
 	 */
 	public boolean registerEvent(final Subscription subscription, final EventType eventType, final String value) {
-		final Event lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, eventType);
+		final var lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, eventType);
 		if (lastEvent == null || !value.equals(lastEvent.getValue())) {
-			final Event newEvent = new Event();
+			final var newEvent = new Event();
 			newEvent.setSubscription(subscription);
 			saveEvent(newEvent, eventType, value);
 			return true;
@@ -82,13 +74,10 @@ public class EventResource {
 
 	/**
 	 * save an event
-	 * 
-	 * @param event
-	 *            event
-	 * @param eventType
-	 *            event Type
-	 * @param value
-	 *            value
+	 *
+	 * @param event     event
+	 * @param eventType event Type
+	 * @param value     value
 	 */
 	private void saveEvent(final Event event, final EventType eventType, final String value) {
 		event.setValue(value);
@@ -99,13 +88,12 @@ public class EventResource {
 
 	/**
 	 * {@link Event} JPA to VO object transformer without refined information.
-	 * 
-	 * @param entity
-	 *            Source entity.
+	 *
+	 * @param entity Source entity.
 	 * @return The corresponding VO object with node/subscription reference.
 	 */
 	public static EventVo toVo(final Event entity) {
-		final EventVo vo = new EventVo();
+		final var vo = new EventVo();
 		vo.setValue(entity.getValue());
 		vo.setType(entity.getType());
 		if (entity.getNode() == null) {
@@ -119,13 +107,10 @@ public class EventResource {
 
 	/**
 	 * Return the last known event related to a visible node of given user.
-	 * 
-	 * @param user
-	 *            The principal user requesting these events.
-	 * @param node
-	 *            The related node.
-	 * @return Event related to a visible {@link Node}. May be
-	 *         <code>null</code>.
+	 *
+	 * @param user The principal user requesting these events.
+	 * @param node The related node.
+	 * @return Event related to a visible {@link Node}. May be <code>null</code>.
 	 */
 	public EventVo findByNode(final String user, final String node) {
 		return Optional.ofNullable(repository.findLastEvent(user, node)).map(EventResource::toVo).orElse(null);
@@ -133,26 +118,26 @@ public class EventResource {
 
 	/**
 	 * Return all events related to a visible node of given user.
-	 * 
-	 * @param user
-	 *            The principal user requesting these events.
+	 *
+	 * @param user The principal user requesting these events.
 	 * @return Events related to a visible {@link Node}.
 	 */
 	public List<EventVo> findAll(final String user) {
-		final List<Event> events = repository.findLastEvents(user);
-		final Map<String, EventVo> services = new HashMap<>();
-		final Map<String, EventVo> tools = new HashMap<>();
-		for (final Event event : events) {
-			final Node parent = event.getNode().getRefined();
+		final var events = repository.findLastEvents(user);
+		final var services = new HashMap<String, EventVo>();
+		final var tools = new HashMap<String, EventVo>();
+		for (final var event : events) {
+			final var parent = event.getNode().getRefined();
 			fillParentEvents(tools, parent, EventResource.toVo(event), event.getValue());
 			fillParentEvents(services, parent.getRefined(), tools.get(parent.getId()), event.getValue());
 		}
 		return new ArrayList<>(services.values());
 	}
 
-	private void fillParentEvents(final Map<String, EventVo> parents, final Node parent, final EventVo eventVo, final String eventValue) {
-		final EventVo service = parents.computeIfAbsent(parent.getId(), key -> {
-			final EventVo result = new EventVo();
+	private void fillParentEvents(final Map<String, EventVo> parents, final Node parent, final EventVo eventVo,
+			final String eventValue) {
+		final var service = parents.computeIfAbsent(parent.getId(), key -> {
+			final var result = new EventVo();
 			result.setNode(NodeResource.toVoLight(parent));
 			result.setValue(eventValue);
 			result.setType(eventVo.getType());

@@ -18,18 +18,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Long task status. Is deleted with the project, the subscription or the
- * related node hierarchy.
- * 
- * @param <L>
- *            The locked type during while this task is running.
- * @param <I>
- *            The locked's identifier type during while this task is running.
+ * Long task status. Is deleted with the project, the subscription or the related node hierarchy.
+ *
+ * @param <L> The locked type during while this task is running.
+ * @param <I> The locked's identifier type during while this task is running.
  */
 @Getter
 @Setter
 @MappedSuperclass
-public abstract class AbstractLongTask<L extends Persistable<I>, I extends Serializable> extends AbstractPersistable<Integer> {
+public abstract class AbstractLongTask<L extends Persistable<I>, I extends Serializable>
+		extends AbstractPersistable<Integer> {
 
 	@NotNull
 	private Date start;
@@ -41,7 +39,7 @@ public abstract class AbstractLongTask<L extends Persistable<I>, I extends Seria
 
 	/**
 	 * Null while not finished.
-	 * 
+	 *
 	 * @see #isFinished()
 	 */
 	private Date end;
@@ -54,7 +52,7 @@ public abstract class AbstractLongTask<L extends Persistable<I>, I extends Seria
 
 	/**
 	 * Indicates the current task is finished.
-	 * 
+	 *
 	 * @return <code>true</code> when this task is finished.
 	 */
 	@JsonIgnore
@@ -64,16 +62,15 @@ public abstract class AbstractLongTask<L extends Persistable<I>, I extends Seria
 
 	/**
 	 * Return the locked entity while this task is running.
-	 * 
+	 *
 	 * @return the locked entity while this task is running.
 	 */
 	public abstract L getLocked();
 
 	/**
 	 * Set the locked entity while this task is running.
-	 * 
-	 * @param locked
-	 *            the locked entity while this task is running.
+	 *
+	 * @param locked the locked entity while this task is running.
 	 */
 	public abstract void setLocked(L locked);
 }

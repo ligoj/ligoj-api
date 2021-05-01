@@ -38,7 +38,7 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public UserOrg findById(final String login) {
 		// Always found
-		final UserOrg user = new UserOrg();
+		final var user = new UserOrg();
 		user.setId(login);
 		user.setFirstName("First");
 		user.setLastName("Last");
@@ -59,8 +59,8 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public Page<UserOrg> findAll(final Collection<GroupOrg> requiredGroups, final Set<String> companies, final String criteria,
-			final Pageable pageable) {
+	public Page<UserOrg> findAll(final Collection<GroupOrg> requiredGroups, final Set<String> companies,
+			final String criteria, final Pageable pageable) {
 		// No people
 		return new PageImpl<>(Collections.emptyList());
 	}

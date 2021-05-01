@@ -17,8 +17,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 /**
- * A mocked group repository. Details of a specific group always succeed but the search of groups return an empty
- * list.
+ * A mocked group repository. Details of a specific group always succeed but the search of groups return an empty list.
  */
 public class EmptyGroupRepository implements IGroupRepository {
 
@@ -50,7 +49,8 @@ public class EmptyGroupRepository implements IGroupRepository {
 	}
 
 	@Override
-	public Page<GroupOrg> findAll(Set<GroupOrg> groups, String criteria, Pageable pageable, Map<String, Comparator<GroupOrg>> customComparators) {
+	public Page<GroupOrg> findAll(Set<GroupOrg> groups, String criteria, Pageable pageable,
+			Map<String, Comparator<GroupOrg>> customComparators) {
 		return new PageImpl<>(Collections.emptyList());
 	}
 

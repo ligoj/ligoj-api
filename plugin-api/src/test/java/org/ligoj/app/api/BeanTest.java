@@ -26,10 +26,14 @@ class BeanTest {
 
 	@Test
 	void testSubscriptionStatusWithData() {
-		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setId, SubscriptionStatusWithData::getId,2);
-		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setNode, SubscriptionStatusWithData::getNode, "node");
-		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setParameters, SubscriptionStatusWithData::getParameters,Collections.emptyMap());
-		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setProject, SubscriptionStatusWithData::getProject, 1);
+		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setId, SubscriptionStatusWithData::getId,
+				2);
+		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setNode,
+				SubscriptionStatusWithData::getNode, "node");
+		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setParameters,
+				SubscriptionStatusWithData::getParameters, Collections.emptyMap());
+		check(new SubscriptionStatusWithData(), SubscriptionStatusWithData::setProject,
+				SubscriptionStatusWithData::getProject, 1);
 	}
 
 	private <T, X> void check(X bean, BiConsumer<X, T> setter, Function<X, T> getter, T value) {

@@ -57,7 +57,7 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 
 	/**
 	 * Return the explicit reference identifier of delegated object. Only a proxy version of {@link #getName()}
-	 * 
+	 *
 	 * @return the explicit reference identifier of delegated object.
 	 */
 	public String getReferenceID() {

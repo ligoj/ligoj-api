@@ -57,15 +57,18 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 
 		// Prepare the standard data
 		persistEntities("csv", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8.name());
-		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
+		persistEntities("csv",
+				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
 				StandardCharsets.UTF_8.name());
 
 		// Add the IAM data
-		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class, CacheProjectGroup.class);
-		final Map<String, CompanyOrg> companies = csvForJpa.insert("csv", CacheCompany.class, StandardCharsets.UTF_8.name()).stream()
-				.map(c -> new CompanyOrg(c.getDescription(), c.getName())).collect(Collectors.toMap(CompanyOrg::getId, Function.identity()));
-		final Map<String, UserOrg> users = csvForJpa.insert("csv", CacheUser.class, StandardCharsets.UTF_8.name()).stream().map(c -> {
-			final UserOrg user = new UserOrg();
+		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class,
+				CacheProjectGroup.class);
+		final var companies = csvForJpa.insert("csv", CacheCompany.class, StandardCharsets.UTF_8.name()).stream()
+				.map(c -> new CompanyOrg(c.getDescription(), c.getName()))
+				.collect(Collectors.toMap(CompanyOrg::getId, Function.identity()));
+		final var users = csvForJpa.insert("csv", CacheUser.class, StandardCharsets.UTF_8.name()).stream().map(c -> {
+			final var user = new UserOrg();
 			user.setId(c.getId());
 			user.setDn("uid=" + c.getId() + "," + companies.get(c.getCompany().getId()).getDn());
 			user.setCompany(c.getCompany().getId());
@@ -74,10 +77,10 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 			user.setMails(Arrays.asList(Optional.ofNullable(c.getMails()).orElse("").split(",")));
 			return user;
 		}).collect(Collectors.toMap(UserOrg::getId, Function.identity()));
-		final Map<String, GroupOrg> groups = csvForJpa.insert("csv", CacheGroup.class, StandardCharsets.UTF_8.name()).stream()
+		final var groups = csvForJpa.insert("csv", CacheGroup.class, StandardCharsets.UTF_8.name()).stream()
 				.map(c -> new GroupOrg(c.getDescription(), c.getName(), new HashSet<>()))
 				.collect(Collectors.toMap(GroupOrg::getId, Function.identity()));
-		CacheMembership cacheMembership = csvForJpa.insert("csv", CacheMembership.class, StandardCharsets.UTF_8.name()).get(0);
+		var cacheMembership = csvForJpa.insert("csv", CacheMembership.class, StandardCharsets.UTF_8.name()).get(0);
 		csvForJpa.insert("csv", CacheProjectGroup.class, StandardCharsets.UTF_8.name());
 
 		// Coverage required here only there because of JPA bean
@@ -87,7 +90,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 		cacheMembership.setSubGroup(null);
 
 		// Plug-in the IAMProvider to the database
-		final IamConfiguration configuration = new IamConfiguration();
+		final var configuration = new IamConfiguration();
 		final EmptyUserRepository userRepository = new EmptyUserRepository() {
 			@Override
 			public Map<String, UserOrg> findAll() {
@@ -114,8 +117,8 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 			@Override
 			public CompanyOrg findById(final String user, final String id) {
 				// Check the container exists and return the in memory object.
-				return Optional.ofNullable(cacheCompanyRepository.findById(user, Normalizer.normalize(id))).map(CacheContainer::getId)
-						.map(this::findById).orElse(null);
+				return Optional.ofNullable(cacheCompanyRepository.findById(user, Normalizer.normalize(id)))
+						.map(CacheContainer::getId).map(this::findById).orElse(null);
 			}
 		});
 		configuration.setGroupRepository(new EmptyGroupRepository() {
@@ -127,8 +130,8 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 			@Override
 			public GroupOrg findById(final String user, final String id) {
 				// Check the container exists and return the in memory object.
-				return Optional.ofNullable(cacheGroupRepository.findById(user, Normalizer.normalize(id))).map(CacheContainer::getId)
-						.map(this::findById).orElse(null);
+				return Optional.ofNullable(cacheGroupRepository.findById(user, Normalizer.normalize(id)))
+						.map(CacheContainer::getId).map(this::findById).orElse(null);
 			}
 		});
 		userRepository.setCompanyRepository(configuration.getCompanyRepository());

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Confluence KM resource.
- * 
+ *
  * @see "https://docs.atlassian.com/atlassian-confluence/REST/latest"
  */
 @Component

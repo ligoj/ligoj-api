@@ -45,13 +45,11 @@ public class GroupOrg extends ContainerOrg {
 
 	/**
 	 * All arguments constructor.
-	 * 
-	 * @param dn
-	 *            "id" corresponds to the "Distinguished Name".
-	 * @param name
-	 *            "name" corresponds to the "Common Name". Will be saved in "name", and in "id" in is normalized form.
-	 * @param members
-	 *            unique members. UID is used.
+	 *
+	 * @param dn      "id" corresponds to the "Distinguished Name".
+	 * @param name    "name" corresponds to the "Common Name". Will be saved in "name", and in "id" in is normalized
+	 *                form.
+	 * @param members unique members. UID is used.
 	 */
 	public GroupOrg(final String dn, final String name, final Set<String> members) {
 		super(dn, name);

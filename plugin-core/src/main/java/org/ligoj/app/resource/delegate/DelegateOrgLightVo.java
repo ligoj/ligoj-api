@@ -3,13 +3,14 @@
  */
 package org.ligoj.app.resource.delegate;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.ligoj.bootstrap.core.INamableBean;
-import org.ligoj.bootstrap.core.NamedAuditedBean;
 import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.app.iam.model.DelegateType;
 import org.ligoj.app.iam.model.ReceiverType;
+import org.ligoj.bootstrap.core.INamableBean;
+import org.ligoj.bootstrap.core.NamedAuditedBean;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * Delegation business object for display. The name corresponds to the human readable name (CN for LDAP) of the target.

@@ -46,11 +46,9 @@ public class ContainerOrg extends NamedBean<String> implements ResourceOrg, IDes
 
 	/**
 	 * All arguments constructor.
-	 * 
-	 * @param dn
-	 *            Corresponds to the "Distinguished Name". Will be saved in "description".
-	 * @param name
-	 *            "name" corresponds to the display name. Will be saved in "name", and in "id" in is normalized form.
+	 *
+	 * @param dn   Corresponds to the "Distinguished Name". Will be saved in "description".
+	 * @param name "name" corresponds to the display name. Will be saved in "name", and in "id" in is normalized form.
 	 */
 	public ContainerOrg(final String dn, final String name) {
 		setId(Normalizer.normalize(name));

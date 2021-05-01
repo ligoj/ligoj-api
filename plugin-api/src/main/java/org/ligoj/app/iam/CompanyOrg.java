@@ -35,12 +35,10 @@ public class CompanyOrg extends ContainerOrg {
 
 	/**
 	 * All arguments constructor.
-	 * 
-	 * @param dn
-	 *            Corresponds to the "Distinguished Name". Will be saved in "description".
-	 * @param name
-	 *            "name" corresponds to the "Organizational Unit". Will be saved in "name", and in "id" in is normalized
-	 *            form.
+	 *
+	 * @param dn   Corresponds to the "Distinguished Name". Will be saved in "description".
+	 * @param name "name" corresponds to the "Organizational Unit". Will be saved in "name", and in "id" in is
+	 *             normalized form.
 	 */
 	public CompanyOrg(final String dn, final String name) {
 		super(dn, name);

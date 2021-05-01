@@ -16,7 +16,7 @@ class VersionUtilsTest {
 
 	@Test
 	void getLatestReleasedVersion() throws IOException {
-		final AtlassianVersion releasedVersion = new VersionUtils().getLatestReleasedVersion("https://jira.atlassian.com", "JRA");
+		final var releasedVersion = new VersionUtils().getLatestReleasedVersion("https://jira.atlassian.com", "JRA");
 		Assertions.assertNotNull(releasedVersion);
 		Assertions.assertNotNull(releasedVersion.getName());
 		Assertions.assertNotNull(releasedVersion.getReleaseDate());
@@ -24,7 +24,7 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionFirst() {
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
@@ -33,7 +33,7 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionArchived() {
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setArchived(true);
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
@@ -43,7 +43,7 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionUnreleased() {
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleaseDate(new Date());
 		Assertions.assertFalse(new VersionUtils().isValidVersion(null, jiraVersion));
@@ -51,7 +51,7 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionNoReleaseDate() {
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setArchived(false);
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
@@ -60,12 +60,12 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionNewer() {
-		final AtlassianVersion previous = new AtlassianVersion();
+		final var previous = new AtlassianVersion();
 		previous.setName("1.0");
 		previous.setReleased(true);
 		previous.setReleaseDate(new Date());
 
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.1");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
@@ -74,7 +74,7 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionInvalidName() {
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setArchived(false);
 		jiraVersion.setName("OLD 1.0");
 		jiraVersion.setReleased(true);
@@ -84,12 +84,12 @@ class VersionUtilsTest {
 
 	@Test
 	void isValidVersionOlder() {
-		final AtlassianVersion previous = new AtlassianVersion();
+		final var previous = new AtlassianVersion();
 		previous.setName("1.1");
 		previous.setReleased(true);
 		previous.setReleaseDate(new Date());
 
-		final AtlassianVersion jiraVersion = new AtlassianVersion();
+		final var jiraVersion = new AtlassianVersion();
 		jiraVersion.setName("1.0");
 		jiraVersion.setReleased(true);
 		jiraVersion.setReleaseDate(new Date());
@@ -98,7 +98,8 @@ class VersionUtilsTest {
 
 	@Test
 	void getLatestReleasedVersionName() throws Exception {
-		final String releasedVersion = new VersionUtils().getLatestReleasedVersionName("https://jira.atlassian.com", "JRA");
+		final var releasedVersion = new VersionUtils().getLatestReleasedVersionName("https://jira.atlassian.com",
+				"JRA");
 		Assertions.assertNotNull(releasedVersion);
 	}
 

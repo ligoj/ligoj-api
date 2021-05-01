@@ -23,21 +23,24 @@ class BeanTest {
 
 	@Test
 	void testActivity() {
-		check(new Activity(), Activity::setLastConnection, Activity::getLastConnection, DateUtils.newCalendar().getTime());
+		check(new Activity(), Activity::setLastConnection, Activity::getLastConnection,
+				DateUtils.newCalendar().getTime());
 	}
 
 	@Test
 	void testIamConfiguration() {
-		check(new IamConfiguration(), IamConfiguration::setCompanyRepository, IamConfiguration::getCompanyRepository, Mockito.mock(ICompanyRepository.class));
-		check(new IamConfiguration(), IamConfiguration::setGroupRepository, IamConfiguration::getGroupRepository, Mockito.mock(IGroupRepository.class));
-		check(new IamConfiguration(), IamConfiguration::setUserRepository, IamConfiguration::getUserRepository, Mockito.mock(IUserRepository.class));
+		check(new IamConfiguration(), IamConfiguration::setCompanyRepository, IamConfiguration::getCompanyRepository,
+				Mockito.mock(ICompanyRepository.class));
+		check(new IamConfiguration(), IamConfiguration::setGroupRepository, IamConfiguration::getGroupRepository,
+				Mockito.mock(IGroupRepository.class));
+		check(new IamConfiguration(), IamConfiguration::setUserRepository, IamConfiguration::getUserRepository,
+				Mockito.mock(IUserRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setNode, IamConfiguration::getNode, "service:plugin:id");
 	}
 
-
 	@Test
 	void testCompanyLdap() throws InvalidNameException {
-		final CompanyOrg companyLdap = new CompanyOrg("dn", "name");
+		final var companyLdap = new CompanyOrg("dn", "name");
 		companyLdap.getCompanyTree().contains(companyLdap);
 		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, new LdapName(""));
 		check(companyLdap, CompanyOrg::setCompanyTree, CompanyOrg::getCompanyTree, Collections.emptyList());
@@ -50,7 +53,7 @@ class BeanTest {
 
 	@Test
 	void testGroupLdap() {
-		final GroupOrg groupLdap = new GroupOrg("dn", "name", Collections.emptySet());
+		final var groupLdap = new GroupOrg("dn", "name", Collections.emptySet());
 		check(groupLdap, GroupOrg::setMembers, GroupOrg::getMembers, Collections.emptySet());
 		check(groupLdap, GroupOrg::setGroups, GroupOrg::getGroups, Collections.emptySet());
 		check(groupLdap, GroupOrg::setSubGroups, GroupOrg::getSubGroups, Collections.emptySet());
@@ -63,7 +66,7 @@ class BeanTest {
 
 	@Test
 	void testContainerLdap() {
-		final ContainerOrg groupLdap = new ContainerOrg("dn", "name");
+		final var groupLdap = new ContainerOrg("dn", "name");
 		check(groupLdap, ContainerOrg::setLocked, ContainerOrg::isLocked, true);
 		check(groupLdap, ContainerOrg::setDescription, ContainerOrg::getDescription, "some");
 		Assertions.assertEquals("some", groupLdap.getDescription());
@@ -72,7 +75,7 @@ class BeanTest {
 
 	@Test
 	void testSimpleUserOrg() {
-		final UserOrg user = new UserOrg();
+		final var user = new UserOrg();
 
 		// Simple user attributes
 		check(user, SimpleUser::setCompany, SimpleUser::getCompany, "company");
@@ -94,7 +97,7 @@ class BeanTest {
 		check(user, UserOrg::setGroups, UserOrg::getGroups, Collections.emptyList());
 
 		//
-		final SimpleUserOrg user2 = new SimpleUserOrg();
+		final var user2 = new SimpleUserOrg();
 		user.copy(user2);
 
 		// Simple user attributes

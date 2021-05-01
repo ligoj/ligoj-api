@@ -24,10 +24,11 @@ class TestAbstractServerTest extends AbstractServerTest {
 	 */
 	@Test
 	void startAutoStop() throws IOException {
-		httpServer.stubFor(
-				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
+		httpServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/"))
+				.willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
-		Assertions.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("ok",
+				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
 	}
 
 	/**
@@ -35,10 +36,11 @@ class TestAbstractServerTest extends AbstractServerTest {
 	 */
 	@Test
 	void startStop() throws IOException {
-		httpServer.stubFor(
-				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
+		httpServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/"))
+				.willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
-		Assertions.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("ok",
+				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
 		httpServer.stop();
 		httpServer = null;
 	}
@@ -48,10 +50,11 @@ class TestAbstractServerTest extends AbstractServerTest {
 	 */
 	@Test
 	void startStop2() throws IOException {
-		httpServer.stubFor(
-				WireMock.get(WireMock.urlPathEqualTo("/")).willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
+		httpServer.stubFor(WireMock.get(WireMock.urlPathEqualTo("/"))
+				.willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
-		Assertions.assertEquals("ok", IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+		Assertions.assertEquals("ok",
+				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
 		httpServer.stop();
 	}
 

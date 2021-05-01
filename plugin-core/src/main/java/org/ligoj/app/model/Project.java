@@ -48,7 +48,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	/**
 	 * Project PKEY pattern.
 	 */
-	public static final String PKEY_PATTERN_WRAPPER = "^" + PKEY_PATTERN +"$";
+	public static final String PKEY_PATTERN_WRAPPER = "^" + PKEY_PATTERN + "$";
 
 	/**
 	 * Unique technical and yet readable name.

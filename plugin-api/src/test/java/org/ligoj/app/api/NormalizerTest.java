@@ -6,7 +6,6 @@ package org.ligoj.app.api;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -23,14 +22,14 @@ class NormalizerTest extends AbstractDataGeneratorTest {
 		strings.add("c");
 		strings.add("C");
 		strings.add(" c ");
-		final Set<String> result = Normalizer.normalize(strings);
+		final var result = Normalizer.normalize(strings);
 		Assertions.assertEquals(1, result.size());
 		Assertions.assertTrue(result.contains("c"));
 	}
 
 	@Test
 	void normalizeSetNull() {
-		final Set<String> result = Normalizer.normalize((Collection<String>) null);
+		final var result = Normalizer.normalize((Collection<String>) null);
 		Assertions.assertEquals(0, result.size());
 	}
 

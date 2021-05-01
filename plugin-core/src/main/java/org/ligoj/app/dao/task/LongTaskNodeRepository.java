@@ -13,11 +13,12 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  * {@link AbstractLongTask} base repository for Node.
- * @param <T>
- *            Type of task entity.
+ *
+ * @param <T> Type of task entity.
  */
 @NoRepositoryBean
-public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>> extends LongTaskRepository<T, Node, String> {
+public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>>
+		extends LongTaskRepository<T, Node, String> {
 
 	@Override
 	@Query("FROM #{#entityName} i WHERE i.locked.id = :node AND i.end IS NULL")
@@ -25,6 +26,7 @@ public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>
 
 	/**
 	 * Return all visible catalogs.
+	 *
 	 * @param user The current principal user.
 	 * @return The visible catalogs for the current principal user.
 	 */

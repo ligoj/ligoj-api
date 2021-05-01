@@ -171,7 +171,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 
 	/**
 	 * Return the plug-in activation.
-	 * 
+	 *
 	 * @param id The tested plug-in identifier.
 	 * @return The plug-in activation.
 	 */

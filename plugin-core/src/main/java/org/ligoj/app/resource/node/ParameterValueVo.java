@@ -7,6 +7,7 @@ import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
 import org.ligoj.app.api.NodeVo;
+
 import lombok.Getter;
 import lombok.Setter;
 

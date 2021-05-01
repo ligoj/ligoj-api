@@ -12,7 +12,7 @@ public interface PluginConfiguration extends Persistable<Integer> {
 
 	/**
 	 * The related subscription of this configuration.
-	 * 
+	 *
 	 * @return The related subscription of this configuration.
 	 */
 	Subscription getSubscription();

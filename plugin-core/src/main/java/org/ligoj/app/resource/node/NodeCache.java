@@ -31,7 +31,7 @@ public class NodeCache implements CacheManagerAware {
 		cacheManager.createCache("node-enablement", provider.apply("node-enablement"));
 		final CacheConfig<?, ?> tokens = provider.apply("curl-tokens");
 		tokens.setExpiryPolicyFactory(ModifiedExpiryPolicy.factoryOf(new Duration(HOURS, 10)));
-		tokens.setEvictionConfig(new EvictionConfig() );
+		tokens.setEvictionConfig(new EvictionConfig());
 		cacheManager.createCache("curl-tokens", tokens);
 		cacheManager.createCache("subscription-parameters", provider.apply("subscription-parameters"));
 		cacheManager.createCache("plugin-data", provider.apply("plugin-data"));

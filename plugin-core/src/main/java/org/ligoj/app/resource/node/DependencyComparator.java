@@ -14,7 +14,7 @@ class DependencyComparator implements Comparator<ParameterVo> {
 
 	@Override
 	public int compare(final ParameterVo arg0, final ParameterVo arg1) {
-		int compare = arg0.getId().compareTo(arg1.getId());
+		var compare = arg0.getId().compareTo(arg1.getId());
 
 		// THIS -> OTHER dependency
 		if (CollectionUtils.isNotEmpty(arg0.getDepends())) {

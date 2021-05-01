@@ -14,8 +14,8 @@ public enum ContainerType {
 	/**
 	 * Group container.
 	 */
-	GROUP(DelegateType.GROUP), 
-	
+	GROUP(DelegateType.GROUP),
+
 	/**
 	 * Company container.
 	 */

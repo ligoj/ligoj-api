@@ -4,11 +4,9 @@
 package org.ligoj.app.resource.node;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
@@ -63,7 +61,6 @@ import org.ligoj.bootstrap.core.resource.OnNullReturn404;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -123,7 +120,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding VO object with recursive redefined reference.
 	 */
 	public static NodeVo toVo(final Node entity, final ServicePluginLocator locator) {
-		final NodeVo vo = toVo(entity);
+		final var vo = toVo(entity);
 		vo.setEnabled(locator.isEnabled(entity.getId()));
 		return vo;
 	}
@@ -135,7 +132,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding VO object with recursive redefined reference.
 	 */
 	public static NodeVo toVo(final Node entity) {
-		final NodeVo vo = toVoLight(entity);
+		final var vo = toVoLight(entity);
 		if (entity.isRefining()) {
 			vo.setRefined(toVo(entity.getRefined()));
 		}
@@ -150,7 +147,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding VO object with resources and without recursive parent reference.
 	 */
 	private static NodeVo toVoParameter(final Node entity, final ServicePluginLocator locator) {
-		final NodeVo vo = toVoParameter(entity);
+		final var vo = toVoParameter(entity);
 		vo.setEnabled(locator.isEnabled(entity.getId()));
 		return vo;
 	}
@@ -162,7 +159,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding VO object with resources and without recursive parent reference.
 	 */
 	private static NodeVo toVoParameter(final Node entity) {
-		final NodeVo vo = toVoLight(entity);
+		final var vo = toVoLight(entity);
 		vo.setParameters(new HashMap<>());
 		vo.setTag(entity.getTag());
 		vo.setTagUiClasses(entity.getTagUiClasses());
@@ -177,7 +174,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding VO object without recursive redefined reference.
 	 */
 	protected static NodeVo toVoLight(final Node entity, final ServicePluginLocator locator) {
-		final NodeVo vo = toVoLight(entity);
+		final var vo = toVoLight(entity);
 		vo.setEnabled(locator.isEnabled(entity.getId()));
 		return vo;
 	}
@@ -189,7 +186,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding VO object without recursive redefined reference.
 	 */
 	public static NodeVo toVoLight(final Node entity) {
-		final NodeVo vo = new NodeVo();
+		final var vo = new NodeVo();
 		NamedBean.copy(entity, vo);
 		vo.setMode(entity.getMode());
 		vo.setUiClasses(entity.getUiClasses());
@@ -207,11 +204,11 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 			final ServicePluginLocator locator) {
 
 		// Build the nodes
-		final Map<String, NodeVo> nodes = new HashMap<>();
-		final Map<String, Node> entities = new HashMap<>();
-		for (final Object[] resultSet : nodesAndValues) {
-			final Node node = (Node) resultSet[0];
-			final NodeVo vo = nodes.computeIfAbsent(node.getId(), id -> {
+		final var nodes = new HashMap<String, NodeVo>();
+		final var entities = new HashMap<String, Node>();
+		for (final var resultSet : nodesAndValues) {
+			final var node = (Node) resultSet[0];
+			final var vo = nodes.computeIfAbsent(node.getId(), id -> {
 				// Build the first encountered parameter for this node
 				entities.put(id, node);
 				return toVoParameter(node, locator);
@@ -225,8 +222,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		// Complete the hierarchy
 		entities.entrySet().stream().filter(entry -> entry.getValue().isRefining()).forEach(entry -> {
 			// Complete the hierarchy for this node
-			final NodeVo node = nodes.get(entry.getKey());
-			final NodeVo parent = nodes.get(entry.getValue().getRefined().getId());
+			final var node = nodes.get(entry.getKey());
+			final var parent = nodes.get(entry.getValue().getRefined().getId());
 			node.setRefined(parent);
 			node.getParameters().putAll(parent.getParameters());
 		});
@@ -249,7 +246,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@POST
 	@CacheRemoveAll(cacheName = "nodes")
 	public void create(final NodeEditionVo vo) {
-		final Node entity = new Node();
+		final var entity = new Node();
 
 		// Also check the parent is writable
 		if (vo.isRefining()) {
@@ -270,7 +267,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@PUT
 	@CacheRemoveAll(cacheName = "nodes")
 	public void update(final NodeEditionVo vo) {
-		final Node entity = saveOrUpdate(vo, checkWritableNode(vo.getId()));
+		final var entity = saveOrUpdate(vo, checkWritableNode(vo.getId()));
 
 		// Update parameters as needed
 		if (!vo.isUntouchedParameters()) {
@@ -324,7 +321,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	private Node checkRefined(final NodeEditionVo node) {
 		if (node.isRefining()) {
-			final String parent = node.getRefined();
+			final var parent = node.getRefined();
 			// Check this parent is the direct ancestor
 			if (!node.getId().matches(parent + ":[^:]+")) {
 				// Parent is in a different branch, or invalid depth
@@ -357,7 +354,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@CacheRemoveAll(cacheName = "nodes")
 	public void delete(@PathParam("id") final String id) throws Exception {
 		checkAdministerable(id);
-		final int nbSubscriptions = subscriptionRepository.countByNode(id);
+		final var nbSubscriptions = subscriptionRepository.countByNode(id);
 		if (nbSubscriptions > 0) {
 			// Subscriptions need to be deleted first
 			throw new BusinessException("existing-subscriptions", nbSubscriptions);
@@ -416,8 +413,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return the new status.
 	 */
 	private NodeStatus checkNodeStatus(final Node node) {
-		final Map<String, String> parameters = pvResource.getNodeParameters(node.getId());
-		final NodeStatus status = self.checkNodeStatus(node.getId(), parameters);
+		final var parameters = pvResource.getNodeParameters(node.getId());
+		final var status = self.checkNodeStatus(node.getId(), parameters);
 		if (eventResource.registerEvent(node, EventType.STATUS, status.name())) {
 			checkSubscriptionStatus(node, status);
 		}
@@ -432,7 +429,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The node status.
 	 */
 	public NodeStatus checkNodeStatus(final String node, final Map<String, String> parameters) {
-		boolean isUp = false;
+		var isUp = false;
 		log.info("Check status of node {}", node);
 		try {
 			// Find the plug-in associated to the requested node
@@ -468,9 +465,9 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @param instances The nodes to check.
 	 */
 	private void checkSubscriptionsStatus(final List<Node> instances) {
-		int counter = 0;
+		var counter = 0;
 		log.info("Check all subscriptions of {} nodes : Started", instances.size());
-		for (final Node node : instances) {
+		for (final var node : instances) {
 			checkSubscriptionStatus(node, null);
 			counter++;
 			log.info("Check all subscriptions {}/{} processed nodes", counter, instances.size());
@@ -485,9 +482,9 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return subscriptions with redefined parameters
 	 */
 	protected Map<Subscription, Map<String, String>> findSubscriptionsWithParams(final String id) {
-		final Map<Subscription, Map<String, String>> result = new HashMap<>();
-		for (final Object[] entityTab : subscriptionRepository.findAllWithValuesByNode(id)) {
-			final ParameterValue value = (ParameterValue) entityTab[1];
+		final var result = new HashMap<Subscription, Map<String, String>>();
+		for (final var entityTab : subscriptionRepository.findAllWithValuesByNode(id)) {
+			final var value = (ParameterValue) entityTab[1];
 			result.computeIfAbsent((Subscription) entityTab[0], s -> new HashMap<>()).put(value.getParameter().getId(),
 					value.getData());
 		}
@@ -501,13 +498,13 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @param status node status
 	 */
 	protected void checkSubscriptionStatus(final Node node, final NodeStatus status) {
-		final Map<String, String> nodeParameters = pvResource.getNodeParameters(node.getId());
+		final var nodeParameters = pvResource.getNodeParameters(node.getId());
 
 		// Retrieve subscriptions where parameters are redefined.
 		// Other subscriptions get the node's status.
-		final Map<Subscription, Map<String, String>> subscriptions = findSubscriptionsWithParams(node.getId());
+		final var subscriptions = findSubscriptionsWithParams(node.getId());
 
-		NodeStatus newStatus = status;
+		var newStatus = status;
 		if (status == null) {
 			// Node status is unknown for now, need a check
 			newStatus = NodeStatus.getValue(self.checkNodeStatus(node.getId(), nodeParameters).isUp());
@@ -537,16 +534,15 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	public SubscriptionStatusWithData checkSubscriptionStatus(final Subscription subscription,
 			final Map<String, String> parameters) {
-		final String node = subscription.getNode().getId();
+		final var node = subscription.getNode().getId();
 		try {
 			log.info("Check status of a subscription attached to {}...", node);
 
 			// Find the plug-in associated to the requested node
-			final ToolPlugin toolPlugin = locator.getResourceExpected(node, ToolPlugin.class);
+			final var toolPlugin = locator.getResourceExpected(node, ToolPlugin.class);
 
 			// Call service which check status
-			final SubscriptionStatusWithData status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node,
-					parameters);
+			final var status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node, parameters);
 			status.setNode(node);
 			log.info("Check status of a subscription attached to {} succeed", node);
 			return status;
@@ -564,14 +560,13 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	private void checkNodeSubscriptions(final Node node, final Map<String, String> nodeParameters,
 			final Map<Subscription, Map<String, String>> subscriptions) {
-		int counter = 0;
-		for (final Entry<Subscription, Map<String, String>> subscription : subscriptions.entrySet()) {
+		var counter = 0;
+		for (final var subscription : subscriptions.entrySet()) {
 			// For each subscription, check status
 			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
-			final Map<String, String> parameters = new HashMap<>(nodeParameters);
+			final var parameters = new HashMap<String, String>(nodeParameters);
 			parameters.putAll(subscription.getValue());
-			final NodeStatus subscriptionStatus = self.checkSubscriptionStatus(subscription.getKey(), parameters)
-					.getStatus();
+			final var subscriptionStatus = self.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
 			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
 			counter++;
 		}
@@ -611,22 +606,20 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@GET
 	@Path("status/subscription")
 	public List<NodeStatisticsVo> getNodeStatistics() {
-		final Map<String, NodeStatisticsVo> results = new HashMap<>();
-		final List<Object[]> subscriptionsSpecificEvents = eventRepository
-				.countSubscriptionsEvents(securityHelper.getLogin());
-		final List<Object[]> totalSubscriptions = repository.countNodeSubscriptions(securityHelper.getLogin());
+		final var results = new HashMap<String, NodeStatisticsVo>();
+		final var subscriptionsSpecificEvents = eventRepository.countSubscriptionsEvents(securityHelper.getLogin());
+		final var totalSubscriptions = repository.countNodeSubscriptions(securityHelper.getLogin());
 
 		// Map node and amount of subscriptions
-		for (final Object[] totalSubscription : totalSubscriptions) {
-			final NodeStatisticsVo result = new NodeStatisticsVo((String) totalSubscription[0]);
+		for (final var totalSubscription : totalSubscriptions) {
+			final var result = new NodeStatisticsVo((String) totalSubscription[0]);
 			result.getValues().put("total", (Long) totalSubscription[1]);
 			results.put(result.getNode(), result);
 		}
 
 		// Map status of each subscription
-		for (final Object[] subscriptionsSpecificEvent : subscriptionsSpecificEvents) {
-			final NodeStatisticsVo result = results.computeIfAbsent((String) subscriptionsSpecificEvent[0],
-					NodeStatisticsVo::new);
+		for (final var subscriptionsSpecificEvent : subscriptionsSpecificEvents) {
+			final var result = results.computeIfAbsent((String) subscriptionsSpecificEvent[0], NodeStatisticsVo::new);
 			result.getValues().put((String) subscriptionsSpecificEvent[1], (Long) subscriptionsSpecificEvent[2]);
 		}
 
@@ -678,9 +671,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo,
 			@QueryParam(DataTableAttributes.SEARCH) final String criteria, @QueryParam("refined") final String refined,
 			@QueryParam("mode") final SubscriptionMode mode, @QueryParam("depth") @DefaultValue("-1") final int depth) {
-		final Page<Node> findAll = repository.findAllVisible(securityHelper.getLogin(),
-				StringUtils.trimToEmpty(criteria), refined, mode, depth,
-				paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
+		final var findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToEmpty(criteria),
+				refined, mode, depth, paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
 
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, n -> toVo(n, locator));
@@ -704,7 +696,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return The corresponding and also validated {@link Parameter} entities.
 	 */
 	public List<Parameter> checkInputParameters(final AbstractParameterizedVo vo) {
-		final List<Parameter> acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
+		final var acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
 				securityHelper.getLogin());
 
 		// Check all mandatory parameters for the current subscription mode
@@ -720,7 +712,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * Check the given parameters do not overrides a valued parameter.
 	 */
 	private void checkOverrides(final List<String> acceptedParameters, final List<String> parameters) {
-		final Collection<String> overrides = CollectionUtils.removeAll(parameters, acceptedParameters);
+		final var overrides = CollectionUtils.removeAll(parameters, acceptedParameters);
 		if (!overrides.isEmpty()) {
 			// A non acceptable parameter. An attempt to override a secured data?
 			throw ValidationJsonException.newValidationJsonException("not-accepted-parameter",
@@ -737,7 +729,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @return the checked node.
 	 */
 	public Node checkNode(final String id, final BiFunction<String, String, Node> checker) {
-		final Node node = checker.apply(id, securityHelper.getLogin());
+		final var node = checker.apply(id, securityHelper.getLogin());
 		if (node == null) {
 			// Node is not readable or does not exists
 			throw new BusinessException("read-only-node", "node", id);
@@ -773,7 +765,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	@Override
 	public Node checkVisible(String id) {
-		final Node entity = repository.findOneVisible(id, securityHelper.getLogin());
+		final var entity = repository.findOneVisible(id, securityHelper.getLogin());
 		if (entity == null) {
 			// Associated node is not visible
 			throw new EntityNotFoundException(id);

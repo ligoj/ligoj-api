@@ -7,7 +7,6 @@ import java.util.Collections;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.ligoj.app.iam.GroupOrg;
 import org.ligoj.app.iam.empty.EmptyGroupRepository;
 
 /**
@@ -37,7 +36,7 @@ class EmptyGroupRepositoryTest {
 
 	@Test
 	void create() {
-		final GroupOrg groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
+		final var groupLdap = new EmptyGroupRepository().create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", groupLdap.getDn());
 		Assertions.assertEquals("Name", groupLdap.getName());
 		Assertions.assertEquals("name", groupLdap.getId());
@@ -45,7 +44,8 @@ class EmptyGroupRepositoryTest {
 
 	@Test
 	void findAllPage() {
-		Assertions.assertEquals(0, new EmptyGroupRepository().findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
+		Assertions.assertEquals(0, new EmptyGroupRepository()
+				.findAll(Collections.emptySet(), null, null, Collections.emptyMap()).getTotalElements());
 	}
 
 	@Test

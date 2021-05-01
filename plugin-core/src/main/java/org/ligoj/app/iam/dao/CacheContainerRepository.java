@@ -14,16 +14,14 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link CacheContainer} base repository
  *
- * @param <C>
- *            Cache container type.
+ * @param <C> Cache container type.
  */
 public interface CacheContainerRepository<C extends CacheContainer> {
 
 	/**
 	 * Filter to determine the company is writable : brought only by a delegate.
 	 */
-	String WRITABLE_RESOURCE = "(" + SystemUser.IS_ADMIN
-			+ " OR writedn(l.description,:user,:user,:user)=true)";
+	String WRITABLE_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR writedn(l.description,:user,:user,:user)=true)";
 
 	/**
 	 * Filter to determine the group is administered : brought only by a delegate.
@@ -33,12 +31,9 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * All visible containers regarding the security, and the criteria.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
-	 * @param criteria
-	 *            Optional criteria.
-	 * @param page
-	 *            Page control.
+	 * @param user     The user requesting the operation.
+	 * @param criteria Optional criteria.
+	 * @param page     Page control.
 	 * @return The pagination result.
 	 */
 	Page<C> findAll(String user, String criteria, Pageable page);
@@ -46,8 +41,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * All visible containers regarding the security.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
+	 * @param user The user requesting the operation.
 	 * @return The visible items.
 	 */
 	List<C> findAll(String user);
@@ -55,12 +49,9 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * All visible containers regarding the security with write access, and the criteria.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
-	 * @param criteria
-	 *            Optional criteria.
-	 * @param page
-	 *            Page control.
+	 * @param user     The user requesting the operation.
+	 * @param criteria Optional criteria.
+	 * @param page     Page control.
 	 * @return The pagination result.
 	 */
 	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
@@ -70,8 +61,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * All visible containers regarding the security with write access.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
+	 * @param user The user requesting the operation.
 	 * @return The visible items.
 	 */
 	@Query("FROM #{#entityName} l WHERE " + WRITABLE_RESOURCE)
@@ -80,12 +70,9 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * All visible containers regarding the security with administration access, and the criteria.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
-	 * @param criteria
-	 *            Optional criteria.
-	 * @param page
-	 *            Page control.
+	 * @param user     The user requesting the operation.
+	 * @param criteria Optional criteria.
+	 * @param page     Page control.
 	 * @return The pagination result.
 	 */
 	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
@@ -95,8 +82,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * All visible containers regarding the security with administration access.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
+	 * @param user The user requesting the operation.
 	 * @return The visible items.
 	 */
 	@Query("FROM #{#entityName} l WHERE " + ADMIN_RESOURCE)
@@ -105,10 +91,8 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * Return a container matching to the given identifier and also visible by the given user.
 	 *
-	 * @param user
-	 *            The user requesting the operation.
-	 * @param id
-	 *            The container's identifier to find.
+	 * @param user The user requesting the operation.
+	 * @param id   The container's identifier to find.
 	 * @return a container matching to the given identifier and also visible by the given user. May be <code>null</code>
 	 */
 	C findById(String user, String id);

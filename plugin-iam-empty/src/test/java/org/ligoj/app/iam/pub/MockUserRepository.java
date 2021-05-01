@@ -36,7 +36,8 @@ class MockUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria, Pageable pageable) {
+	public Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria,
+			Pageable pageable) {
 		return null;
 	}
 

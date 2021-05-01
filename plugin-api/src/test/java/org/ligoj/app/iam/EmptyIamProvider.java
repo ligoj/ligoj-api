@@ -35,15 +35,16 @@ public class EmptyIamProvider implements IamProvider {
 
 	/**
 	 * Return the cached configuration.
+	 *
 	 * @return The cached configuration.
 	 */
 	@CacheResult(cacheName = "iam-test-configuration")
 	public String refreshConfiguration() {
-		final IamConfiguration configuration = new IamConfiguration();
-		final EmptyCompanyRepository companyRepository = new EmptyCompanyRepository();
+		final var configuration = new IamConfiguration();
+		final var companyRepository = new EmptyCompanyRepository();
 		configuration.setCompanyRepository(companyRepository);
 		configuration.setGroupRepository(new EmptyGroupRepository());
-		final EmptyUserRepository userRepository = new EmptyUserRepository();
+		final var userRepository = new EmptyUserRepository();
 		configuration.setUserRepository(userRepository);
 
 		// Also link user/company repositories

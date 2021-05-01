@@ -7,7 +7,6 @@ import java.util.Collections;
 
 import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
-import javax.ws.rs.core.MultivaluedMap;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -35,7 +34,7 @@ class TestAbstractAppTest extends AbstractAppTest {
 	@Test
 	void coverage() {
 		iamProvider = Mockito.mock(IamProvider.class);
-		IamConfiguration configuration = Mockito.mock(IamConfiguration.class);
+		var configuration = Mockito.mock(IamConfiguration.class);
 		Mockito.when(iamProvider.getConfiguration()).thenReturn(configuration);
 		em = Mockito.mock(EntityManager.class);
 		getUser();
@@ -63,7 +62,7 @@ class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
 	void testNewUriInfoAsc() {
-		MultivaluedMap<String, String> map = newUriInfoAsc("prop").getQueryParameters();
+		var map = newUriInfoAsc("prop").getQueryParameters();
 		Assertions.assertEquals("2", map.getFirst("order[0][column]"));
 		Assertions.assertEquals("prop", map.getFirst("columns[2][data]"));
 		Assertions.assertEquals("asc", map.getFirst("order[0][dir]"));
@@ -71,7 +70,7 @@ class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
 	void testNewUriInfoDesc() {
-		MultivaluedMap<String, String> map = newUriInfoDesc("prop").getQueryParameters();
+		var map = newUriInfoDesc("prop").getQueryParameters();
 		Assertions.assertEquals("2", map.getFirst("order[0][column]"));
 		Assertions.assertEquals("prop", map.getFirst("columns[2][data]"));
 		Assertions.assertEquals("desc", map.getFirst("order[0][dir]"));
@@ -79,7 +78,7 @@ class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
 	void testNewUriInfoAscSearch() {
-		MultivaluedMap<String, String> map = newUriInfoAscSearch("prop", "filter").getQueryParameters();
+		var map = newUriInfoAscSearch("prop", "filter").getQueryParameters();
 		Assertions.assertEquals("filter", map.getFirst("search[value]"));
 		Assertions.assertEquals("2", map.getFirst("order[0][column]"));
 		Assertions.assertEquals("prop", map.getFirst("columns[2][data]"));

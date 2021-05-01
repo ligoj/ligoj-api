@@ -57,10 +57,9 @@ class ParameterResourceTest extends AbstractAppTest {
 	@Test
 	void getNotProvidedParameters() {
 		repository.findOneExpected("service:bt:jira:pkey").setDefaultValue("DEFAULT_VALUE1");
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6",
-				SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:bt:jira:6", SubscriptionMode.LINK);
 		Assertions.assertEquals(25, parameters.size());
-		final int nonDummyStartIndex = 23;
+		final var nonDummyStartIndex = 23;
 		Assertions.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex).getId());
 		Assertions.assertEquals("DEFAULT_VALUE1", parameters.get(nonDummyStartIndex).getDefaultValue());
 		Assertions.assertFalse(parameters.get(nonDummyStartIndex).isSecured());
@@ -79,8 +78,7 @@ class ParameterResourceTest extends AbstractAppTest {
 		repository.findOneExpected("c_8").getDepends().add(repository.findOneExpected("c_2"));
 		repository.findOneExpected("c_2").getDepends().add(repository.findOneExpected("c_7"));
 		repository.findOneExpected("c_7").getDepends().add(repository.findOneExpected("c_14"));
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira:6",
-				SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:bt:jira:6", SubscriptionMode.LINK);
 
 		// Dependency order check
 		Assertions.assertTrue(indexOf("c_16", parameters) > indexOf("c_10", parameters));
@@ -107,23 +105,22 @@ class ParameterResourceTest extends AbstractAppTest {
 
 	@Test
 	void getNotProvidedParametersTool() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt:jira",
-				SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:bt:jira", SubscriptionMode.LINK);
 		Assertions.assertEquals(32, parameters.size());
 		Assertions.assertEquals("c_10", parameters.get(0).getId());
-		final int nonDummyStartIndex = 23;
+		final var nonDummyStartIndex = 23;
 		Assertions.assertEquals("service:bt:jira:jdbc-driver", parameters.get(nonDummyStartIndex).getId());
 		Assertions.assertEquals("service:bt:jira:jdbc-password", parameters.get(nonDummyStartIndex + 1).getId());
 		Assertions.assertTrue(parameters.get(nonDummyStartIndex + 1).isSecured());
 		Assertions.assertEquals("service:bt:jira:jdbc-url", parameters.get(nonDummyStartIndex + 2).getId());
 		Assertions.assertEquals("service:bt:jira:jdbc-user", parameters.get(nonDummyStartIndex + 3).getId());
 
-		final ParameterVo projectParameter = parameters.get(nonDummyStartIndex + 4);
+		final var projectParameter = parameters.get(nonDummyStartIndex + 4);
 		Assertions.assertEquals("service:bt:jira:password", projectParameter.getId());
 		Assertions.assertTrue(projectParameter.isSecured());
 		Assertions.assertEquals("service:bt:jira:pkey", parameters.get(nonDummyStartIndex + 5).getId());
 		Assertions.assertFalse(parameters.get(nonDummyStartIndex + 5).isSecured());
-		final ParameterVo projectParameter2 = parameters.get(nonDummyStartIndex + 6);
+		final var projectParameter2 = parameters.get(nonDummyStartIndex + 6);
 		Assertions.assertEquals(ParameterType.INTEGER, projectParameter2.getType());
 		Assertions.assertEquals("service:bt:jira", projectParameter2.getOwner().getId());
 		Assertions.assertEquals("service:bt:jira:project", projectParameter2.getId());
@@ -134,13 +131,13 @@ class ParameterResourceTest extends AbstractAppTest {
 
 	@Test
 	void getNotProvidedParametersServiceEmpty() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:bt", SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:bt", SubscriptionMode.LINK);
 		Assertions.assertEquals(0, parameters.size());
 	}
 
 	@Test
 	void getNotProvidedParametersServiceToService() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id", SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:id", SubscriptionMode.LINK);
 		Assertions.assertEquals(2, parameters.size());
 		Assertions.assertEquals("service:id:group", parameters.get(0).getId());
 		Assertions.assertEquals("service:id:uid-pattern", parameters.get(1).getId());
@@ -148,8 +145,7 @@ class ParameterResourceTest extends AbstractAppTest {
 
 	@Test
 	void getNotProvidedParametersServiceToTool() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap",
-				SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:id:ldap", SubscriptionMode.LINK);
 		Assertions.assertEquals(19, parameters.size());
 		final List<String> expected = Arrays.asList("service:id:ldap:base-dn", "service:id:ldap:companies-dn",
 				"service:id:group", "service:id:ldap:groups-dn", "service:id:ldap:local-id-attribute",
@@ -163,8 +159,7 @@ class ParameterResourceTest extends AbstractAppTest {
 
 	@Test
 	void getNotProvidedParametersServiceToToolCreate() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap",
-				SubscriptionMode.CREATE);
+		final var parameters = resource.getNotProvidedParameters("service:id:ldap", SubscriptionMode.CREATE);
 		Assertions.assertEquals(21, parameters.size());
 		final List<String> expected = Arrays.asList("service:id:ldap:base-dn", "service:id:ldap:companies-dn",
 				"service:id:group", "service:id:ldap:groups-dn", "service:id:ldap:local-id-attribute",
@@ -197,8 +192,7 @@ class ParameterResourceTest extends AbstractAppTest {
 
 	@Test
 	void getNotProvidedParametersServiceToNode() {
-		final List<ParameterVo> parameters = resource.getNotProvidedParameters("service:id:ldap:dig",
-				SubscriptionMode.LINK);
+		final var parameters = resource.getNotProvidedParameters("service:id:ldap:dig", SubscriptionMode.LINK);
 		Assertions.assertEquals(1, parameters.size());
 		Assertions.assertEquals("service:id:group", parameters.get(0).getId());
 	}

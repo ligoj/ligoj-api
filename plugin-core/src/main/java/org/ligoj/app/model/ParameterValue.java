@@ -23,9 +23,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_PARAMETER_VALUE", uniqueConstraints={
-		@UniqueConstraint(columnNames={"parameter", "node"}),
-		@UniqueConstraint(columnNames={"parameter", "subscription"})})
+@Table(name = "LIGOJ_PARAMETER_VALUE", uniqueConstraints = { @UniqueConstraint(columnNames = { "parameter", "node" }),
+		@UniqueConstraint(columnNames = { "parameter", "subscription" }) })
 @ToString(of = { "parameter", "data" })
 public class ParameterValue extends AbstractAudited<Integer> implements NodeScoped {
 

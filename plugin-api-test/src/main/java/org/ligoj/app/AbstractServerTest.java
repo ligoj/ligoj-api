@@ -24,7 +24,7 @@ public abstract class AbstractServerTest extends AbstractAppTest {
 		if (httpServer != null) {
 			throw new IllegalStateException("A previous HTTP server was already created");
 		}
-		
+
 		// See https://github.com/tomakehurst/wiremock/issues/710
 		httpServer = new WireMockServer(WireMockConfiguration.options().port(MOCK_PORT).jettyStopTimeout(10000L));
 		System.setProperty("http.keepAlive", "false");

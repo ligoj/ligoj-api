@@ -48,7 +48,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 
 	/**
 	 * Constructor holding the data used to convert a {@link Project} to {@link ProjectVo}.
-	 * 
+	 *
 	 * @param locator               The locator instance.
 	 * @param userConverter         The {@link Function} used to convert internal user identifier to described user.
 	 * @param subscriptionsAndParam The subscription (index 0, type {@link Subscription}) with parameter values (index
@@ -65,7 +65,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 
 	@Override
 	public ProjectVo apply(final Project entity) {
-		final ProjectVo vo = new ProjectVo();
+		final var vo = new ProjectVo();
 		vo.copyAuditData(entity, userConverter);
 		DescribedBean.copy(entity, vo);
 		vo.setPkey(entity.getPkey());
@@ -93,7 +93,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	/**
 	 * Convert a {@link Subscription} to a {@link SubscriptionVo} with status, and put it in the target map if not
 	 * existing.
-	 * 
+	 *
 	 * @param subscriptions The map of already converted entities.
 	 * @param entity        The {@link Subscription}
 	 * @return The related converted {@link SubscriptionVo} newly created or existing one.

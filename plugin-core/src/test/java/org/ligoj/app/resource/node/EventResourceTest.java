@@ -50,24 +50,23 @@ class EventResourceTest extends AbstractAppTest {
 
 	@BeforeEach
 	void prepare() throws IOException {
-		persistEntities("csv",
-				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class, Event.class },
-				StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
+				ParameterValue.class, Event.class }, StandardCharsets.UTF_8.name());
 	}
 
 	@Test
 	void registerNodeEvent() {
-		final Node node = new Node();
+		final var node = new Node();
 		node.setId("junit1");
 		node.setName("junit1");
 		em.persist(node);
 
-		long count = repository.count();
+		var count = repository.count();
 		Assertions.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.UP.name()));
 		Assertions.assertEquals(++count, repository.count());
 		Assertions.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(++count, repository.count());
-		final Event lastEvent = repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS);
+		final var lastEvent = repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS);
 		Assertions.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
 		Assertions.assertFalse(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(count, repository.count());
@@ -76,19 +75,20 @@ class EventResourceTest extends AbstractAppTest {
 
 	@Test
 	void registerSubscriptionEvent() {
-		final Subscription subscription = new Subscription();
+		final var subscription = new Subscription();
 		subscription.setProject(projectRepository.findByName("MDA"));
 		subscription.setNode(em.find(Node.class, "service:build:jenkins:bpr"));
 		em.persist(subscription);
-		long count = repository.count();
+		var count = repository.count();
 		Assertions.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.UP.name()));
 		Assertions.assertEquals(++count, repository.count());
 		Assertions.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(++count, repository.count());
-		final Event lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS);
+		final var lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS);
 		Assertions.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
 		Assertions.assertFalse(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(count, repository.count());
-		Assertions.assertEquals(lastEvent, repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS));
+		Assertions.assertEquals(lastEvent,
+				repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS));
 	}
 }

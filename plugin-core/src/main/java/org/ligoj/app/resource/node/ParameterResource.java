@@ -75,9 +75,8 @@ public class ParameterResource {
 
 	/**
 	 * Return a list of {@link Integer} from a raw JSON string.
-	 * 
-	 * @param json
-	 *            The raw JSON string.
+	 *
+	 * @param json The raw JSON string.
 	 * @return The not <code>null</code> list.
 	 */
 	public static List<Integer> toListInteger(final String json) {
@@ -86,9 +85,8 @@ public class ParameterResource {
 
 	/**
 	 * Return a list of {@link String} from a raw JSON string.
-	 * 
-	 * @param json
-	 *            The raw JSON string.
+	 *
+	 * @param json The raw JSON string.
 	 * @return The not <code>null</code> list.
 	 */
 	public static List<String> toListString(final String json) {
@@ -97,9 +95,8 @@ public class ParameterResource {
 
 	/**
 	 * Return a Map of {@link Integer} as value from a raw JSON string.
-	 * 
-	 * @param json
-	 *            The raw JSON string.
+	 *
+	 * @param json The raw JSON string.
 	 * @return The not <code>null</code> Map.
 	 */
 	public static Map<String, Integer> toMapInteger(final String json) {
@@ -108,9 +105,8 @@ public class ParameterResource {
 
 	/**
 	 * Return a Map of {@link String} as value from a raw JSON string.
-	 * 
-	 * @param json
-	 *            The raw JSON string.
+	 *
+	 * @param json The raw JSON string.
 	 * @return The not <code>null</code> Map.
 	 */
 	public static Map<String, String> toMapString(final String json) {
@@ -119,9 +115,8 @@ public class ParameterResource {
 
 	/**
 	 * Managed JSON writer
-	 * 
-	 * @param any
-	 *            Any object to serialize.
+	 *
+	 * @param any Any object to serialize.
 	 * @return The JSON string from an object.
 	 */
 	public static String toJSon(final Object any) {
@@ -134,13 +129,10 @@ public class ParameterResource {
 
 	/**
 	 * Build parameter configuration from the string definition.
-	 * 
-	 * @param content
-	 *            The content JSON string configuration. May be <code>null</code>.
-	 * @param valueTypeRef
-	 *            The type reference to fix the return type.
-	 * @param <T>
-	 *            The return type.
+	 *
+	 * @param content      The content JSON string configuration. May be <code>null</code>.
+	 * @param valueTypeRef The type reference to fix the return type.
+	 * @param <T>          The return type.
 	 * @return The parameter configuration.
 	 */
 	public static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
@@ -153,13 +145,12 @@ public class ParameterResource {
 
 	/**
 	 * {@link Parameter} JPA to {@link ParameterVo} transformer.
-	 * 
-	 * @param entity
-	 *            The source JPA entity to convert.
+	 *
+	 * @param entity The source JPA entity to convert.
 	 * @return The VO with all attributes : full node reference, and definition.
 	 */
 	public static ParameterVo toVo(final Parameter entity) {
-		final ParameterVo vo = new ParameterVo();
+		final var vo = new ParameterVo();
 		// Copy basic data
 		vo.setId(entity.getId());
 		vo.setType(entity.getType());
@@ -173,7 +164,7 @@ public class ParameterResource {
 		if (entity.getType().isArray()) {
 			vo.setValues(toConfiguration(entity.getData(), LIST_STRING_TYPE));
 		} else if (entity.getType() == ParameterType.INTEGER) {
-			final Map<String, Integer> minMax = toConfiguration(entity.getData(), MAP_STRING_TYPE);
+			final var minMax = toConfiguration(entity.getData(), MAP_STRING_TYPE);
 			vo.setMax(minMax.get("max"));
 			vo.setMin(minMax.get("min"));
 		}
@@ -182,9 +173,8 @@ public class ParameterResource {
 
 	/**
 	 * Return a parameter attached to a visible node for the current user.
-	 * 
-	 * @param id
-	 *            Parameter identifier.
+	 *
+	 * @param id Parameter identifier.
 	 * @return The parameter from its identifier. May be <code>null</code>.
 	 */
 	public Parameter findByIdInternal(final String id) {
@@ -195,11 +185,9 @@ public class ParameterResource {
 	/**
 	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. The
 	 * parameters are ordered by dependencies, root first.
-	 * 
-	 * @param node
-	 *            The node identifier.
-	 * @param mode
-	 *            Subscription mode.
+	 *
+	 * @param node The node identifier.
+	 * @param mode Subscription mode.
 	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
 	 *         mode.
 	 */
@@ -208,18 +196,17 @@ public class ParameterResource {
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
 		// Build the parameters map
-		final Map<String, ParameterVo> parameters = new HashMap<>();
+		final var parameters = new HashMap<String, ParameterVo>();
 		repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(ParameterResource::toVo)
 				.forEach(v -> parameters.put(v.getId(), v));
 
 		// Complete the dependencies graph
-		boolean updated = true;
+		var updated = true;
 		while (updated) {
-			updated = parameters.values().stream()
-					.anyMatch(p -> p.getDepends().addAll(p.getDepends().stream()
-							.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())));
+			updated = parameters.values().stream().anyMatch(p -> p.getDepends().addAll(p.getDepends().stream()
+					.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())));
 		}
-		final List<ParameterVo> clone = new ArrayList<>(parameters.values());
+		final var clone = new ArrayList<>(parameters.values());
 		clone.sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
 		clone.sort(COMPARATOR);
 		return clone;
@@ -227,11 +214,9 @@ public class ParameterResource {
 
 	/**
 	 * Return all node parameter definitions where a value is expected to be provided to the final subscription.
-	 * 
-	 * @param node
-	 *            The node identifier.
-	 * @param mode
-	 *            Subscription mode.
+	 *
+	 * @param node The node identifier.
+	 * @param mode Subscription mode.
 	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
 	 *         mode.
 	 */

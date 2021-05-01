@@ -10,8 +10,8 @@ import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  * {@link AbstractLongTask} base repository for Subscription.
- * @param <T>
- *            Type of task entity.
+ *
+ * @param <T> Type of task entity.
  */
 @NoRepositoryBean
 public interface LongTaskSubscriptionRepository<T extends AbstractLongTask<Subscription, Integer>>

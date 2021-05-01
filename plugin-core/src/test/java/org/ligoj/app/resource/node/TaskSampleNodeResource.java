@@ -18,7 +18,8 @@ import lombok.Getter;
 /**
  * An advanced mocked {@link LongTaskRunner} without transaction inner issue.
  */
-public class TaskSampleNodeResource implements ServicePlugin, LongTaskRunnerNode<TaskSampleNode, TaskSampleNodeRepository> {
+public class TaskSampleNodeResource
+		implements ServicePlugin, LongTaskRunnerNode<TaskSampleNode, TaskSampleNodeRepository> {
 
 	@Autowired
 	@Getter

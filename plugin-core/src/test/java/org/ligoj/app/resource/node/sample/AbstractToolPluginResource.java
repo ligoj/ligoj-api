@@ -29,7 +29,7 @@ public abstract class AbstractToolPluginResource extends org.ligoj.app.resource.
 
 	@Override
 	public SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters) {
-		final SubscriptionStatusWithData status = new SubscriptionStatusWithData();
+		final var status = new SubscriptionStatusWithData();
 		status.put("property", "value");
 		return status;
 	}

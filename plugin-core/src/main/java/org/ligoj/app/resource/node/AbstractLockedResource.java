@@ -37,7 +37,7 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	 */
 	public void deleteTasks(final ServicePlugin plugin, final I id) {
 		// Check and delete the related finished tasks
-		final String scope = plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
+		final var scope = plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
 		applicationContext.getBeansOfType(getLongTaskRunnerClass()).values().stream()
 				.filter(l -> l.getClass().getProtectionDomain().getCodeSource().getLocation().toString().equals(scope))
 				.forEach(l -> l.deleteTask(id));
@@ -53,7 +53,7 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	 */
 	public void deleteWithTasks(final String node, final I id, final boolean deleteRemoteData) throws Exception {
 		// Delegate the deletion
-		ServicePlugin plugin = locator.getResource(node);
+		var plugin = locator.getResource(node);
 		while (plugin != null) {
 			// Pre-check for long task
 			deleteTasks(plugin, id);

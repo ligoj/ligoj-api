@@ -42,7 +42,7 @@ class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
 	void testRegisterSingleton() {
-		final Object singleton = new Object();
+		final var singleton = new Object();
 		Assertions.assertThrows(NoSuchBeanDefinitionException.class, () -> {
 			applicationContext.getBean("my_dynamical_bean");
 		});
@@ -52,7 +52,7 @@ class TestAbstractAppTest extends AbstractAppTest {
 		Assertions.assertThrows(NoSuchBeanDefinitionException.class, () -> {
 			applicationContext.getBean("my_dynamical_bean");
 		});
-		
+
 		// Destroy method accepts already destroyed bean
 		destroySingleton("my_dynamical_bean");
 	}

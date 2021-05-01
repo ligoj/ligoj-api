@@ -11,9 +11,8 @@ public interface ConfigurablePlugin {
 
 	/**
 	 * Return the configuration of given subscription.
-	 * 
-	 * @param subscription
-	 *            the subscription attached to a configurable service or tool.
+	 *
+	 * @param subscription the subscription attached to a configurable service or tool.
 	 * @return the configuration of given subscription.
 	 * @throws Exception Configuration build failed. This error is caught at higher level.
 	 */

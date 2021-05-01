@@ -5,14 +5,13 @@ package org.ligoj.app.dao;
 
 import java.util.List;
 
-import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.jpa.repository.Query;
-
-import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
+import org.ligoj.bootstrap.core.dao.RestRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 /**
  * {@link Event} repository
@@ -21,31 +20,26 @@ public interface EventRepository extends RestRepository<Event, String> {
 
 	/**
 	 * find the last event for a node and a type
-	 * 
-	 * @param node
-	 *            node
-	 * @param type
-	 *            event type
+	 *
+	 * @param node node
+	 * @param type event type
 	 * @return last event
 	 */
 	Event findFirstByNodeAndTypeOrderByIdDesc(Node node, EventType type);
 
 	/**
 	 * find the last event for a subscription and a type
-	 * 
-	 * @param subscription
-	 *            subscription
-	 * @param type
-	 *            event type
+	 *
+	 * @param subscription subscription
+	 * @param type         event type
 	 * @return last event
 	 */
 	Event findFirstBySubscriptionAndTypeOrderByIdDesc(Subscription subscription, EventType type);
 
 	/**
 	 * Return last events of all visible nodes for a given user.
-	 * 
-	 * @param user
-	 *            The user requesting the nodes.
+	 *
+	 * @param user The user requesting the nodes.
 	 * @return last events of all nodes.
 	 */
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.node n INNER JOIN FETCH n.refined tool INNER JOIN tool.refined root"
@@ -55,11 +49,9 @@ public interface EventRepository extends RestRepository<Event, String> {
 
 	/**
 	 * Return the last event if available of a visible node for a given user.
-	 * 
-	 * @param user
-	 *            The principal user requesting the nodes.
-	 * @param node
-	 *            The related node.
+	 *
+	 * @param user The principal user requesting the nodes.
+	 * @param node The related node.
 	 * @return last events of a specific node.
 	 */
 	@Query("FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
@@ -68,9 +60,8 @@ public interface EventRepository extends RestRepository<Event, String> {
 
 	/**
 	 * find last events for a project
-	 * 
-	 * @param project
-	 *            Project identifier.
+	 *
+	 * @param project Project identifier.
 	 * @return all events
 	 */
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.subscription sub "
@@ -79,9 +70,8 @@ public interface EventRepository extends RestRepository<Event, String> {
 
 	/**
 	 * count subscriptions events grouped by node and value
-	 * 
-	 * @param user
-	 *            The user requesting the nodes.
+	 *
+	 * @param user The user requesting the nodes.
 	 * @return subscriptions events count
 	 */
 	@Query("SELECT n.id, event.value, count(event) FROM Event event INNER JOIN event.subscription sub LEFT JOIN sub.node n"
@@ -91,9 +81,8 @@ public interface EventRepository extends RestRepository<Event, String> {
 
 	/**
 	 * Delete all events related to the given node.
-	 * 
-	 * @param node
-	 *            The node identifier.
+	 *
+	 * @param node The node identifier.
 	 */
 	@Modifying
 	@Query("DELETE Event WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%')"

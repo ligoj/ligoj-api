@@ -38,12 +38,10 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 
 	/**
 	 * Return the version of tool or <code>null</code> if not available/found.
-	 * 
-	 * @param subscription
-	 *            the subscription's identifier to use to locate the target instance.
+	 *
+	 * @param subscription the subscription's identifier to use to locate the target instance.
 	 * @return the version of tool or <code>null</code> if not available/found.
-	 * @throws Exception
-	 *             When version cannot be be retrieved.
+	 * @throws Exception When version cannot be be retrieved.
 	 */
 	@GET
 	@Path("version/{subscription:\\d+}")
@@ -59,11 +57,9 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 
 	/**
 	 * Simple shortcut for a OK and download header.
-	 * 
-	 * @param output
-	 *            Source entity.
-	 * @param file
-	 *            The target file name.
+	 *
+	 * @param output Source entity.
+	 * @param file   The target file name.
 	 * @return the {@link Response} ready to be consumed.
 	 */
 	public static ResponseBuilder download(final StreamingOutput output, final String file) {

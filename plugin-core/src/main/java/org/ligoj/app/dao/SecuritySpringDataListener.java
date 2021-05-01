@@ -27,7 +27,7 @@ import lombok.Getter;
 /**
  * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation.
  * An human readable form is available on GitHub wiki page.
- * 
+ *
  * @see <a href="https://github.com/ligoj/ligoj/wiki/Security">Security</a>
  */
 @Component
@@ -58,13 +58,13 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 	/**
 	 * Listener with EMF as context.
-	 * 
+	 *
 	 * @param emf The current EMF.
 	 */
 	@SuppressWarnings("unchecked")
 	@Autowired
 	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) {
-		final SessionFactoryImpl sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
+		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		this.sqlFunctions = (Map<String, SQLFunction>) FieldUtils.getProtectedFieldValue("functionMap",
 				sessionFactory.getSqlFunctionRegistry());
 		this.dialect = sessionFactory.getJdbcServices().getJdbcEnvironment().getDialect();
@@ -214,7 +214,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		private String parse(final String query, final String arg, final String user) {
-			final String quote = String.valueOf(dialect.openQuote()) + "$1" + dialect.closeQuote();
+			final var quote = String.valueOf(dialect.openQuote()) + "$1" + dialect.closeQuote();
 			return query.replace("$exists", "(EXISTS (SELECT 1 FROM").replace("$end", "))")
 					.replace("$pj", "ligoj_project").replace("$cg", "ligoj_cache_group")
 					.replace("$cu", "ligoj_cache_user").replace("$cc", "ligoj_cache_company")

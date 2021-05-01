@@ -35,9 +35,8 @@ public class DelegateNode extends AbstractDelegate {
 
 	/**
 	 * Set the related node's identifier. Alias for name property.
-	 * 
-	 * @param node
-	 *            The related node.
+	 *
+	 * @param node The related node.
 	 */
 	public void setNode(final String node) {
 		setName(node);

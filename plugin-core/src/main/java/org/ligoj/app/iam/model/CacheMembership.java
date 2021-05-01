@@ -9,9 +9,10 @@ import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.ligoj.bootstrap.core.model.AbstractPersistable;
+
 import lombok.Getter;
 import lombok.Setter;
-import org.ligoj.bootstrap.core.model.AbstractPersistable;
 
 /**
  * User and group links : user to group, and group to sub-group.
@@ -19,7 +20,8 @@ import org.ligoj.bootstrap.core.model.AbstractPersistable;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_CACHE_MEMBERSHIP", uniqueConstraints = @UniqueConstraint(columnNames = { "user", "sub_group", "group" }))
+@Table(name = "LIGOJ_CACHE_MEMBERSHIP", uniqueConstraints = @UniqueConstraint(columnNames = { "user", "sub_group",
+		"group" }))
 public class CacheMembership extends AbstractPersistable<Integer> {
 
 	@ManyToOne

@@ -21,23 +21,26 @@ public @interface NodeId {
 
 	/**
 	 * Default Key message.
+	 *
 	 * @return Message key.
 	 */
 	String message() default "org.ligoj.app.model.NodeId.message";
 
 	/**
 	 * JSR-303 requirement.
+	 *
 	 * @return No groups.
 	 */
 	Class<?>[] groups() default {
-		
+
 	};
 
 	/**
 	 * JSR-303 requirement.
+	 *
 	 * @return No payloads.
 	 */
 	Class<? extends Payload>[] payload() default {
-		
+
 	};
 }

@@ -62,7 +62,7 @@ class BeanTest {
 
 	@Test
 	void testCacheUser() {
-		final CacheUser user = new CacheUser();
+		final var user = new CacheUser();
 
 		// Simple user attributes
 		check(user, CacheUser::setCompany, CacheUser::getCompany, new CacheCompany());

@@ -4,7 +4,6 @@
 package org.ligoj.app.resource.plugin;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,9 +15,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.model.Node;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 /**
@@ -35,7 +32,7 @@ class XmlUtilsTest {
 
 	@Test
 	void getTags() throws SAXException, IOException, ParserConfigurationException {
-		final NodeList tags = resource.getTags(
+		final var tags = resource.getTags(
 				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag1>value3</tag1></root>", "tag1");
 		Assertions.assertEquals(2, tags.getLength());
 		Assertions.assertEquals("tag1", tags.item(0).getNodeName());
@@ -46,10 +43,10 @@ class XmlUtilsTest {
 
 	@Test
 	void getTagText() throws SAXException, IOException, ParserConfigurationException {
-		final InputStream jobsAsInput = IOUtils.toInputStream(
+		final var jobsAsInput = IOUtils.toInputStream(
 				"<root>any <tag1>value1</tag1> some <tag2>value2</tag2> some <tag3>  </tag3></root>",
 				StandardCharsets.UTF_8);
-		final Document root = resource.parse(jobsAsInput);
+		final var root = resource.parse(jobsAsInput);
 		Assertions.assertEquals("value2", resource.getTagText((Element) root.getFirstChild(), "tag2"));
 		Assertions.assertNull(resource.getTagText((Element) root.getFirstChild(), "tag3"));
 	}
@@ -64,7 +61,7 @@ class XmlUtilsTest {
 
 	@Test
 	void getTagsLink() throws SAXException, IOException, ParserConfigurationException {
-		NodeList tags = resource.getTags(null, "tag1");
+		var tags = resource.getTags(null, "tag1");
 		Assertions.assertEquals(0, tags.getLength());
 	}
 

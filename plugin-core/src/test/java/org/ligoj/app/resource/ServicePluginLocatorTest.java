@@ -52,15 +52,14 @@ class ServicePluginLocatorTest extends AbstractAppTest {
 
 	@Test
 	void getResourceType() {
-		final ConfigurablePlugin resource = component.getResource(JiraBaseResource.KEY, ConfigurablePlugin.class);
+		final var resource = component.getResource(JiraBaseResource.KEY, ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
 		Assertions.assertTrue(resource instanceof BugTrackerResource);
 	}
 
 	@Test
 	void getResourceTypeParent() {
-		final ConfigurablePlugin resource = component.getResource(JiraBaseResource.KEY + ":any",
-				ConfigurablePlugin.class);
+		final var resource = component.getResource(JiraBaseResource.KEY + ":any", ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
 		Assertions.assertTrue(resource instanceof BugTrackerResource);
 	}

@@ -99,7 +99,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Converter from {@link DelegateOrg} to {@link DelegateOrgLightVo}
-	 * 
+	 *
 	 * @param entity The entity to convert.
 	 * @return The initialized bean corresponding to the entity with fetched description for related user and group.
 	 */
@@ -122,7 +122,7 @@ public class DelegateOrgResource {
 		// Flag to indicate the principal user can manage this entry
 		vo.setManaged(isManagedDelegate(entity));
 		if (entity.getType() == DelegateType.GROUP) {
-			final Map<String, GroupOrg> groups = getGroup().findAll();
+			final var groups = getGroup().findAll();
 			if (groups.containsKey(entity.getReferenceID())) {
 				// Make nicer the display for group using the CN
 				vo.setName(groups.get(entity.getReferenceID()).getName());
@@ -145,7 +145,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Retrieve all elements with pagination
-	 * 
+	 *
 	 * @param uriInfo    pagination data.
 	 * @param typeSearch Optional {@link DelegateType} search.
 	 * @return all elements with pagination.
@@ -172,7 +172,7 @@ public class DelegateOrgResource {
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param vo the object to create.
 	 * @return the entity's identifier.
 	 */
@@ -195,7 +195,7 @@ public class DelegateOrgResource {
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
 	 * Attention, DN is case sensitive.
-	 * 
+	 *
 	 * @return the created/update {@link DelegateOrg}
 	 */
 	private DelegateOrg validateSaveOrUpdate(final DelegateOrgEditionVo importEntry) {
@@ -241,7 +241,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Build the entity from the import entry.
-	 * 
+	 *
 	 * @param importEntry The new delegate.
 	 * @return The JPA entity form with validated inputs.
 	 */
@@ -305,7 +305,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Update entity.
-	 * 
+	 *
 	 * @param vo the object to update.
 	 */
 	@PUT
@@ -321,7 +321,7 @@ public class DelegateOrgResource {
 	 * parent delegate tree/company/.., or act as if the delegate does not exist.</li>
 	 * </ul>
 	 * Attention, DN is case sensitive.
-	 * 
+	 *
 	 * @param id the entity identifier.
 	 */
 	@DELETE
@@ -337,7 +337,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Check the principal user can delete this delegate. 'canAdmin' flag must be enabled.
-	 * 
+	 *
 	 * @param id the entity identifier.
 	 */
 	private void validateWriteAccess(final int id) {
@@ -356,7 +356,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Company repository provider.
-	 * 
+	 *
 	 * @return Company repository provider.
 	 */
 	private ICompanyRepository getCompany() {
@@ -365,7 +365,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * User repository provider.
-	 * 
+	 *
 	 * @return User repository provider.
 	 */
 	private IUserRepository getUser() {
@@ -374,7 +374,7 @@ public class DelegateOrgResource {
 
 	/**
 	 * Group repository provider.
-	 * 
+	 *
 	 * @return Group repository provider.
 	 */
 	private IGroupRepository getGroup() {

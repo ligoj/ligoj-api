@@ -18,7 +18,7 @@ public class DefaultVerificationMode implements VerificationMode {
 
 	/**
 	 * Verification mode.
-	 * 
+	 *
 	 * @param dataVerify Verifier.
 	 */
 	public DefaultVerificationMode(final Consumer<VerificationData> dataVerify) {

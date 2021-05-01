@@ -28,7 +28,6 @@ import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.sample.IdentityResource;
-import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
@@ -39,11 +38,11 @@ class ToVoConverterTest {
 
 	@Test
 	void applyEmpty() {
-		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
-		final ToVoConverter converter = new ToVoConverter(locator, s -> null, new ArrayList<>(), new HashMap<>());
-		final Project entity = new Project();
+		final var locator = Mockito.mock(ServicePluginLocator.class);
+		final var converter = new ToVoConverter(locator, s -> null, new ArrayList<>(), new HashMap<>());
+		final var entity = new Project();
 		entity.setSubscriptions(Collections.emptyList());
-		final ProjectVo vo = converter.apply(entity);
+		final var vo = converter.apply(entity);
 		Assertions.assertNull(vo.getName());
 		Assertions.assertNull(vo.getPkey());
 		Assertions.assertNull(vo.getCreatedBy());
@@ -59,9 +58,9 @@ class ToVoConverterTest {
 	void apply() {
 
 		// Sub user repository
-		final IamProvider iamProvider = Mockito.mock(IamProvider.class);
-		final IUserRepository userRepository = Mockito.mock(IUserRepository.class);
-		final IamConfiguration configuration = new IamConfiguration();
+		final var iamProvider = Mockito.mock(IamProvider.class);
+		final var userRepository = Mockito.mock(IUserRepository.class);
+		final var configuration = new IamConfiguration();
 		configuration.setUserRepository(userRepository);
 		Mockito.when(iamProvider.getConfiguration()).thenReturn(configuration);
 		Mockito.when(userRepository.findById(ArgumentMatchers.anyString()))
@@ -69,33 +68,33 @@ class ToVoConverterTest {
 
 		// Stub subscriptions
 		final List<Object[]> subscriptions = new ArrayList<>();
-		final Parameter parameter1 = new Parameter();
+		final var parameter1 = new Parameter();
 		parameter1.setId(IdentityResource.PARAMETER_GROUP);
 		parameter1.setType(ParameterType.TEXT);
 		parameter1.setOwner(new Node());
-		final Parameter parameter2 = new Parameter();
+		final var parameter2 = new Parameter();
 		parameter2.setId(IdentityResource.PARAMETER_GROUP);
 		parameter2.setType(ParameterType.TEXT);
 		parameter2.setOwner(new Node());
-		final Parameter parameter3 = new Parameter();
+		final var parameter3 = new Parameter();
 		parameter3.setId("any");
 		parameter3.setType(ParameterType.TEXT);
 		parameter3.setOwner(new Node());
-		final ParameterValue value1 = new ParameterValue();
+		final var value1 = new ParameterValue();
 		value1.setId(1);
 		value1.setParameter(parameter1);
 		value1.setData("G");
-		final ParameterValue value2 = new ParameterValue();
+		final var value2 = new ParameterValue();
 		value2.setId(2);
 		value2.setParameter(parameter2);
 		value2.setData("any");
-		final ParameterValue value3 = new ParameterValue();
+		final var value3 = new ParameterValue();
 		value3.setId(3);
 		value3.setParameter(parameter3);
 		value3.setData("any");
-		final Subscription subscription = new Subscription();
+		final var subscription = new Subscription();
 		subscription.setId(1);
-		final Node node = new Node();
+		final var node = new Node();
 		node.setId("service:n2");
 		subscription.setNode(node);
 		subscriptions.add(new Object[] { subscription, value1 });
@@ -103,27 +102,27 @@ class ToVoConverterTest {
 		subscriptions.add(new Object[] { subscription, value3 });
 
 		// Subscription without status
-		final Subscription subscription2 = new Subscription();
+		final var subscription2 = new Subscription();
 		subscription2.setId(-1);
-		final Node node2 = new Node();
+		final var node2 = new Node();
 		node2.setId("service:n1");
 		subscription2.setNode(node2);
 		subscriptions.add(new Object[] { subscription2, value3 });
 
 		// Stub events
 		final Map<Integer, EventVo> events = new HashMap<>();
-		final EventVo event = new EventVo();
+		final var event = new EventVo();
 		event.setSubscription(1);
 		event.setNode(new NodeVo());
 		event.setValue("UP");
 		events.put(1, event);
 
 		// Call
-		final ServicePluginLocator locator = Mockito.mock(ServicePluginLocator.class);
+		final var locator = Mockito.mock(ServicePluginLocator.class);
 		Mockito.doReturn(true).when(locator).isEnabled("service:n1");
 		Mockito.doReturn(false).when(locator).isEnabled("service:n2");
-		final ToVoConverter converter = new ToVoConverter(locator, this::toUser, subscriptions, events);
-		final Project entity = new Project();
+		final var converter = new ToVoConverter(locator, this::toUser, subscriptions, events);
+		final var entity = new Project();
 		entity.setId(1);
 		entity.setName("N");
 		entity.setDescription("D");
@@ -134,7 +133,7 @@ class ToVoConverterTest {
 		entity.setPkey("PK");
 		entity.setTeamLeader("U3");
 		entity.setSubscriptions(Arrays.asList(subscription, subscription2));
-		final ProjectVo vo = converter.apply(entity);
+		final var vo = converter.apply(entity);
 
 		// Check
 		Assertions.assertEquals("N", vo.getName());
@@ -149,7 +148,7 @@ class ToVoConverterTest {
 		Assertions.assertEquals(2, vo.getSubscriptions().size());
 
 		// Check the statuses and their order by node
-		final List<SubscriptionVo> subscriptionsVo = vo.getSubscriptions();
+		final var subscriptionsVo = vo.getSubscriptions();
 		Assertions.assertNull(subscriptionsVo.get(0).getStatus());
 		Assertions.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
 		Assertions.assertTrue(subscriptionsVo.get(0).getNode().getEnabled());
@@ -159,7 +158,7 @@ class ToVoConverterTest {
 	}
 
 	private UserOrg toUser(final String login) {
-		final UserOrg user = new UserOrg();
+		final var user = new UserOrg();
 		user.setId(login);
 		return user;
 	}

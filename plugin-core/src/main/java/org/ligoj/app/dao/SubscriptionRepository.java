@@ -16,7 +16,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return all subscriptions with only few information.
-	 * 
+	 *
 	 * @return the subscriptions data :project identifier and node identifier.
 	 */
 	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p")
@@ -24,9 +24,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return the subscriptions of given project.
-	 * 
-	 * @param project
-	 *            the subscribing project
+	 *
+	 * @param project the subscribing project
 	 * @return the subscriptions of given project.
 	 */
 	@Query("FROM Subscription s INNER JOIN FETCH s.node WHERE s.project.id = ?1")
@@ -34,9 +33,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return all subscriptions attached to the same project than the given subscription.
-	 * 
-	 * @param subscription
-	 *            the subscription used to check the other attached a common project.
+	 *
+	 * @param subscription the subscription used to check the other attached a common project.
 	 * @return the subscriptions attached to the same project. Service are fetch.
 	 */
 	@Query("SELECT s1 FROM Subscription s1, Subscription s2 INNER JOIN FETCH s1.node WHERE s2.id = ?1 AND s1.project.id = s2.project.id")
@@ -44,9 +42,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return the subscriptions to given node or one of the sub-nodes, and with all non secured parameters.
-	 * 
-	 * @param node
-	 *            the subscribed node. Directly or not.
+	 *
+	 * @param node the subscribed node. Directly or not.
 	 * @return the subscriptions to given node.
 	 */
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
@@ -57,9 +54,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return the amount of subscriptions to given node or one of the sub-nodes.
-	 * 
-	 * @param node
-	 *            The subscribed node. Directly or not.
+	 *
+	 * @param node The subscribed node. Directly or not.
 	 * @return The amount of subscriptions to given node.
 	 */
 	@Query("SELECT count(s.id) FROM Subscription s INNER JOIN s.node service "
@@ -68,9 +64,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return the amount of subscriptions involving the given parameter value.
-	 * 
-	 * @param parameterValue
-	 *            The parameter value identifier.
+	 *
+	 * @param parameterValue The parameter value identifier.
 	 * @return The amount of subscriptions involving the given parameter value directly or not.
 	 */
 	@Query("SELECT count(s.id) FROM Subscription s, ParameterValue v INNER JOIN s.node sn INNER JOIN v.node vn"
@@ -79,9 +74,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return the subscriptions of given project with all non secured parameters.
-	 * 
-	 * @param project
-	 *            the subscribing project
+	 *
+	 * @param project the subscribing project
 	 * @return the subscriptions of given project.
 	 */
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
@@ -91,9 +85,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Return all subscriptions and associated parameters on the given node.
-	 * 
-	 * @param node
-	 *            node identifier.
+	 *
+	 * @param node node identifier.
 	 * @return subscriptions (index=0) and associated parameters (index=1)
 	 */
 	@Query("SELECT s, p FROM ParameterValue p INNER JOIN p.subscription s INNER JOIN s.node service INNER JOIN FETCH p.parameter "
@@ -102,9 +95,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 
 	/**
 	 * Count subscriptions by project's identifier.
-	 * 
-	 * @param project
-	 *            project's identifier.
+	 *
+	 * @param project project's identifier.
 	 * @return Amount of subscriptions to the given project.
 	 */
 	@Query("SELECT COUNT(id) FROM Subscription WHERE project.id = :project")

@@ -17,7 +17,7 @@ class DefaultVerificationModeTest {
 
 	@Test
 	void testCall() {
-		ApplicationContext context = Mockito.mock(ApplicationContext.class);
+		var context = Mockito.mock(ApplicationContext.class);
 		context.getBean("some");
 		Mockito.verify(context, new DefaultVerificationMode(data -> {
 			Assertions.assertEquals(1, data.getAllInvocations().size());
@@ -28,8 +28,8 @@ class DefaultVerificationModeTest {
 
 	@Test
 	void testNotCall() {
-		ApplicationContext context = Mockito.mock(ApplicationContext.class);
-		DefaultVerificationMode mode = new DefaultVerificationMode(data -> {
+		var context = Mockito.mock(ApplicationContext.class);
+		var mode = new DefaultVerificationMode(data -> {
 			Assertions.assertEquals(0, data.getAllInvocations().size());
 			setChecked(true);
 		});

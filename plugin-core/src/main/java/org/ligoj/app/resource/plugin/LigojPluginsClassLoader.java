@@ -24,12 +24,11 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 
 	/**
 	 * Default constructor.
-	 * @throws IOException
-	 *             exception when reading plug-ins directory
+	 *
+	 * @throws IOException              exception when reading plug-ins directory
 	 * @throws NoSuchAlgorithmException MD5 digest is unavailable for version ciphering.
 	 */
 	public LigojPluginsClassLoader() throws IOException, NoSuchAlgorithmException {
-		super();
 	}
 
 	/**
@@ -46,13 +45,10 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * Get a file reference for a specific subscription. This file will use the subscription as a context to isolate it,
 	 * and using the related node and the subscription's identifier. The parent directories are created as needed.
 	 *
-	 * @param subscription
-	 *            The subscription used a context of the file to create.
-	 * @param fragments
-	 *            The file fragments.
+	 * @param subscription The subscription used a context of the file to create.
+	 * @param fragments    The file fragments.
 	 * @return The {@link Path} reference.
-	 * @throws IOException
-	 *             When the parent directories creation failed.
+	 * @throws IOException When the parent directories creation failed.
 	 * @since 2.2.4
 	 */
 	public Path toPath(final Subscription subscription, final String... fragments) throws IOException {
@@ -63,11 +59,9 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * Get a file reference for a specific node. This file will use the node as a context to isolate it. The parent
 	 * directories are created as needed.
 	 *
-	 * @param node
-	 *            The related node.
+	 * @param node The related node.
 	 * @return The {@link Path} reference.
-	 * @throws IOException
-	 *             When the parent directories creation failed.
+	 * @throws IOException When the parent directories creation failed.
 	 * @since 2.2.4
 	 */
 	public Path toPath(final Node node) throws IOException {
@@ -79,8 +73,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
 	 *
-	 * @param node
-	 *            The related node.
+	 * @param node The related node.
 	 * @return The computed sibling path.
 	 */
 	private String[] toFragments(final Node node) {
@@ -92,10 +85,8 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	/**
 	 * Convert a {@link Node} to a {@link Path} inside the given parent directory.
 	 *
-	 * @param node
-	 *            The related node.
-	 * @param fragments
-	 *            The computed sibling path (updated).
+	 * @param node      The related node.
+	 * @param fragments The computed sibling path (updated).
 	 */
 	private void toFragments(final Node node, List<String> fragments) {
 		if (node.isRefining()) {
@@ -112,8 +103,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * <li>node = 'service:id', fragment = 'service:id'</li>
 	 * </ul>
 	 *
-	 * @param node
-	 *            The node to convert to a simple fragment String.
+	 * @param node The node to convert to a simple fragment String.
 	 * @return The simple fragment.
 	 */
 	private String toFragmentId(final Node node) {

@@ -148,7 +148,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		vo.setProject(DescribedBean.clone(entity.getProject()));
 
 		// Get specific configuration
-		final ConfigurablePlugin servicePlugin = locator.getResource(vo.getNode().getId(), ConfigurablePlugin.class);
+		final var servicePlugin = locator.getResource(vo.getNode().getId(), ConfigurablePlugin.class);
 		if (servicePlugin != null) {
 			// Specific configuration is available
 			vo.setConfiguration(servicePlugin.getConfiguration(id));
@@ -202,7 +202,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 		// Create subscription and parameters that would be removed in case of
 		// roll-back because of invalid parameters
-		final Subscription entity = toEntity(vo, project, node);
+		final var entity = toEntity(vo, project, node);
 
 		// Expose the real entity for plug-in since we have loaded it
 		entity.setProject(project);
@@ -430,7 +430,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		// Prepare the subscriptions container with project name ordering
 		return subscriptions.stream().filter(rs -> projects.containsKey(rs[1])).map(rs -> {
 			// Build the subscription data
-			final SubscriptionLightVo vo = new SubscriptionLightVo();
+			final var vo = new SubscriptionLightVo();
 			vo.setId((Integer) rs[0]);
 			vo.setProject((Integer) rs[1]);
 			vo.setNode((String) rs[2]);

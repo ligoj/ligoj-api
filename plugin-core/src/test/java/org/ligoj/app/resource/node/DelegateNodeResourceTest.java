@@ -24,7 +24,6 @@ import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.bootstrap.AbstractJpaTest;
-import org.ligoj.bootstrap.core.json.TableItem;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
@@ -54,7 +53,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	private void createNotFound(final String user, final String node) {
 		initSpringSecurityContext(user);
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode(node);
 		delegate.setReceiver("user1");
 		Assertions.assertThrows(NotFoundException.class, () -> {
@@ -80,7 +79,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	@Test
 	void createExactNode() {
 		initSpringSecurityContext("user1");
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user1");
 		Assertions.assertTrue(resource.create(delegate) > 0);
@@ -89,7 +88,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	@Test
 	void createSubNode() {
 		initSpringSecurityContext("user1");
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins:dig");
 		delegate.setReceiver("user1");
 		Assertions.assertTrue(resource.create(delegate) > 0);
@@ -98,7 +97,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	@Test
 	void createSubNodeMaxiRight() {
 		initSpringSecurityContext("user1");
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins:dig");
 		delegate.setCanAdmin(true);
 		delegate.setCanWrite(true);
@@ -111,14 +110,14 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	void createWriteNotAdmin() {
 
 		// Add a special right on for a node
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user2");
 		delegate.setCanWrite(true);
 		repository.saveAndFlush(delegate);
 
 		initSpringSecurityContext("user2");
-		final DelegateNode newDelegate = new DelegateNode();
+		final var newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		Assertions.assertThrows(NotFoundException.class, () -> {
@@ -130,14 +129,14 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	void createGrantRefused() {
 
 		// Add a special right on for a node
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user2");
 		delegate.setCanAdmin(true);
 		repository.saveAndFlush(delegate);
 
 		initSpringSecurityContext("user2");
-		final DelegateNode newDelegate = new DelegateNode();
+		final var newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanWrite(true);
@@ -150,14 +149,14 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	void createSubNodeMiniRight() {
 
 		// Add a special right on for a node
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user2");
 		delegate.setCanAdmin(true);
 		repository.saveAndFlush(delegate);
 
 		initSpringSecurityContext("user2");
-		final DelegateNode newDelegate = new DelegateNode();
+		final var newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanAdmin(true);
@@ -168,14 +167,14 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	void updateNoChange() {
 
 		// Add a special right on for a node
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user2");
 		delegate.setCanAdmin(true);
 		repository.saveAndFlush(delegate);
 
 		initSpringSecurityContext("user2");
-		final DelegateNode newDelegate = new DelegateNode();
+		final var newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanAdmin(true);
@@ -186,14 +185,14 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	void updateSubNodeReduceRight() {
 
 		// Add a special right on for a node
-		final DelegateNode delegate = new DelegateNode();
+		final var delegate = new DelegateNode();
 		delegate.setNode("service:build:jenkins");
 		delegate.setReceiver("user2");
 		delegate.setCanAdmin(true);
 		repository.saveAndFlush(delegate);
 
 		initSpringSecurityContext("user2");
-		final DelegateNode newDelegate = new DelegateNode();
+		final var newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins");
 		newDelegate.setReceiver("user2");
 		resource.update(newDelegate);
@@ -225,11 +224,11 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Test
 	void findAllCriteriaUser() {
-		final TableItem<DelegateNode> items = resource.findAll(newUriInfo(), "junit");
+		final var items = resource.findAll(newUriInfo(), "junit");
 		Assertions.assertEquals(1, items.getData().size());
 		Assertions.assertEquals(1, items.getRecordsFiltered());
 		Assertions.assertEquals(1, items.getRecordsTotal());
-		final DelegateNode delegateNode = items.getData().get(0);
+		final var delegateNode = items.getData().get(0);
 		Assertions.assertEquals("junit", delegateNode.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
 		Assertions.assertEquals("service", delegateNode.getName());
@@ -240,11 +239,11 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Test
 	void findAllCriteriaNode() {
-		final TableItem<DelegateNode> items = resource.findAll(newUriInfo(), "jenkins");
+		final var items = resource.findAll(newUriInfo(), "jenkins");
 		Assertions.assertEquals(1, items.getData().size());
 		Assertions.assertEquals(1, items.getRecordsFiltered());
 		Assertions.assertEquals(1, items.getRecordsTotal());
-		final DelegateNode delegateNode = items.getData().get(0);
+		final var delegateNode = items.getData().get(0);
 		Assertions.assertEquals("user1", delegateNode.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
 		Assertions.assertEquals("service:build:jenkins", delegateNode.getName());
@@ -255,7 +254,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Test
 	void findAllNoCriteriaOrder() {
-		final UriInfo uriInfo = Mockito.mock(UriInfo.class);
+		final var uriInfo = Mockito.mock(UriInfo.class);
 		Mockito.when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
 		uriInfo.getQueryParameters().add("draw", "1");
 		uriInfo.getQueryParameters().add("start", "0");
@@ -264,11 +263,11 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		uriInfo.getQueryParameters().add("order[0][column]", "0");
 		uriInfo.getQueryParameters().add("order[0][dir]", "desc");
 
-		final TableItem<DelegateNode> items = resource.findAll(uriInfo, " ");
+		final var items = resource.findAll(uriInfo, " ");
 		Assertions.assertEquals(3, items.getData().size());
 		Assertions.assertEquals(3, items.getRecordsFiltered());
 		Assertions.assertEquals(3, items.getRecordsTotal());
-		final DelegateNode delegateNode = items.getData().get(1);
+		final var delegateNode = items.getData().get(1);
 		Assertions.assertEquals("junit", delegateNode.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
 		Assertions.assertEquals("service", delegateNode.getName());

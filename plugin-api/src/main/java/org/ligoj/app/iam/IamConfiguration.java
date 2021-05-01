@@ -27,7 +27,7 @@ public class IamConfiguration {
 	 * Group repository.
 	 */
 	private IGroupRepository groupRepository;
-	
+
 	/**
 	 * The optional related node identifier.
 	 */

@@ -14,7 +14,7 @@ import javax.persistence.UniqueConstraint;
  * "description" corresponds to the normalized "Distinguished Name".
  */
 @Entity
-@Table(name = "LIGOJ_CACHE_COMPANY", uniqueConstraints= @UniqueConstraint(columnNames="name"))
+@Table(name = "LIGOJ_CACHE_COMPANY", uniqueConstraints = @UniqueConstraint(columnNames = "name"))
 public class CacheCompany extends CacheContainer {
 
 	/**

@@ -9,10 +9,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Optional;
 
 import javax.xml.XMLConstants;
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
@@ -40,64 +38,50 @@ public class XmlUtils {
 
 	/**
 	 * Build and return a secured document builder.
-	 * 
-	 * @param input
-	 *            Input to parse.
+	 *
+	 * @param input Input to parse.
 	 * @return The parsed document.
-	 * @throws IOException
-	 *             If any IO errors occur.
-	 * @throws SAXException
-	 *             If any parse errors occur.
-	 * @throws ParserConfigurationException
-	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
-	 *             feature.
+	 * @throws IOException                  If any IO errors occur.
+	 * @throws SAXException                 If any parse errors occur.
+	 * @throws ParserConfigurationException if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it
+	 *                                      creates cannot support this feature.
 	 */
 	public Document parse(final InputStream input) throws SAXException, IOException, ParserConfigurationException {
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		final var factory = DocumentBuilderFactory.newInstance();
 		factory.setValidating(false);
 		factory.setCoalescing(false);
 		factory.setExpandEntityReferences(false);
 		factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
 		factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-		final DocumentBuilder newDocumentBuilder = factory.newDocumentBuilder();
+		final var newDocumentBuilder = factory.newDocumentBuilder();
 		return newDocumentBuilder.parse(input, StandardCharsets.UTF_8.name());
 	}
 
 	/**
 	 * Parse the given input and return the root element.
-	 * 
-	 * @param input
-	 *            Input to parse. My be <code>null</code>.
+	 *
+	 * @param input Input to parse. My be <code>null</code>.
 	 * @return Not <code>null</code> root element.
-	 * @throws IOException
-	 *             If any IO errors occur.
-	 * @throws SAXException
-	 *             If any parse errors occur.
-	 * @throws ParserConfigurationException
-	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
-	 *             feature.
+	 * @throws IOException                  If any IO errors occur.
+	 * @throws SAXException                 If any parse errors occur.
+	 * @throws ParserConfigurationException if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it
+	 *                                      creates cannot support this feature.
 	 */
 	public Element parse(final String input) throws SAXException, IOException, ParserConfigurationException {
-		final InputStream jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"),
-				StandardCharsets.UTF_8);
+		final var jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"), StandardCharsets.UTF_8);
 		return (Element) parse(jobsAsInput).getFirstChild();
 	}
 
 	/**
 	 * Return list of tags inside the root element.
-	 * 
-	 * @param input
-	 *            Input to parse. My be <code>null</code>.
-	 * @param tag
-	 *            The tags to return.
+	 *
+	 * @param input Input to parse. My be <code>null</code>.
+	 * @param tag   The tags to return.
 	 * @return Not <code>null</code> tag list.
-	 * @throws IOException
-	 *             If any IO errors occur.
-	 * @throws SAXException
-	 *             If any parse errors occur.
-	 * @throws ParserConfigurationException
-	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
-	 *             feature.
+	 * @throws IOException                  If any IO errors occur.
+	 * @throws SAXException                 If any parse errors occur.
+	 * @throws ParserConfigurationException if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it
+	 *                                      creates cannot support this feature.
 	 */
 	public NodeList getTags(final String input, final String tag)
 			throws SAXException, IOException, ParserConfigurationException {
@@ -106,25 +90,19 @@ public class XmlUtils {
 
 	/**
 	 * Return list of tags inside the root element from XPATH.
-	 * 
-	 * @param input
-	 *            Input to parse. My be <code>null</code>.
-	 * @param expression
-	 *            The XPATH expression.
+	 *
+	 * @param input      Input to parse. My be <code>null</code>.
+	 * @param expression The XPATH expression.
 	 * @return Not <code>null</code> tag list.
-	 * @throws IOException
-	 *             If any IO errors occur.
-	 * @throws SAXException
-	 *             If any parse errors occur.
-	 * @throws ParserConfigurationException
-	 *             if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it creates cannot support this
-	 *             feature.
-	 * @throws XPathExpressionException
-	 *             If {@code expression} cannot be compiled.
+	 * @throws IOException                  If any IO errors occur.
+	 * @throws SAXException                 If any parse errors occur.
+	 * @throws ParserConfigurationException if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it
+	 *                                      creates cannot support this feature.
+	 * @throws XPathExpressionException     If {@code expression} cannot be compiled.
 	 */
 	public NodeList getXpath(final String input, final String expression)
 			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
-		final XPath xPath = xpathFactory.newXPath();
+		final var xPath = xpathFactory.newXPath();
 		return (NodeList) xPath.compile(expression).evaluate(
 				parse(IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, ""), StandardCharsets.UTF_8)),
 				XPathConstants.NODESET);
@@ -132,16 +110,14 @@ public class XmlUtils {
 
 	/**
 	 * Return XML tag text content. Empty content is considered as <code>null</code>.
-	 * 
-	 * @param element
-	 *            Optional element. <code>null</code> is accepted.
-	 * @param tag
-	 *            The tag name.
+	 *
+	 * @param element Optional element. <code>null</code> is accepted.
+	 * @param tag     The tag name.
 	 * @return The trimmed tag value when tag is found of <code>null</code>.
 	 */
 	public String getTagText(final Element element, final String tag) {
-		return Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0))
-				.map(Node::getTextContent).map(StringUtils::trimToNull).orElse(null);
+		return Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0)).map(Node::getTextContent)
+				.map(StringUtils::trimToNull).orElse(null);
 	}
 
 }

@@ -33,48 +33,41 @@ import org.springframework.data.domain.Persistable;
  * <li>When a task is started, is will always ends.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
- * 
- * @param <L>
- *            Associated type of locked entity.
- * @param <I>
- *            Associated type of locked entity's identifier.
- * @param <A>
- *            Repository managing the locked entity.
- * @param <S>
- *            Resource managing the locked entity.
- * @param <R>
- *            Repository managing the task entity.
- * @param <T>
- *            Type of task entity.
+ *
+ * @param <L> Associated type of locked entity.
+ * @param <I> Associated type of locked entity's identifier.
+ * @param <A> Repository managing the locked entity.
+ * @param <S> Resource managing the locked entity.
+ * @param <R> Repository managing the task entity.
+ * @param <T> Type of task entity.
  */
 public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends LongTaskRepository<T, L, I>, L extends Persistable<I>, I extends Serializable, A extends RestRepository<L, I>, S extends AbstractLockedResource<L, I>> {
 
 	/**
 	 * Return the task repository.
-	 * 
+	 *
 	 * @return The task repository used to fetch and update the task from inner transaction.
 	 */
 	R getTaskRepository();
 
 	/**
 	 * Return the {@link AbstractLockedResource} managing the locked resource.
-	 * 
+	 *
 	 * @return The resource used to fetch related subscription entity of a task.
 	 */
 	S getLockedResource();
 
 	/**
 	 * Return the {@link RestRepository} managing the locked resource.
-	 * 
+	 *
 	 * @return The repository used to fetch related subscription entity of a task.
 	 */
 	A getLockedRepository();
 
 	/**
 	 * Check there is no running task for given subscription before the deletion.
-	 * 
-	 * @param lockedId
-	 *            The locked entity's identifier.
+	 *
+	 * @param lockedId The locked entity's identifier.
 	 */
 	default void deleteTask(final I lockedId) {
 		// Check there is no running import
@@ -88,18 +81,16 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Supplier, on demand new task entity creation. Only bean constructor, no involved persistence operation.
-	 * 
+	 *
 	 * @return The task constructor.
 	 */
 	Supplier<T> newTask();
 
 	/**
 	 * Release the lock on the locked entity by its identifier. The task is considered as finished.
-	 * 
-	 * @param lockedId
-	 *            The locked entity's identifier.
-	 * @param failed
-	 *            The task status as resolution of this task.
+	 *
+	 * @param lockedId The locked entity's identifier.
+	 * @param failed   The task status as resolution of this task.
 	 * @return The ended task if present.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
@@ -111,13 +102,10 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Release the lock on the locked entity by its identifier. The task is considered as finished.
-	 * 
-	 * @param lockedId
-	 *            The locked entity's identifier.
-	 * @param failed
-	 *            The task status as resolution of this task.
-	 * @param finalizer
-	 *            The function to call while finalizing the task.
+	 *
+	 * @param lockedId  The locked entity's identifier.
+	 * @param failed    The task status as resolution of this task.
+	 * @param finalizer The function to call while finalizing the task.
 	 * @return The ended task if present.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
@@ -135,9 +123,8 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Return status of import.
-	 * 
-	 * @param lockedId
-	 *            The locked entity's identifier.
+	 *
+	 * @param lockedId The locked entity's identifier.
 	 * @return status of import. May <code>null</code> when there is no previous task.
 	 */
 	default T getTaskInternal(final I lockedId) {
@@ -146,11 +133,9 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Check there no running task within the same scope of the locked's identifier and starts a new task.
-	 * 
-	 * @param lockedId
-	 *            The locked entity's identifier.
-	 * @param initializer
-	 *            The function to call while initializing the task.
+	 *
+	 * @param lockedId    The locked entity's identifier.
+	 * @param initializer The function to call while initializing the task.
 	 * @return the locked task with status.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
@@ -164,7 +149,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 			});
 
 			// Build a new task as needed
-			final T task = createAsNeeded(lockedId);
+			final var task = createAsNeeded(lockedId);
 
 			// Reset the specific fields
 			initializer.accept(task);
@@ -177,9 +162,8 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	/**
 	 * When <code>true</code> the task is really finished. Can be overridden to update the real finished state stored in
 	 * database. For sample, a task can be finished from the client side, but not fully executed at the server side.
-	 * 
-	 * @param task
-	 *            The not <code>null</code> task to evaluate.
+	 *
+	 * @param task The not <code>null</code> task to evaluate.
 	 * @return <code>true</code> when the task is finished.
 	 */
 	default boolean isFinished(final T task) {
@@ -188,13 +172,12 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Get or create a new task associated to given subscription.
-	 * 
-	 * @param lockedId
-	 *            The locked entity's identifier. The related entity will be locked.
+	 *
+	 * @param lockedId The locked entity's identifier. The related entity will be locked.
 	 * @return The task, never <code>null</code>.
 	 */
 	default T createAsNeeded(final I lockedId) {
-		final T task = Optional.ofNullable(getTaskInternal(lockedId)).map(t -> {
+		final var task = Optional.ofNullable(getTaskInternal(lockedId)).map(t -> {
 			// Additional remote check (optional)
 			if (!isFinished(t)) {
 				// On this service, there is already a running remote task
@@ -202,7 +185,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 			}
 			return t;
 		}).orElseGet(() -> {
-			final T newTask = newTask().get();
+			final var newTask = newTask().get();
 			newTask.setLocked(getLockedRepository().findOneExpected(lockedId));
 			return newTask;
 		});
@@ -217,16 +200,14 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Move forward the next step of given import status.
-	 * 
-	 * @param lockedId
-	 *            The locked resource identifier.
-	 * @param stepper
-	 *            The function to call to update the task for this next step.
+	 *
+	 * @param lockedId The locked resource identifier.
+	 * @param stepper  The function to call to update the task for this next step.
 	 * @return The updated task.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T nextStep(final I lockedId, final Consumer<T> stepper) {
-		final T task = Optional.ofNullable(getTaskInternal(lockedId))
+		final var task = Optional.ofNullable(getTaskInternal(lockedId))
 				.orElseThrow(() -> new EntityNotFoundException(lockedId.toString()));
 		checkNotFinished(task);
 		stepper.accept(task);
@@ -236,9 +217,8 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Check the given task is not finished.
-	 * 
-	 * @param task
-	 *            The task to check.
+	 *
+	 * @param task The task to check.
 	 */
 	default void checkNotFinished(final T task) {
 		if (isFinished(task)) {
@@ -249,7 +229,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Check the locked resource is visible by the principal user.
-	 * 
+	 *
 	 * @param lockedId The resource identifier.
 	 */
 	default void checkVisible(final I lockedId) {
