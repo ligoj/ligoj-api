@@ -29,6 +29,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * @throws NoSuchAlgorithmException MD5 digest is unavailable for version ciphering.
 	 */
 	public LigojPluginsClassLoader() throws IOException, NoSuchAlgorithmException {
+		// Default class loader required because of exceptions of super constructor
 	}
 
 	/**
