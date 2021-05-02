@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @Component("securityPluginResourceTest")
 public class SecurityResource extends AbstractServicePlugin {
 	/**
-	 * Plug-in key.
+	 * Plug-in endpoint context.
 	 */
 	public static final String SERVICE_URL = BASE_URL + "/security";
 
