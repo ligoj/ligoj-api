@@ -36,7 +36,7 @@
 	</issueManagement>
 	<ciManagement>
 		<system>Travis</system>
-		<url>https://travis-ci.org/ligoj/ligoj-api/</url>
+		<url>https://travis-ci.com/ligoj/ligoj-api/</url>
 		<notifiers />
 	</ciManagement>
 
