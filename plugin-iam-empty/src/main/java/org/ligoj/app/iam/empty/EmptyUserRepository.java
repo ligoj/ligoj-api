@@ -74,7 +74,7 @@ public class EmptyUserRepository implements IUserRepository {
 	@Override
 	public boolean authenticate(final String name, final String password) {
 		// Always authenticated
-		return true;
+		return name != null && !name.equals("");
 	}
 
 	@Override

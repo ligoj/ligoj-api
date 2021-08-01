@@ -36,6 +36,16 @@ class EmptyUserRepositoryTest {
 	}
 
 	@Test
+	void authenticateKoNull() {
+		Assertions.assertTrue(new EmptyUserRepository().authenticate(null, "any"));
+	}
+
+	@Test
+	void authenticateKoEmpty() {
+		Assertions.assertTrue(new EmptyUserRepository().authenticate("", "any"));
+	}
+
+	@Test
 	void findByIdNoCache() {
 		Assertions.assertEquals("some", new EmptyUserRepository().findByIdNoCache("some").getId());
 	}
