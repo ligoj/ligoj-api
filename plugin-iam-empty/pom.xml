@@ -19,7 +19,7 @@
 		<dependency>
 			<groupId>org.ligoj.api</groupId>
 			<artifactId>plugin-api</artifactId>
-			<version>3.2.12</version>
+			<version>3.2.13-SNAPSHOT</version>
 		</dependency>
 	</dependencies>
 </project>
