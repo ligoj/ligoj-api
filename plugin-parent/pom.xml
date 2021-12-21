@@ -22,6 +22,7 @@
 		<sonar.sources>src/main/java,src/main/resources/META-INF/resources/webjars</sonar.sources>
 		<sonar.coverage.exclusions>**/*.js</sonar.coverage.exclusions>
 		<sonar.cpd.exclusions>**/messages.js</sonar.cpd.exclusions>
+		<log4j.version>2.17.0</log4j.version>
 	</properties>
 
 	<dependencyManagement>
