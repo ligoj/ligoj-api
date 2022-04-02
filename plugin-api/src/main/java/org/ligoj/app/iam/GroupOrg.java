@@ -60,7 +60,7 @@ public class GroupOrg extends ContainerOrg {
 
 	@Override
 	public boolean equals(final Object other) {
-		return other instanceof GroupOrg && getId().equals(((GroupOrg) other).getId());
+		return other instanceof GroupOrg corg && getId().equals(corg.getId());
 	}
 
 	@Override

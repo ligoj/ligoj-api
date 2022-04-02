@@ -47,7 +47,7 @@ public class CompanyOrg extends ContainerOrg {
 
 	@Override
 	public boolean equals(final Object other) {
-		return other instanceof CompanyOrg && getId().equals(((CompanyOrg) other).getId());
+		return other instanceof CompanyOrg corg && getId().equals(corg.getId());
 	}
 
 	@Override
