@@ -564,7 +564,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		for (final var subscription : subscriptions.entrySet()) {
 			// For each subscription, check status
 			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
-			final var parameters = new HashMap<String, String>(nodeParameters);
+			final var parameters = new HashMap<>(nodeParameters);
 			parameters.putAll(subscription.getValue());
 			final var subscriptionStatus = self.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
 			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
