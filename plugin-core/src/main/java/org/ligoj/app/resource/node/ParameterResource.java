@@ -222,6 +222,6 @@ public class ParameterResource {
 	 */
 	public List<ParameterVo> getNotProvidedAndAssociatedParameters(final String node, final SubscriptionMode mode) {
 		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream()
-				.map(ParameterResource::toVo).collect(Collectors.toList());
+				.map(ParameterResource::toVo).toList();
 	}
 }

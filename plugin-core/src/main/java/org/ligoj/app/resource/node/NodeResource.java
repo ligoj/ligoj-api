@@ -10,7 +10,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
@@ -703,8 +702,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		vo.setParameters(ListUtils.emptyIfNull(vo.getParameters()));
 
 		// Check there is no override
-		checkOverrides(acceptedParameters.stream().map(Parameter::getId).collect(Collectors.toList()),
-				vo.getParameters().stream().map(ParameterValueCreateVo::getParameter).collect(Collectors.toList()));
+		checkOverrides(acceptedParameters.stream().map(Parameter::getId).toList(),
+				vo.getParameters().stream().map(ParameterValueCreateVo::getParameter).toList());
 		return acceptedParameters;
 	}
 

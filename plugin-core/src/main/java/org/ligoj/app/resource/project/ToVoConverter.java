@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.iam.UserOrg;
@@ -85,8 +84,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 
 		// Return the subscription to order by the related node
 		vo.setSubscriptions(subscriptions.values().stream()
-				.sorted(Comparator.comparing(s -> s.getNode().getId(), String::compareTo))
-				.collect(Collectors.toList()));
+				.sorted(Comparator.comparing(s -> s.getNode().getId(), String::compareTo)).toList());
 		return vo;
 	}
 

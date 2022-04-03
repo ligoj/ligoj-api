@@ -659,7 +659,7 @@ public class ParameterValueResource {
 				}
 			}
 			return vo;
-		}).collect(Collectors.toList());
+		}).toList();
 	}
 
 	/**
@@ -678,7 +678,6 @@ public class ParameterValueResource {
 			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
 			@PathParam("criteria") final String criteria) {
 		subscriptionResource.checkVisibleProject(project);
-		return repository.findAll(node, parameter, project, criteria).stream().map(this::toVo)
-				.collect(Collectors.toList());
+		return repository.findAll(node, parameter, project, criteria).stream().map(this::toVo).toList();
 	}
 }
