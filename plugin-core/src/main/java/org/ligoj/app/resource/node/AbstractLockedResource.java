@@ -77,8 +77,8 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	 * Return the {@link Class} of type {@link LongTaskRunner} to check task deletion.
 	 *
 	 * @return the {@link LongTaskRunner} class type handling the locked resource type.
-	 * @param <I> The locked's identifier type during while this task is running.
-	 * @param <I> The locked's identifier type during while this task is running.
+	 * @param <I> The locked's identifier type of this task.
+	 * @param <L> The locked's entity's type while this task.
 	 * @param <A> Repository managing the locked entity.
 	 * @param <S> Resource managing the locked entity.
 	 * @param <R> Repository managing the task entity.
