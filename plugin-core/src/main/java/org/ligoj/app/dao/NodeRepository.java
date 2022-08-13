@@ -134,9 +134,9 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @return The visible nodes. Ordered by their identifier.
 	 */
 	@Query("SELECT n FROM Node n LEFT JOIN n.refined nr1 LEFT JOIN nr1.refined nr2"
-			+ " WHERE (:parent IS NULL OR (:parent = 'service' AND n.refined IS NULL) OR n.refined.id = :parent)"
+			+ " WHERE (CAST(:parent as string) IS NULL OR (:parent = 'service' AND n.refined IS NULL) OR n.refined.id = :parent)"
 			+ " AND (:depth < 0 OR :depth > 1 OR (:depth = 0 AND nr1 IS NULL) OR (:depth = 1 AND nr2 IS NULL))  "
-			+ " AND (:mode IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.ALL)        "
+			+ " AND (CAST(:mode as string) IS NULL OR n.mode = :mode OR n.mode = org.ligoj.app.api.SubscriptionMode.ALL)        "
 			+ " AND (UPPER(n.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_NODES
 			+ " ORDER BY n.id")
 	Page<Node> findAllVisible(String user, String criteria, String parent, SubscriptionMode mode, int depth,
