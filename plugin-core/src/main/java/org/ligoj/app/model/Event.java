@@ -28,7 +28,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(name = "LIGOJ_EVENT")
-public class Event extends AbstractPersistable<Integer> implements NodeScoped {
+public class Event extends AbstractPersistable<Integer> implements NodeScoped<Integer> {
 
 	/**
 	 * Type of event : status, ...

@@ -9,9 +9,11 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
+import org.ligoj.app.api.NodeScoped;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.model.AbstractNamedBusinessEntity;
 
@@ -27,7 +29,7 @@ import lombok.Setter;
 @Setter
 @Entity
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
-public class Node extends AbstractNamedBusinessEntity<String> implements Refining<Node> {
+public class Node extends AbstractNamedBusinessEntity<String> implements Refining<Node>, NodeScoped<String> {
 
 	/**
 	 * SID, for Hazelcast
@@ -63,46 +65,11 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 	 */
 	private String tagUiClasses;
 
-	/**
-	 * Return <code>true</code> when this node is a service level.
-	 *
-	 * @return <code>true</code> when this node is a service level.
-	 */
+	@Override
+	@Transient
 	@JsonIgnore
-	public boolean isService() {
-		return getId().split(":").length == 2;
+	public Node getNode() {
+		return this;
 	}
 
-	/**
-	 * Return <code>true</code> when this node is a service level.
-	 *
-	 * @return <code>true</code> when this node is a service level.
-	 */
-	@JsonIgnore
-	public boolean isTool() {
-		return getId().split(":").length == 3;
-	}
-
-	/**
-	 * Return <code>true</code> when this node is a node/instance level.
-	 *
-	 * @return <code>true</code> when this node is a node/instance level.
-	 */
-	@JsonIgnore
-	public boolean isInstance() {
-		return getId().split(":").length == 4;
-	}
-
-	/**
-	 * Return the tool instance if is an instance.
-	 *
-	 * @return The tool instance if is an instance.
-	 */
-	@JsonIgnore
-	public Node getTool() {
-		if (isService()) {
-			return null;
-		}
-		return isInstance() ? getRefined() : this;
-	}
 }

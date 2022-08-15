@@ -25,7 +25,7 @@ import lombok.ToString;
 @Entity
 @Table(name = "LIGOJ_SUBSCRIPTION")
 @ToString(of = { "node", "project" }, callSuper = true)
-public class Subscription extends AbstractAudited<Integer> implements NodeScoped, Serializable {
+public class Subscription extends AbstractAudited<Integer> implements NodeScoped<Integer>, Serializable {
 
 	/**
 	 * SID
@@ -45,4 +45,5 @@ public class Subscription extends AbstractAudited<Integer> implements NodeScoped
 	@ManyToOne
 	@NotNull
 	private Project project;
+
 }
