@@ -51,7 +51,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		// Plug-in the IAMProvider to the database
 		resource = new DelegateOrgResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
-		resource.iamProvider = new IamProvider[] { iamProvider };
+		resource.iamProvider = new IamProvider[]{iamProvider};
 		expected = repository.findByName("dig rha");
 		em.clear();
 	}
@@ -279,8 +279,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 		// Check the stored name is normalized
 		Assertions.assertEquals("hub paris", entity.getName());
-		Assertions.assertEquals("cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com",
-				entity.getDn());
+		Assertions.assertEquals("cn=hub paris,cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com", entity.getDn());
 		Assertions.assertNull(entity.getReceiverDn());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
 		Assertions.assertEquals(DEFAULT_USER, entity.getCreatedBy());
@@ -370,9 +369,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("cn=myDn");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.create(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
 	}
 
 	@Test
@@ -382,9 +379,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("myDn*Partial");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(vo);
-		}), "tree", "DistinguishName");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo)), "tree", "DistinguishName");
 	}
 
 	@Test
@@ -393,9 +388,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("any");
 		vo.setType(DelegateType.COMPANY);
 		vo.setReceiver("fdaugan");
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.create(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
 	}
 
 	@Test
@@ -425,9 +418,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("myDn,dc=sample,dc=com");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(vo);
-		}), "tree", "DistinguishName");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo)), "tree", "DistinguishName");
 	}
 
 	@Test
@@ -438,9 +429,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("Biz Agency");
 		vo.setReceiver("mlavoine");
 		vo.setType(DelegateType.GROUP);
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.update(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.update(vo));
 	}
 
 	@Test
@@ -451,25 +440,19 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("Biz Agency");
 		vo.setReceiver("any");
 		vo.setType(DelegateType.GROUP);
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.update(vo);
-		}), "id", "unknown-id");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.update(vo)), "id", "unknown-id");
 	}
 
 	@Test
 	void updateInvisibleDelegateCompany() {
 		initSpringSecurityContext("mtuyer");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class)
-				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com")
-				.getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class).setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com").getSingleResult();
 		final var vo = new DelegateOrgEditionVo();
 		vo.setId(id);
 		vo.setName("socygan");
 		vo.setReceiver("mtuyer");
 		vo.setType(DelegateType.COMPANY);
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.update(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.update(vo));
 	}
 
 	@Test
@@ -480,9 +463,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("ing");
 		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.COMPANY);
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.update(vo);
-		}), "id", "unknown-id");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.update(vo)), "id", "unknown-id");
 	}
 
 	@Test
@@ -494,9 +475,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setReceiver("socygan");
 		vo.setReceiverType(ReceiverType.COMPANY);
 		vo.setType(DelegateType.COMPANY);
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.update(vo);
-		}), "company", "unknown-id");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.update(vo)), "company", "unknown-id");
 	}
 
 	@Test
@@ -508,9 +487,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setReceiver("biz agency");
 		vo.setReceiverType(ReceiverType.GROUP);
 		vo.setType(DelegateType.COMPANY);
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.update(vo);
-		}), "group", "unknown-id");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.update(vo)), "group", "unknown-id");
 	}
 
 	@Test
@@ -521,32 +498,25 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("ing");
 		vo.setReceiver("mtuyer");
 		vo.setType(DelegateType.GROUP);
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.update(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.update(vo));
 	}
 
 	@Test
 	void updateForbiddenInvalidDelegateTree() {
 		initSpringSecurityContext("mtuyer");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class)
-				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com")
-				.getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class).setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com").getSingleResult();
 		final var vo = new DelegateOrgEditionVo();
 		vo.setId(id);
 		vo.setName("ou=z,ou=groups,dc=sample,dc=com");
 		vo.setReceiver("mtuyer");
 		vo.setType(DelegateType.TREE);
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.update(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.update(vo));
 	}
 
 	@Test
 	void updateType() {
 		initSpringSecurityContext("mtuyer");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND type=:type", Integer.class)
-				.setParameter("type", DelegateType.COMPANY).setParameter("user", "mtuyer").getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND type=:type", Integer.class).setParameter("type", DelegateType.COMPANY).setParameter("user", "mtuyer").getSingleResult();
 		final var vo = new DelegateOrgEditionVo();
 		vo.setId(id);
 		vo.setName("cn=any,ou=fonction,ou=groups,dc=sample,dc=com");
@@ -579,9 +549,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		vo.setName("ing");
 		vo.setReceiver("mtuyer");
 		vo.setType(DelegateType.COMPANY);
-		Assertions.assertThrows(ObjectRetrievalFailureException.class, () -> {
-			resource.update(vo);
-		});
+		Assertions.assertThrows(ObjectRetrievalFailureException.class, () -> resource.update(vo));
 	}
 
 	@Test
@@ -596,9 +564,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	}
 
 	private DelegateOrg updateNoChangeBase(final String user, final DelegateOrgEditionVo vo) {
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class)
-				.setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com")
-				.getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND dn=:dn", Integer.class).setParameter("user", "mtuyer").setParameter("dn", "ou=fonction,ou=groups,dc=sample,dc=com").getSingleResult();
 		vo.setId(id);
 		vo.setType(DelegateType.TREE);
 		vo.setCanAdmin(true);
@@ -653,8 +619,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void deleteSubTreeGroup() {
 		initSpringSecurityContext("fdaugan");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class)
-				.setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class).setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
 		final var initCount = repository.count();
 		em.clear();
 		resource.delete(id);
@@ -676,17 +641,12 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	@Test
 	void deleteNotAdmin() {
 		initSpringSecurityContext("someone");
-		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class)
-				.setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.delete(id);
-		});
+		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class).setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.delete(id));
 	}
 
 	@Test
 	void deleteUnknown() {
-		Assertions.assertThrows(ObjectRetrievalFailureException.class, () -> {
-			resource.delete(-5);
-		});
+		Assertions.assertThrows(ObjectRetrievalFailureException.class, () -> resource.delete(-5));
 	}
 }
