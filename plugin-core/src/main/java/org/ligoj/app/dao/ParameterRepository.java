@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link Parameter} repository
  */
+@SuppressWarnings("ALL")
 public interface ParameterRepository extends RestRepository<Parameter, String> {
 
 	/**
@@ -25,6 +26,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * @param user The user requesting the nodes.
 	 * @return all parameters associated to a node but without a value.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT DISTINCT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2"
 			+ " LEFT JOIN FETCH p.depends WHERE n.id = :node AND (o=n OR o=n1 OR o=n2)"
 			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
@@ -43,6 +45,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * @param user The user requesting the nodes.
 	 * @return all parameters associated to a node but without a value.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :node AND (o=n OR o=n1 OR o=n2)"
 			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
 			+ NodeRepository.VISIBLE_NODES
@@ -56,6 +59,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * @param user The user principal requesting this parameter.
 	 * @return The visible parameter or <code>null</code> when not found.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM Parameter p INNER JOIN p.owner n WHERE p.id=:id AND " + NodeRepository.VISIBLE_NODES)
 	Parameter findOneVisible(String id, String user);
 
@@ -64,6 +68,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 *
 	 * @param node The node identifier.
 	 */
+	@SuppressWarnings("unused")
 	@Modifying
 	@Query("DELETE Parameter WHERE owner.id = :node OR owner.id LIKE CONCAT(:node, ':%')")
 	void deleteByNode(String node);

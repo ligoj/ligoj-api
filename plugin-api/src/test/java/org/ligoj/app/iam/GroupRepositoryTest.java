@@ -39,8 +39,8 @@ class GroupRepositoryTest {
 
 	@Test
 	void findByIdExpectedNotExists() {
-		final var respository = new EmptyGroupRepository();
-		Assertions.assertThrows(ValidationJsonException.class, () -> respository.findByIdExpected("user1", "user2"));
+		final var repository = new EmptyGroupRepository();
+		Assertions.assertThrows(ValidationJsonException.class, () -> repository.findByIdExpected("user1", "user2"));
 	}
 
 	@Test

@@ -22,12 +22,12 @@ public class JenkinsPluginResource extends AbstractToolPluginResource {
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
 	/**
-	 * Jenkins user name able to connect to instance.
+	 * Jenkins's username able to connect to instance.
 	 */
 	public static final String PARAMETER_USER = KEY + ":user";
 
 	/**
-	 * Jenkins user api-token able to connect to instance.
+	 * Jenkins's user api-token able to connect to instance.
 	 */
 	public static final String PARAMETER_TOKEN = KEY + ":api-token";
 

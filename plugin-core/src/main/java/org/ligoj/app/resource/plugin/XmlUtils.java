@@ -60,7 +60,7 @@ public class XmlUtils {
 	/**
 	 * Parse the given input and return the root element.
 	 *
-	 * @param input Input to parse. My be <code>null</code>.
+	 * @param input Input to parse. May be <code>null</code>.
 	 * @return Not <code>null</code> root element.
 	 * @throws IOException                  If any IO errors occur.
 	 * @throws SAXException                 If any parse errors occur.
@@ -75,7 +75,7 @@ public class XmlUtils {
 	/**
 	 * Return list of tags inside the root element.
 	 *
-	 * @param input Input to parse. My be <code>null</code>.
+	 * @param input Input to parse. May be <code>null</code>.
 	 * @param tag   The tags to return.
 	 * @return Not <code>null</code> tag list.
 	 * @throws IOException                  If any IO errors occur.
@@ -91,7 +91,7 @@ public class XmlUtils {
 	/**
 	 * Return list of tags inside the root element from XPATH.
 	 *
-	 * @param input      Input to parse. My be <code>null</code>.
+	 * @param input      Input to parse. May be <code>null</code>.
 	 * @param expression The XPATH expression.
 	 * @return Not <code>null</code> tag list.
 	 * @throws IOException                  If any IO errors occur.

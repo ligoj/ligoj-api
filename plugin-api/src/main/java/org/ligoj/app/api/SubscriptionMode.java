@@ -10,7 +10,7 @@ public enum SubscriptionMode {
 
 	/**
 	 * The parameter is used to maintain the relation between the project and the tool. It will be requested to
-	 * establish the relation, so must be generated in creation mode. At the end, this parameter has to provided.
+	 * establish the relation, so must be generated in creation mode. At the end, this parameter has to be provided.
 	 */
 	LINK,
 

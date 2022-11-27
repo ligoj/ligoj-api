@@ -53,9 +53,9 @@ class LigojPluginsClassLoaderTest {
 			System.setProperty("ligoj.home", USER_HOME_DIRECTORY + "/.ligoj");
 			try (var classLoader = checkClassLoader()) {
 				final var subscription = newSubscription();
-				final var cfile = classLoader.toPath(subscription, "foo", "bar.log").toFile();
+				final var cFile = classLoader.toPath(subscription, "foo", "bar.log").toFile();
 				Assertions.assertTrue(subscriptionParent.exists());
-				Assertions.assertTrue(cfile.getParentFile().exists());
+				Assertions.assertTrue(cFile.getParentFile().exists());
 				Assertions.assertTrue(file.getParentFile().exists());
 			}
 			Assertions.assertFalse(file.exists());
@@ -98,9 +98,9 @@ class LigojPluginsClassLoaderTest {
 
 		// Check the content of the plug-in is resolvable from the class loader
 		IOUtils.toString(classLoader.getResourceAsStream("home-test/.ligoj/plugins/plugin-foo-1.0.1.jar"),
-				StandardCharsets.UTF_8.name());
+				StandardCharsets.UTF_8);
 		Assertions.assertEquals("FOO",
-				IOUtils.toString(classLoader.getResourceAsStream("plugin-foo.txt"), StandardCharsets.UTF_8.name()));
+				IOUtils.toString(classLoader.getResourceAsStream("plugin-foo.txt"), StandardCharsets.UTF_8));
 
 		final var export = new File(USER_HOME_DIRECTORY + "/.ligoj/export");
 		Assertions.assertTrue(export.exists());
@@ -108,7 +108,7 @@ class LigojPluginsClassLoaderTest {
 		Assertions.assertTrue(new File(export, "export.txt").exists());
 		Assertions.assertTrue(new File(export, "export.txt").isFile());
 		Assertions.assertEquals("EXPORT",
-				FileUtils.readFileToString(new File(export, "export.txt"), StandardCharsets.UTF_8.name()));
+				FileUtils.readFileToString(new File(export, "export.txt"), StandardCharsets.UTF_8));
 		return classLoader;
 	}
 }

@@ -70,7 +70,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	private String description;
 
 	/**
-	 * Team Leader user name
+	 * Team Leader username
 	 */
 	private String teamLeader;
 

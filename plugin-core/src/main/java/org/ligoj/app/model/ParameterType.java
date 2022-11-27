@@ -44,9 +44,9 @@ public enum ParameterType {
 	TAGS;
 
 	/**
-	 * Return true is this criteria is based on a fixed length choice.
+	 * Return <code>true</code> when is based on a fixed length choice.
 	 *
-	 * @return true is this criteria is based on a fixed length choice.
+	 * @return <code>true</code> when is based on a fixed length choice.
 	 */
 	public boolean isArray() {
 		return this == ParameterType.SELECT || this == ParameterType.MULTIPLE;

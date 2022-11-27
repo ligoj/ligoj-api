@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link ParameterValue} repository
  */
+@SuppressWarnings("ALL")
 public interface ParameterValueRepository extends RestRepository<ParameterValue, Integer> {
 
 	/**
@@ -21,6 +22,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @param node The node identifier.
 	 * @return All parameter values associated to a node.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT p FROM ParameterValue p LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE n0.id = :node OR n1.refined.id = :node OR n2.refined.id = :node")
 	List<ParameterValue> getParameterValues(String node);
@@ -32,6 +34,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @param parameter    The parameter identifier.
 	 * @return the associated parameter value as {@link String}
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT p.data FROM ParameterValue p, Subscription s INNER JOIN s.node service LEFT JOIN p.subscription subscription LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE s.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service) AND p.parameter.id = ?2")
 	String getSubscriptionParameterValue(int subscription, String parameter);
@@ -42,18 +45,20 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @param subscription the subscription identifier.
 	 * @return all parameters associated to a subscription.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT p FROM ParameterValue p, Subscription s INNER JOIN s.node service INNER JOIN FETCH p.parameter"
 			+ " LEFT JOIN p.subscription subscription LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE s.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service)")
 	List<ParameterValue> findAllBySubscription(int subscription);
 
 	/**
-	 * Return all non secured parameters (name and raw value) associated to a subscription. Sensitive parameters are not
+	 * Return all unsecured parameters (name and raw value) associated to a subscription. Sensitive parameters are not
 	 * returned.
 	 *
 	 * @param subscription the subscription identifier.
 	 * @return all parameters associated to a subscription.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT v FROM ParameterValue v, Subscription s INNER JOIN s.node service INNER JOIN FETCH v.parameter AS param"
 			+ " LEFT JOIN v.subscription subscription LEFT JOIN v.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE s.id = ?1 AND param.secured != TRUE"
@@ -65,6 +70,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 *
 	 * @param node The node identifier.
 	 */
+	@SuppressWarnings("unused")
 	@Modifying
 	@Query("DELETE ParameterValue WHERE"
 			+ "    parameter.id IN (SELECT id FROM Parameter WHERE owner.id = :node OR owner.id LIKE CONCAT(:node, ':%'))"
@@ -80,12 +86,13 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @param user The user principal requesting this parameter.
 	 * @return The visible parameter or <code>null</code> when not found.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM ParameterValue v INNER JOIN FETCH v.node n WHERE v.id=:id AND n IS NOT NULL AND "
 			+ NodeRepository.WRITE_NODES)
 	ParameterValue findOneVisible(int id, String user);
 
 	/**
-	 * Return the subscriptions of given project with all non secured parameters.
+	 * Return the subscriptions of given project with all unsecured parameters.
 	 *
 	 * @param node      The subscribed node. Directly or not.
 	 * @param parameter The id of the parameter.
@@ -93,6 +100,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @param criteria  the optional criteria used to check name (CN).
 	 * @return A list of table of [Subscription, ParameterValue]
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT v FROM Subscription s, ParameterValue v LEFT JOIN v.subscription subscription INNER JOIN FETCH v.parameter param "
 			+ " LEFT JOIN v.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE s.project.id = ?3 AND (subscription = s OR n0.id = ?1 OR n1.refined = ?1 OR n2.refined = ?1) AND param.id = ?2 AND UPPER(v.data) LIKE UPPER(CONCAT(CONCAT('%', ?4),'%')) AND param.secured != TRUE ORDER BY v.data, v.id")

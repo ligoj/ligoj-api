@@ -22,7 +22,7 @@ public class SonarPluginResource extends AbstractToolPluginResource {
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
 	/**
-	 * Sonar user name able to connect to instance.
+	 * Sonar username able to connect to instance.
 	 */
 	public static final String PARAMETER_USER = KEY + ":user";
 

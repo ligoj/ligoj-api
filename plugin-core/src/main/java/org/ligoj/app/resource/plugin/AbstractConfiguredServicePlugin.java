@@ -93,7 +93,7 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	public <T extends NodeScoped<?>> T checkVisibility(final T nodeScoped, final String requiredNode) {
 		// Compare the node against the scoped entity
 		if (!nodeScoped.getNode().getId().matches("^" + requiredNode + "(:.+)?$")) {
-			// The expected node does not exists in the expected node scope
+			// The expected node does not exist in the expected node scope
 			throw new EntityNotFoundException(nodeScoped.getId().toString());
 		}
 

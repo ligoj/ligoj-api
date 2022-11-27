@@ -15,7 +15,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * User and group links : user to group, and group to sub-group.
+ * User and group links : user to group, and group to subgroup.
  */
 @Getter
 @Setter

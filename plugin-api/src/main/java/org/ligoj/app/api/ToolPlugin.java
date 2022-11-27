@@ -47,7 +47,7 @@ public interface ToolPlugin extends ServicePlugin {
 	/**
 	 * Check the status of given node.
 	 *
-	 * @param node       The node identifier. May be <code>null</code> for anonyous case.
+	 * @param node       The node identifier. May be <code>null</code> for anonymous case.
 	 * @param parameters The actual parameter values of the node.
 	 * @return <code>true</code> when the status is UP.
 	 * @see #checkStatus(Map)

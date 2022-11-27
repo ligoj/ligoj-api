@@ -41,7 +41,7 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 	 *
 	 * @param subscription the subscription's identifier to use to locate the target instance.
 	 * @return the version of tool or <code>null</code> if not available/found.
-	 * @throws Exception When version cannot be be retrieved.
+	 * @throws Exception When version cannot be retrieved.
 	 */
 	@GET
 	@Path("version/{subscription:\\d+}")
@@ -56,7 +56,7 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 	}
 
 	/**
-	 * Simple shortcut for a OK and download header.
+	 * Simple shortcut for an OK and download header.
 	 *
 	 * @param output Source entity.
 	 * @param file   The target file name.

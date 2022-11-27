@@ -29,7 +29,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * @throws NoSuchAlgorithmException MD5 digest is unavailable for version ciphering.
 	 */
 	public LigojPluginsClassLoader() throws IOException, NoSuchAlgorithmException {
-		// Default class loader required because of exceptions of super constructor
+		// Default class loader required because of error from super constructor
 	}
 
 	/**
@@ -79,7 +79,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 */
 	private String[] toFragments(final Node node) {
 		final var fragments = new ArrayList<String>();
-		toFragments(node, fragments);
+		addFragments(node, fragments);
 		return fragments.toArray(new String[fragments.size()]);
 	}
 
@@ -89,9 +89,9 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	 * @param node      The related node.
 	 * @param fragments The computed sibling path (updated).
 	 */
-	private void toFragments(final Node node, List<String> fragments) {
+	private void addFragments(final Node node, List<String> fragments) {
 		if (node.isRefining()) {
-			toFragments(node.getRefined(), fragments);
+			addFragments(node.getRefined(), fragments);
 		}
 		fragments.add(toFragmentId(node).replace(':', '-'));
 	}

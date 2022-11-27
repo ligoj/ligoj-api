@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Node's details with few information.
+ * Node's details with little information.
  */
 @Getter
 @Setter

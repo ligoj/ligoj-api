@@ -71,7 +71,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	void cancelNotRunnging() {
+	void cancelNotRunning() {
 		final var task = newTaskSampleNode();
 		repositoryNode.saveAndFlush(task);
 		final var id = task.getLocked().getId();
@@ -89,7 +89,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	void cancelSubscriptionNotRunnging() {
+	void cancelSubscriptionNotRunning() {
 		final var task = newTaskSample();
 		repository.saveAndFlush(task);
 		em.flush();

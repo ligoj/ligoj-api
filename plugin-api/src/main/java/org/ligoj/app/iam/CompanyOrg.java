@@ -24,7 +24,7 @@ public class CompanyOrg extends ContainerOrg {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * This company, and the parents.
+	 * This company and the parents.
 	 */
 	private List<CompanyOrg> companyTree = new ArrayList<>();
 
@@ -47,7 +47,7 @@ public class CompanyOrg extends ContainerOrg {
 
 	@Override
 	public boolean equals(final Object other) {
-		return other instanceof CompanyOrg corg && getId().equals(corg.getId());
+		return other instanceof CompanyOrg org && getId().equals(org.getId());
 	}
 
 	@Override

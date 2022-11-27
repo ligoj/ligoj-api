@@ -182,7 +182,7 @@ public class DelegateOrgResource {
 	}
 
 	/**
-	 * Validate the user changes regarding the current user's right. The associated DN and the real CN will stored in
+	 * Validate the user changes regarding the current user's right. The associated DN and the real CN will be stored in
 	 * database.<br>
 	 * Rules, order is important :
 	 * <ul>

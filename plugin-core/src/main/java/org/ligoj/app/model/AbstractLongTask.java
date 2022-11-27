@@ -21,7 +21,7 @@ import lombok.Setter;
  * Long task status. Is deleted with the project, the subscription or the related node hierarchy.
  *
  * @param <L> The locked type during while this task is running.
- * @param <I> The locked's identifier type during while this task is running.
+ * @param <I> The locked object 's identifier type during while this task is running.
  */
 @Getter
 @Setter

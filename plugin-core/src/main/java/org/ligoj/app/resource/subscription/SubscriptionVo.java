@@ -37,7 +37,7 @@ public class SubscriptionVo extends AuditedBean<SimpleUser, Integer> implements 
 	private NodeStatus status;
 
 	/**
-	 * Subscribed service : directly a service, a tool or a node inside a a tool.
+	 * Subscribed service : directly a service, a tool or a node inside a tool.
 	 */
 	private NodeVo node;
 

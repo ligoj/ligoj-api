@@ -15,18 +15,20 @@ import org.springframework.data.repository.NoRepositoryBean;
  *
  * @param <T> Type of task entity.
  * @param <L> The locked type during while this task is running.
- * @param <I> The locked's identifier type during while this task is running.
+ * @param <I> The locked object 's identifier type during while this task is running.
  */
+@SuppressWarnings("ALL")
 @NoRepositoryBean
 public interface LongTaskRepository<T extends AbstractLongTask<L, I>, L extends Persistable<I>, I extends Serializable>
 		extends RestRepository<T, Integer> {
 
 	/**
-	 * Return an active task status for the same service than the given one. .
+	 * Return an active task status for the same service as the given one. .
 	 *
 	 * @param locked The locked entity's identifier.
 	 * @return the import status of a given subscription.
 	 */
+	@SuppressWarnings("unused")
 	T findNotFinishedByLocked(I locked);
 
 }

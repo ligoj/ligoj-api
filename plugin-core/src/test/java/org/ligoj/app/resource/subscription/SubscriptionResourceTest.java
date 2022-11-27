@@ -604,7 +604,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
 			resource.create(vo);
-		}), JiraBaseResource.PARAMETER_JDBC_PASSSWORD, "not-accepted-parameter");
+		}), JiraBaseResource.PARAMETER_JDBC_PASSWORD, "not-accepted-parameter");
 	}
 
 	@Test

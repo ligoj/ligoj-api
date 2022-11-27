@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link DelegateOrg} repository.
  */
+@SuppressWarnings("ALL")
 public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integer> {
 
 	/**
@@ -34,7 +35,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	/**
 	 * ":user" : Context user login <br>
 	 * "d" : Current DN <br>
-	 * Visible delegates (may not be assigned) for a given user. A assigned delegates and delegates within the scope of
+	 * Visible delegates (may not be assigned) for a given user. An assigned delegates and delegates within the scope of
 	 * the assigned one are visible.
 	 */
 	String VISIBLE_DELEGATE = "(" + SystemUser.IS_ADMIN + " OR (" + ASSIGNED_DELEGATE + ")"
@@ -60,6 +61,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * <br>
 	 * Match DN
 	 */
+	@SuppressWarnings("unused")
 	String MATCH_RESOURCE_DN = "(l.description LIKE CONCAT('%,',dn) OR l.description=dn)";
 
 	/**
@@ -81,21 +83,23 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	/**
 	 * Return all delegates attached to the given user.
 	 *
-	 * @param user The target user name, receiving the delegation.
+	 * @param user The target username, receiving the delegation.
 	 * @return The {@link DelegateOrg} of a given user.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM DelegateOrg WHERE " + ASSIGNED_DELEGATE)
 	List<DelegateOrg> findAllByUser(String user);
 
 	/**
-	 * Return <code>true</code> when there is at least one {@link DelegateOrg} granting the write right for given
+	 * Return <code>true</code> when there is at least one {@link DelegateOrg} granting the 'write' right for given
 	 * principal user to modify something within the given DN.
 	 *
-	 * @param user The user name requesting the operation.
+	 * @param user The username requesting the operation.
 	 * @param dn   The DN user wants to create.
 	 * @param type The involved {@link DelegateType}.
 	 * @return <code>true</code> when the given DN can be created by the given user.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT COUNT(d)>0 FROM DelegateOrg d WHERE " + SystemUser.IS_ADMIN + " OR (canWrite=true AND "
 			+ MATCH_DELEGATE_DN + ")")
 	boolean canCreate(String user, String dn, DelegateType type);
@@ -103,7 +107,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	/**
 	 * Return all {@link DelegateOrg} objects regarding the given criteria.
 	 *
-	 * @param user     The target user name, receiving the delegation.
+	 * @param user     The target username, receiving the delegation.
 	 * @param criteria Optional, use to filter by receiver's name of delegate's name.
 	 * @param type     Optional {@link DelegateType} to match.
 	 * @param page     The pagination.
@@ -121,18 +125,19 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	/**
 	 * Return delegate identifiers matching to the given DN
 	 *
-	 * @param user The target user name, receiving the delegation.
+	 * @param user The target username, receiving the delegation.
 	 * @param dn   the DN to write.
 	 * @param type the DN type.
 	 * @return delegate identifiers matching to the given DN
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT id FROM DelegateOrg WHERE (" + SystemUser.IS_ADMIN + " OR canWrite=true) AND " + MATCH_DELEGATE_DN)
 	List<Integer> findByMatchingDnForWrite(String user, String dn, DelegateType type);
 
 	/**
 	 * Return delegate identifiers matching to the given DN
 	 *
-	 * @param user The target user name, receiving the delegation.
+	 * @param user The target username, receiving the delegation.
 	 * @param dn   The DN to write.
 	 * @param type The DN type.
 	 * @return delegate identifiers matching to the given DN

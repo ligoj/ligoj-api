@@ -4,7 +4,7 @@
 package org.ligoj.app.iam;
 
 /**
- * An organizational resource : a DN and an unique identifier. This element is the base for all security management with
+ * An organizational resource : a DN and a unique identifier. This element is the base for all security management with
  * delegates.
  */
 public interface ResourceOrg {

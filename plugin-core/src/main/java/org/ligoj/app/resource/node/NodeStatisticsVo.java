@@ -17,12 +17,12 @@ public class NodeStatisticsVo {
 	/**
 	 * Node identifier.
 	 */
-	private String node;
+	private final String node;
 
 	/**
 	 * Statistics values
 	 */
-	private Map<String, Long> values = new HashMap<>();
+	private final Map<String, Long> values = new HashMap<>();
 
 	/**
 	 * Constructor ensuring a provided node.

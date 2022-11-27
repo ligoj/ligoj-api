@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+@SuppressWarnings("unused")
 class MockUserRepository2 implements IUserRepository {
 
 	@Override

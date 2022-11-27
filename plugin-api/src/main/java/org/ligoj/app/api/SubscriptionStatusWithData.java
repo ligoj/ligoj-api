@@ -43,7 +43,7 @@ public class SubscriptionStatusWithData {
 	private Integer project;
 
 	/**
-	 * Optional data. Can be <code>null</code> or empty depending the availability of remote node and relevant data to
+	 * Optional data. Can be <code>null</code> or empty depending on the availability of remote node and relevant data to
 	 * retrieve.
 	 */
 	private Map<String, Object> data = new HashMap<>();

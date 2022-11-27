@@ -28,7 +28,7 @@ public class VersionUtils {
 	/**
 	 * Return the lasted version for the given JIRA project.
 	 *
-	 * @param serverUrl The server base URL like "http://jira.codehaus.org"
+	 * @param serverUrl The server base URL like "<a href="http://jira.codehaus.org">JIRA</a>"
 	 * @param project   The JIRA project identifier.
 	 * @return <code>null</code> or latest version
 	 * @throws IOException When version cannot be read from the remote URL.
@@ -76,7 +76,7 @@ public class VersionUtils {
 	/**
 	 * Return the lasted version name for the given Jira project.
 	 *
-	 * @param serverUrl The server base URL like "http://jira.codehaus.org"
+	 * @param serverUrl The server base URL like "<a href="http://jira.codehaus.org">JIRA</a>"
 	 * @param project   The JIRA project identifier.
 	 * @return <code>null</code> or latest version name.
 	 * @throws IOException When version cannot be read from the remote URL.

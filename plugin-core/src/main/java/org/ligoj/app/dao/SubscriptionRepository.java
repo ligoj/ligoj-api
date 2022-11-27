@@ -12,12 +12,13 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link Subscription} repository
  */
+@SuppressWarnings("ALL")
 public interface SubscriptionRepository extends RestRepository<Subscription, Integer> {
 
 	/**
-	 * Return all subscriptions with only few information.
+	 * Return all subscriptions with only little information.
 	 *
-	 * @return the subscriptions data :project identifier and node identifier.
+	 * @return the subscription's data :project identifier and node identifier.
 	 */
 	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p")
 	List<Object[]> findAllLight();
@@ -32,20 +33,22 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	List<Subscription> findAllByProject(int project);
 
 	/**
-	 * Return all subscriptions attached to the same project than the given subscription.
+	 * Return all subscriptions attached to the same project as the given subscription.
 	 *
 	 * @param subscription the subscription used to check the other attached a common project.
 	 * @return the subscriptions attached to the same project. Service are fetch.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT s1 FROM Subscription s1, Subscription s2 INNER JOIN FETCH s1.node WHERE s2.id = ?1 AND s1.project.id = s2.project.id")
 	List<Subscription> findAllOnSameProject(int subscription);
 
 	/**
-	 * Return the subscriptions to given node or one of the sub-nodes, and with all non secured parameters.
+	 * Return the subscriptions to given node or one of the sub-nodes, and with all unsecured parameters.
 	 *
 	 * @param node the subscribed node. Directly or not.
 	 * @return the subscriptions to given node.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
 			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2 LEFT JOIN service.refined sn0 LEFT JOIN sn0.refined sn1"
 			+ " WHERE (service.id = ?1 OR sn0.id = ?1 OR sn1.id = ?1)"
@@ -73,7 +76,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	int countByParameterValue(int parameterValue);
 
 	/**
-	 * Return the subscriptions of given project with all non secured parameters.
+	 * Return the subscriptions of given project with all unsecured parameters.
 	 *
 	 * @param project the subscribing project
 	 * @return the subscriptions of given project.

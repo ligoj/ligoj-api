@@ -80,7 +80,7 @@ public class ProjectResource {
 		ORDERED_COLUMNS.put("createdDate", "createdDate");
 		ORDERED_COLUMNS.put("teamLeader", "teamLeader");
 
-		// This mapping does not works for native spring-data "findAll"
+		// This mapping does not work for native spring-data "findAll"
 		ORDERED_COLUMNS.put("name", "name");
 		ORDERED_COLUMNS.put("nbSubscriptions", "COUNT(s)");
 	}
@@ -236,7 +236,7 @@ public class ProjectResource {
 	 * Delete entity. Should be protected with RBAC.
 	 *
 	 * @param id The entity identifier.
-	 * @throws Exception When the delete fails. Managed at JAX-RS level.
+	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
 	@DELETE
 	@Path("{id:\\d+}")

@@ -19,6 +19,7 @@ import lombok.Setter;
 /**
  * A mocked user repository. Details of a specific person always succeed but the search of people return an empty list.
  */
+@SuppressWarnings("unused")
 public class EmptyUserRepository implements IUserRepository {
 
 	@Getter

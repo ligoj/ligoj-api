@@ -9,6 +9,7 @@ import java.util.Map;
 /**
  * Group repository
  */
+@SuppressWarnings("unused")
 public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 
 	/**
@@ -24,7 +25,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	 *
 	 * @param dn        The target DN.
 	 * @param attribute The attribute name.
-	 * @param values    The values to add. My be empty.
+	 * @param values    The values to add. May be empty.
 	 */
 	void addAttributes(String dn, String attribute, Collection<String> values);
 
@@ -38,7 +39,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 
 	/**
 	 * Empty the group. All users from the group will not be anymore associated to this group, and the members of the
-	 * group will be emptied. Not that the sub groups are not removed, only users are concerned.
+	 * group will be emptied. Not that the subgroups are not removed, only users are concerned.
 	 *
 	 * @param group The group to empty.
 	 * @param users All known users could be removed from this group.

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 
 import javax.transaction.Transactional;
 import javax.ws.rs.core.UriInfo;
@@ -117,7 +118,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void checkNodesStatusFiltered() throws Exception {
 
-		// This users sees only Jenkins nodes
+		// This user sees only Jenkins nodes
 		mockApplicationContext();
 		initSpringSecurityContext("user1");
 		final var resource = resourceMock;
@@ -131,7 +132,7 @@ class NodeResourceTest extends AbstractAppTest {
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
 		 * subscriptions :<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
-		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already know nodes<br> =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already known nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
 		Assertions.assertEquals(eventsCount + 2, eventRepository.count());
@@ -140,7 +141,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void checkNodesStatus() throws Exception {
 
-		// This users sees all nodes
+		// This user sees all nodes
 		mockApplicationContext();
 		initSpringSecurityContext(DEFAULT_USER);
 		final var resource = resourceMock;
@@ -154,7 +155,7 @@ class NodeResourceTest extends AbstractAppTest {
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
 		 * subscriptions :<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
-		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already know nodes<br> =
+		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already known nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
 		Assertions.assertEquals(eventsCount + 23, eventRepository.count());
@@ -163,7 +164,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void checkNodeStatusNotVisible() throws Exception {
 
-		// This users sees only Jenkins nodes
+		// This user sees only Jenkins nodes
 		mockApplicationContext();
 		initSpringSecurityContext("user1");
 		final var resource = resourceMock;
@@ -216,7 +217,7 @@ class NodeResourceTest extends AbstractAppTest {
 	/**
 	 * Mock the servers for event test
 	 */
-	private int prepareEvent() throws Exception {
+	private long prepareEvent() throws Exception {
 		final var servicePluginLocator = resourceMock.locator;
 
 		// 1 : service is down
@@ -305,7 +306,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void checkSubscriptionsStatus() throws Exception {
 		mockApplicationContext();
 
-		// This users sees only Jenkins nodes
+		// This user sees only Jenkins nodes
 		initSpringSecurityContext("user1");
 		final var resource = resourceMock;
 		final var eventsCount = prepareSubscriptionsEvent();
@@ -653,7 +654,7 @@ class NodeResourceTest extends AbstractAppTest {
 		value.setText("secret");
 
 		// Initial node
-		node.setParameters(Arrays.asList(value));
+		node.setParameters(List.of(value));
 		resource.create(node);
 		Assertions.assertTrue(repository.existsById("service:bt:jira:7"));
 

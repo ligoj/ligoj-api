@@ -53,7 +53,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	String ADMIN_NODES = VISIBLE_NODES_PART + " AND d.canAdmin = true))";
 
 	/**
-	 * Return all nodes with all non secured parameters.
+	 * Return all nodes with all unsecured parameters.
 	 *
 	 * @return the nodes.
 	 */

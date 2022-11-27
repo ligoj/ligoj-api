@@ -303,7 +303,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * deleted. Links are just destroyed.
 	 *
 	 * @param id the entity identifier.
-	 * @throws Exception When the delete fails. Managed at JAX-RS level.
+	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}")
 	@DELETE
@@ -317,7 +317,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *
 	 * @param id               the entity identifier.
 	 * @param deleteRemoteData When <code>true</code>, remote data will be also destroyed.
-	 * @throws Exception When the delete fails. Managed at JAX-RS level.
+	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}/{deleteRemoteData}")
 	@DELETE
@@ -397,7 +397,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		result.setProjects(projectsMap.values());
 
 		/*
-		 * List visible projects having at least one subscription, return involved subscriptions relating theses
+		 * List visible projects having at least one subscription, return involved subscriptions relating these
 		 * projects. SQL "IN" is not used, because of size limitations. Structure : id, project.id, service.id
 		 */
 		result.setSubscriptions(toSubscriptions(repository.findAllLight(), projectsMap));
@@ -499,7 +499,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Get fresh status of given subscription. This fresh status is also stored in the data base. The project must be
+	 * Get fresh status of given subscription. This fresh status is also stored in the database. The project must be
 	 * visible to current user.
 	 *
 	 * @param id Node identifier

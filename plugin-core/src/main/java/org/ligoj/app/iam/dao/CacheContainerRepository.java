@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
  *
  * @param <C> Cache container type.
  */
+@SuppressWarnings("ALL")
 public interface CacheContainerRepository<C extends CacheContainer> {
 
 	/**
@@ -36,6 +37,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param page     Page control.
 	 * @return The pagination result.
 	 */
+	@SuppressWarnings("unused")
 	Page<C> findAll(String user, String criteria, Pageable page);
 
 	/**
@@ -44,6 +46,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param user The user requesting the operation.
 	 * @return The visible items.
 	 */
+	@SuppressWarnings("unused")
 	List<C> findAll(String user);
 
 	/**
@@ -54,6 +57,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param page     Page control.
 	 * @return The pagination result.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ WRITABLE_RESOURCE)
 	Page<C> findAllWrite(String user, String criteria, Pageable page);
@@ -64,6 +68,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param user The user requesting the operation.
 	 * @return The visible items.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM #{#entityName} l WHERE " + WRITABLE_RESOURCE)
 	List<C> findAllWrite(String user);
 
@@ -75,6 +80,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param page     Page control.
 	 * @return The pagination result.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ ADMIN_RESOURCE)
 	Page<C> findAllAdmin(String user, String criteria, Pageable page);
@@ -85,6 +91,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param user The user requesting the operation.
 	 * @return The visible items.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM #{#entityName} l WHERE " + ADMIN_RESOURCE)
 	List<C> findAllAdmin(String user);
 
@@ -95,6 +102,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @param id   The container's identifier to find.
 	 * @return a container matching to the given identifier and also visible by the given user. May be <code>null</code>
 	 */
+	@SuppressWarnings("unused")
 	C findById(String user, String id);
 
 }

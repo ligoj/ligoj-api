@@ -132,7 +132,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Check there no running task within the same scope of the locked's identifier and starts a new task.
+	 * Check there no running task within the same scope of the locked object 's identifier and starts a new task.
 	 *
 	 * @param lockedId    The locked entity's identifier.
 	 * @param initializer The function to call while initializing the task.

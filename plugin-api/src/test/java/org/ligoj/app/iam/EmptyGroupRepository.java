@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 /**
  * A mocked group repository. Details of a specific group always succeed but the search of groups return an empty list.
  */
+@SuppressWarnings("unused")
 public class EmptyGroupRepository implements IGroupRepository {
 
 	@Override

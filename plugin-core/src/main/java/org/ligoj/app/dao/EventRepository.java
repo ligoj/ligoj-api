@@ -16,6 +16,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link Event} repository
  */
+@SuppressWarnings("ALL")
 public interface EventRepository extends RestRepository<Event, String> {
 
 	/**
@@ -25,6 +26,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @param type event type
 	 * @return last event
 	 */
+	@SuppressWarnings("unused")
 	Event findFirstByNodeAndTypeOrderByIdDesc(Node node, EventType type);
 
 	/**
@@ -34,6 +36,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @param type         event type
 	 * @return last event
 	 */
+	@SuppressWarnings("unused")
 	Event findFirstBySubscriptionAndTypeOrderByIdDesc(Subscription subscription, EventType type);
 
 	/**
@@ -42,6 +45,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @param user The user requesting the nodes.
 	 * @return last events of all nodes.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.node n INNER JOIN FETCH n.refined tool INNER JOIN tool.refined root"
 			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND "
 			+ NodeRepository.VISIBLE_NODES)
@@ -54,6 +58,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @param node The related node.
 	 * @return last events of a specific node.
 	 */
+	@SuppressWarnings("unused")
 	@Query("FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
 			+ NodeRepository.VISIBLE_NODES)
 	Event findLastEvent(String user, String node);
@@ -64,6 +69,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @param project Project identifier.
 	 * @return all events
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.subscription sub "
 			+ " WHERE sub.project.id = :project AND event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub)")
 	List<Event> findLastEvents(int project);
@@ -74,6 +80,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @param user The user requesting the nodes.
 	 * @return subscriptions events count
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT n.id, event.value, count(event) FROM Event event INNER JOIN event.subscription sub LEFT JOIN sub.node n"
 			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub) AND "
 			+ NodeRepository.VISIBLE_NODES + " GROUP BY event.value, n.id")
@@ -84,6 +91,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 *
 	 * @param node The node identifier.
 	 */
+	@SuppressWarnings("unused")
 	@Modifying
 	@Query("DELETE Event WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%')"
 			+ " OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%'))")

@@ -38,7 +38,8 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	public void deleteTasks(final ServicePlugin plugin, final I id) {
 		// Check and delete the related finished tasks
 		final var scope = plugin.getClass().getProtectionDomain().getCodeSource().getLocation().toString();
-		applicationContext.getBeansOfType(getLongTaskRunnerClass()).values().stream()
+		final var taskClass = getLongTaskRunnerClass();
+		applicationContext.getBeansOfType(taskClass).values().stream()
 				.filter(l -> l.getClass().getProtectionDomain().getCodeSource().getLocation().toString().equals(scope))
 				.forEach(l -> l.deleteTask(id));
 	}
@@ -67,7 +68,7 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	 * Delete a locked resource by its identifier and owned by the given plug-in.
 	 *
 	 * @param plugin           The related plug-in owning the locked resource
-	 * @param id               The locked's identifier resource.
+	 * @param id               The locked object's identifier resource.
 	 * @param deleteRemoteData When <code>true</code>, remote data will be also destroyed.
 	 * @throws Exception When delete fails. Managed at upper level.
 	 */
@@ -76,15 +77,18 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	/**
 	 * Return the {@link Class} of type {@link LongTaskRunner} to check task deletion.
 	 *
-	 * @return the {@link LongTaskRunner} class type handling the locked resource type.
-	 * @param <I> The locked's identifier type of this task.
-	 * @param <L> The locked's entity's type while this task.
 	 * @param <A> Repository managing the locked entity.
 	 * @param <S> Resource managing the locked entity.
 	 * @param <R> Repository managing the task entity.
 	 * @param <T> Type of task entity.
+	 * @return the {@link LongTaskRunner} class type handling the locked resource type.
 	 */
-	protected abstract <T extends AbstractLongTask<L, I>, R extends LongTaskRepository<T, L, I>, A extends RestRepository<L, I>, S extends AbstractLockedResource<L, I>> Class<? extends LongTaskRunner<T, R, L, I, A, S>> getLongTaskRunnerClass();
+	protected abstract <
+			T extends AbstractLongTask<L, I>,
+			R extends LongTaskRepository<T, L, I>,
+			A extends RestRepository<L, I>,
+			S extends AbstractLockedResource<L, I>
+			> Class<? extends LongTaskRunner<T, R, L, I, A, S>> getLongTaskRunnerClass();
 
 	/**
 	 * Check the given identifier relates to a visible entity.

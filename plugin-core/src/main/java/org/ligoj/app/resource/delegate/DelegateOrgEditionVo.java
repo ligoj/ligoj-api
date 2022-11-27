@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Delegation business object for updates. The name corresponds to the human readable name (CN for LDAP) of the target.
+ * Delegation business object for updates. The name corresponds to the human-readable name (CN for LDAP) of the target.
  * It will be normalized to be used as identifier.
  */
 @Getter

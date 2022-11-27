@@ -40,7 +40,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param user     The principal user name
+	 * @param user     The principal username
 	 * @param criteria the optional criteria to match: name, description or pkey. Case is insensitive.
 	 * @param page     the pagination.
 	 * @return all {@link Project} objects with the given name. Insensitive case search is used.
@@ -63,7 +63,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param user The principal user name
+	 * @param user The principal username
 	 * @return all visible {@link Project} objects for <code>user</code>.
 	 */
 	@Query("SELECT DISTINCT p.id, p.name, p.pkey FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE "
@@ -79,7 +79,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * </ul>
 	 *
 	 * @param id   The project's identifier to match.
-	 * @param user The current user name.
+	 * @param user The current username.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :id AND "
@@ -87,15 +87,15 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	Project findOneVisible(int id, String user);
 
 	/**
-	 * Return a project by its <code>pkey</code>. The constraints are:
+	 * Return a project by its primary key. The constraints are:
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> is the team leader</li>
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param pkey The project <code>pkey</code> to match.
-	 * @param user The principal user name.
+	 * @param pkey The project primary key to match.
+	 * @param user The principal username.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
@@ -110,8 +110,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
 	 * </ul>
 	 *
-	 * @param pkey The pkey to match.
-	 * @param user The principal user name.
+	 * @param pkey The primary key to match.
+	 * @param user The principal username.
 	 * @return the project or <code>null</code> if not found or not visible.
 	 */
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.pkey = :pkey AND "
@@ -136,7 +136,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * {@link Node}s should be filtered regarding the delegates on this node.
 	 *
 	 * @param project The project's identifier to match.
-	 * @param user    The principal user name.
+	 * @param user    The principal username.
 	 * @return <code>true</code> when <code>user</code> can manage the subscriptions of this project.
 	 */
 	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg0 LEFT JOIN cpg0.group AS cg0 WHERE p.id = :project AND ("

@@ -19,7 +19,7 @@ public enum DelegateType {
 	COMPANY,
 
 	/**
-	 * Tree delegate. Corresponds to any object type. Useful for non homogeneous organization trees.
+	 * Tree delegate. Corresponds to any object type. Useful for heterogeneous organization trees.
 	 */
 	TREE
 }

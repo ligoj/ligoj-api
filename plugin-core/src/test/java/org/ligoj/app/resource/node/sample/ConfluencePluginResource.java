@@ -34,7 +34,7 @@ public class ConfluencePluginResource extends AbstractToolPluginResource {
 	public static final String PARAMETER_SPACE = KEY + ":space";
 
 	/**
-	 * Confluence user name able to perform index.
+	 * Confluence username able to perform index.
 	 */
 	public static final String PARAMETER_USER = KEY + ":user";
 

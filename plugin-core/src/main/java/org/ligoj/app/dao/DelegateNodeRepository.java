@@ -14,6 +14,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link DelegateNode} repository
  */
+@SuppressWarnings("ALL")
 public interface DelegateNodeRepository extends RestRepository<DelegateNode, Integer> {
 
 	/**
@@ -35,6 +36,7 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	 * @param page     the pagination.
 	 * @return all {@link DelegateNode} objects with the given name. Insensitive case search is used.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT d FROM DelegateNode d WHERE (CAST(:criteria as string) IS NULL                                                           "
 			+ "       OR (UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 			+ "           OR UPPER(d.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))" + " AND "
@@ -43,7 +45,7 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 
 	/**
 	 * Return a positive number if the given node can be updated or created by the given user. A node can be managed
-	 * when it is visible and it exists at least one delegation with administration right for this node or one its
+	 * when it is visible, and it exists at least one delegation with administration right for this node or one its
 	 * parent.
 	 *
 	 * @param user  The user name requesting to manage a node.
@@ -51,18 +53,20 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	 * @param write The <code>write</code> flag of the new delegate.
 	 * @return A positive number if the given node can be managed by the given user.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT COUNT(id) FROM DelegateNode WHERE canAdmin = true AND (canWrite = true OR :write = false)"
 			+ " AND (:node LIKE CONCAT(name, ':%') OR name  = :node) AND " + DelegateOrgRepository.ASSIGNED_DELEGATE)
 	int manageNode(String user, String node, boolean write);
 
 	/**
 	 * Return a positive amount if the given entity has been deleted by the given user. A delegate can be deleted when
-	 * it is visible and it exists at least one delegation with administration right for this node or one its parent.
+	 * it is visible, and it exists at least one delegation with administration right for this node or one its parent.
 	 *
 	 * @param id   The identifier of object to delete.
 	 * @param user The user name requesting to manage a node.
 	 * @return A positive number if the given delegate has been deleted.
 	 */
+	@SuppressWarnings("unused")
 	@Query("DELETE DelegateNode d WHERE d.id = :id AND " + VISIBLE_DELEGATE_PART + " AND dz.canAdmin = true)")
 	@Modifying
 	int delete(int id, String user);

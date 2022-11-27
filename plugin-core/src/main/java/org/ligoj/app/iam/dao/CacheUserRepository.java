@@ -9,6 +9,7 @@ import org.ligoj.bootstrap.core.dao.RestRepository;
 /**
  * {@link CacheUser} repository
  */
+@SuppressWarnings("ALL")
 public interface CacheUserRepository extends RestRepository<CacheUser, String> {
 
 	// All delegated

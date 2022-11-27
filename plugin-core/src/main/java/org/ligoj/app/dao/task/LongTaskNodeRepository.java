@@ -16,6 +16,7 @@ import org.springframework.data.repository.NoRepositoryBean;
  *
  * @param <T> Type of task entity.
  */
+@SuppressWarnings("ALL")
 @NoRepositoryBean
 public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>>
 		extends LongTaskRepository<T, Node, String> {
@@ -30,6 +31,7 @@ public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>
 	 * @param user The current principal user.
 	 * @return The visible catalogs for the current principal user.
 	 */
+	@SuppressWarnings("unused")
 	@Query("SELECT i FROM #{#entityName} i INNER JOIN i.locked AS n WHERE " + NodeRepository.VISIBLE_NODES)
 	List<T> findAllVisible(String user);
 }

@@ -160,7 +160,7 @@ public interface IUserRepository {
 
 	/**
 	 * Reset user password to the given value. The given password is not stored inside the given {@link UserOrg}
-	 * instance, but only in the remote storage, and in an hashed form.
+	 * instance, but only in the remote storage, and in a hashed form.
 	 *
 	 * @param user     The user to update.
 	 * @param password The raw new password. Will be hashed.
@@ -169,7 +169,7 @@ public interface IUserRepository {
 
 	/**
 	 * Reset user password to the given value. The given password is not stored inside the given {@link UserOrg}
-	 * instance, but only in the remote storage, and in an hashed form. Some LDAP modules such as PPOLICY requires a
+	 * instance, but only in the remote storage, and in a hashed form. Some LDAP modules such as PPOLICY requires a
 	 * fully authenticated of the target user to apply the password policy.
 	 *
 	 * @param user        The user to update.
@@ -224,14 +224,14 @@ public interface IUserRepository {
 	void move(UserOrg user, CompanyOrg company);
 
 	/**
-	 * Restore a user from the isolate to the previous company of this user and unlock this user.
+	 * Restore a user from the isolated to the previous company of this user and unlock this user.
 	 *
 	 * @param user The LDAP user to disable.
 	 */
 	void restore(UserOrg user);
 
 	/**
-	 * Unlock an user :
+	 * Unlock a user :
 	 * <ul>
 	 * <li>Check the user is not isolated</li>
 	 * <li>Check the user is locked</li>
@@ -261,7 +261,7 @@ public interface IUserRepository {
 	void isolate(String principal, UserOrg user);
 
 	/**
-	 * Lock an user :
+	 * Lock a user :
 	 * <ul>
 	 * <li>Clear the password to prevent new authentication</li>
 	 * <li>Set the disabled flag.</li>

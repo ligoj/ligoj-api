@@ -43,7 +43,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 	 */
 	private final Function<String, ? extends UserOrg> userConverter;
 
-	private ServicePluginLocator locator;
+	private final ServicePluginLocator locator;
 
 	/**
 	 * Constructor holding the data used to convert a {@link Project} to {@link ProjectVo}.

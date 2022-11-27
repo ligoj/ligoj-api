@@ -15,6 +15,7 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link CacheCompany} repository
  */
+@SuppressWarnings("ALL")
 public interface CacheCompanyRepository
 		extends RestRepository<CacheCompany, String>, CacheContainerRepository<CacheCompany> {
 

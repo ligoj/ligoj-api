@@ -29,14 +29,14 @@ public class JiraBaseResource extends AbstractToolPluginResource {
 	public static final String PARAMETER_JDBC_DRIVER = KEY + ":jdbc-driver";
 
 	/**
-	 * Database user name
+	 * Database username
 	 */
 	public static final String PARAMETER_JDBC_USER = KEY + ":jdbc-user";
 
 	/**
 	 * Database password
 	 */
-	public static final String PARAMETER_JDBC_PASSSWORD = KEY + ":jdbc-password";
+	public static final String PARAMETER_JDBC_PASSWORD = KEY + ":jdbc-password";
 
 	/**
 	 * Web site URL
@@ -54,7 +54,7 @@ public class JiraBaseResource extends AbstractToolPluginResource {
 	public static final String PARAMETER_PKEY = KEY + ":pkey";
 
 	/**
-	 * JIRA user name able to perform index.
+	 * JIRA username able to perform index.
 	 */
 	public static final String PARAMETER_ADMIN_USER = KEY + ":user";
 

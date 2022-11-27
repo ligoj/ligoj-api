@@ -18,6 +18,7 @@ import org.springframework.data.domain.Pageable;
  *
  * @param <T> The container type.
  */
+@SuppressWarnings("unused")
 public interface IContainerRepository<T extends ContainerOrg> {
 	/**
 	 * Return the container corresponding to the given identifier using the user cache.
@@ -108,9 +109,9 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	void delete(T container);
 
 	/**
-	 * Return the human readable container type name.
+	 * Return the human-readable container type name.
 	 *
-	 * @return the human readable container type name.
+	 * @return the human-readable container type name.
 	 */
 	String getTypeName();
 }

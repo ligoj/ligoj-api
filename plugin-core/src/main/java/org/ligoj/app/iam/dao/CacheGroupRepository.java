@@ -15,10 +15,11 @@ import org.springframework.data.jpa.repository.Query;
 /**
  * {@link CacheGroup} repository
  */
+@SuppressWarnings("ALL")
 public interface CacheGroupRepository extends RestRepository<CacheGroup, String>, CacheContainerRepository<CacheGroup> {
 
 	/**
-	 * Filter to determine the group is visible or not : brought by a delegate or one of the sub groups the current user
+	 * Filter to determine the group is visible or not : brought by a delegate or one of the subgroups the current user
 	 * is member.
 	 */
 	String VISIBLE_RESOURCE = "(" + SystemUser.IS_ADMIN

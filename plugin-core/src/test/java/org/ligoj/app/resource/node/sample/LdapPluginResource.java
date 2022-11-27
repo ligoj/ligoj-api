@@ -22,7 +22,7 @@ public class LdapPluginResource extends AbstractToolPluginResource {
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
 	/**
-	 * Full URL like "ldap/myhost:389/"
+	 * Full URL like "ldap/host:389/"
 	 */
 	public static final String PARAMETER_URL = KEY + ":url";
 
@@ -52,7 +52,7 @@ public class LdapPluginResource extends AbstractToolPluginResource {
 	public static final String PARAMETER_UID_ATTRIBUTE = KEY + ":uid-attribute";
 
 	/**
-	 * DN of location of users can login
+	 * DN of location of users can log in
 	 */
 	public static final String PARAMETER_PEOPLE_DN = KEY + ":people-dn";
 
@@ -86,7 +86,7 @@ public class LdapPluginResource extends AbstractToolPluginResource {
 	public static final String PARAMETER_PEOPLE_CLASS = KEY + ":people-class";
 
 	/**
-	 * Pattern capturing the company from the DN of the user. May be a row string for constant.
+	 * Pattern capturing the company from the DN of the user. Can be a raw string for constant.
 	 */
 	public static final String PARAMETER_COMPANY_PATTERN = KEY + ":company-pattern";
 
@@ -101,7 +101,7 @@ public class LdapPluginResource extends AbstractToolPluginResource {
 	public static final String PARAMETER_COMPANIES_DN = KEY + ":companies-dn";
 
 	/**
-	 * DN of location of people considered as internal. May be the same than people
+	 * DN of location of people considered as internal. Can be the same as people
 	 */
 	public static final String PARAMETER_PEOPLE_INTERNAL_DN = KEY + ":people-internal-dn";
 

@@ -539,7 +539,7 @@ public class ParameterValueResource {
 	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing,
 			final ParameterValueCreateVo value) {
 		if (value.isUntouched()) {
-			// Untouched value, keep the previous value but must exists
+			// Untouched value, keep the previous value but must exist
 			return Optional.ofNullable(existing.get(value.getParameter())).orElseThrow(
 					() -> new BusinessException(BusinessException.KEY_UNKNOWN_ID, "parameter", value.getParameter()));
 		}
@@ -595,7 +595,7 @@ public class ParameterValueResource {
 			// Trim the data to get only the relevant values
 			data = StringUtils.trimToNull(data);
 			if (data != null) {
-				// Non empty value, can be stored
+				// Non-empty value, can be stored
 				result.put(value.getParameter().getId(), data);
 			}
 		}

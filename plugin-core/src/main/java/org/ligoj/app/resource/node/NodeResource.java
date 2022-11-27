@@ -459,7 +459,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Check the subscriptions of given nodes. The node my be checked if unknown.
+	 * Check the subscriptions of given nodes. The node may be checked if unknown.
 	 *
 	 * @param instances The nodes to check.
 	 */
@@ -586,7 +586,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * Retrieve a specific node status.
 	 *
 	 * @param id The node to check.
-	 * @return Status of a single node. Many be <code>null</code> when node is not found or when there is not known
+	 * @return Status of a single node. Many be <code>null</code> when node is not found or when there is unknown
 	 *         status.
 	 */
 	@GET
@@ -708,7 +708,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Check the given parameters do not overrides a valued parameter.
+	 * Check the given parameters do not override a valued parameter.
 	 */
 	private void checkOverrides(final List<String> acceptedParameters, final List<String> parameters) {
 		final var overrides = CollectionUtils.removeAll(parameters, acceptedParameters);
@@ -730,7 +730,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	public Node checkNode(final String id, final BiFunction<String, String, Node> checker) {
 		final var node = checker.apply(id, securityHelper.getLogin());
 		if (node == null) {
-			// Node is not readable or does not exists
+			// Node is not readable or does not exist
 			throw new BusinessException("read-only-node", "node", id);
 		}
 		return node;

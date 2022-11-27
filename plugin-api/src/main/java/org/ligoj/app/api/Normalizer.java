@@ -27,7 +27,7 @@ public final class Normalizer {
 	/**
 	 * Normalize a collection of string. Order is respected (LinkedHashSet) but not by function contract (Set).
 	 *
-	 * @param items The human readable strings
+	 * @param items The human-readable strings
 	 * @return the normalized items.
 	 */
 	public static Set<String> normalize(final Collection<String> items) {
@@ -37,7 +37,7 @@ public final class Normalizer {
 	/**
 	 * Normalize a collection of string. Order is respected (LinkedHashSet) but not by function contract (Set).
 	 *
-	 * @param items The human readable strings
+	 * @param items The human-readable strings
 	 * @return the normalized items.
 	 */
 	public static Set<String> normalize(final Stream<String> items) {
@@ -49,7 +49,7 @@ public final class Normalizer {
 	/**
 	 * Normalize and trim a string. Lower case, and without diacritical marks.
 	 *
-	 * @param item The human readable string. A DN or any LDAP attribute.
+	 * @param item The human-readable string. A DN or any LDAP attribute.
 	 * @return the normalized and trimmed item.
 	 */
 	public static String normalize(@NotNull final String item) {

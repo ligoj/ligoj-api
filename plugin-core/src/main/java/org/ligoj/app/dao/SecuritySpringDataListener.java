@@ -26,7 +26,7 @@ import lombok.Getter;
 
 /**
  * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation.
- * An human readable form is available on GitHub wiki page.
+ * A human-readable form is available on GitHub wiki page.
  *
  * @see <a href="https://github.com/ligoj/ligoj/wiki/Security">Security</a>
  */
@@ -82,8 +82,8 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		registerFunction(new DnFunction("visibleproject", 7, 1, VISIBLE_PROJECT + DELEGATED, null,
 				(sql, args) -> sql.replace("$project", StringUtils.removeEnd((String) args.get(0), ".id"))));
 
-		// Visible group : member of this group or one of its sub-groups or
-		// delegate on this group or one of its sub-groups
+		// Visible group : member of this group or one of its subgroups or
+		// delegate on this group or one of its subgroups
 		registerFunction(new DnFunction("visiblegroup", 5, 0, VISIBLE_GROUP + DELEGATED, null, (sql, args) -> sql));
 
 		// Visible company : member of this company or one of its sub-companies
@@ -98,7 +98,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// its parent
 		registerFunction(new DnFunction("admindn", 4, 0, DELEGATED, "can_admin", (sql, args) -> sql));
 
-		// Member of a group : member of this group or one of its sub-groups
+		// Member of a group : member of this group or one of its subgroups
 		// Accepted signatures :
 		// - ingroup(:user, group.id, group.id)
 		// - ingroup(:user, 'fixed_group', 'fixed_group')
@@ -106,7 +106,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		// - ingroup('fixed_user', 'fixed_group', 'fixed_group')
 		registerFunction(new DnFunction("ingroup", 3, 1, 0, IN_GROUP, null, (sql, args) -> sql));
 
-		// Member of a group : member of this group or one of its sub-groups
+		// Member of a group : member of this group or one of its subgroups
 		// Accepted signatures :
 		// - ingroup(any user id, any group id, any group id)
 		registerFunction(new DnFunction("ingroup2", 3, 1, 0, IN_GROUP2, null, (sql, args) -> sql));
@@ -173,7 +173,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 * @param name The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final String query,
-				final String access, final BiFunction<String, List<?>, String> callback) {
+		                   final String access, final BiFunction<String, List<?>, String> callback) {
 			this(name, nbArgs, dnIndex, dnIndex + 1, query, access, callback);
 		}
 
@@ -183,7 +183,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 * @param name The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final int userIndex,
-				final String query, final String access, final BiFunction<String, List<?>, String> callback) {
+		                   final String query, final String access, final BiFunction<String, List<?>, String> callback) {
 			super(name, StandardBasicTypes.BOOLEAN);
 			this.nbArgs = nbArgs;
 			this.callback = callback;
@@ -195,7 +195,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 		@Override
 		public String render(final Type type, @SuppressWarnings("rawtypes") final List args,
-				SessionFactoryImplementor arg2) {
+		                     SessionFactoryImplementor arg2) {
 			if (args.size() != nbArgs) {
 				throw new QueryException("The function requires " + nbArgs + " arguments");
 			}
@@ -214,7 +214,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		private String parse(final String query, final String arg, final String user) {
-			final var quote = String.valueOf(dialect.openQuote()) + "$1" + dialect.closeQuote();
+			final var quote = dialect.openQuote() + "$1" + dialect.closeQuote();
 			return query.replace("$exists", "(EXISTS (SELECT 1 FROM").replace("$end", "))")
 					.replace("$pj", "ligoj_project").replace("$cg", "ligoj_cache_group")
 					.replace("$cu", "ligoj_cache_user").replace("$cc", "ligoj_cache_company")

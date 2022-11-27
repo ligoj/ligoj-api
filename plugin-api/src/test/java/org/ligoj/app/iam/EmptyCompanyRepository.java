@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
  * A mocked company repository. Details of a specific company always succeed but the search of companies return an empty
  * list.
  */
+@SuppressWarnings("unused")
 public class EmptyCompanyRepository implements ICompanyRepository {
 
 	@Override

@@ -38,7 +38,7 @@ public class IdentityResource extends AbstractServicePlugin {
 	public static final String PARAMETER_OU = SERVICE_KEY + ":ou";
 
 	/**
-	 * Pattern determining the login is valid for a authentication.
+	 * Pattern determining the login is valid for an authentication.
 	 */
 	public static final String PARAMETER_UID_PATTERN = SERVICE_KEY + ":uid-pattern";
 

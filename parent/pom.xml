@@ -1,40 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.ligoj.bootstrap</groupId>
-		<artifactId>bootstrap-business-parent</artifactId>
-		<version>2.9.1</version>
-		<relativePath />
-	</parent>
+    <parent>
+        <groupId>org.ligoj.bootstrap</groupId>
+        <artifactId>bootstrap-business-parent</artifactId>
+        <version>2.9.2</version>
+        <relativePath/>
+    </parent>
 
-	<groupId>org.ligoj.api</groupId>
-	<artifactId>parent</artifactId>
-	<version>3.3.1-SNAPSHOT</version>
-	<packaging>pom</packaging>
-	<name>Ligoj - API Parent</name>
-	<description>API Parent pom for all plug-in</description>
-	<url>https://github.com/ligoj/ligoj-api/parent</url>
+    <groupId>org.ligoj.api</groupId>
+    <artifactId>parent</artifactId>
+    <version>3.3.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Ligoj - API Parent</name>
+    <description>API Parent pom for all plug-in</description>
+    <url>https://github.com/ligoj/ligoj-api/parent</url>
 
-	<scm>
-		<connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
-		<developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
-		<url>https://github.com/ligoj/ligoj-api.git</url>
-	</scm>
+    <scm>
+        <connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
+        <developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>
+        <url>https://github.com/ligoj/ligoj-api.git</url>
+    </scm>
 
-	<profiles>
-		<profile>
-			<id>github</id>
-			<distributionManagement>
-				<repository>
-					<id>github-ligoj</id>
-					<name>GitHub Packages</name>
-					<url>https://maven.pkg.github.com/ligoj/ligoj-api</url>
-				</repository>
-			</distributionManagement>
-		</profile>
-	</profiles>
+    <profiles>
+        <profile>
+            <id>github</id>
+            <distributionManagement>
+                <repository>
+                    <id>github-ligoj</id>
+                    <name>GitHub Packages</name>
+                    <url>https://maven.pkg.github.com/ligoj/ligoj-api</url>
+                </repository>
+            </distributionManagement>
+        </profile>
+    </profiles>
 </project>

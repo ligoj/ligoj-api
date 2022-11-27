@@ -38,7 +38,7 @@ public class GroupOrg extends ContainerOrg {
 	private Set<String> subGroups;
 
 	/**
-	 * Parent parent groups this group is member of. Identifier (normalized CN) is used.
+	 * Parent groups this group is member of. Identifier (normalized CN) is used.
 	 */
 	@JsonIgnore
 	private Set<String> groups;
@@ -60,7 +60,7 @@ public class GroupOrg extends ContainerOrg {
 
 	@Override
 	public boolean equals(final Object other) {
-		return other instanceof GroupOrg corg && getId().equals(corg.getId());
+		return other instanceof GroupOrg org && getId().equals(org.getId());
 	}
 
 	@Override

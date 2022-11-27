@@ -6,7 +6,7 @@ package org.ligoj.app.api;
 import lombok.Getter;
 
 /**
- * An exception of plug-in management.
+ * An exception from plug-in management.
  */
 @Getter
 public class PluginException extends RuntimeException {

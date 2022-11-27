@@ -6,7 +6,7 @@ package org.ligoj.app.api;
 import lombok.Getter;
 
 /**
- * An exception of a not found plug-in.
+ * An exception from a not found plug-in.
  */
 @Getter
 public class PluginNotFoundException extends PluginException {

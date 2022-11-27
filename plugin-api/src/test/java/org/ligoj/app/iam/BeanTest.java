@@ -41,7 +41,7 @@ class BeanTest {
 	@Test
 	void testCompanyLdap() throws InvalidNameException {
 		final var companyLdap = new CompanyOrg("dn", "name");
-		companyLdap.getCompanyTree().contains(companyLdap);
+		Assertions.assertTrue(companyLdap.getCompanyTree().contains(companyLdap));
 		check(companyLdap, CompanyOrg::setLdapName, CompanyOrg::getLdapName, new LdapName(""));
 		check(companyLdap, CompanyOrg::setCompanyTree, CompanyOrg::getCompanyTree, Collections.emptyList());
 		Assertions.assertEquals("name".hashCode(), companyLdap.hashCode());
