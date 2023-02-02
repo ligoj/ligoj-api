@@ -5,7 +5,7 @@
 		<properties>
 			<property name="hibernate.archive.scanner" value="org.ligoj.bootstrap.core.dao.ResourceScanner" />
 			<property name="hibernate.archive.autodetection" value="class" />
-			<property name="javax.persistence.validation.mode" value="callback,ddl" />
+			<property name="jakarta.persistence.validation.group.pre-update" value="AUTO" />
 			<property name="hibernate.validator.apply_to_ddl" value="true" />
 			<property name="hibernate.validator.autoregister_listeners" value="true" />
 			<property name="hibernate.check_nullability" value="true" />
@@ -17,7 +17,7 @@
 			<property name="hibernate.max_fetch_depth" value="4" />
 			<property name="hibernate.physical_naming_strategy" value="org.ligoj.bootstrap.core.dao.PhysicalNamingStrategyLowerCase" />
 			<property name="hibernate.implicit_naming_strategy" value="org.ligoj.bootstrap.core.dao.ImplicitNamingStrategyNiceJpaImpl" />
-			<property name="hibernate.ejb.identifier_generator_strategy_provider" value="org.ligoj.bootstrap.core.dao.SequenceIdentifierGeneratorStrategyProvider" />
+			<property name="hibernate.increment_size" value="1000"/>
 			<property name="hibernate.auto_quote_keyword" value="true"/>
 			<property name="hibernate.connection.charSet" value="UTF-8" />
 		</properties>

@@ -6,7 +6,7 @@ package org.ligoj.app.resource.node;
 import java.util.List;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.model.ParameterType;

@@ -25,15 +25,15 @@ import java.util.stream.Collectors;
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheResult;
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -311,7 +311,7 @@ public class ParameterValueResource {
 				// Pattern is provided, check the string
 				final var pattern = Pattern.compile(patternString);
 				assertTrue(pattern.matcher(vo.getText()).matches(),
-						javax.validation.constraints.Pattern.class.getSimpleName(), parameter.getId(), "regexp",
+						jakarta.validation.constraints.Pattern.class.getSimpleName(), parameter.getId(), "regexp",
 						pattern.pattern());
 			}
 		}

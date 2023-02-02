@@ -6,10 +6,10 @@ package org.ligoj.app.resource.project;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import javax.validation.ConstraintViolationException;
-import javax.ws.rs.core.UriInfo;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.validation.ConstraintViolationException;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;

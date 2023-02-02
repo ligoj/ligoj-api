@@ -3,9 +3,9 @@
  */
 package org.ligoj.app.model;
 
-import javax.persistence.ManyToOne;
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.bootstrap.core.model.ToIdSerializer;
 

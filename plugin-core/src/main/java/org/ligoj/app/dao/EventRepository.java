@@ -47,7 +47,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.node n INNER JOIN FETCH n.refined tool INNER JOIN tool.refined root"
-			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND "
+			+ " WHERE event.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.node = n) AND "
 			+ NodeRepository.VISIBLE_NODES)
 	List<Event> findLastEvents(String user);
 
@@ -59,7 +59,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @return last events of a specific node.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
+	@Query("FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
 			+ NodeRepository.VISIBLE_NODES)
 	Event findLastEvent(String user, String node);
 
@@ -71,7 +71,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT event FROM Event event INNER JOIN FETCH event.subscription sub "
-			+ " WHERE sub.project.id = :project AND event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub)")
+			+ " WHERE sub.project.id = :project AND event.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.subscription = sub)")
 	List<Event> findLastEvents(int project);
 
 	/**
@@ -82,7 +82,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT n.id, event.value, count(event) FROM Event event INNER JOIN event.subscription sub LEFT JOIN sub.node n"
-			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub) AND "
+			+ " WHERE event.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.subscription = sub) AND "
 			+ NodeRepository.VISIBLE_NODES + " GROUP BY event.value, n.id")
 	List<Object[]> countSubscriptionsEvents(String user);
 

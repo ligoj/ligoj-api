@@ -6,8 +6,8 @@ package org.ligoj.app.model;
 import java.io.Serializable;
 import java.util.Date;
 
-import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.bootstrap.core.model.AbstractPersistable;
 import org.springframework.data.domain.Persistable;

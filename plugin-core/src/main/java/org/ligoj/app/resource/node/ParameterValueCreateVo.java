@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.resource.node;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -6,9 +6,9 @@ package org.ligoj.app.resource.node;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import javax.transaction.Transactional;
-import javax.ws.rs.NotFoundException;
-import javax.ws.rs.core.UriInfo;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.junit.jupiter.api.Assertions;
@@ -140,7 +140,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanWrite(true);
-		Assertions.assertThrows(javax.ws.rs.NotFoundException.class, () -> {
+		Assertions.assertThrows(jakarta.ws.rs.NotFoundException.class, () -> {
 			resource.create(newDelegate);
 		});
 	}

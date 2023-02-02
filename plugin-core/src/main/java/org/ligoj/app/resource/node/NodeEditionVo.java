@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.resource.node;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 import org.ligoj.app.model.NodeId;
 import org.ligoj.app.model.Refining;

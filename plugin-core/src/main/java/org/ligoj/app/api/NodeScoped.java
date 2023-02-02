@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.api;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 
 import org.ligoj.app.model.Node;
 import org.springframework.lang.Nullable;

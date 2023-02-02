@@ -23,7 +23,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * Match delegate.
 	 */
 	String MATCH_DELEGATE = "(n.id LIKE CONCAT(d.name, ':%') OR d.name=n.id) AND "
-			+ DelegateOrgRepository.ASSIGNED_DELEGATE;
+			+ DelegateOrgRepository.ASSIGNED_DELEGATE_D;
 
 	/**
 	 * Visible nodes condition.

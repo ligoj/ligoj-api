@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.resource.subscription;
 
-import javax.validation.constraints.Positive;
+import jakarta.validation.constraints.Positive;
 
 import org.ligoj.app.resource.node.AbstractParameterizedVo;
 

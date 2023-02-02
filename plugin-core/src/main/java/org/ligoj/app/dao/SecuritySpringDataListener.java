@@ -3,26 +3,36 @@
  */
 package org.ligoj.app.dao;
 
-import java.util.List;
-import java.util.Map;
-import java.util.function.BiFunction;
-
+import jakarta.persistence.Parameter;
+import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.function.SQLFunction;
 import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.query.sqm.function.SqmFunctionDescriptor;
+import org.hibernate.query.sqm.sql.internal.BasicValuedPathInterpretation;
+import org.hibernate.query.sqm.sql.internal.EntityValuedPathInterpretation;
+import org.hibernate.query.sqm.sql.internal.SqmParameterInterpretation;
+import org.hibernate.query.sqm.sql.internal.SqmPathInterpretation;
+import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
+import org.hibernate.sql.ast.SqlAstTranslator;
+import org.hibernate.sql.ast.spi.SqlAppender;
+import org.hibernate.sql.ast.tree.SqlAstNode;
+import org.hibernate.sql.ast.tree.expression.ColumnReference;
+import org.hibernate.sql.ast.tree.predicate.Predicate;
+import org.hibernate.sql.ast.tree.select.SortSpecification;
 import org.hibernate.type.StandardBasicTypes;
-import org.hibernate.type.Type;
 import org.ligoj.bootstrap.core.dao.AfterJpaBeforeSpringDataListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
-import org.springframework.security.util.FieldUtils;
 import org.springframework.stereotype.Component;
 
-import lombok.Getter;
+import java.lang.reflect.Field;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation.
@@ -53,21 +63,27 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	private static final String IS_TEAM_LEADER_PK2 = "$exists $pj WHERE team_leader=$user AND pkey=$arg $end OR ";
 
 	@Getter
-	private final Map<String, SQLFunction> sqlFunctions;
+	private final Map<String, SqmFunctionDescriptor> sqlFunctions;
 	private final Dialect dialect;
+
+	private final LocalContainerEntityManagerFactoryBean emf;
+
+	private final Field sqmParameterField;
 
 	/**
 	 * Listener with EMF as context.
 	 *
 	 * @param emf The current EMF.
 	 */
-	@SuppressWarnings("unchecked")
 	@Autowired
-	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) {
+	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) throws NoSuchFieldException {
+		this.emf = emf;
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
-		this.sqlFunctions = (Map<String, SQLFunction>) FieldUtils.getProtectedFieldValue("functionMap",
-				sessionFactory.getSqlFunctionRegistry());
+		this.sqlFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
 		this.dialect = sessionFactory.getJdbcServices().getJdbcEnvironment().getDialect();
+
+		sqmParameterField = SqmParameterInterpretation.class.getDeclaredField("sqmParameter");
+		sqmParameterField.setAccessible(true);
 	}
 
 	@Override
@@ -153,9 +169,11 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 				new DnFunction("inproject2", 4, 1, 0, IS_TEAM_LEADER_ID2 + IN_PROJECT2, null, (sql, args) -> sql));
 	}
 
-	private void registerFunction(final StandardSQLFunction sqlFunction) {
-		dialect.getFunctions().put(sqlFunction.getName(), sqlFunction);
+	private void registerFunction(final DnFunction sqlFunction) {
+		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
+		final var sqlFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
 		sqlFunctions.put(sqlFunction.getName(), sqlFunction);
+		this.sqlFunctions.put(sqlFunction.getName(), sqlFunction);
 	}
 
 	private class DnFunction extends StandardSQLFunction {
@@ -173,7 +191,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 * @param name The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final String query,
-		                   final String access, final BiFunction<String, List<?>, String> callback) {
+				final String access, final BiFunction<String, List<?>, String> callback) {
 			this(name, nbArgs, dnIndex, dnIndex + 1, query, access, callback);
 		}
 
@@ -183,7 +201,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 * @param name The name of the function.
 		 */
 		private DnFunction(final String name, final int nbArgs, final int dnIndex, final int userIndex,
-		                   final String query, final String access, final BiFunction<String, List<?>, String> callback) {
+				final String query, final String access, final BiFunction<String, List<?>, String> callback) {
 			super(name, StandardBasicTypes.BOOLEAN);
 			this.nbArgs = nbArgs;
 			this.callback = callback;
@@ -194,13 +212,53 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		@Override
-		public String render(final Type type, @SuppressWarnings("rawtypes") final List args,
-		                     SessionFactoryImplementor arg2) {
-			if (args.size() != nbArgs) {
+		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, SqlAstTranslator<?> translator) {
+			this.render(sqlAppender, sqlAstArguments, (Predicate) null, Collections.emptyList(), (Boolean) null, (Boolean) null, translator);
+		}
+
+		@Override
+		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, Predicate filter, SqlAstTranslator<?> translator) {
+			this.render(sqlAppender, sqlAstArguments, filter, Collections.emptyList(), (Boolean) null, (Boolean) null, translator);
+		}
+
+		@Override
+		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, Predicate filter, List<SortSpecification> withinGroup, SqlAstTranslator<?> translator) {
+			this.render(sqlAppender, sqlAstArguments, filter, withinGroup, (Boolean) null, (Boolean) null, translator);
+		}
+
+		@Override
+		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, Predicate filter, Boolean respectNulls, Boolean fromFirst, SqlAstTranslator<?> walker) {
+			this.render(sqlAppender, sqlAstArguments, filter, Collections.emptyList(), respectNulls, fromFirst, walker);
+		}
+
+		protected void render(final SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, final Predicate filter,
+				final List<SortSpecification> withinGroup, final Boolean respectNulls, final Boolean fromFirst,
+				final SqlAstTranslator<?> translator) {
+			if (sqlAstArguments.size() != nbArgs) {
 				throw new QueryException("The function requires " + nbArgs + " arguments");
 			}
-			return "(" + callback.apply(parse(StringUtils.defaultString(query, ""), (String) args.get(dnIndex),
-					(String) args.get(userIndex)), args) + ")";
+			final var dn = toAlias(sqlAstArguments.get(dnIndex));
+			final var user = toAlias(sqlAstArguments.get(userIndex));
+			final var arg0 = toAlias(sqlAstArguments.get(0));
+			final var arg1 = toAlias(sqlAstArguments.get(1));
+			translator.render(sqlAstArguments.get(1), SqlAstNodeRenderingMode.DEFAULT);
+
+			final var parsed = parse(StringUtils.defaultString(query, ""), dn, user);
+			sqlAppender.append("(" + callback.apply(parsed, List.of(arg0, arg1)) + ")");
+		}
+
+		private String toAlias(final SqlAstNode arg) {
+			if (arg instanceof SqmPathInterpretation<?>) {
+				final var ref = (ColumnReference) ((SqmPathInterpretation<?>) arg).getSqlExpression();
+				if (ref != null) {
+					return ref.getExpressionText();
+				}
+			} else if (arg instanceof SqmParameterInterpretation) {
+					// return ((Parameter<?>) sqmParameterField.get(arg)).getName();
+					return "?";
+
+			}
+			return arg.toString();
 		}
 
 		private String member(final String parent, final String child) {

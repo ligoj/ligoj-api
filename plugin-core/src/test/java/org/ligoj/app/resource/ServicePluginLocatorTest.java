@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.resource;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

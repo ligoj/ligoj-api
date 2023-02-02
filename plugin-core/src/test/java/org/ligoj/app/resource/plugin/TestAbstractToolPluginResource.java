@@ -6,7 +6,7 @@ package org.ligoj.app.resource.plugin;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.ws.rs.core.StreamingOutput;
+import jakarta.ws.rs.core.StreamingOutput;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;

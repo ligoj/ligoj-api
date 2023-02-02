@@ -11,9 +11,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import javax.ws.rs.ForbiddenException;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.ForbiddenException;
 
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;

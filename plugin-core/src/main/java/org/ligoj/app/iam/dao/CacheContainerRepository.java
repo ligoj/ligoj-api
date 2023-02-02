@@ -58,7 +58,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @return The pagination result.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
+	@Query("FROM #{#entityName} l WHERE (UPPER(cast(id as string)) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ WRITABLE_RESOURCE)
 	Page<C> findAllWrite(String user, String criteria, Pageable page);
 
@@ -81,7 +81,7 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	 * @return The pagination result.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM #{#entityName} l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
+	@Query("FROM #{#entityName} l WHERE (UPPER(cast(id as string)) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
 			+ ADMIN_RESOURCE)
 	Page<C> findAllAdmin(String user, String criteria, Pageable page);
 

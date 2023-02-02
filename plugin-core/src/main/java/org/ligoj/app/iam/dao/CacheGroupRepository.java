@@ -26,7 +26,7 @@ public interface CacheGroupRepository extends RestRepository<CacheGroup, String>
 			+ " OR visiblegroup(l.description,:user,:user,:user,:user)=true)";
 
 	@Override
-	@Query("FROM CacheGroup l WHERE (UPPER(id) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_RESOURCE)
+	@Query("FROM CacheGroup l WHERE (UPPER(cast(id as string)) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_RESOURCE)
 	Page<CacheGroup> findAll(String user, String criteria, Pageable page);
 
 	@Override

@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.iam;
 
-import javax.ws.rs.core.Response.ResponseBuilder;
+import jakarta.ws.rs.core.Response.ResponseBuilder;
 
 import org.springframework.security.core.Authentication;
 

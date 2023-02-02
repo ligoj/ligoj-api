@@ -9,9 +9,9 @@ import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-import javax.persistence.EntityNotFoundException;
-import javax.transaction.Transactional;
-import javax.transaction.Transactional.TxType;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+import jakarta.transaction.Transactional.TxType;
 
 import org.ligoj.app.dao.task.LongTaskRepository;
 import org.ligoj.app.model.AbstractLongTask;

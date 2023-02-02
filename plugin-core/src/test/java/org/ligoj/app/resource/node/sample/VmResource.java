@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.resource.node.sample;
 
-import javax.ws.rs.PathParam;
+import jakarta.ws.rs.PathParam;
 
 import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.resource.plugin.AbstractServicePlugin;

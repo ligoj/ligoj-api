@@ -140,14 +140,14 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @return <code>true</code> when <code>user</code> can manage the subscriptions of this project.
 	 */
 	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg0 LEFT JOIN cpg0.group AS cg0 WHERE p.id = :project AND ("
-			+ SystemUser.IS_ADMIN + "                          " + "  OR (EXISTS(SELECT 1 FROM DelegateNode WHERE "
-			+ DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ "   AND canSubscribe = true)                                      "
+			+ SystemUser.IS_ADMIN + "                          " + "  OR (EXISTS(SELECT 1 FROM DelegateNode d WHERE "
+			+ DelegateOrgRepository.ASSIGNED_DELEGATE_D
+			+ "   AND d.canSubscribe = true)                                      "
 			+ "  AND (p.teamLeader = :user                                      "
-			+ "   OR (EXISTS(SELECT 1 FROM DelegateOrg WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE
-			+ "    AND canWrite=true                                      "
-			+ "    AND ((type=org.ligoj.app.iam.model.DelegateType.GROUP AND name=cg0.id) OR"
-			+ "      (type=org.ligoj.app.iam.model.DelegateType.TREE"
-			+ "       AND (cg0.description LIKE CONCAT('%,',dn) OR dn=cg0.description))))))))")
+			+ "   OR (EXISTS(SELECT 1 FROM DelegateOrg dz WHERE " + DelegateOrgRepository.ASSIGNED_DELEGATE_DZ
+			+ "    AND dz.canWrite=true                                      "
+			+ "    AND ((dz.type=org.ligoj.app.iam.model.DelegateType.GROUP AND dz.name=cg0.id) OR"
+			+ "      (dz.type=org.ligoj.app.iam.model.DelegateType.TREE"
+			+ "       AND (cg0.description LIKE CONCAT('%,',dz.dn) OR dz.dn=cg0.description))))))))")
 	boolean isManageSubscription(int project, String user);
 }

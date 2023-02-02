@@ -20,8 +20,8 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	/**
 	 * A visible {@link DelegateNode} with possible extension for constraint.
 	 */
-	String VISIBLE_DELEGATE_PART = "EXISTS (SELECT id FROM DelegateNode dz WHERE (d.name LIKE CONCAT(name, ':%') OR d.name  = name) "
-			+ " AND " + DelegateOrgRepository.ASSIGNED_DELEGATE;
+	String VISIBLE_DELEGATE_PART = "EXISTS (SELECT id FROM DelegateNode dz WHERE (d.name LIKE CONCAT(dz.name, ':%') OR d.name  = dz.name) "
+			+ " AND " + DelegateOrgRepository.ASSIGNED_DELEGATE_DZ;
 
 	/**
 	 * A visible {@link DelegateNode}
@@ -54,8 +54,8 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	 * @return A positive number if the given node can be managed by the given user.
 	 */
 	@SuppressWarnings("unused")
-	@Query("SELECT COUNT(id) FROM DelegateNode WHERE canAdmin = true AND (canWrite = true OR :write = false)"
-			+ " AND (:node LIKE CONCAT(name, ':%') OR name  = :node) AND " + DelegateOrgRepository.ASSIGNED_DELEGATE)
+	@Query("SELECT COUNT(d.id) FROM DelegateNode d WHERE d.canAdmin = true AND (d.canWrite = true OR :write = false)"
+			+ " AND (:node LIKE CONCAT(d.name, ':%') OR d.name  = :node) AND " + DelegateOrgRepository.ASSIGNED_DELEGATE_D)
 	int manageNode(String user, String node, boolean write);
 
 	/**

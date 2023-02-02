@@ -3,13 +3,16 @@
  */
 package org.ligoj.app.dao;
 
-import java.util.Arrays;
-import java.util.Collections;
-
-import javax.transaction.Transactional;
-
+import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
+import org.hibernate.dialect.function.StandardSQLFunction;
+import org.hibernate.query.sqm.function.FunctionRenderingSupport;
+import org.hibernate.sql.ast.spi.StringBuilderSqlAppender;
+import org.hibernate.sql.ast.tree.expression.QueryLiteral;
+import org.hibernate.type.descriptor.java.StringJavaType;
+import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
+import org.hibernate.type.internal.NamedBasicTypeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +20,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.stream.Collectors;
 
 /**
  * Test class of {@link SecuritySpringDataListener}
@@ -35,13 +42,17 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void visiblegroupArgsError() {
-		final var function = listener.getSqlFunctions().get("visiblegroup");
-		final var empty = Collections.emptyList();
-		Assertions.assertThrows(QueryException.class, () -> function.render(null, empty, null));
+		final var function = (StandardSQLFunction) listener.getSqlFunctions().get("visiblegroup");
+		Assertions.assertThrows(QueryException.class, () -> function.render(null, Collections.emptyList(), null));
 	}
 
 	private String assertFunction(final String name, final int nbQueryParam, final String sql, String... args) {
-		final var query = listener.getSqlFunctions().get(name).render(null, Arrays.asList(args), null);
+		var appender = new StringBuilderSqlAppender();
+		((FunctionRenderingSupport) listener.getSqlFunctions().get(name)).render(appender,
+				Arrays.stream(args).map(a ->
+						new QueryLiteral<String>(a,
+								new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).collect(Collectors.toList()), null);
+		final var query = appender.toString();
 		Assertions.assertEquals(nbQueryParam, StringUtils.countMatches(query, '?'));
 		Assertions.assertTrue(query.contains(sql), query + "-- not contains --" + sql);
 		return query;

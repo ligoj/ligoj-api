@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.model;
 
-import javax.persistence.Transient;
+import jakarta.persistence.Transient;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

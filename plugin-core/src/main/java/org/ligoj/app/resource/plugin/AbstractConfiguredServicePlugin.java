@@ -5,7 +5,7 @@ package org.ligoj.app.resource.plugin;
 
 import java.io.Serializable;
 
-import javax.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityNotFoundException;
 
 import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.api.NodeScoped;

@@ -3,7 +3,7 @@
  */
 package org.ligoj.app.model;
 
-import javax.persistence.Entity;
+import jakarta.persistence.Entity;
 
 import lombok.Getter;
 import lombok.Setter;

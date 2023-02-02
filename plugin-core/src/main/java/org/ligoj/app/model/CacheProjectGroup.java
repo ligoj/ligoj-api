@@ -5,9 +5,9 @@ package org.ligoj.app.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 
 import org.ligoj.app.iam.model.CacheGroup;
 import org.ligoj.bootstrap.core.model.AbstractPersistable;

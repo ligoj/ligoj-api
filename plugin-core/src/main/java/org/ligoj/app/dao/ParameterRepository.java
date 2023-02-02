@@ -49,7 +49,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :node AND (o=n OR o=n1 OR o=n2)"
 			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
 			+ NodeRepository.VISIBLE_NODES
-			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND node.id != :node AND (node=n OR node=n1 OR node=n2)) ORDER BY UPPER(p.id)")
+			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND node.id != :node AND (node=n OR node=n1 OR node=n2)) ORDER BY UPPER(cast(p.id as String))")
 	List<Parameter> getOrphanParametersExt(String node, SubscriptionMode mode, String user);
 
 	/**

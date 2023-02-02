@@ -5,10 +5,10 @@ package org.ligoj.app.model;
 
 import java.io.Serializable;
 
-import javax.persistence.Entity;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-import javax.validation.constraints.NotNull;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.app.api.NodeScoped;
 import org.ligoj.bootstrap.core.model.AbstractAudited;

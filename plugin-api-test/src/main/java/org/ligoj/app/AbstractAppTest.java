@@ -3,7 +3,7 @@
  */
 package org.ligoj.app;
 
-import javax.ws.rs.core.UriInfo;
+import jakarta.ws.rs.core.UriInfo;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.ligoj.app.iam.ICompanyRepository;
