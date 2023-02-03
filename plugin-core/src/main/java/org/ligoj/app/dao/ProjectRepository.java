@@ -23,13 +23,13 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Visible projects condition where the principal user is either team leader, either member of one of the groups of
 	 * this project.
 	 */
-	String MY_PROJECTS = "inproject(p,:user,:user)=true";
+	String MY_PROJECTS = "inproject(:user,p.teamLeader)=true";
 
 	/**
 	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
 	String VISIBLE_PROJECTS = "(" + SystemUser.IS_ADMIN
-			+ " OR visibleproject(p, cg.description, :user, :user, :user, :user, :user) = true)";
+			+ " OR visibleproject(p.teamLeader, cg.description, :user) = true)";
 
 	/**
 	 * Return all {@link Project} objects with visible by <code>user</code> and also filtered by a criteria. The
@@ -48,7 +48,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 			+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p                ", countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
+			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p                ",
+			countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
 					+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 					+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p")
@@ -67,7 +68,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @return all visible {@link Project} objects for <code>user</code>.
 	 */
 	@Query("SELECT DISTINCT p.id, p.name, p.pkey FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE "
-			+ VISIBLE_PROJECTS + " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project=p)")
+			+ VISIBLE_PROJECTS + " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project.id=p.id)")
 	List<Object[]> findAllHavingSubscription(String user);
 
 	/**

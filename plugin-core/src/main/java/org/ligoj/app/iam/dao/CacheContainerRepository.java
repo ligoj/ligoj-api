@@ -22,12 +22,12 @@ public interface CacheContainerRepository<C extends CacheContainer> {
 	/**
 	 * Filter to determine the company is writable : brought only by a delegate.
 	 */
-	String WRITABLE_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR writedn(l.description,:user,:user,:user)=true)";
+	String WRITABLE_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR writedn(l.description,:user)=true)";
 
 	/**
 	 * Filter to determine the group is administered : brought only by a delegate.
 	 */
-	String ADMIN_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR admindn(l.description,:user,:user,:user)=true)";
+	String ADMIN_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR admindn(l.description,:user)=true)";
 
 	/**
 	 * All visible containers regarding the security, and the criteria.

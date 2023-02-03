@@ -16,6 +16,8 @@ import org.springframework.data.jpa.repository.Query;
 @SuppressWarnings("ALL")
 public interface ParameterValueRepository extends RestRepository<ParameterValue, Integer> {
 
+	String RELATED_SUBSCRIPTION = "s.id = :subscription AND (subscription.id = s.id OR  n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id)";
+
 	/**
 	 * Return all parameter values associated to a node, including the ones from the parent.
 	 *
@@ -36,7 +38,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT p.data FROM ParameterValue p, Subscription s INNER JOIN s.node service LEFT JOIN p.subscription subscription LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service) AND p.parameter.id = ?2")
+			+ " WHERE " + RELATED_SUBSCRIPTION + " AND p.parameter.id = :parameter")
 	String getSubscriptionParameterValue(int subscription, String parameter);
 
 	/**
@@ -48,7 +50,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@SuppressWarnings("unused")
 	@Query("SELECT p FROM ParameterValue p, Subscription s INNER JOIN s.node service INNER JOIN FETCH p.parameter"
 			+ " LEFT JOIN p.subscription subscription LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service)")
+			+ " WHERE " + RELATED_SUBSCRIPTION)
 	List<ParameterValue> findAllBySubscription(int subscription);
 
 	/**
@@ -61,9 +63,9 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@SuppressWarnings("unused")
 	@Query("SELECT v FROM ParameterValue v, Subscription s INNER JOIN s.node service INNER JOIN FETCH v.parameter AS param"
 			+ " LEFT JOIN v.subscription subscription LEFT JOIN v.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.id = ?1 AND param.secured != TRUE"
-			+ " AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service)")
+			+ " WHERE param.secured != TRUE AND " + RELATED_SUBSCRIPTION)
 	List<ParameterValue> findAllSecureBySubscription(int subscription);
+
 
 	/**
 	 * Delete all parameter values related to the given node or sub-nodes.
@@ -103,6 +105,8 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@SuppressWarnings("unused")
 	@Query("SELECT v FROM Subscription s, ParameterValue v LEFT JOIN v.subscription subscription INNER JOIN FETCH v.parameter param "
 			+ " LEFT JOIN v.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.project.id = ?3 AND (subscription = s OR n0.id = ?1 OR n1.refined = ?1 OR n2.refined = ?1) AND param.id = ?2 AND UPPER(v.data) LIKE UPPER(CONCAT(CONCAT('%', ?4),'%')) AND param.secured != TRUE ORDER BY v.data, v.id")
+			+ " WHERE s.project.id = :project AND (subscription.id = s.id OR n0.id = :node OR n1.refined.id = :node OR n2.refined.id = :node)" +
+			" AND param.id = :parameter AND UPPER(v.data) LIKE UPPER(CONCAT(CONCAT('%', :criteria),'%')) AND param.secured != TRUE ORDER BY v.data, v.id")
 	List<ParameterValue> findAll(String node, String parameter, int project, String criteria);
+
 }

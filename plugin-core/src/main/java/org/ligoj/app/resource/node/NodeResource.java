@@ -38,10 +38,7 @@ import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
-import org.ligoj.app.dao.EventRepository;
-import org.ligoj.app.dao.NodeRepository;
-import org.ligoj.app.dao.ParameterRepository;
-import org.ligoj.app.dao.SubscriptionRepository;
+import org.ligoj.app.dao.*;
 import org.ligoj.app.dao.task.LongTaskNodeRepository;
 import org.ligoj.app.model.AbstractLongTaskNode;
 import org.ligoj.app.model.EventType;
@@ -89,6 +86,9 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	@Autowired
 	private ParameterRepository parameterRepository;
+
+	@Autowired
+	private ParameterValueRepository pvRepository;
 
 	@Autowired
 	private ParameterValueResource pvResource;

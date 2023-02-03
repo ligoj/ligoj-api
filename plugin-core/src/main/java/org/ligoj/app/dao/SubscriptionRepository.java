@@ -29,7 +29,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * @param project the subscribing project
 	 * @return the subscriptions of given project.
 	 */
-	@Query("FROM Subscription s INNER JOIN FETCH s.node WHERE s.project.id = ?1")
+	@Query("FROM Subscription s INNER JOIN FETCH s.node WHERE s.project.id = :project")
 	List<Subscription> findAllByProject(int project);
 
 	/**
@@ -39,7 +39,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * @return the subscriptions attached to the same project. Service are fetch.
 	 */
 	@SuppressWarnings("unused")
-	@Query("SELECT s1 FROM Subscription s1, Subscription s2 INNER JOIN FETCH s1.node WHERE s2.id = ?1 AND s1.project.id = s2.project.id")
+	@Query("SELECT s1 FROM Subscription s1, Subscription s2 INNER JOIN FETCH s1.node WHERE s2.id = :subscription AND s1.project.id = s2.project.id")
 	List<Subscription> findAllOnSameProject(int subscription);
 
 	/**
@@ -51,8 +51,8 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	@SuppressWarnings("unused")
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
 			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2 LEFT JOIN service.refined sn0 LEFT JOIN sn0.refined sn1"
-			+ " WHERE (service.id = ?1 OR sn0.id = ?1 OR sn1.id = ?1)"
-			+ "   AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service) AND param.secured != TRUE")
+			+ " WHERE (service.id = :node OR sn0.id = :node OR sn1.id = :node)"
+			+ "   AND (subscription = s OR  n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id) AND param.secured != TRUE")
 	List<Object[]> findAllWithValuesSecureByNode(String node);
 
 	/**
@@ -62,7 +62,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * @return The amount of subscriptions to given node.
 	 */
 	@Query("SELECT count(s.id) FROM Subscription s INNER JOIN s.node service "
-			+ " LEFT JOIN service.refined sn0 LEFT JOIN sn0.refined sn1 WHERE (service.id = ?1 OR sn0.id = ?1 OR sn1.id = ?1)")
+			+ " LEFT JOIN service.refined sn0 LEFT JOIN sn0.refined sn1 WHERE (service.id = :node OR sn0.id = :node OR sn1.id = :node)")
 	int countByNode(String node);
 
 	/**
@@ -72,7 +72,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * @return The amount of subscriptions involving the given parameter value directly or not.
 	 */
 	@Query("SELECT count(s.id) FROM Subscription s, ParameterValue v INNER JOIN s.node sn INNER JOIN v.node vn"
-			+ " WHERE v.id = :parameterValue AND (vn = sn OR sn.id LIKE CONCAT(vn.id, ':%'))")
+			+ " WHERE v.id = :parameterValue AND (vn.id = sn.id OR sn.id LIKE CONCAT(vn.id, ':%'))")
 	int countByParameterValue(int parameterValue);
 
 	/**
@@ -83,7 +83,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 */
 	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
 			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.project.id = ?1 AND (subscription = s OR  n0 = service OR n1.refined = service OR n2.refined = service) AND param.secured != TRUE")
+			+ " WHERE s.project.id = :project AND (subscription.id = s.id OR  n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id) AND param.secured != TRUE")
 	List<Object[]> findAllWithValuesSecureByProject(int project);
 
 	/**
@@ -93,7 +93,7 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * @return subscriptions (index=0) and associated parameters (index=1)
 	 */
 	@Query("SELECT s, p FROM ParameterValue p INNER JOIN p.subscription s INNER JOIN s.node service INNER JOIN FETCH p.parameter "
-			+ " LEFT JOIN s.node n0 WHERE n0.id = ?1  ")
+			+ " LEFT JOIN s.node n0 WHERE n0.id = :node")
 	List<Object[]> findAllWithValuesByNode(String node);
 
 	/**

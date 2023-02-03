@@ -28,10 +28,10 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT DISTINCT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2"
-			+ " LEFT JOIN FETCH p.depends WHERE n.id = :node AND (o=n OR o=n1 OR o=n2)"
+			+ " LEFT JOIN FETCH p.depends WHERE n.id = :node AND (o.id=n.id OR o.id=n1.id OR o.id=n2.id)"
 			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
 			+ NodeRepository.VISIBLE_NODES
-			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND (node=n OR node=n1 OR node=n2))")
+			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND (node.id=n.id OR node.id=n1.id OR node.id=n2.id))")
 	List<Parameter> getOrphanParameters(String node, SubscriptionMode mode, String user);
 
 	/**
@@ -46,10 +46,10 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * @return all parameters associated to a node but without a value.
 	 */
 	@SuppressWarnings("unused")
-	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :node AND (o=n OR o=n1 OR o=n2)"
+	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :node AND (o.id=n.id OR o.id=n1.id OR o.id=n2.id)"
 			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
 			+ NodeRepository.VISIBLE_NODES
-			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND node.id != :node AND (node=n OR node=n1 OR node=n2)) ORDER BY UPPER(cast(p.id as String))")
+			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND node.id != :node AND (node.id=n.id OR node.id=n1.id OR node.id=n2.id)) ORDER BY UPPER(cast(p.id as String))")
 	List<Parameter> getOrphanParametersExt(String node, SubscriptionMode mode, String user);
 
 	/**

@@ -22,8 +22,7 @@ public interface CacheGroupRepository extends RestRepository<CacheGroup, String>
 	 * Filter to determine the group is visible or not : brought by a delegate or one of the subgroups the current user
 	 * is member.
 	 */
-	String VISIBLE_RESOURCE = "(" + SystemUser.IS_ADMIN
-			+ " OR visiblegroup(l.description,:user,:user,:user,:user)=true)";
+	String VISIBLE_RESOURCE = "(" + SystemUser.IS_ADMIN  + " OR visiblegroup(l.description,:user)=true)";
 
 	@Override
 	@Query("FROM CacheGroup l WHERE (UPPER(cast(id as string)) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND " + VISIBLE_RESOURCE)

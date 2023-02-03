@@ -3,18 +3,8 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-
 import org.jasypt.encryption.StringEncryptor;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,11 +14,7 @@ import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.ProjectRepository;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
 import org.ligoj.app.resource.node.sample.BuildResource;
 import org.ligoj.app.resource.node.sample.JiraBaseResource;
@@ -41,6 +27,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * {@link ParameterValueResource} test cases.
@@ -74,10 +64,11 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		persistSystemEntities();
 
 		// For JPA coverage
+		//noinspection ResultOfMethodCallIgnored
 		repository.findAll().iterator().next().getSubscription();
 	}
 
-	private ParameterValue assertValue(final String name, final String value) {
+	private void assertValue(final String name, final String value) {
 		final var parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne(name).getId());
 		parameterValue.setText(value);
@@ -85,7 +76,6 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
 		Assertions.assertEquals(value, entity.getData());
-		return entity;
 	}
 
 	@Test

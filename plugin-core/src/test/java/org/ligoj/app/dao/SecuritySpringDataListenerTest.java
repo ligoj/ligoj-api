@@ -8,14 +8,22 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.query.sqm.function.FunctionRenderingSupport;
+import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
+import org.hibernate.sql.ast.SqlAstTranslator;
+import org.hibernate.sql.ast.spi.SqlAppender;
 import org.hibernate.sql.ast.spi.StringBuilderSqlAppender;
+import org.hibernate.sql.ast.tree.SqlAstNode;
+import org.hibernate.sql.ast.tree.expression.Literal;
 import org.hibernate.sql.ast.tree.expression.QueryLiteral;
+import org.hibernate.sql.ast.tree.predicate.Predicate;
+import org.hibernate.sql.ast.tree.select.SortSpecification;
 import org.hibernate.type.descriptor.java.StringJavaType;
 import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
 import org.hibernate.type.internal.NamedBasicTypeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -41,105 +49,106 @@ class SecuritySpringDataListenerTest {
 	private SecuritySpringDataListener listener;
 
 	@Test
-	void visiblegroupArgsError() {
+	void visibleGroupArgsError() {
 		final var function = (StandardSQLFunction) listener.getSqlFunctions().get("visiblegroup");
 		Assertions.assertThrows(QueryException.class, () -> function.render(null, Collections.emptyList(), null));
 	}
 
 	private String assertFunction(final String name, final int nbQueryParam, final String sql, String... args) {
-		var appender = new StringBuilderSqlAppender();
-		((FunctionRenderingSupport) listener.getSqlFunctions().get(name)).render(appender,
-				Arrays.stream(args).map(a ->
-						new QueryLiteral<String>(a,
-								new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).collect(Collectors.toList()), null);
+		var sb = new StringBuilder();
+		var appender = new StringBuilderSqlAppender(sb);
+		var translator = Mockito.mock(SqlAstTranslator.class);
+		Mockito.doAnswer(invocation -> {
+			appender.append(((Literal) invocation.getArgument(0)).getLiteralValue().toString());
+			return null;
+		}).when(translator).render(Mockito.any(SqlAstNode.class), Mockito.any(SqlAstNodeRenderingMode.class));
+		var astParams = Arrays.stream(args).map(a ->
+				new QueryLiteral<>(a,
+						new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).collect(Collectors.toList());
+		var sqlFunction = (StandardSQLFunction) listener.getSqlFunctions().get(name);
+		sqlFunction.render(appender, astParams, translator);
 		final var query = appender.toString();
 		Assertions.assertEquals(nbQueryParam, StringUtils.countMatches(query, '?'));
 		Assertions.assertTrue(query.contains(sql), query + "-- not contains --" + sql);
+
+		sb.setLength(0);
+		sqlFunction.render(appender, astParams, null, translator);
+		Assertions.assertEquals(query, appender.toString());
+
+		sb.setLength(0);
+		sqlFunction.render(appender, astParams, null, null, translator);
+		Assertions.assertEquals(query, appender.toString());
+
+		sb.setLength(0);
+		sqlFunction.render(appender, astParams, null, null, null, translator);
+		Assertions.assertEquals(query, appender.toString());
 		return query;
 	}
 
 	@Test
-	void visibleproject() {
-		assertFunction("visibleproject", 5, "_p__.team_leader=?user__", "_p__.id", ALIAS, Q_USER, Q_USER, Q_USER,
-				Q_USER, Q_USER);
+	void visibleProject() {
+		assertFunction("visibleproject", 5, "_p__.team_leader=?user__", "_p__.team_leader", ALIAS, Q_USER);
 	}
 
 	@Test
-	void visiblegroup() {
-		assertFunction("visiblegroup", 4, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER, Q_USER, Q_USER, Q_USER);
+	void visibleGroup() {
+		assertFunction("visiblegroup", 4, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER);
 	}
 
 	@Test
-	void visiblecompany() {
-		assertFunction("visiblecompany", 4, "WHERE _arg__=s_d3.dn", ALIAS, Q_USER, Q_USER, Q_USER, Q_USER);
+	void visibleCompany() {
+		assertFunction("visiblecompany", 4, "WHERE _arg__=s_d3.dn", ALIAS, Q_USER);
 	}
 
 	@Test
-	void writedn() {
-		assertFunction("writedn", 3, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER, Q_USER, Q_USER);
+	void writeDN() {
+		assertFunction("writedn", 3, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER);
 	}
 
 	@Test
-	void admindn() {
-		assertFunction("admindn", 3, "_arg__=s_d5.dn OR _arg__ LIKE", ALIAS, Q_USER, Q_USER, Q_USER);
+	void adminDN() {
+		assertFunction("admindn", 3, "_arg__=s_d5.dn OR _arg__ LIKE", ALIAS, Q_USER);
 	}
 
-	@Test
-	void inproject() {
-		final var assertFunction = assertFunction("inproject", 2, "team_leader=?user__", Q_USER, ALIAS, Q_USER, ALIAS);
-		Assertions.assertTrue(assertFunction.contains("pj10.id=_arg__"));
-		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
-		Assertions.assertTrue(assertFunction.contains("s_pj9.id=_arg__"));
-	}
 
 	@Test
-	void inproject2() {
-		final var assertFunction = assertFunction("inproject2", 4, "team_leader=?user__", Q_USER, Q_ARG, Q_USER, Q_ARG);
+	void inProject2() {
+		final var assertFunction = assertFunction("inproject", 4, "team_leader=?user__", Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
 		Assertions.assertTrue(assertFunction.contains("cpg.project=?dn__"));
 	}
 
 	@Test
-	void inprojectkey() {
-		final var assertFunction = assertFunction("inprojectkey", 2, "team_leader=?user__", Q_USER, ALIAS, Q_USER,
-				ALIAS);
-		Assertions.assertTrue(assertFunction.contains("pj11.pkey=_arg__"));
-		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
-		Assertions.assertTrue(assertFunction.contains("s_pj8.pkey=_arg__"));
-	}
-
-	@Test
-	void inprojectkey2() {
-		final var assertFunction = assertFunction("inprojectkey2", 4, "team_leader=?user__ AND pkey=?dn__", Q_USER,
-				Q_ARG, Q_USER, Q_ARG);
+	void inProjectkey() {
+		final var assertFunction = assertFunction("inprojectkey", 4, "team_leader=?user__ AND pkey=?dn__", Q_USER,
+				Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__ AND pj.pkey=?dn__"));
 	}
 
 	@Test
-	void ingroup() {
-		final var assertFunction = assertFunction("ingroup", 1, "cm.\"user\"=?user__", Q_USER, ALIAS, ALIAS);
+	void inGroup() {
+		final var assertFunction = assertFunction("ingroup", 1, "cm.\"user\"=?user__", Q_USER, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("s_cg6.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("id=_arg__"));
 	}
 
 	@Test
-	void incompany() {
-		final var assertFunction = assertFunction("incompany", 1, "cu.id=?user__", Q_USER, ALIAS, ALIAS);
+	void inCompany() {
+		final var assertFunction = assertFunction("incompany", 1, "cu.id=?user__", Q_USER, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("s_cc7.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("id=_arg__"));
 	}
 
 	@Test
-	void ingroup2() {
-		final var assertFunction = assertFunction("ingroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER, Q_ARG,
-				Q_ARG);
+	void inGroup2() {
+		final var assertFunction = assertFunction("ingroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 	}
 
 	@Test
-	void incompany2() {
-		final var assertFunction = assertFunction("incompany2", 3, "cu.id=?user__", Q_USER, Q_ARG, Q_ARG);
+	void inCompany2() {
+		final var assertFunction = assertFunction("incompany2", 3, "cu.id=?user__", Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("cc.id=?dn__"));
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 	}

@@ -159,7 +159,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param node The parent node identifier. Directly or not.
 	 * @return The amount of nodes having the parent node.
 	 */
-	@Query("SELECT count(id) FROM Node WHERE refined.refined.id = ?1 OR refined.id = ?1")
+	@Query("SELECT count(id) FROM Node WHERE refined.refined.id = :node OR refined.id = :node")
 	int countByRefined(String node);
 
 }
