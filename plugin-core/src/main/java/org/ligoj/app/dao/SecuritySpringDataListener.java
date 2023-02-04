@@ -26,13 +26,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Register the project native SQL functions for security. This "might" be hard to understand the ORBAC implementation.
+ * Register the project native SQL functions for security. This "might" be hard to understand the Organization-RBAC implementation.
  * A human-readable form is available on GitHub wiki page.
  *
  * @see <a href="https://github.com/ligoj/ligoj/wiki/Security">Security</a>
  */
 @Component
 public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListener {
+
+	private static final String USER_ARG = "$user";
+	private static final String DN_ARG = "$arg";
 	private static final String VISIBLE_GROUP = "$exists $memberR($arg,s_cmg0,$cm,$cg,$q(group),$q(user)) $end OR ";
 	private static final String VISIBLE_COMPANY = "$exists $memberR($arg,s_cc0,$cu,$cc,company,id) $end OR ";
 	private static final String VISIBLE_PROJECT = "$team_leader=$user OR " + VISIBLE_GROUP;
@@ -61,7 +64,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	 * @param emf The current EMF.
 	 */
 	@Autowired
-	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) throws NoSuchFieldException {
+	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) {
 		this.emf = emf;
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		this.sqlFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
@@ -72,74 +75,48 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	public void callback() {
 
 		// Visible project : visible subscribed group of this project
-		// Accepted signatures :
-		// - visibleproject(project.teamLeader,dn,:user)
-		registerFunction(new DnFunction("visibleproject", List.of("$team_leader", "$arg", "$user"), VISIBLE_PROJECT + DELEGATED, null));
+		registerFunction(new DnFunction("visibleProject", List.of("$team_leader", DN_ARG, USER_ARG), VISIBLE_PROJECT + DELEGATED, null));
 
 		// Visible group : member of this group or one of its subgroups or
 		// delegate on this group or one of its subgroups
-		registerFunction(new DnFunction("visiblegroup", List.of("$arg", "$user"), VISIBLE_GROUP + DELEGATED, null));
+		registerFunction(new DnFunction("visibleGroup", List.of(DN_ARG, USER_ARG), VISIBLE_GROUP + DELEGATED, null));
 
 		// Visible company : member of this company or one of its sub-companies
 		// or delegate on this company or one of its sub-companies
-		registerFunction(new DnFunction("visiblecompany", List.of("$arg", "$user"), VISIBLE_COMPANY + DELEGATED, null));
+		registerFunction(new DnFunction("visibleCompany", List.of(DN_ARG, USER_ARG), VISIBLE_COMPANY + DELEGATED, null));
 
-		// Write DN : delegate with "can_write" flag on the related DN of one of
-		// its parent
-		registerFunction(new DnFunction("writedn", List.of("$arg", "$user"), DELEGATED, "can_write"));
+		// Write DN : delegate with "can_write" flag on the related DN of one of its parent
+		registerFunction(new DnFunction("writeDN", List.of(DN_ARG, USER_ARG), DELEGATED, "can_write"));
 
-		// Admin DN : delegate with "can_admin" flag on the related DN of one of
-		// its parent
-		registerFunction(new DnFunction("admindn", List.of("$arg", "$user"), DELEGATED, "can_admin"));
+		// Admin DN : delegate with "can_admin" flag on the related DN of one of its parent
+		registerFunction(new DnFunction("adminDN", List.of(DN_ARG, USER_ARG), DELEGATED, "can_admin"));
 
 		// Member of a group : member of this group or one of its subgroups
-		// Accepted signatures :
-		// - ingroup(:user, group.id, group.id)
-		// - ingroup(:user, 'fixed_group', 'fixed_group')
-		// - ingroup('fixed_user',group.id,group.id)
-		// - ingroup('fixed_user', 'fixed_group', 'fixed_group')
-		registerFunction(new DnFunction("ingroup", List.of("$user", "$arg"), IN_GROUP, null));
+		registerFunction(new DnFunction("inGroup", List.of(USER_ARG, DN_ARG), IN_GROUP, null));
 
 		// Member of a group : member of this group or one of its subgroups
-		// Accepted signatures :
-		// - ingroup(any user id, any group id, any group id)
-		registerFunction(new DnFunction("ingroup2", List.of("$user", "$arg"), IN_GROUP2, null));
+		registerFunction(new DnFunction("inGroup2", List.of(USER_ARG, DN_ARG), IN_GROUP2, null));
 
 		// Member of a company : member of this company or one of its sub-company
-		// - incompany(:user, company.id, company.id)
-		// - incompany(:user, 'fixed_company', 'fixed_company')
-		// - incompany('fixed_user',company.id,company.id )
-		// - incompany('fixed_user', 'fixed_company', 'fixed_company')
-		registerFunction(new DnFunction("incompany", List.of("$user", "$arg"), IN_COMPANY, null));
+		registerFunction(new DnFunction("inCompany", List.of(USER_ARG, DN_ARG), IN_COMPANY, null));
 
 		// Member of a company : member of this company or one of its sub-company
-		// - incompany2(any user id, any company id, any company id)
-		registerFunction(new DnFunction("incompany2", List.of("$user", "$arg"), IN_COMPANY2, null));
+		registerFunction(new DnFunction("inCompany2", List.of(USER_ARG, DN_ARG), IN_COMPANY2, null));
 
 		// Member of a project : team leader or member of any group of this project
-		// Accepted signatures :
-		// - inprojectkey(:user, project.pkey, :user, project.pkey)
-		// - inprojectkey(:user, 'fixed_pkey', :user, 'fixed_pkey')
-		// - inprojectkey('fixed_user', 'fixed_pkey', 'fixed_user', 'fixed_pkey')
-		// - inprojectkey('fixed_user', project.pkey, 'fixed_user', project.pkey)
 		registerFunction(
-				new DnFunction("inprojectkey", List.of("$user", "$pkey"), IS_TEAM_LEADER_PK + IN_PKEY, null));
+				new DnFunction("inProjectKey", List.of(USER_ARG, "$pkey"), IS_TEAM_LEADER_PK + IN_PKEY, null));
 
-		// Member of a project : team leader or member of any group of this project
-		// Accepted signatures :
-		// - inproject(:user, project.id, :user, project.id)
-		// - inproject(:user, 'fixed_id', :user, 'fixed_id')
-		// - inproject('fixed_user', 'fixed_id', 'fixed_user', 'fixed_id')
-		// - inproject('fixed_user', project.id, 'fixed_user', project.id)
+		// Member of a project : team leader or member of any group of this project identifier
 		registerFunction(
-				new DnFunction("inproject", List.of("$user", "$project"), IS_TEAM_LEADER_ID + IN_PROJECT, null));
+				new DnFunction("inProject", List.of(USER_ARG, "$project"), IS_TEAM_LEADER_ID + IN_PROJECT, null));
 	}
 
 	private void registerFunction(final DnFunction sqlFunction) {
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
-		final var sqlFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
+		final var dialectFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
+		dialectFunctions.put(sqlFunction.getName(), sqlFunction);
 		sqlFunctions.put(sqlFunction.getName(), sqlFunction);
-		this.sqlFunctions.put(sqlFunction.getName(), sqlFunction);
 	}
 
 	private class DnFunction extends StandardSQLFunction {
@@ -155,7 +132,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		 */
 		private DnFunction(final String name, final List<String> args,
 				final String query, final String access) {
-			super(name, StandardBasicTypes.BOOLEAN);
+			super(name.toLowerCase(), StandardBasicTypes.BOOLEAN);
 			this.args = args;
 			this.access = access;
 			this.query = query;
