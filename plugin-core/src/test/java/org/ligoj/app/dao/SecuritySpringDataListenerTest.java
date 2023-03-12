@@ -7,16 +7,13 @@ import jakarta.transaction.Transactional;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.query.sqm.function.FunctionRenderingSupport;
+import org.hibernate.internal.SessionFactoryImpl;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.sql.ast.SqlAstTranslator;
-import org.hibernate.sql.ast.spi.SqlAppender;
 import org.hibernate.sql.ast.spi.StringBuilderSqlAppender;
 import org.hibernate.sql.ast.tree.SqlAstNode;
 import org.hibernate.sql.ast.tree.expression.Literal;
 import org.hibernate.sql.ast.tree.expression.QueryLiteral;
-import org.hibernate.sql.ast.tree.predicate.Predicate;
-import org.hibernate.sql.ast.tree.select.SortSpecification;
 import org.hibernate.type.descriptor.java.StringJavaType;
 import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
 import org.hibernate.type.internal.NamedBasicTypeImpl;
@@ -25,6 +22,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -45,12 +43,14 @@ class SecuritySpringDataListenerTest {
 	private static final String ALIAS = "_arg__";
 	private static final String Q_ARG = "?dn__";
 	private static final String Q_USER = "?user__";
+
 	@Autowired
-	private SecuritySpringDataListener listener;
+	private LocalContainerEntityManagerFactoryBean emf;
 
 	@Test
 	void visibleGroupArgsError() {
-		final var function = (StandardSQLFunction) listener.getSqlFunctions().get("visiblegroup");
+		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
+		final var function = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor("visiblegroup");
 		Assertions.assertThrows(QueryException.class, () -> function.render(null, Collections.emptyList(), null));
 	}
 
@@ -65,7 +65,9 @@ class SecuritySpringDataListenerTest {
 		var astParams = Arrays.stream(args).map(a ->
 				new QueryLiteral<>(a,
 						new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).collect(Collectors.toList());
-		var sqlFunction = (StandardSQLFunction) listener.getSqlFunctions().get(name);
+
+		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
+		final var sqlFunction = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name);
 		sqlFunction.render(appender, astParams, translator);
 		final var query = appender.toString();
 		Assertions.assertEquals(nbQueryParam, StringUtils.countMatches(query, '?'));

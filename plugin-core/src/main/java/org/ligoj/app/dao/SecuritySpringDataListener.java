@@ -3,13 +3,11 @@
  */
 package org.ligoj.app.dao;
 
-import lombok.Getter;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.internal.SessionFactoryImpl;
-import org.hibernate.query.sqm.function.SqmFunctionDescriptor;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.sql.ast.SqlAstTranslator;
 import org.hibernate.sql.ast.spi.SqlAppender;
@@ -23,7 +21,6 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Register the project native SQL functions for security. This "might" be hard to understand the Organization-RBAC implementation.
@@ -52,8 +49,6 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	private static final String IS_TEAM_LEADER_ID = "$exists $pj WHERE team_leader=$user AND id=$project $end OR ";
 	private static final String IS_TEAM_LEADER_PK = "$exists $pj WHERE team_leader=$user AND pkey=$pkey $end OR ";
 
-	@Getter
-	private final Map<String, SqmFunctionDescriptor> sqlFunctions;
 	private final Dialect dialect;
 
 	private final LocalContainerEntityManagerFactoryBean emf;
@@ -67,7 +62,6 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 	public SecuritySpringDataListener(final LocalContainerEntityManagerFactoryBean emf) {
 		this.emf = emf;
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
-		this.sqlFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
 		this.dialect = sessionFactory.getJdbcServices().getJdbcEnvironment().getDialect();
 	}
 
@@ -114,9 +108,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 	private void registerFunction(final DnFunction sqlFunction) {
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
-		final var dialectFunctions = sessionFactory.getQueryEngine().getSqmFunctionRegistry().getFunctions();
-		dialectFunctions.put(sqlFunction.getName(), sqlFunction);
-		sqlFunctions.put(sqlFunction.getName(), sqlFunction);
+		sessionFactory.getQueryEngine().getSqmFunctionRegistry().register(sqlFunction.getName(), sqlFunction);
 	}
 
 	private class DnFunction extends StandardSQLFunction {
