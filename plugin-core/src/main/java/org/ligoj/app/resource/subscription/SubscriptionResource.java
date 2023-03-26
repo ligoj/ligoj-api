@@ -291,7 +291,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	private void checkMandatoryParameter(final Collection<ParameterValueCreateVo> parameters,
 			final Persistable<String> parameter) {
-		// Have to find this parameter
+		// This parameter must exist
 		if (parameters.stream().noneMatch(value -> value.getParameter().equals(parameter.getId()))) {
 			// Missing mandatory parameter
 			throw ValidationJsonException.newValidationJsonException(NotNull.class.getSimpleName(), parameter.getId());
