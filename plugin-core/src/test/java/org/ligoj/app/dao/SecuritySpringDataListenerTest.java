@@ -29,6 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 /**
@@ -50,8 +51,9 @@ class SecuritySpringDataListenerTest {
 	@Test
 	void visibleGroupArgsError() {
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
-		final var function = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor("visiblegroup");
-		Assertions.assertThrows(QueryException.class, () -> function.render(null, Collections.emptyList(), null));
+		final var function = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor("visibleGroup");
+		final List<? extends SqlAstNode> empty = Collections.emptyList();
+		Assertions.assertThrows(QueryException.class, () -> function.render(null, empty, null));
 	}
 
 	private String assertFunction(final String name, final int nbQueryParam, final String sql, String... args) {
@@ -89,68 +91,68 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void visibleProject() {
-		assertFunction("visibleproject", 5, "_p__.team_leader=?user__", "_p__.team_leader", ALIAS, Q_USER);
+		assertFunction("visibleProject", 5, "_p__.team_leader=?user__", "_p__.team_leader", ALIAS, Q_USER);
 	}
 
 	@Test
 	void visibleGroup() {
-		assertFunction("visiblegroup", 4, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER);
+		assertFunction("visibleGroup", 4, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER);
 	}
 
 	@Test
 	void visibleCompany() {
-		assertFunction("visiblecompany", 4, "WHERE _arg__=s_d3.dn", ALIAS, Q_USER);
+		assertFunction("visibleCompany", 4, "WHERE _arg__=s_d3.dn", ALIAS, Q_USER);
 	}
 
 	@Test
 	void writeDN() {
-		assertFunction("writedn", 3, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER);
+		assertFunction("writeDN", 3, "WHERE _arg__=s_d5.dn", ALIAS, Q_USER);
 	}
 
 	@Test
 	void adminDN() {
-		assertFunction("admindn", 3, "_arg__=s_d5.dn OR _arg__ LIKE", ALIAS, Q_USER);
+		assertFunction("adminDN", 3, "_arg__=s_d5.dn OR _arg__ LIKE", ALIAS, Q_USER);
 	}
 
 
 	@Test
 	void inProject2() {
-		final var assertFunction = assertFunction("inproject", 4, "team_leader=?user__", Q_USER, Q_ARG);
+		final var assertFunction = assertFunction("inProject", 4, "team_leader=?user__", Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__"));
 		Assertions.assertTrue(assertFunction.contains("cpg.project=?dn__"));
 	}
 
 	@Test
-	void inProjectkey() {
-		final var assertFunction = assertFunction("inprojectkey", 4, "team_leader=?user__ AND pkey=?dn__", Q_USER,
+	void inProjectKey() {
+		final var assertFunction = assertFunction("inProjectKey", 4, "team_leader=?user__ AND pkey=?dn__", Q_USER,
 				Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("cm.\"user\"=?user__ AND pj.pkey=?dn__"));
 	}
 
 	@Test
 	void inGroup() {
-		final var assertFunction = assertFunction("ingroup", 1, "cm.\"user\"=?user__", Q_USER, ALIAS);
+		final var assertFunction = assertFunction("inGroup", 1, "cm.\"user\"=?user__", Q_USER, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("s_cg6.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("id=_arg__"));
 	}
 
 	@Test
 	void inCompany() {
-		final var assertFunction = assertFunction("incompany", 1, "cu.id=?user__", Q_USER, ALIAS);
+		final var assertFunction = assertFunction("inCompany", 1, "cu.id=?user__", Q_USER, ALIAS);
 		Assertions.assertTrue(assertFunction.contains("s_cc7.id=_arg__"));
 		Assertions.assertTrue(assertFunction.contains("id=_arg__"));
 	}
 
 	@Test
 	void inGroup2() {
-		final var assertFunction = assertFunction("ingroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER, Q_ARG);
+		final var assertFunction = assertFunction("inGroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 	}
 
 	@Test
 	void inCompany2() {
-		final var assertFunction = assertFunction("incompany2", 3, "cu.id=?user__", Q_USER, Q_ARG);
+		final var assertFunction = assertFunction("inCompany2", 3, "cu.id=?user__", Q_USER, Q_ARG);
 		Assertions.assertTrue(assertFunction.contains("cc.id=?dn__"));
 		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
 	}
