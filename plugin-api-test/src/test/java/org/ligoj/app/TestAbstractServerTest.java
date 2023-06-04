@@ -3,16 +3,15 @@
  */
 package org.ligoj.app;
 
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-
+import com.github.tomakehurst.wiremock.client.WireMock;
 import org.apache.commons.io.IOUtils;
-import org.apache.http.HttpStatus;
+import org.apache.hc.core5.http.HttpStatus;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import com.github.tomakehurst.wiremock.client.WireMock;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Test class of {@link AbstractServerTest}
