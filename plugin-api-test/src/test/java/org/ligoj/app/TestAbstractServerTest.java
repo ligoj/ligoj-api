@@ -20,7 +20,7 @@ import com.github.tomakehurst.wiremock.client.WireMock;
 class TestAbstractServerTest extends AbstractServerTest {
 
 	/**
-	 * Only there fore coverage, no Spring involved.
+	 * Only there for coverage, no Spring involved.
 	 */
 	@Test
 	void startAutoStop() throws IOException {
@@ -28,11 +28,11 @@ class TestAbstractServerTest extends AbstractServerTest {
 				.willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
 		Assertions.assertEquals("ok",
-				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8));
 	}
 
 	/**
-	 * Only there fore coverage, no Spring involved.
+	 * Only there for coverage, no Spring involved.
 	 */
 	@Test
 	void startStop() throws IOException {
@@ -40,13 +40,13 @@ class TestAbstractServerTest extends AbstractServerTest {
 				.willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
 		Assertions.assertEquals("ok",
-				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8));
 		httpServer.stop();
 		httpServer = null;
 	}
 
 	/**
-	 * Only there fore coverage, no Spring involved.
+	 * Only there for coverage, no Spring involved.
 	 */
 	@Test
 	void startStop2() throws IOException {
@@ -54,17 +54,15 @@ class TestAbstractServerTest extends AbstractServerTest {
 				.willReturn(WireMock.aResponse().withStatus(HttpStatus.SC_OK).withBody("ok")));
 		httpServer.start();
 		Assertions.assertEquals("ok",
-				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8.name()));
+				IOUtils.toString(new URL("http://localhost:" + MOCK_PORT + "/"), StandardCharsets.UTF_8));
 		httpServer.stop();
 	}
 
 	/**
-	 * Only there fore coverage, no Spring involved.
+	 * Only there for coverage, no Spring involved.
 	 */
 	@Test
 	void prepareMockServerDuplicate() {
-		Assertions.assertThrows(IllegalStateException.class, () -> {
-			prepareMockServer();
-		});
+		Assertions.assertThrows(IllegalStateException.class, this::prepareMockServer);
 	}
 }

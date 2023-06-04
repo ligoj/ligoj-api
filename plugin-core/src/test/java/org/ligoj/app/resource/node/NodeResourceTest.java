@@ -246,9 +246,8 @@ class NodeResourceTest extends AbstractAppTest {
 				.thenThrow(new TechnicalException("junit"));
 
 		final var nbNodes = repository.findAllInstance().size();
-		Assertions.assertTrue(nbNodes >= 6); // Jirax2, Confluence, LDAP,
-												// Jenkins,
-												// SonarQube
+		// Jira x2, Confluence, LDAP, Jenkins, SonarQube
+		Assertions.assertTrue(nbNodes >= 6);
 		return nbNodes;
 	}
 
@@ -478,9 +477,7 @@ class NodeResourceTest extends AbstractAppTest {
 		node.setMode(SubscriptionMode.CREATE);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(node);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(node));
 	}
 
 	@Test
@@ -490,9 +487,7 @@ class NodeResourceTest extends AbstractAppTest {
 		node.setMode(SubscriptionMode.ALL);
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(node);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(node));
 	}
 
 	@Test
@@ -640,7 +635,7 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
-	void updateUntouchParameters() {
+	void updateUntouchedParameters() {
 		Assertions.assertNull(resource.findAll().get("service:bt:jira:7"));
 		final var node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
@@ -683,9 +678,7 @@ class NodeResourceTest extends AbstractAppTest {
 		node.setId("service:bt:some:instance");
 		node.setName("Any");
 		node.setNode("service:bt:some");
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.create(node);
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.create(node));
 	}
 
 	/**
@@ -698,9 +691,7 @@ class NodeResourceTest extends AbstractAppTest {
 		node.setId("service:bt:jira:7");
 		node.setName("Any");
 		node.setNode("service:build:jenkins");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(node);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(node));
 	}
 
 	/**
@@ -712,9 +703,7 @@ class NodeResourceTest extends AbstractAppTest {
 		final var node = new NodeEditionVo();
 		node.setId("service:bt:jira:7");
 		node.setName("Any");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(node);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(node));
 	}
 
 	@Test
@@ -752,9 +741,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void createOnParentDifferentMode() {
 		newNode(SubscriptionMode.CREATE);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			newSubNode(SubscriptionMode.LINK);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> newSubNode(SubscriptionMode.LINK));
 	}
 
 	/**
@@ -763,9 +750,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void createOnParentDifferentMode2() {
 		newNode(SubscriptionMode.NONE);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			newSubNode(SubscriptionMode.CREATE);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> newSubNode(SubscriptionMode.CREATE));
 	}
 
 	/**
@@ -806,26 +791,20 @@ class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	void deleteNotExist() {
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.delete("service:bt:jira:any");
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.delete("service:bt:jira:any"));
 	}
 
 	@Test
 	void deleteNotVisible() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(BusinessException.class, () -> {
-			delete();
-		});
+		Assertions.assertThrows(BusinessException.class, this::delete);
 	}
 
 	@Test
 	void deleteHasSubscription() {
 		Assertions.assertTrue(repository.existsById("service:bt:jira:6"));
 		em.clear();
-		Assertions.assertThrows(BusinessException.class, () -> {
-			resource.delete("service:bt:jira:6");
-		});
+		Assertions.assertThrows(BusinessException.class, () -> resource.delete("service:bt:jira:6"));
 	}
 
 	@Test
@@ -1050,25 +1029,19 @@ class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	void findByIdExpectedNotExists() {
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.findById("service:any");
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.findById("service:any"));
 	}
 
 	@Test
 	void findByIdExpectedNoDelegate() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.findById("service:kpi:sonar");
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.findById("service:kpi:sonar"));
 	}
 
 	@Test
 	void findByIdExpectedNoValidDelegate() {
 		initSpringSecurityContext("user1");
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.findById("service:kpi:sonar");
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.findById("service:kpi:sonar"));
 	}
 
 	@Test
@@ -1088,9 +1061,7 @@ class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	void findByIdInternalNotExists() {
-		Assertions.assertThrows(JpaObjectRetrievalFailureException.class, () -> {
-			resource.findByIdInternal("any");
-		});
+		Assertions.assertThrows(JpaObjectRetrievalFailureException.class, () -> resource.findByIdInternal("any"));
 	}
 
 	@Test
@@ -1103,9 +1074,7 @@ class NodeResourceTest extends AbstractAppTest {
 			Assertions.assertEquals("service:bt:jira:4",
 					taskSampleRepository.findNotFinishedByLocked("service:bt:jira:4").getLocked().getId());
 
-			Assertions.assertThrows(BusinessException.class, () -> {
-				sampleResource.startTask("service:bt:jira:4", task -> task.setData("init"));
-			});
+			Assertions.assertThrows(BusinessException.class, () -> sampleResource.startTask("service:bt:jira:4", task -> task.setData("init")));
 
 			sampleResource.endTask("service:bt:jira:4", false);
 			taskSampleRepository.saveAndFlush(entity);

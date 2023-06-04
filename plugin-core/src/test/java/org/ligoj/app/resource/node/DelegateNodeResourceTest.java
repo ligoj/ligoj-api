@@ -56,9 +56,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		final var delegate = new DelegateNode();
 		delegate.setNode(node);
 		delegate.setReceiver("user1");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			resource.create(delegate);
-		});
+		Assertions.assertThrows(NotFoundException.class, () -> resource.create(delegate));
 	}
 
 	@Test
@@ -120,9 +118,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		final var newDelegate = new DelegateNode();
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			resource.create(newDelegate);
-		});
+		Assertions.assertThrows(NotFoundException.class, () -> resource.create(newDelegate));
 	}
 
 	@Test
@@ -140,9 +136,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		newDelegate.setNode("service:build:jenkins:dig");
 		newDelegate.setReceiver("user2");
 		newDelegate.setCanWrite(true);
-		Assertions.assertThrows(jakarta.ws.rs.NotFoundException.class, () -> {
-			resource.create(newDelegate);
-		});
+		Assertions.assertThrows(jakarta.ws.rs.NotFoundException.class, () -> resource.create(newDelegate));
 	}
 
 	@Test
@@ -217,9 +211,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		final int user1Delegate = repository.findBy("receiver", "junit").getId();
 
 		initSpringSecurityContext("user1");
-		Assertions.assertThrows(NotFoundException.class, () -> {
-			resource.delete(user1Delegate);
-		});
+		Assertions.assertThrows(NotFoundException.class, () -> resource.delete(user1Delegate));
 	}
 
 	@Test
