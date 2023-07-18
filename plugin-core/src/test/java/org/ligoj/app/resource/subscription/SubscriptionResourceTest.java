@@ -3,18 +3,9 @@
  */
 package org.ligoj.app.resource.subscription;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.ForbiddenException;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,26 +14,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.dao.DelegateNodeRepository;
-import org.ligoj.app.dao.NodeRepository;
-import org.ligoj.app.dao.ParameterValueRepository;
-import org.ligoj.app.dao.ProjectRepository;
-import org.ligoj.app.dao.SubscriptionRepository;
-import org.ligoj.app.dao.TaskSampleSubscriptionRepository;
+import org.ligoj.app.dao.*;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
-import org.ligoj.app.iam.model.CacheGroup;
-import org.ligoj.app.iam.model.CacheMembership;
-import org.ligoj.app.iam.model.CacheUser;
-import org.ligoj.app.iam.model.DelegateOrg;
-import org.ligoj.app.iam.model.DelegateType;
-import org.ligoj.app.iam.model.ReceiverType;
-import org.ligoj.app.model.CacheProjectGroup;
-import org.ligoj.app.model.DelegateNode;
-import org.ligoj.app.model.Event;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
-import org.ligoj.app.model.TaskSampleSubscription;
+import org.ligoj.app.iam.model.*;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.ParameterValueCreateVo;
@@ -58,6 +33,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 /**
  * Test class of {@link SubscriptionResource}
@@ -96,7 +75,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@BeforeEach
 	void prepareSubscription() throws IOException {
-		persistEntities("csv", new Class[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[]{Event.class, DelegateNode.class}, StandardCharsets.UTF_8);
 		this.subscription = getSubscription("MDA");
 	}
 
@@ -147,9 +126,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		parameter.setId("p");
 		parameter.setMandatory(true);
 		acceptedParameters.add(parameter);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.checkMandatoryParameters(parameters, acceptedParameters, null);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.checkMandatoryParameters(parameters, acceptedParameters, null));
 	}
 
 	@Test
@@ -173,9 +150,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		parameter.setMandatory(true);
 		parameter.setMode(SubscriptionMode.CREATE);
 		acceptedParameters.add(parameter);
-		Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.checkMandatoryParameters(parameters, acceptedParameters, SubscriptionMode.CREATE);
-		});
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.checkMandatoryParameters(parameters, acceptedParameters, SubscriptionMode.CREATE));
 	}
 
 	@Test
@@ -235,9 +210,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void getParametersNotVisibleProject() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.getParameters(subscription);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.getParameters(subscription));
 	}
 
 	/**
@@ -282,9 +255,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
 		em.clear();
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			resource.delete(subscription);
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(subscription));
 	}
 
 	@Test
@@ -420,9 +391,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 		// Test a creation by another user than the team leader and a manager
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> {
-			create();
-		});
+		Assertions.assertThrows(EntityNotFoundException.class, this::create);
 	}
 
 	/**
@@ -459,9 +428,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='gStack'", Integer.class).getSingleResult());
 
-		Assertions.assertThrows(ForbiddenException.class, () -> {
-			resource.create(vo);
-		});
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
 	}
 
 	/**
@@ -602,9 +569,9 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		parameterValueEditionVo3.setInteger(1007400);
 		vo.getParameters().add(parameterValueEditionVo3);
 
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> {
-			resource.create(vo);
-		}), JiraBaseResource.PARAMETER_JDBC_PASSWORD, "not-accepted-parameter");
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class,
+						() -> resource.create(vo)),
+				JiraBaseResource.PARAMETER_JDBC_PASSWORD, "not-accepted-parameter");
 	}
 
 	@Test
@@ -698,7 +665,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void refreshStatuses() throws IOException {
-		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[]{Event.class}, StandardCharsets.UTF_8);
 		final var projectId = projectRepository.findByName("MDA").getId();
 		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
@@ -718,7 +685,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void getStatusByProject() throws IOException {
-		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[]{Event.class}, StandardCharsets.UTF_8);
 		final var projectId = projectRepository.findByName("gStack").getId();
 		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());

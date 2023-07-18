@@ -50,7 +50,7 @@ class ParameterResourceTest extends AbstractAppTest {
 	void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
-				StandardCharsets.UTF_8.name());
+				StandardCharsets.UTF_8);
 		persistSystemEntities();
 	}
 

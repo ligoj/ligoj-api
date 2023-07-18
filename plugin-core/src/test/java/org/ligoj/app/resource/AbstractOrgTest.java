@@ -56,10 +56,10 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 		persistSystemEntities();
 
 		// Prepare the standard data
-		persistEntities("csv", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8.name());
+		persistEntities("csv", new Class[] { DelegateOrg.class }, StandardCharsets.UTF_8);
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
-				StandardCharsets.UTF_8.name());
+				StandardCharsets.UTF_8);
 
 		// Add the IAM data
 		csvForJpa.cleanup(CacheCompany.class, CacheUser.class, CacheGroup.class, CacheMembership.class,

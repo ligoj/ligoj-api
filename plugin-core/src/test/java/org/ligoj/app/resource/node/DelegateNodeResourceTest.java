@@ -48,7 +48,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	@BeforeEach
 	void prepare() throws IOException {
 		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
-				ParameterValue.class, DelegateNode.class }, StandardCharsets.UTF_8.name());
+				ParameterValue.class, DelegateNode.class }, StandardCharsets.UTF_8);
 	}
 
 	private void createNotFound(final String user, final String node) {

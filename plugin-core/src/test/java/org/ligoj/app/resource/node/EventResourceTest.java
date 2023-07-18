@@ -51,7 +51,7 @@ class EventResourceTest extends AbstractAppTest {
 	@BeforeEach
 	void prepare() throws IOException {
 		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
-				ParameterValue.class, Event.class }, StandardCharsets.UTF_8.name());
+				ParameterValue.class, Event.class }, StandardCharsets.UTF_8);
 	}
 
 	@Test

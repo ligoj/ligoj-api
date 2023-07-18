@@ -60,7 +60,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void prepare() throws IOException {
 		persistEntities("csv",
 				new Class[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
-				StandardCharsets.UTF_8.name());
+				StandardCharsets.UTF_8);
 		persistSystemEntities();
 
 		// For JPA coverage
@@ -264,12 +264,12 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final var parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
 		final List<String> tags = new ArrayList<>();
-		tags.add("value1");
-		tags.add("valueX");
+		tags.add("value_1");
+		tags.add("value_X");
 		parameterValue.setTags(tags);
 		final var entity = resource.createInternal(parameterValue);
 		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
-		Assertions.assertEquals("[\"VALUE1\",\"VALUEX\"]", entity.getData());
+		Assertions.assertEquals("[\"VALUE_1\",\"VALUE_X\"]", entity.getData());
 	}
 
 	@Test
