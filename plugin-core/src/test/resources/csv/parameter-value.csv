@@ -58,7 +58,7 @@ service:vm:vcloud:url;http://localhost:8120;service:vm:vcloud:sample;
 service:vm:vcloud:user;secret;service:vm:vcloud:sample;
 service:vm:vcloud:password;secret;service:vm:vcloud:sample;
 service:vm:vcloud:organization;MY-ORGANIZATION;service:vm:vcloud:sample;
-service:vm:vcloud:id;75aa69b4-8cff-40cd-9338-9abafc7d5935;;9
+service:vm:vcloud:id;75aa69b4-8cff-40cd-9338-000000000000;;9
 service:scm:svn:url;http://localhost:8120;service:scm:svn:dig;
 service:scm:svn:user;junit;service:scm:svn:dig;
 service:scm:svn:password;secret;service:scm:svn:dig;
