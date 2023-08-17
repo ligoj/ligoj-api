@@ -10,7 +10,7 @@ ligoj groupe;Ligoj Groupe;cn=ligoj,ou=groups,dc=sample,dc=com
 sea-octopus;sea-octopus;cn=sea-octopus,ou=sea,ou=project,dc=sample,dc=com
 biz agency;Biz Agency;cn=biz agency,ou=tools,dc=sample,dc=com
 vigireport;VigiReport;cn=vigireport,ou=tools,dc=sample,dc=com
-ligoj-gstack;ligoj-gStack;cn=ligoj-gstack,ou=ligoj,ou=project,dc=sample,dc=com
+ligoj-jupiter;ligoj-Jupiter;cn=ligoj-jupiter,ou=ligoj,ou=project,dc=sample,dc=com
 dig production;DIG Production;cn=dig production,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
 dig rha;DIG RHA;cn=dig rha,cn=dig as,cn=dig,ou=fonction,ou=groups,dc=sample,dc=com
 hub france;Hub France;cn=hub france,cn=production,ou=branche,ou=groups,dc=sample,dc=com

@@ -14,7 +14,7 @@ service:bt:jira:url;http://localhost:8120;service:bt:jira:6;
 service:bt:jira:project;10074;;1
 service:bt:jira:pkey;MDA;;1
 service:bt:jira:project;10000;;2
-service:bt:jira:pkey;GSTACK;;2
+service:bt:jira:pkey;JUPITER;;2
 service:build:jenkins:user;+yO5DXfq4dEABpj9gQTzSg==;service:build:jenkins:bpr;
 service:build:jenkins:api-token;SwhwVQpC7YXT2xrXHlHNOw==;service:build:jenkins:bpr;
 service:build:jenkins:url;http://localhost:8120;service:build:jenkins:bpr;
@@ -23,7 +23,7 @@ service:kpi:sonar:user;junit;service:kpi:sonar:bpr;
 service:kpi:sonar:password;secret;service:kpi:sonar:bpr;
 service:kpi:sonar:url;http://localhost:8120;service:kpi:sonar:bpr;
 service:kpi:sonar:project;123456;;4
-service:id:group;ligoj-gstack;;5
+service:id:group;ligoj-jupiter;;5
 service:id:group;broken;;6
 
 service:id:uid-pattern;.*;service:id:ldap:dig
@@ -63,12 +63,12 @@ service:scm:svn:url;http://localhost:8120;service:scm:svn:dig;
 service:scm:svn:user;junit;service:scm:svn:dig;
 service:scm:svn:password;secret;service:scm:svn:dig;
 service:scm:svn:index;true;service:scm:svn:dig;
-service:scm:svn:repository;ligoj-gstack;;10
+service:scm:svn:repository;ligoj-jupiter;;10
 service:scm:git:url;http://localhost:8120;service:scm:git:dig;
 service:scm:git:user;junit;service:scm:git:dig;
 service:scm:git:password;secret;service:scm:git:dig;
 service:scm:git:index;true;service:scm:git:dig;
-service:scm:git:repository;ligoj-gstack;;11
+service:scm:git:repository;ligoj-jupiter;;11
 service:req:squash:url;http://localhost:8120;service:req:squash:dig;
 service:req:squash:password;junit;service:req:squash:dig;
 service:req:squash:user;secret;service:req:squash:dig;

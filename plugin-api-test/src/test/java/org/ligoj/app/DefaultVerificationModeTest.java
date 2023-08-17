@@ -37,7 +37,7 @@ class DefaultVerificationModeTest {
 		Assertions.assertNotNull(mode.description("some"));
 	}
 
-	private final void setChecked(final boolean checked) {
+	private void setChecked(final boolean checked) {
 		this.checked = checked;
 	}
 }

@@ -78,7 +78,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var project = result.getData().get(0);
 		checkProjectMDA(project);
 
-		Assertions.assertEquals("gStack", result.getData().get(1).getName());
+		Assertions.assertEquals("Jupiter", result.getData().get(1).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
 		Assertions.assertTrue(result.getData().get(1).getNbSubscriptions() >= 6);
@@ -95,11 +95,11 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findAllByPkey() {
 		initSpringSecurityContext("fdaugan");
-		final var result = resource.findAll(newUriInfo(), "ligoj-gstack");
+		final var result = resource.findAll(newUriInfo(), "ligoj-jupiter");
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsFiltered());
 		Assertions.assertEquals(1, result.getRecordsTotal());
-		Assertions.assertEquals("gStack", result.getData().get(0).getName());
+		Assertions.assertEquals("Jupiter", result.getData().get(0).getName());
 	}
 
 	@Test
@@ -107,8 +107,8 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var delegate = new DelegateOrg();
 		delegate.setType(DelegateType.GROUP);
 		delegate.setReceiver("user");
-		delegate.setDn("cn=ligoj-gstack,ou=ligoj,ou=project,dc=sample,dc=com");
-		delegate.setName("ligoj-gStack");
+		delegate.setDn("cn=ligoj-jupiter,ou=ligoj,ou=project,dc=sample,dc=com");
+		delegate.setName("ligoj-Jupiter");
 		em.persist(delegate);
 		em.flush();
 		em.clear();
@@ -116,10 +116,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 		// create a mock URI info with pagination information
 		final var uriInfo = newFindAllParameters();
 		initSpringSecurityContext("user");
-		final var result = resource.findAll(uriInfo, "gStack");
+		final var result = resource.findAll(uriInfo, "Jupiter");
 		Assertions.assertEquals(1, result.getData().size());
 
-		Assertions.assertEquals("gStack", result.getData().get(0).getName());
+		Assertions.assertEquals("Jupiter", result.getData().get(0).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
 		Assertions.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
@@ -135,10 +135,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(1, result.getData().size());
 
-		// "gStack" is visible because of :
+		// "Jupiter" is visible because of :
 		// - delegate to tree "dc=sample,dc=com"
 		// - AND the related project has subscription to "plugin-id":
-		Assertions.assertEquals("gStack", result.getData().get(0).getName());
+		Assertions.assertEquals("Jupiter", result.getData().get(0).getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
 		Assertions.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
@@ -172,12 +172,12 @@ class ProjectResourceTest extends AbstractOrgTest {
 		// create a mock URI info with pagination information
 		final var uriInfo = newFindAllParameters();
 
-		initSpringSecurityContext("alongchu");
-		final var result = resource.findAll(uriInfo, "gStack");
+		initSpringSecurityContext("admin-test");
+		final var result = resource.findAll(uriInfo, "Jupiter");
 		Assertions.assertEquals(1, result.getData().size());
 
 		final var project = result.getData().get(0);
-		Assertions.assertEquals("gStack", project.getName());
+		Assertions.assertEquals("Jupiter", project.getName());
 	}
 
 	private void checkProjectMDA(final ProjectLightVo project) {
@@ -207,7 +207,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByIdInvalid() {
-		initSpringSecurityContext("alongchu");
+		initSpringSecurityContext("admin-test");
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(0));
 	}
 
@@ -216,7 +216,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByIdNotVisible() {
-		final var byName = repository.findByName("gStack");
+		final var byName = repository.findByName("Jupiter");
 		initSpringSecurityContext("any");
 		final var id = byName.getId();
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(id));
@@ -227,7 +227,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByPKeyFullNotVisible() {
-		final var byName = repository.findByName("gStack");
+		final var byName = repository.findByName("Jupiter");
 		initSpringSecurityContext("any");
 		final var pkey = byName.getPkey();
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findByPKeyFull(pkey));
@@ -239,7 +239,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findByIdVisibleSinceAdmin() {
 		initSpringSecurityContext("admin");
-		final var byName = repository.findByName("gStack");
+		final var byName = repository.findByName("Jupiter");
 		final var id = byName.getId();
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findById(id));
 	}
@@ -249,10 +249,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByIdWithSubscription() throws IOException {
-		final var byName = repository.findByName("gStack");
+		final var byName = repository.findByName("Jupiter");
 		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8);
 
-		initSpringSecurityContext("alongchu");
+		initSpringSecurityContext("admin-test");
 		final var project = resource.findById(byName.getId());
 
 		// Check subscription

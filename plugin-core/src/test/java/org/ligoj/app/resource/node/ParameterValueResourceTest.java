@@ -575,7 +575,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void getParameters() {
-		final var parameters = resource.getSubscriptionParameters(getSubscription("gStack", BuildResource.SERVICE_KEY));
+		final var parameters = resource.getSubscriptionParameters(getSubscription("Jupiter", BuildResource.SERVICE_KEY));
 		Assertions.assertEquals(4, parameters.size());
 		Assertions.assertEquals("junit", parameters.get("service:build:jenkins:user"));
 		Assertions.assertEquals("http://localhost:8120", parameters.get("service:build:jenkins:url"));

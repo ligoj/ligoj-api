@@ -131,7 +131,7 @@ class NodeResourceTest extends AbstractAppTest {
 		resource.checkNodesStatus();
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
-		 * subscriptions :<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * subscriptions :<br> +1 : Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
 		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already known nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
@@ -154,7 +154,7 @@ class NodeResourceTest extends AbstractAppTest {
 		resource.checkNodesStatus();
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
-		 * subscriptions :<br> +1 : Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * subscriptions :<br> +1 : Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
 		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already known nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
@@ -284,12 +284,12 @@ class NodeResourceTest extends AbstractAppTest {
 		 * Jira 4 was UP <br> +1 : Confluence DOWN, discovered <br> +1 : Fortify DOWN, discovered <br> +1 : vCloud DOWN,
 		 * discovered <br> +1 : LDAP DOWN, discovered <br> +1 : Git DOWN, discovered <br> +1 : Subversion DOWN,
 		 * discovered <br> Expected count 6 changes for subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was
-		 * UP<br> +0 : Subscription gStack - JIRA6 - node has not changed, subscription is not checked<br> +1 :
-		 * Subscription gStack - Jenkins, discovered, DOWN since node is DOWN <br> +0 : Subscription gStack - Sonar,
-		 * discovered, node is UP, but subscription has not been checked <br> +2 : Subscription gStack - OpenLDAP,
-		 * discovered <br> +1 : Subscription gStack - Confluence, discovered <br> +1 : Subscription gStack - Fortify,
-		 * discovered <br> +1 : Subscription gStack - vCloud, discovered <br> +1 : Subscription gStack - Git, discovered
-		 * <br> +1 : Subscription gStack - Subversion, discovered <br> +1 : Subscription gStack ...<br> Nb events =
+		 * UP<br> +0 : Subscription Jupiter - JIRA6 - node has not changed, subscription is not checked<br> +1 :
+		 * Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> +0 : Subscription Jupiter - Sonar,
+		 * discovered, node is UP, but subscription has not been checked <br> +2 : Subscription Jupiter - OpenLDAP,
+		 * discovered <br> +1 : Subscription Jupiter - Confluence, discovered <br> +1 : Subscription Jupiter - Fortify,
+		 * discovered <br> +1 : Subscription Jupiter - vCloud, discovered <br> +1 : Subscription Jupiter - Git, discovered
+		 * <br> +1 : Subscription Jupiter - Subversion, discovered <br> +1 : Subscription Jupiter ...<br> Nb events =
 		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription + jira4/6 case) less the already
 		 * know nodes<br> = nbPreviousEvents + nbNodes x2 + 1 - 1 - 1<br> = nbPreviousEvents + nbNodes x2 - 1<br>
 		 */
@@ -374,7 +374,7 @@ class NodeResourceTest extends AbstractAppTest {
 		/*
 		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> +1 : Jira 4 DOWN, was UP <br> +0 : Jira 6
 		 * DOWN, was already DOWN <br> +x ... other services are discovered and UP<br> Expected changes for
-		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +1 : Subscription gStack - JIRA6 - DOWN,
+		 * subscriptions :<br> +1 : Subscription MDA - JIRA4, DOWN, was UP<br> +1 : Subscription Jupiter - JIRA6 - DOWN,
 		 * was UP<br> +1 : Subscription Jenkins - was UP<br> +x ... other services <br>
 		 */
 		var expectedCount = eventsCount; // Initial amount

@@ -3,7 +3,6 @@
  */
 package org.ligoj.app.dao;
 
-import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.function.StandardSQLFunction;
@@ -21,6 +20,7 @@ import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Register the project native SQL functions for security. This "might" be hard to understand the Organization-RBAC implementation.
@@ -135,7 +135,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 			if (sqlAstArguments.size() != args.size()) {
 				throw new QueryException("The function requires " + args.size() + " arguments, but received " + sqlAstArguments.size());
 			}
-			parse("(" + StringUtils.defaultString(query, "") + ")", sqlAppender, sqlAstArguments, translator);
+			parse("(" + Objects.toString(query, "") + ")", sqlAppender, sqlAstArguments, translator);
 		}
 
 		@Override
