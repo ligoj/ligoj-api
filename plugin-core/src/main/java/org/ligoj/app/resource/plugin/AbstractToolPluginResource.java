@@ -3,16 +3,12 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.util.Arrays;
-import java.util.List;
-
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.ResponseBuilder;
 import jakarta.ws.rs.core.StreamingOutput;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.SubscriptionRepository;
@@ -20,7 +16,13 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.resource.node.ParameterValueResource;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.ligoj.bootstrap.resource.system.configuration.ConfigurationResource;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Basic implementation of a tool plug-in.
@@ -35,6 +37,9 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 
 	@Autowired
 	protected SubscriptionRepository subscriptionRepository;
+
+	@Autowired
+	protected ConfigurationResource configuration;
 
 	/**
 	 * Return the version of tool or <code>null</code> if not available/found.
@@ -69,6 +74,10 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 	@Override
 	public List<Class<?>> getInstalledEntities() {
 		return Arrays.asList(Node.class, Parameter.class);
+	}
+
+	protected String getParameter(final Map<String, String> parameters, final String parameter, final String defaultValue) {
+		return Objects.requireNonNullElseGet(parameters.get(parameter), () -> configuration.get(parameter, defaultValue));
 	}
 
 }
