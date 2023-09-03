@@ -19,6 +19,7 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.xml.DomUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -69,7 +70,7 @@ public class XmlUtils {
 	 */
 	public Element parse(final String input) throws SAXException, IOException, ParserConfigurationException {
 		final var jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"), StandardCharsets.UTF_8);
-		return (Element) parse(jobsAsInput).getFirstChild();
+		return parse(jobsAsInput).getDocumentElement();
 	}
 
 	/**
@@ -116,8 +117,10 @@ public class XmlUtils {
 	 * @return The trimmed tag value when tag is found of <code>null</code>.
 	 */
 	public String getTagText(final Element element, final String tag) {
-		return Optional.ofNullable(element).map(e -> e.getElementsByTagName(tag).item(0)).map(Node::getTextContent)
-				.map(StringUtils::trimToNull).orElse(null);
+		return Optional.ofNullable(DomUtils.getChildElementByTagName(element, tag))
+				.map(Node::getTextContent)
+				.map(StringUtils::trimToNull)
+				.orElse(null);
 	}
 
 }
