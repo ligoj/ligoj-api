@@ -3,49 +3,21 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.function.BiFunction;
-import java.util.function.Function;
-
-import javax.cache.annotation.CacheRemoveAll;
-import javax.cache.annotation.CacheResult;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.DefaultValue;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.ligoj.app.api.NodeStatus;
-import org.ligoj.app.api.NodeVo;
-import org.ligoj.app.api.ServicePlugin;
-import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.api.SubscriptionStatusWithData;
-import org.ligoj.app.api.ToolPlugin;
+import org.ligoj.app.api.*;
 import org.ligoj.app.dao.*;
 import org.ligoj.app.dao.task.LongTaskNodeRepository;
-import org.ligoj.app.model.AbstractLongTaskNode;
-import org.ligoj.app.model.EventType;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.NamedBean;
@@ -60,7 +32,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import javax.cache.annotation.CacheRemoveAll;
+import javax.cache.annotation.CacheResult;
+import java.util.*;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 /**
  * {@link Node} resource.
@@ -310,7 +286,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 			// Checked node's mode
 			return nodeMode;
 		}
-		// Node's mode overflow the refined's one
+		// Node's mode overflow the refined one
 		throw new ValidationJsonException("mode", "invalid-mode", "mode", nodeMode, "refined", parentMode);
 	}
 
@@ -346,7 +322,6 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 *
 	 * @param id The node identifier.
 	 * @throws Exception When the related plug-in implementation throws an exception during the deletion.
-	 *
 	 */
 	@DELETE
 	@Path("{id:service:.+:.+:.*}")
@@ -519,8 +494,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		} else {
 			// All subscription of this are marked as DOWN
 			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptions.size());
-			subscriptions.entrySet()
-					.forEach(s -> eventResource.registerEvent(s.getKey(), EventType.STATUS, NodeStatus.DOWN.name()));
+			subscriptions.forEach((s,_v) -> eventResource.registerEvent(s, EventType.STATUS, NodeStatus.DOWN.name()));
 		}
 	}
 
@@ -535,7 +509,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 			final Map<String, String> parameters) {
 		final var node = subscription.getNode().getId();
 		try {
-			log.info("Check status of a subscription attached to {}...", node);
+			log.info("Check status of subscription {}#{}...", node, subscription.getId());
 
 			// Find the plug-in associated to the requested node
 			final var toolPlugin = locator.getResourceExpected(node, ToolPlugin.class);
@@ -543,13 +517,13 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 			// Call service which check status
 			final var status = toolPlugin.checkSubscriptionStatus(subscription.getId(), node, parameters);
 			status.setNode(node);
-			log.info("Check status of a subscription attached to {} succeed", node);
+			log.info("Check status of subscription {}#{} succeed", node, subscription.getId());
 			return status;
 		} catch (final Exception e) { // NOSONAR
 			// Do not pollute logs with this failures
 			// Service is down when an exception is thrown, log the error
 			// without trace
-			log.warn("Check status of a subscription attached to {} failed : {}", node, e.getMessage());
+			log.warn("Check status of subscription {}#{} failed : {}", node, subscription.getId(), e.getMessage());
 		}
 		return new SubscriptionStatusWithData(false);
 	}
@@ -587,7 +561,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 *
 	 * @param id The node to check.
 	 * @return Status of a single node. Many be <code>null</code> when node is not found or when there is unknown
-	 *         status.
+	 * status.
 	 */
 	@GET
 	@Path("status/{id:.+:.*}")
@@ -756,7 +730,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		return checkNode(id, repository::findOneAdministerable);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	protected Class<? extends LongTaskRunner<AbstractLongTaskNode, LongTaskNodeRepository<AbstractLongTaskNode>, Node, String, NodeRepository, AbstractLockedResource<Node, String>>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerNode.class;
