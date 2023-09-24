@@ -22,7 +22,7 @@ public class ProjectVo extends BasicProjectVo {
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private List<SubscriptionVo> subscriptions;
+	private transient List<SubscriptionVo> subscriptions;
 
 	/**
 	 * Indicates the current user can manage the subscriptions of this project.

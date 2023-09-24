@@ -250,7 +250,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findByIdWithSubscription() throws IOException {
 		final var byName = repository.findByName("Jupiter");
-		persistEntities("csv", new Class[] { Event.class }, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class<?>[] { Event.class }, StandardCharsets.UTF_8);
 
 		initSpringSecurityContext("admin-test");
 		final var project = resource.findById(byName.getId());

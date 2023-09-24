@@ -75,7 +75,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@BeforeEach
 	void prepareSubscription() throws IOException {
-		persistEntities("csv", new Class[]{Event.class, DelegateNode.class}, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class<?>[]{Event.class, DelegateNode.class}, StandardCharsets.UTF_8);
 		this.subscription = getSubscription("MDA");
 	}
 
@@ -670,7 +670,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void refreshStatuses() throws IOException {
-		persistEntities("csv", new Class[]{Event.class}, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
 		final var projectId = projectRepository.findByName("MDA").getId();
 		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
@@ -690,7 +690,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void getStatusByProject() throws IOException {
-		persistEntities("csv", new Class[]{Event.class}, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
 		final var projectId = projectRepository.findByName("Jupiter").getId();
 		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
