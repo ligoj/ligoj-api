@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>parent</artifactId>
-		<version>4.0.6</version>
+		<version>4.0.7-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -29,19 +29,19 @@
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-core</artifactId>
-				<version>4.0.6</version>
+				<version>4.0.7-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-api-test</artifactId>
-				<version>4.0.6</version>
+				<version>4.0.7-SNAPSHOT</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-iam-empty</artifactId>
-				<version>4.0.6</version>
+				<version>4.0.7-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
