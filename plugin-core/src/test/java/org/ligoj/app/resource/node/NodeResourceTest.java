@@ -3,15 +3,8 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.core.UriInfo;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,31 +15,10 @@ import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
-import org.ligoj.app.dao.EventRepository;
-import org.ligoj.app.dao.NodeRepository;
-import org.ligoj.app.dao.ParameterRepository;
-import org.ligoj.app.dao.ParameterValueRepository;
-import org.ligoj.app.dao.SubscriptionRepository;
-import org.ligoj.app.dao.TaskSampleNodeRepository;
-import org.ligoj.app.model.DelegateNode;
-import org.ligoj.app.model.Event;
-import org.ligoj.app.model.EventType;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.dao.*;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.ServicePluginLocator;
-import org.ligoj.app.resource.node.sample.BugTrackerResource;
-import org.ligoj.app.resource.node.sample.BuildResource;
-import org.ligoj.app.resource.node.sample.IdentityResource;
-import org.ligoj.app.resource.node.sample.JenkinsPluginResource;
-import org.ligoj.app.resource.node.sample.JiraBaseResource;
-import org.ligoj.app.resource.node.sample.JiraPluginResource;
-import org.ligoj.app.resource.node.sample.KmResource;
-import org.ligoj.app.resource.node.sample.KpiResource;
-import org.ligoj.app.resource.node.sample.LdapPluginResource;
-import org.ligoj.app.resource.node.sample.SonarPluginResource;
+import org.ligoj.app.resource.node.sample.*;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -57,6 +29,12 @@ import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * {@link NodeResource} test cases.
@@ -94,8 +72,8 @@ class NodeResourceTest extends AbstractAppTest {
 
 	@BeforeEach
 	void prepare() throws IOException {
-		persistEntities("csv", new Class[] { Node.class, Parameter.class, Project.class, Subscription.class,
-				ParameterValue.class, Event.class, DelegateNode.class }, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class[]{Node.class, Parameter.class, Project.class, Subscription.class,
+				ParameterValue.class, Event.class, DelegateNode.class}, StandardCharsets.UTF_8);
 		persistSystemEntities();
 	}
 
@@ -334,7 +312,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// Service is up --> SONAR
 		final var sonar = Mockito.mock(SonarPluginResource.class);
 		Mockito.when(
-				servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
+						servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(sonar);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
@@ -402,7 +380,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// subscription throw an exception
 		final var jenkins = Mockito.mock(JenkinsPluginResource.class);
 		Mockito.when(
-				servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
+						servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jenkins);
 		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
@@ -616,7 +594,7 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("service:bt:jira:jdbc-password", parameterValues.get(2).getParameter().getId());
 		Assertions.assertEquals(3, parameterValues.size());
 
-		final var nodeParameters = parameterValueResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
+		var nodeParameters = parameterValueResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
 		Assertions.assertEquals(32, nodeParameters.size());
 		Assertions.assertEquals("-secured-", nodeParameters.get(24).getText());
 		Assertions.assertEquals("service:bt:jira:jdbc-password", nodeParameters.get(24).getParameter().getId());
@@ -627,6 +605,11 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("http://remote", nodeParameters.get(30).getText());
 		Assertions.assertEquals("service:bt:jira:url", nodeParameters.get(30).getParameter().getId());
 		Assertions.assertFalse(nodeParameters.get(30).getParameter().isSecured());
+
+		nodeParameters = parameterValueResource.getNodeParametersSecured("service:bt:jira:7", SubscriptionMode.LINK);
+		Assertions.assertEquals(32, nodeParameters.size());
+		Assertions.assertEquals("secret2", nodeParameters.get(24).getText());
+		Assertions.assertEquals("secret", nodeParameters.get(27).getText());
 
 		// Deleted secured (value3) is not set
 		Assertions.assertNull(nodeParameters.get(31).getText());

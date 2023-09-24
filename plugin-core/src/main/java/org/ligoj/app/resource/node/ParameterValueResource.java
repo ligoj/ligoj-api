@@ -3,28 +3,6 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import javax.cache.annotation.CacheKey;
-import javax.cache.annotation.CacheRemove;
-import javax.cache.annotation.CacheResult;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.Max;
@@ -34,7 +12,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.SubscriptionMode;
@@ -43,11 +20,7 @@ import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.SimpleUserOrg;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterType;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
 import org.ligoj.bootstrap.core.resource.BusinessException;
@@ -58,7 +31,17 @@ import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
 
-import lombok.AllArgsConstructor;
+import javax.cache.annotation.CacheKey;
+import javax.cache.annotation.CacheRemove;
+import javax.cache.annotation.CacheResult;
+import java.io.Serializable;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Criteria values Business Layer for entity {@link ParameterValue}
@@ -115,10 +98,9 @@ public class ParameterValueResource {
 	@Autowired
 	private CacheManager cacheManager;
 
-	@AllArgsConstructor
-	private static class ParameterValueMapper<X> {
-		private final BiConsumer<BasicParameterValueVo, X> setter;
-		private final Function<String, X> toValue;
+	private record ParameterValueMapper<X>(
+			BiConsumer<BasicParameterValueVo, X> setter,
+			Function<String, X> toValue) {
 	}
 
 	static {
@@ -191,12 +173,11 @@ public class ParameterValueResource {
 	 *
 	 * @param entity {@link ParameterValue} to be parsed.
 	 * @param vo     Target object receiving the typed value.
+	 * @param <T>    The object type resolved during the parsing.
 	 * @return the parsed and typed value.
-	 * @param <T> The object type resolved during the parsing.
 	 */
 	public static <T> T parseValue(final ParameterValue entity, final BasicParameterValueVo vo) {
-		@SuppressWarnings("unchecked")
-		final var valueMapper = (ParameterValueMapper<T>) TO_VALUE.get(entity.getParameter().getType());
+		@SuppressWarnings("unchecked") final var valueMapper = (ParameterValueMapper<T>) TO_VALUE.get(entity.getParameter().getType());
 		final var parsedValue = valueMapper.toValue.apply(entity.getData());
 		valueMapper.setter.accept(vo, parsedValue);
 		return parsedValue;
@@ -216,9 +197,9 @@ public class ParameterValueResource {
 	/**
 	 * Check optional but secure assertions.
 	 */
-	private void checkCompletude(final BasicParameterValueVo vo, final Parameter parameter) {
-		Arrays.stream(new Supplier<?>[] { vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger,
-				vo::getTags, vo::getSelections }).map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst()
+	private void checkCompleteness(final BasicParameterValueVo vo, final Parameter parameter) {
+		Arrays.stream(new Supplier<?>[]{vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger,
+						vo::getTags, vo::getSelections}).map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst()
 				.ifPresent(e -> {
 					final var exception = new ValidationJsonException();
 					exception.addError(parameter.getId(), "Too many values");
@@ -406,11 +387,11 @@ public class ParameterValueResource {
 		evict("node-parameters", node);
 	}
 
-	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> presave) {
+	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> preSave) {
 		// Persist each not blank parameter
 		values.stream().map(this::createInternal).filter(Objects::nonNull).forEach(v -> {
 			// Link this value to the subscription
-			presave.accept(v);
+			preSave.accept(v);
 			repository.saveAndFlush(v);
 		});
 	}
@@ -470,12 +451,12 @@ public class ParameterValueResource {
 	 * @param parameter The resolved parameter related to the {@link ParameterValue}
 	 * @param entity    The entity to update.
 	 * @return corresponding entity when accepted for update. <code>null</code> when all constraints are checked, but
-	 *         the target operation should be a deletion because of the empty value.
+	 * the target operation should be a deletion because of the empty value.
 	 */
 	private ParameterValue checkSaveOrUpdate(final ParameterValueCreateVo vo, final Parameter parameter,
 			final ParameterValue entity) {
 		checkConstraints(vo, parameter);
-		checkCompletude(vo, parameter);
+		checkCompleteness(vo, parameter);
 
 		entity.setData(toData(vo));
 		entity.setParameter(parameter);
@@ -518,7 +499,7 @@ public class ParameterValueResource {
 	 *
 	 * @param subscription The subscription identifier.
 	 * @return secured associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	public Map<String, String> getNonSecuredSubscriptionParameters(final int subscription) {
 		return toMapValues(repository.findAllSecureBySubscription(subscription));
@@ -529,7 +510,7 @@ public class ParameterValueResource {
 	 *
 	 * @param subscription The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	@CacheResult(cacheName = "subscription-parameters")
 	public Map<String, String> getSubscriptionParameters(@CacheKey final int subscription) {
@@ -632,17 +613,48 @@ public class ParameterValueResource {
 
 	/**
 	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. When
-	 * defined, the current value is specified.
+	 * defined, the current value is specified. The secured values are returned with value <code>-secured-</code>.
 	 *
 	 * @param node The node identifier.
 	 * @param mode Subscription mode.
 	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
-	 *         mode.
+	 * mode.
 	 */
 	@GET
 	@Path("{node:service:.+}/parameter-value/{mode}")
 	public List<ParameterNodeVo> getNodeParameters(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
+		return getNodeParameters(node, mode, false);
+	}
+
+	/**
+	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. When
+	 * defined, the current value is specified. The secured values are decrypted. Only for administrator roles.
+	 *
+	 * @param node The node identifier.
+	 * @param mode Subscription mode.
+	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
+	 * mode.
+	 */
+	@GET
+	@Path("{node:service:.+}/parameter-value/{mode}/secured")
+	public List<ParameterNodeVo> getNodeParametersSecured(@PathParam("node") final String node,
+			@PathParam("mode") final SubscriptionMode mode) {
+		return getNodeParameters(node, mode, true);
+	}
+
+	/**
+	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. When
+	 * defined, the current value is specified.
+	 *
+	 * @param node      The node identifier.
+	 * @param mode      Subscription mode.
+	 * @param unsecured When <code>true</code>, values are unsecured in the output.
+	 * @return All parameter definitions where a value is expected to be attached to the final subscription in given
+	 * mode.
+	 */
+	private List<ParameterNodeVo> getNodeParameters(final String node,
+			final SubscriptionMode mode, final boolean unsecured) {
 		final var parameters = parameterResource.getNotProvidedAndAssociatedParameters(node, mode);
 		final var vmap = repository.getParameterValues(node).stream()
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
@@ -651,8 +663,13 @@ public class ParameterValueResource {
 			vo.setParameter(p);
 			if (vmap.containsKey(p.getId())) {
 				if (p.isSecured()) {
-					// Secured parameter value is not returned
-					vo.setText("-secured-");
+					if (unsecured) {
+						// Value may be encrypted
+						vo.setText(cryptoHelper.decryptAsNeeded(vmap.get(p.getId()).getData()));
+					} else {
+						// Secured parameter value is not returned
+						vo.setText("-secured-");
+					}
 				} else {
 					// Return the parsed value
 					parseValue(vmap.get(p.getId()), vo);
@@ -670,10 +687,10 @@ public class ParameterValueResource {
 	 * @param parameter The id of the parameter.
 	 * @param criteria  the optional criteria used to check name (CN).
 	 * @return The list of object containing for each entry the {@link Subscription} and its associated
-	 *         {@link ParameterValue}
+	 * {@link ParameterValue}
 	 */
 	@GET
-	@Path("{project}/{parameter}/{node}/{criteria}")
+	@Path("{project:[0-9]+}/{parameter}/{node:service:.+}/{criteria}")
 	public Collection<ParameterValueVo> findAll(@PathParam("project") final int project,
 			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
 			@PathParam("criteria") final String criteria) {
