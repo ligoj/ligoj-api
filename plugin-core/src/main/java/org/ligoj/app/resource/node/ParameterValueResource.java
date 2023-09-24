@@ -29,6 +29,7 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Persistable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import javax.cache.annotation.CacheKey;
@@ -637,6 +638,7 @@ public class ParameterValueResource {
 	 * mode.
 	 */
 	@GET
+	@PreAuthorize("hasAuthority('ADMIN')")
 	@Path("{node:service:.+}/parameter-value/{mode}/secured")
 	public List<ParameterNodeVo> getNodeParametersSecured(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
