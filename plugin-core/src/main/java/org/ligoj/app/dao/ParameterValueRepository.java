@@ -68,7 +68,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@Query("""
 			SELECT v FROM ParameterValue v, Subscription s
 			    INNER JOIN FETCH v.parameter AS param
-				WHERE param.secured != TRUE AND
+			    WHERE param.secured != TRUE AND
 			""" + RELATED_SUBSCRIPTION)
 	List<ParameterValue> findAllSecureBySubscription(int subscription);
 
@@ -82,9 +82,9 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@Query("""
 			DELETE ParameterValue WHERE
 			       parameter.id IN (SELECT id FROM Parameter WHERE owner.id = :node OR owner.id LIKE CONCAT(:node, ':%'))
-				OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%'))
-				OR node.id = :node
-				OR node.id LIKE CONCAT(:node, ':%')
+			    OR subscription.id IN (SELECT id FROM Subscription WHERE node.id = :node OR node.id LIKE CONCAT(:node, ':%'))
+			    OR node.id = :node
+			    OR node.id LIKE CONCAT(:node, ':%')
 			""")
 	void deleteByNode(String node);
 
@@ -113,15 +113,15 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	@SuppressWarnings("unused")
 	@Query("""
 			SELECT v FROM ParameterValue v, Subscription s
-			    INNER JOIN s.node n
-			    INNER JOIN FETCH v.parameter AS param
-				WHERE s.project.id = :project
-					AND param.id = :parameter
-					AND UPPER(v.data) LIKE UPPER(CONCAT(CONCAT('%', :criteria),'%'))
-					AND param.secured != TRUE
-					AND (s.node.id = :node OR s.node.id LIKE CONCAT(:node, ':%'))
-					AND (v.subscription.id = s.id OR s.node.id LIKE CONCAT(v.node.id, ':%'))
-				ORDER BY v.data, v.id
+			  INNER JOIN s.node n
+			  INNER JOIN FETCH v.parameter AS param
+			  WHERE s.project.id = :project
+			    AND param.id = :parameter
+			    AND UPPER(v.data) LIKE UPPER(CONCAT(CONCAT('%', :criteria),'%'))
+			    AND param.secured != TRUE
+			    AND (s.node.id = :node OR s.node.id LIKE CONCAT(:node, ':%'))
+			    AND (v.subscription.id = s.id OR s.node.id LIKE CONCAT(v.node.id, ':%'))
+			  ORDER BY v.data, v.id
 			""")
 	List<ParameterValue> findAll(String node, String parameter, int project, String criteria);
 

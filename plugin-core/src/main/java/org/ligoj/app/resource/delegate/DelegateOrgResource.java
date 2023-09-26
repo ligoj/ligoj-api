@@ -194,7 +194,7 @@ public class DelegateOrgResource {
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
-	 * Attention, DN is case sensitive.
+	 * Attention, DN is case-sensitive.
 	 *
 	 * @return the created/update {@link DelegateOrg}
 	 */
@@ -320,7 +320,7 @@ public class DelegateOrgResource {
 	 * <li>Related delegate must be managed by the principal user with 'canAdmin' right, directly or via a another
 	 * parent delegate tree/company/.., or act as if the delegate does not exist.</li>
 	 * </ul>
-	 * Attention, DN is case sensitive.
+	 * Attention, DN is case-sensitive.
 	 *
 	 * @param id the entity identifier.
 	 */
