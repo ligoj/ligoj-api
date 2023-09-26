@@ -3,36 +3,14 @@
  */
 package org.ligoj.app.resource.delegate;
 
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.ForbiddenException;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.Normalizer;
-import org.ligoj.app.iam.CompanyOrg;
-import org.ligoj.app.iam.ContainerOrg;
-import org.ligoj.app.iam.GroupOrg;
-import org.ligoj.app.iam.ICompanyRepository;
-import org.ligoj.app.iam.IGroupRepository;
-import org.ligoj.app.iam.IUserRepository;
-import org.ligoj.app.iam.IamProvider;
-import org.ligoj.app.iam.ResourceOrg;
-import org.ligoj.app.iam.UserOrg;
+import org.ligoj.app.iam.*;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.iam.model.DelegateOrg;
 import org.ligoj.app.iam.model.DelegateType;
@@ -46,6 +24,11 @@ import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.EnumMap;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Organizational delegation resource.
@@ -206,11 +189,11 @@ public class DelegateOrgResource {
 		final var entity = toEntity(importEntry);
 
 		// Get all delegates of current user
-		var dn = "n/a";
+		final String dn;
 		if (importEntry.getType() == DelegateType.COMPANY) {
-			dn = validateCompany(importEntry, allCompanies, dn);
+			dn = validateCompany(importEntry, allCompanies);
 		} else if (importEntry.getType() == DelegateType.GROUP) {
-			dn = validateGroup(importEntry, allGroups, dn);
+			dn = validateGroup(importEntry, allGroups);
 		} else {
 			// Tree, CN <- DN
 			dn = validateTree(importEntry);
@@ -219,17 +202,19 @@ public class DelegateOrgResource {
 			entity.setName("-");
 		}
 
+		if (dn == null) {
+			// Related resource does not exists
+			throw new ForbiddenException();
+		}
+
 		// Check there is at least one delegate for this user allowing to write
 		// INTO the corresponding DN
 		if (repository.findByMatchingDnForAdmin(securityHelper.getLogin(), dn, importEntry.getType()).isEmpty()) {
 			throw new ForbiddenException();
 		}
 
-		// Check there is at least one delegate for this user allowing to write
-		// FROM the corresponding DN
 		if (importEntry.getId() != null) {
-
-			// Check the related DN
+			// Check there is at least one delegate for this user allowing to write FROM the corresponding DN
 			validateWriteAccess(importEntry.getId());
 		}
 
@@ -279,28 +264,26 @@ public class DelegateOrgResource {
 	/**
 	 * Validate and clean the group name, and return the corresponding DN.
 	 */
-	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupOrg> allGroups,
-			final String dn) {
+	private String validateGroup(final DelegateOrgEditionVo importEntry, final Map<String, GroupOrg> allGroups) {
 		final var normalizedCN = Normalizer.normalize(importEntry.getName());
 		final var group = allGroups.get(normalizedCN);
 		if (group != null) {
 			importEntry.setName(normalizedCN);
 			return group.getDn();
 		}
-		return dn;
+		return null;
 	}
 
 	/**
 	 * Validate, clean the company name, and return the corresponding DN.
 	 */
-	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyOrg> allCompanies,
-			final String dn) {
+	private String validateCompany(final DelegateOrgEditionVo importEntry, final Map<String, CompanyOrg> allCompanies) {
 		final var normalizedCN = Normalizer.normalize(importEntry.getName());
 		if (allCompanies.containsKey(normalizedCN)) {
 			importEntry.setName(normalizedCN);
 			return allCompanies.get(normalizedCN).getDn();
 		}
-		return dn;
+		return null;
 	}
 
 	/**

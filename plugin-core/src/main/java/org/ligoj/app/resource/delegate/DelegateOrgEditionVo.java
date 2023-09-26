@@ -14,7 +14,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Delegation business object for updates. The name corresponds to the human-readable name (CN for LDAP) of the target.
+ * Delegation business object for updates. The name corresponds to the human-readable name (CN for LDAP) of the related resource.
  * It will be normalized to be used as identifier.
  */
 @Getter
@@ -27,29 +27,29 @@ public class DelegateOrgEditionVo extends NamedBean<Integer> {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * The people receiving the delegation.
+	 * The one receiving the delegation.
 	 */
 	@NotBlank
 	private String receiver;
 
 	/**
-	 * The type of people receiving this delegate.
+	 * The type of receiver of this delegate.
 	 */
 	private ReceiverType receiverType = ReceiverType.USER;
 
 	/**
-	 * The delegate type.
+	 * The delegated resource type.
 	 */
 	@NotNull
 	private DelegateType type;
 
 	/**
-	 * Can write with this delegate.
+	 * Can write with this delegate?
 	 */
 	private boolean canWrite;
 
 	/**
-	 * Can manage all delegation within the same scope.
+	 * Can manage all delegations within the same scope?
 	 */
 	private boolean canAdmin;
 

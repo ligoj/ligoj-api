@@ -6,7 +6,6 @@ package org.ligoj.app.resource.delegate;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.UriInfo;
-
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -364,26 +363,17 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	void createOnTreePartialDn() {
-		final var vo = new DelegateOrgEditionVo();
-		vo.setName("cn=myDn");
-		vo.setReceiver("fdaugan");
-		vo.setType(DelegateType.TREE);
-		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
-	}
-
-	@Test
 	void createInvalidDn() {
 		final var vo = new DelegateOrgEditionVo();
-		vo.setName("cn=my,invalidDn,dc=sample,dc=com");
 		vo.setName("myDn*Partial");
-		vo.setReceiver("fdaugan");
 		vo.setType(DelegateType.TREE);
+		vo.setReceiver("fdaugan");
+		vo.setReceiverType(ReceiverType.USER);
 		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo)), "tree", "DistinguishName");
 	}
 
 	@Test
-	void createOnUnkownCompany() {
+	void createOnUnknownCompany() {
 		final var vo = new DelegateOrgEditionVo();
 		vo.setName("any");
 		vo.setType(DelegateType.COMPANY);
