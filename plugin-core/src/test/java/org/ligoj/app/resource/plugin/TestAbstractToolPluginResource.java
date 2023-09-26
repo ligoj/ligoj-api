@@ -3,11 +3,7 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import jakarta.ws.rs.core.StreamingOutput;
-
 import org.apache.commons.lang3.NotImplementedException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,7 +12,12 @@ import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.ligoj.bootstrap.resource.system.configuration.ConfigurationResource;
 import org.mockito.Mockito;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Test class of {@link AbstractToolPluginResource}
@@ -43,9 +44,7 @@ class TestAbstractToolPluginResource {
 
 	@Test
 	void create() {
-		Assertions.assertThrows(NotImplementedException.class, () -> {
-			resource.create(55);
-		});
+		Assertions.assertThrows(NotImplementedException.class, () -> resource.create(55));
 	}
 
 	@Test
@@ -60,6 +59,17 @@ class TestAbstractToolPluginResource {
 		resource.subscriptionResource = Mockito.mock(SubscriptionResource.class);
 		Mockito.when(resource.subscriptionResource.getParameters(55)).thenReturn(new HashMap<>());
 		Assertions.assertEquals("1.0.0", resource.getVersion(0));
+	}
+
+
+	@Test
+	void getParameter() {
+		resource.configuration = Mockito.mock(ConfigurationResource.class);
+		Mockito.when(resource.configuration.get("param", "value-def")).thenReturn("value-conf");
+		Mockito.when(resource.configuration.get("param2", "value-def")).thenReturn("value-def");
+		Assertions.assertEquals("value-node", resource.getParameter(Map.of("param", "value-node"), "param", "value-def"));
+		Assertions.assertEquals("value-conf", resource.getParameter(Collections.emptyMap(), "param", "value-def"));
+		Assertions.assertEquals("value-def", resource.getParameter(Collections.emptyMap(), "param2", "value-def"));
 	}
 
 	@Test

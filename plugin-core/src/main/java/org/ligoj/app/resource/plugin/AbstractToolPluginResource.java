@@ -76,6 +76,13 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 		return Arrays.asList(Node.class, Parameter.class);
 	}
 
+	/**
+	 * Return a parameter value either from the given map, either from the global configuration.
+	 * @param parameters The actually assigned node parameters.
+	 * @param parameter The parameter name to get.
+	 * @param defaultValue The default value when not present neither in node parameters, neither in global configuration.
+	 * @return The resolved value. Can be null.
+	 */
 	protected String getParameter(final Map<String, String> parameters, final String parameter, final String defaultValue) {
 		return Objects.requireNonNullElseGet(parameters.get(parameter), () -> configuration.get(parameter, defaultValue));
 	}
