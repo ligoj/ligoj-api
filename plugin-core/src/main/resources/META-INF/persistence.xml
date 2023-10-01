@@ -5,7 +5,7 @@
 		<properties>
 			<property name="hibernate.archive.scanner" value="org.ligoj.bootstrap.core.dao.ResourceScanner" />
 			<property name="hibernate.archive.autodetection" value="class" />
-			<property name="jakarta.persistence.validation.group.pre-update" value="AUTO" />
+			<property name="jakarta.persistence.validation.group.pre-update" value="jakarta.validation.groups.Default" />
 			<property name="hibernate.validator.apply_to_ddl" value="true" />
 			<property name="hibernate.validator.autoregister_listeners" value="true" />
 			<property name="hibernate.check_nullability" value="true" />
