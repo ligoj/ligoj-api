@@ -3,13 +3,12 @@
  */
 package org.ligoj.app.iam;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Organizational Group.<br>
@@ -38,12 +37,6 @@ public class GroupOrg extends ContainerOrg {
 	private Set<String> subGroups;
 
 	/**
-	 * Parent groups this group is member of. Identifier (normalized CN) is used.
-	 */
-	@JsonIgnore
-	private Set<String> groups;
-
-	/**
 	 * All arguments constructor.
 	 *
 	 * @param dn      "id" corresponds to the "Distinguished Name".
@@ -54,7 +47,6 @@ public class GroupOrg extends ContainerOrg {
 	public GroupOrg(final String dn, final String name, final Set<String> members) {
 		super(dn, name);
 		setMembers(members);
-		setGroups(new HashSet<>());
 		setSubGroups(new HashSet<>());
 	}
 

@@ -3,18 +3,17 @@
  */
 package org.ligoj.app.iam;
 
-import java.util.Collections;
-import java.util.Date;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
-
-import javax.naming.InvalidNameException;
-import javax.naming.ldap.LdapName;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.DateUtils;
 import org.mockito.Mockito;
+
+import javax.naming.InvalidNameException;
+import javax.naming.ldap.LdapName;
+import java.util.Collections;
+import java.util.Date;
+import java.util.function.BiConsumer;
+import java.util.function.Function;
 
 /**
  * Simple test of API beans.
@@ -55,7 +54,7 @@ class BeanTest {
 	void testGroupLdap() {
 		final var groupLdap = new GroupOrg("dn", "name", Collections.emptySet());
 		check(groupLdap, GroupOrg::setMembers, GroupOrg::getMembers, Collections.emptySet());
-		check(groupLdap, GroupOrg::setGroups, GroupOrg::getGroups, Collections.emptySet());
+		check(groupLdap, GroupOrg::setParent, GroupOrg::getParent, null);
 		check(groupLdap, GroupOrg::setSubGroups, GroupOrg::getSubGroups, Collections.emptySet());
 		Assertions.assertEquals("name".hashCode(), groupLdap.hashCode());
 		Assertions.assertEquals(groupLdap, groupLdap);

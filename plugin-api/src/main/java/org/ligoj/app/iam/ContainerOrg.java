@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.iam;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.api.Normalizer;
 import org.ligoj.bootstrap.core.IDescribableBean;
@@ -43,6 +44,12 @@ public class ContainerOrg extends NamedBean<String> implements ResourceOrg, IDes
 
 	@Length(max = 512)
 	private String description;
+
+	/**
+	 * Parent group/company this container is member of. Identifier (normalized CN) is used.
+	 */
+	@JsonIgnore
+	private String parent;
 
 	/**
 	 * All arguments constructor.
