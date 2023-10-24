@@ -5,11 +5,7 @@ package org.ligoj.app.model;
 
 import java.util.List;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Entity;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -66,6 +62,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	 * Human readable description.
 	 */
 	@Length(max = 1024)
+	@Column(length = 1024)
 	@SafeHtml
 	private String description;
 

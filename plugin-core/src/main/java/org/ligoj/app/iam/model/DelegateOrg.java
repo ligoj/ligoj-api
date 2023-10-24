@@ -3,10 +3,7 @@
  */
 package org.ligoj.app.iam.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -40,6 +37,7 @@ public class DelegateOrg extends AbstractDelegate {
 	 */
 	@NotBlank
 	@Length(max = 512)
+	@Column(length = 512)
 	@DistinguishName
 	private String dn;
 
@@ -47,6 +45,7 @@ public class DelegateOrg extends AbstractDelegate {
 	 * The resource DN receiving the delegation.
 	 */
 	@Length(max = 512)
+	@Column(length = 512)
 	@DistinguishName
 	@JsonIgnore
 	private String receiverDn;

@@ -56,7 +56,8 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	 * <li>Case of 'binary' : this constraint is useless, and can be null.</li>
 	 * </ul>
 	 */
-	@Length(max = 500)
+	@Length(max = 512)
+	@Column(length = 512)
 	private String data;
 
 	/**

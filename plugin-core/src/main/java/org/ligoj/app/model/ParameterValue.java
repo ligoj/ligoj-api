@@ -3,10 +3,7 @@
  */
 package org.ligoj.app.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.Length;
@@ -47,7 +44,8 @@ public class ParameterValue extends AbstractAudited<Integer> implements NodeScop
 	 * <li>Case of 'binary' : data is plain text to convert to boolean with {@link Boolean#parseBoolean(String)}.</li>
 	 * </ul>
 	 */
-	@Length(max = 500)
+	@Length(max = 512)
+	@Column(length = 512)
 	private String data;
 
 	/**
