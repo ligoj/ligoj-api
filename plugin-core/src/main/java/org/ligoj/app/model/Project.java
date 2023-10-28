@@ -39,7 +39,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	/**
 	 * Project PKEY pattern.
 	 */
-	public static final String PKEY_PATTERN = "([a-z]|[0-9]+-?[a-z])[a-z0-9\\-]*";
+	public static final String PKEY_PATTERN = "([a-z]|\\d+-?[a-z])[a-z\\d\\-]*";
 
 	/**
 	 * Project PKEY pattern.

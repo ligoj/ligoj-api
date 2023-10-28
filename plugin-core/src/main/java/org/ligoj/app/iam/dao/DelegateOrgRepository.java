@@ -132,12 +132,12 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * @return All {@link DelegateOrg} objects with the given name. Insensitive case search is used.
 	 */
 	@Query("SELECT d FROM DelegateOrg d WHERE " + VISIBLE_DELEGATE + """
-				AND (CAST(:type as string) IS NULL OR d.type = :type)
-				AND (:criteria = ''
-				 OR   UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))
-				 OR   UPPER(d.name)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))
-				 OR   (d.type=org.ligoj.app.iam.model.DelegateType.TREE
-				  AND UPPER(d.dn)       LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))
+			 AND (CAST(:type as string) IS NULL OR d.type = :type)
+			  AND (:criteria = ''
+			   OR   UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))
+			   OR   UPPER(d.name)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))
+			   OR   (d.type=org.ligoj.app.iam.model.DelegateType.TREE
+			     AND UPPER(d.dn)       LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))
 			""")
 	Page<DelegateOrg> findAll(String user, String criteria, DelegateType type, Pageable page);
 
