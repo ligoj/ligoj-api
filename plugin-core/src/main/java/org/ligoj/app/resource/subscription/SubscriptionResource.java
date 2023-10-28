@@ -3,52 +3,20 @@
  */
 package org.ligoj.app.resource.subscription;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-import java.util.function.Function;
-import java.util.stream.Collectors;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.ForbiddenException;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.ligoj.app.api.ConfigurablePlugin;
-import org.ligoj.app.api.ConfigurationVo;
-import org.ligoj.app.api.NodeVo;
-import org.ligoj.app.api.ServicePlugin;
-import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.api.SubscriptionStatusWithData;
+import org.ligoj.app.api.*;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
-import org.ligoj.app.model.EventType;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
-import org.ligoj.app.resource.node.AbstractLockedResource;
-import org.ligoj.app.resource.node.EventResource;
-import org.ligoj.app.resource.node.EventVo;
-import org.ligoj.app.resource.node.NodeResource;
-import org.ligoj.app.resource.node.ParameterValueCreateVo;
-import org.ligoj.app.resource.node.ParameterValueResource;
+import org.ligoj.app.model.*;
+import org.ligoj.app.resource.node.*;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.NamedBean;
@@ -59,7 +27,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Persistable;
 import org.springframework.stereotype.Service;
 
-import lombok.extern.slf4j.Slf4j;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * {@link Subscription} resource.
@@ -143,7 +113,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		final var entity = checkVisible(id);
 		final var vo = new ConfigurationVo();
 		vo.setNode(NodeResource.toVo(entity.getNode(), locator));
-		vo.setParameters(getNonSecuredParameters(id));
+		vo.setParameters(this.getNonSecuredParameters(id));
 		vo.setSubscription(id);
 		vo.setProject(DescribedBean.clone(entity.getProject()));
 
@@ -168,7 +138,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getParameters(final int id) {
 		checkVisible(id);
-		return getParametersNoCheck(id);
+		return this.getParametersNoCheck(id);
 	}
 
 	/**
@@ -428,7 +398,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	private Collection<SubscriptionLightVo> toSubscriptions(final List<Object[]> subscriptions,
 			final Map<Integer, SubscribingProjectVo> projects) {
 		// Prepare the subscriptions container with project name ordering
-		return subscriptions.stream().filter(rs -> projects.containsKey(rs[1])).map(rs -> {
+		return subscriptions.stream().filter(rs -> projects.containsKey((Integer)rs[1])).map(rs -> {
 			// Build the subscription data
 			final var vo = new SubscriptionLightVo();
 			vo.setId((Integer) rs[0]);
@@ -529,7 +499,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Refresh given subscriptions and return their status.
 	 */
 	private SubscriptionStatusWithData refreshSubscription(final Subscription subscription) {
-		final var parameters = getParameters(subscription.getId());
+		final var parameters = this.getParameters(subscription.getId());
 		final var statusWithData = nodeResource.checkSubscriptionStatus(subscription, parameters);
 		statusWithData.setId(subscription.getId());
 		statusWithData.setProject(subscription.getProject().getId());

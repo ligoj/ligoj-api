@@ -692,7 +692,7 @@ public class ParameterValueResource {
 	 * {@link ParameterValue}
 	 */
 	@GET
-	@Path("{project:[0-9]+}/{parameter}/{node:service:.+}/{criteria}")
+	@Path("{project:\\d+}/{parameter}/{node:service:.+}/{criteria}")
 	public Collection<ParameterValueVo> findAll(@PathParam("project") final int project,
 			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
 			@PathParam("criteria") final String criteria) {

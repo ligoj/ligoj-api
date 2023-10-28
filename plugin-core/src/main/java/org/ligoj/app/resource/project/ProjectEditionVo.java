@@ -33,7 +33,7 @@ public class ProjectEditionVo extends DescribedAuditedBean<UserOrg, Integer> {
 	@NotBlank
 	@LowerCase
 	@Size(max = 100)
-	@Pattern(regexp = "^([a-z]|[0-9]+-?[a-z])[a-z0-9\\-]*$")
+	@Pattern(regexp = "^([a-z]|\\d+-?[a-z])[a-z\\d\\-]*$")
 	private String pkey;
 
 	/**
