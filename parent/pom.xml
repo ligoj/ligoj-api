@@ -19,6 +19,14 @@
     <description>API Parent pom for all plug-in</description>
     <url>https://github.com/ligoj/ligoj-api/parent</url>
 
+    <properties>
+        <sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
+        <sonar.issue.ignore.multicriteria.e1.ruleKey>Web:BoldAndItalicTagsCheck</sonar.issue.ignore.multicriteria.e1.ruleKey>
+        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*.html</sonar.issue.ignore.multicriteria.e1.resourceKey>
+        <sonar.issue.ignore.multicriteria.e2.ruleKey>java:S6813</sonar.issue.ignore.multicriteria.e2.ruleKey>
+        <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
+    </properties>
+
     <scm>
         <connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
         <developerConnection>scm:git:https://github.com/ligoj/ligoj-api</developerConnection>

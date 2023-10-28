@@ -398,7 +398,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	private Collection<SubscriptionLightVo> toSubscriptions(final List<Object[]> subscriptions,
 			final Map<Integer, SubscribingProjectVo> projects) {
 		// Prepare the subscriptions container with project name ordering
-		return subscriptions.stream().filter(rs -> projects.containsKey((Integer)rs[1])).map(rs -> {
+		return subscriptions.stream().filter(rs -> projects.containsKey(rs[1])).map(rs -> {
 			// Build the subscription data
 			final var vo = new SubscriptionLightVo();
 			vo.setId((Integer) rs[0]);
