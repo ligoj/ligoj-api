@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.ligoj.bootstrap</groupId>
         <artifactId>bootstrap-business-parent</artifactId>
-        <version>3.1.3</version>
+        <version>3.1.4</version>
         <relativePath/>
     </parent>
 
@@ -18,14 +18,6 @@
     <name>Ligoj - API Parent</name>
     <description>API Parent pom for all plug-in</description>
     <url>https://github.com/ligoj/ligoj-api/parent</url>
-
-    <properties>
-        <sonar.issue.ignore.multicriteria>e1,e2</sonar.issue.ignore.multicriteria>
-        <sonar.issue.ignore.multicriteria.e1.ruleKey>Web:BoldAndItalicTagsCheck</sonar.issue.ignore.multicriteria.e1.ruleKey>
-        <sonar.issue.ignore.multicriteria.e1.resourceKey>**/*.html</sonar.issue.ignore.multicriteria.e1.resourceKey>
-        <sonar.issue.ignore.multicriteria.e2.ruleKey>java:S6813</sonar.issue.ignore.multicriteria.e2.ruleKey>
-        <sonar.issue.ignore.multicriteria.e2.resourceKey>**/*.java</sonar.issue.ignore.multicriteria.e2.resourceKey>
-    </properties>
 
     <scm>
         <connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
