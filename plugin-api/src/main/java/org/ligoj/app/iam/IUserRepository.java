@@ -146,6 +146,7 @@ public interface IUserRepository {
 	 *
 	 * @param name     the user's name.
 	 * @param password the user's password.
+	 * @return Authenticated {@link UserOrg}.
 	 */
 	UserOrg authenticate(String name, String password);
 
