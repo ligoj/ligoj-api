@@ -32,17 +32,17 @@ class EmptyUserRepositoryTest {
 
 	@Test
 	void authenticate() {
-		Assertions.assertTrue(new EmptyUserRepository().authenticate("any", "any"));
+		Assertions.assertNotNull(new EmptyUserRepository().authenticate("any", "any"));
 	}
 
 	@Test
 	void authenticateKoNull() {
-		Assertions.assertFalse(new EmptyUserRepository().authenticate(null, "any"));
+		Assertions.assertNull(new EmptyUserRepository().authenticate(null, "any"));
 	}
 
 	@Test
 	void authenticateKoEmpty() {
-		Assertions.assertFalse(new EmptyUserRepository().authenticate("", "any"));
+		Assertions.assertNull(new EmptyUserRepository().authenticate("", "any"));
 	}
 
 	@Test

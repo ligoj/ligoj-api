@@ -107,8 +107,8 @@ class UserRepositoryTest {
 			}
 
 			@Override
-			public boolean authenticate(String name, String password) {
-				return false;
+			public UserOrg authenticate(String name, String password) {
+				return null;
 			}
 		};
 		Assertions.assertNull(repository.getCompanyRepository());
@@ -139,7 +139,7 @@ class UserRepositoryTest {
 
 	@Test
 	void authenticate() {
-		Assertions.assertTrue(new EmptyUserRepository().authenticate("any", "any"));
+		Assertions.assertNotNull(new EmptyUserRepository().authenticate("any", "any"));
 	}
 
 	@Test

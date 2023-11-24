@@ -146,9 +146,8 @@ public interface IUserRepository {
 	 *
 	 * @param name     the user's name.
 	 * @param password the user's password.
-	 * @return <code>true</code> when credentials are correct.
 	 */
-	boolean authenticate(String name, String password);
+	UserOrg authenticate(String name, String password);
 
 	/**
 	 * Return user token based on salted password.

@@ -43,8 +43,8 @@ class MockUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public boolean authenticate(String name, String password) {
-		return false;
+	public UserOrg authenticate(String name, String password) {
+		return null;
 	}
 
 	@Override

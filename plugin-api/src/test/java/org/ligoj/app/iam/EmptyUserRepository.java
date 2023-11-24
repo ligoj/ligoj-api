@@ -69,9 +69,11 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public boolean authenticate(final String name, final String password) {
+	public UserOrg authenticate(final String name, final String password) {
 		// Always authenticated
-		return true;
+		final var user = new UserOrg();
+		user.setId(name);
+		return user;
 	}
 
 	@Override

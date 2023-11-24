@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.logging.log4j.util.Strings;
 import org.ligoj.app.iam.CompanyOrg;
 import org.ligoj.app.iam.GroupOrg;
 import org.ligoj.app.iam.ICompanyRepository;
@@ -72,9 +73,14 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public boolean authenticate(final String name, final String password) {
+	public UserOrg authenticate(final String name, final String password) {
 		// Always authenticated
-		return name != null && !name.equals("");
+		if (Strings.isEmpty(name)) {
+			return null;
+		}
+		final var user = new UserOrg();
+		user.setId(name);
+		return user;
 	}
 
 	@Override
