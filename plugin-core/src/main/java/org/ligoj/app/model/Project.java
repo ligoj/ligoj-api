@@ -27,8 +27,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(uniqueConstraints = { @UniqueConstraint(columnNames = "name"),
-		@UniqueConstraint(columnNames = "pkey") }, name = "LIGOJ_PROJECT")
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = "name"),
+		@UniqueConstraint(columnNames = "pkey")}, name = "LIGOJ_PROJECT")
 public class Project extends AbstractNamedAuditedEntity<Integer> implements IDescribableBean<Integer> {
 
 	/**
@@ -75,4 +75,9 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	private List<CacheProjectGroup> cacheGroups;
 
+	/**
+	 * A free form text at creation time only.
+	 */
+	@Column(length = 1024, updatable = false)
+	private String creationContext;
 }

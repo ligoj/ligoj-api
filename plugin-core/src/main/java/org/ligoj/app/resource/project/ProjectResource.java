@@ -112,12 +112,12 @@ public class ProjectResource {
 	/**
 	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription count.
 	 *
-	 * @param resultset Entity to convert and the associated subscription count.
+	 * @param resultSet Entity to convert and the associated subscription count.
 	 * @return The project description with subscription counter.
 	 */
-	public ProjectLightVo toVoLightCount(final Object[] resultset) { // NOSONAR -- varargs
-		final var vo = toVoLight((Project) resultset[0]);
-		vo.setNbSubscriptions(((Long) resultset[1]).intValue());
+	public ProjectLightVo toVoLightCount(final Object[] resultSet) { // NOSONAR -- varargs
+		final var vo = toVoLight((Project) resultSet[0]);
+		vo.setNbSubscriptions(((Long) resultSet[1]).intValue());
 		return vo;
 	}
 
@@ -147,6 +147,7 @@ public class ProjectResource {
 		DescribedBean.copy(vo, entity);
 		entity.setPkey(vo.getPkey());
 		entity.setTeamLeader(vo.getTeamLeader());
+		entity.setCreationContext(vo.getCreationContext());
 		return entity;
 	}
 

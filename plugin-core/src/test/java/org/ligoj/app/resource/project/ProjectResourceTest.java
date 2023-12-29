@@ -3,14 +3,10 @@
  */
 package org.ligoj.app.resource.project;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.ws.rs.core.UriInfo;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,6 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Test class of {@link ProjectResource}
@@ -75,13 +74,13 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(2, result.getData().size());
 
-		final var project = result.getData().get(0);
+		final var project = result.getData().getFirst();
 		checkProjectMDA(project);
 
-		Assertions.assertEquals("Jupiter", result.getData().get(1).getName());
+		Assertions.assertEquals("Jupiter", result.getData().getLast().getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
-		Assertions.assertTrue(result.getData().get(1).getNbSubscriptions() >= 6);
+		Assertions.assertTrue(result.getData().getLast().getNbSubscriptions() >= 6);
 	}
 
 	@Test
@@ -89,7 +88,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		initSpringSecurityContext("fdaugan");
 		final var result = resource.findAll(newUriInfo(), "mda");
 		Assertions.assertEquals(1, result.getData().size());
-		checkProjectMDA(result.getData().get(0));
+		checkProjectMDA(result.getData().getFirst());
 	}
 
 	@Test
@@ -99,7 +98,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsFiltered());
 		Assertions.assertEquals(1, result.getRecordsTotal());
-		Assertions.assertEquals("Jupiter", result.getData().get(0).getName());
+		Assertions.assertEquals("Jupiter", result.getData().getFirst().getName());
 	}
 
 	@Test
@@ -119,10 +118,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var result = resource.findAll(uriInfo, "Jupiter");
 		Assertions.assertEquals(1, result.getData().size());
 
-		Assertions.assertEquals("Jupiter", result.getData().get(0).getName());
+		Assertions.assertEquals("Jupiter", result.getData().getFirst().getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
-		Assertions.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
+		Assertions.assertTrue(result.getData().getFirst().getNbSubscriptions() >= 6);
 	}
 
 	@Test
@@ -138,10 +137,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 		// "Jupiter" is visible because of :
 		// - delegate to tree "dc=sample,dc=com"
 		// - AND the related project has subscription to "plugin-id":
-		Assertions.assertEquals("Jupiter", result.getData().get(0).getName());
+		Assertions.assertEquals("Jupiter", result.getData().getFirst().getName());
 
 		// KPI, Build, Bug Tracker, Identity x2, KM
-		Assertions.assertTrue(result.getData().get(0).getNbSubscriptions() >= 6);
+		Assertions.assertTrue(result.getData().getFirst().getNbSubscriptions() >= 6);
 	}
 
 	@Test
@@ -163,7 +162,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var result = resource.findAll(uriInfo, "mdA");
 		Assertions.assertEquals(1, result.getData().size());
 
-		final var project = result.getData().get(0);
+		final var project = result.getData().getFirst();
 		checkProjectMDA(project);
 	}
 
@@ -176,7 +175,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var result = resource.findAll(uriInfo, "Jupiter");
 		Assertions.assertEquals(1, result.getData().size());
 
-		final var project = result.getData().get(0);
+		final var project = result.getData().getFirst();
 		Assertions.assertEquals("Jupiter", project.getName());
 	}
 
@@ -299,9 +298,9 @@ class ProjectResourceTest extends AbstractOrgTest {
 		// Post check
 		final var subscriptions = resource.findById(testProject.getId()).getSubscriptions();
 		Assertions.assertEquals(2, subscriptions.size());
-		Assertions.assertEquals("service:bt:jira:4", subscriptions.get(0).getNode().getId());
-		Assertions.assertEquals("service:build:jenkins", subscriptions.get(1).getNode().getId());
-		Assertions.assertEquals(0, subscriptions.get(1).getParameters().size());
+		Assertions.assertEquals("service:bt:jira:4", subscriptions.getFirst().getNode().getId());
+		Assertions.assertEquals("service:build:jenkins", subscriptions.getLast().getNode().getId());
+		Assertions.assertEquals(0, subscriptions.getLast().getParameters().size());
 	}
 
 	/**
@@ -340,7 +339,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 
 		// Check subscription
 		Assertions.assertEquals(1, project.getSubscriptions().size());
-		final var subscription = project.getSubscriptions().iterator().next();
+		final var subscription = project.getSubscriptions().getFirst();
 		Assertions.assertNotNull(subscription.getCreatedDate());
 		Assertions.assertNotNull(subscription.getLastModifiedDate());
 		Assertions.assertNotNull(subscription.getId());
@@ -375,6 +374,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		vo.setDescription("Description");
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
+		vo.setCreationContext("context");
 		final var id = resource.create(vo);
 		em.clear();
 
@@ -382,6 +382,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("Name", entity.getName());
 		Assertions.assertEquals("Description", entity.getDescription());
 		Assertions.assertEquals("artifact-id", entity.getPkey());
+		Assertions.assertEquals("context", entity.getCreationContext());
 		Assertions.assertEquals(DEFAULT_USER, entity.getTeamLeader());
 	}
 
@@ -417,7 +418,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		final var vo = new ProjectEditionVo();
 		vo.setId(project.getId());
 		vo.setName("Name");
-		vo.setDescription("D<small>e</small>s<a href=\"#/\">cription</a>");
+		vo.setDescription("Some<small>code</small>is<a href=\"#/\">inserted</a>");
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
 		resource.update(vo);
@@ -425,13 +426,13 @@ class ProjectResourceTest extends AbstractOrgTest {
 
 		final var projFromDB = repository.findOne(project.getId());
 		Assertions.assertEquals("Name", projFromDB.getName());
-		Assertions.assertEquals("D<small>e</small>s<a href=\"#/\">cription</a>", projFromDB.getDescription());
+		Assertions.assertEquals("Some<small>code</small>is<a href=\"#/\">inserted</a>", projFromDB.getDescription());
 		Assertions.assertEquals("artifact-id", projFromDB.getPkey());
 		Assertions.assertEquals(DEFAULT_USER, projFromDB.getTeamLeader());
 	}
 
 	/**
-	 * Create with invalid HTML content.
+	 * Update with invalid HTML content.
 	 */
 	@Test
 	void updateInvalidDescription() {

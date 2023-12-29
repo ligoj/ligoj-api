@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.resource.project;
 
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -45,4 +46,9 @@ public class ProjectEditionVo extends DescribedAuditedBean<UserOrg, Integer> {
 	@Pattern(regexp = SimpleUser.USER_PATTERN_WRAPPER)
 	private String teamLeader;
 
+	/**
+	 * A free form text at creation time only. Ignored while updating
+	 */
+	@Column(length = 1024)
+	private String creationContext;
 }
