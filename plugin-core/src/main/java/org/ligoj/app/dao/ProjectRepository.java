@@ -29,7 +29,7 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * Visible projects condition, using ID subscription and team leader attribute.
 	 */
 	String VISIBLE_PROJECTS = "(" + SystemUser.IS_ADMIN
-			+ " OR visibleproject(p.teamLeader, cg.description, :user) = true)";
+			+ " OR visibleProject(p.teamLeader, cg.description, :user) = true)";
 
 	/**
 	 * Return all {@link Project} objects with visible by <code>user</code> and also filtered by a criteria. The
