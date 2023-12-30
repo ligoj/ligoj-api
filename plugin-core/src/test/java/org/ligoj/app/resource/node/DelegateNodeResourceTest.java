@@ -208,7 +208,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Test
 	void deleteNotRight() {
-		final int user1Delegate = repository.findBy("receiver", "junit").getId();
+		final int user1Delegate = repository.findBy("receiver", DEFAULT_USER).getId();
 
 		initSpringSecurityContext("user1");
 		Assertions.assertThrows(NotFoundException.class, () -> resource.delete(user1Delegate));
@@ -216,12 +216,12 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Test
 	void findAllCriteriaUser() {
-		final var items = resource.findAll(newUriInfo(), "junit");
+		final var items = resource.findAll(newUriInfo(), DEFAULT_USER);
 		Assertions.assertEquals(1, items.getData().size());
 		Assertions.assertEquals(1, items.getRecordsFiltered());
 		Assertions.assertEquals(1, items.getRecordsTotal());
-		final var delegateNode = items.getData().get(0);
-		Assertions.assertEquals("junit", delegateNode.getReceiver());
+		final var delegateNode = items.getData().getFirst();
+		Assertions.assertEquals(DEFAULT_USER, delegateNode.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
 		Assertions.assertEquals("service", delegateNode.getName());
 		Assertions.assertTrue(delegateNode.isCanAdmin());
@@ -230,12 +230,19 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
+	void findById() {
+		final var items = resource.findAll(newUriInfo(), "jenkins");
+		final var delegateNode = resource.findById(items.getData().getFirst().getId());
+		Assertions.assertEquals("service:build:jenkins", delegateNode.getName());
+	}
+
+	@Test
 	void findAllCriteriaNode() {
 		final var items = resource.findAll(newUriInfo(), "jenkins");
 		Assertions.assertEquals(1, items.getData().size());
 		Assertions.assertEquals(1, items.getRecordsFiltered());
 		Assertions.assertEquals(1, items.getRecordsTotal());
-		final var delegateNode = items.getData().get(0);
+		final var delegateNode = items.getData().getFirst();
 		Assertions.assertEquals("user1", delegateNode.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
 		Assertions.assertEquals("service:build:jenkins", delegateNode.getName());
@@ -260,7 +267,7 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 		Assertions.assertEquals(3, items.getRecordsFiltered());
 		Assertions.assertEquals(3, items.getRecordsTotal());
 		final var delegateNode = items.getData().get(1);
-		Assertions.assertEquals("junit", delegateNode.getReceiver());
+		Assertions.assertEquals(DEFAULT_USER, delegateNode.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, delegateNode.getReceiverType());
 		Assertions.assertEquals("service", delegateNode.getName());
 		Assertions.assertTrue(delegateNode.isCanAdmin());

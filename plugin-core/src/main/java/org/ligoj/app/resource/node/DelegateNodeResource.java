@@ -3,24 +3,11 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Function;
-
 import jakarta.transaction.Transactional;
-import jakarta.ws.rs.DELETE;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.NotFoundException;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.PUT;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
-
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.dao.DelegateNodeRepository;
 import org.ligoj.app.model.DelegateNode;
@@ -30,6 +17,10 @@ import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Function;
 
 /**
  * Node delegation resource.
@@ -136,6 +127,17 @@ public class DelegateNodeResource {
 	@PUT
 	public void update(final DelegateNode vo) {
 		validateSaveOrUpdate(vo);
+	}
+
+	/**
+	 * Return entity by its identifier.
+	 *
+	 * @param id the entity identifier.
+	 */
+	@GET
+	@Path("{id:\\d+}")
+	public DelegateNode findById(@PathParam("id") final int id) {
+		return repository.findOneExpected(id);
 	}
 
 	/**
