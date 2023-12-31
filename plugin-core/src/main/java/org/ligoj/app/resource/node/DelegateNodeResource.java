@@ -44,6 +44,7 @@ public class DelegateNodeResource {
 	 * Ordered columns.
 	 */
 	private static final Map<String, String> ORDERED_COLUMNS = new HashMap<>();
+
 	static {
 		ORDERED_COLUMNS.put("id", "id");
 		ORDERED_COLUMNS.put("name", "name");
@@ -154,8 +155,10 @@ public class DelegateNodeResource {
 	@Path("{id:\\d+}")
 	public void delete(@PathParam("id") final int id) {
 		// Perform the deletion and check the result
-		if (repository.delete(id, securityHelper.getLogin()) == 0) {
+		var entity = repository.findById(id, securityHelper.getLogin());
+		if (entity == null) {
 			throw new NotFoundException();
 		}
+		repository.delete(entity);
 	}
 }

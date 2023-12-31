@@ -8,7 +8,6 @@ import org.ligoj.app.model.DelegateNode;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 /**
@@ -20,13 +19,13 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	/**
 	 * A visible {@link DelegateNode} with possible extension for constraint.
 	 */
-	String VISIBLE_DELEGATE_PART = "EXISTS (SELECT id FROM DelegateNode dz WHERE (d.name LIKE CONCAT(dz.name, ':%') OR d.name  = dz.name) "
+	String VISIBLE_DELEGATE_PART = "SELECT id FROM DelegateNode dz WHERE (d.name LIKE CONCAT(dz.name, ':%') OR d.name  = dz.name) "
 			+ " AND " + DelegateOrgRepository.ASSIGNED_DELEGATE_DZ;
 
 	/**
 	 * A visible {@link DelegateNode}
 	 */
-	String VISIBLE_DELEGATE = VISIBLE_DELEGATE_PART + ")";
+	String VISIBLE_DELEGATE = "EXISTS (" + VISIBLE_DELEGATE_PART + ")";
 
 	/**
 	 * Return all {@link DelegateNode} objects regarding the given criteria.
@@ -59,16 +58,12 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	int manageNode(String user, String node, boolean write);
 
 	/**
-	 * Return a positive amount if the given entity has been deleted by the given user. A delegate can be deleted when
-	 * it is visible, and it exists at least one delegation with administration right for this node or one its parent.
+	 * Return a visible DelegateNode, if it exists at least one delegation with administration right for this node or one its parent.
 	 *
 	 * @param id   The identifier of object to delete.
 	 * @param user The user name requesting to manage a node.
 	 * @return A positive number if the given delegate has been deleted.
 	 */
-	@SuppressWarnings("unused")
-	@Query("DELETE DelegateNode d WHERE d.id = :id AND " + VISIBLE_DELEGATE_PART + " AND dz.canAdmin = true)")
-	@Modifying
-	int delete(int id, String user);
-
+	@Query("SELECT d FROM DelegateNode d WHERE d.id = :id AND EXISTS (" + VISIBLE_DELEGATE_PART + " AND dz.receiver=:user)")
+	DelegateNode findById(int id, String user);
 }
