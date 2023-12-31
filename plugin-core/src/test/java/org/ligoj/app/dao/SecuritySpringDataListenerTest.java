@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.query.ReturnableType;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.sql.ast.SqlAstTranslator;
 import org.hibernate.sql.ast.spi.StringBuilderSqlAppender;
@@ -53,7 +54,7 @@ class SecuritySpringDataListenerTest {
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		final var function = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor("visibleGroup");
 		final List<? extends SqlAstNode> empty = Collections.emptyList();
-		Assertions.assertThrows(QueryException.class, () -> function.render(null, empty, null));
+		Assertions.assertThrows(QueryException.class, () -> function.render(null, empty, (ReturnableType<?>) null, null));
 	}
 
 	private String assertFunction(final String name, final int nbQueryParam, final String sql, String... args) {
@@ -70,21 +71,21 @@ class SecuritySpringDataListenerTest {
 
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		final var sqlFunction = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name);
-		sqlFunction.render(appender, astParams, translator);
+		sqlFunction.render(appender, astParams,(ReturnableType<?>) null,  translator);
 		final var query = appender.toString();
 		Assertions.assertEquals(nbQueryParam, StringUtils.countMatches(query, '?'));
 		Assertions.assertTrue(query.contains(sql), query + "-- not contains --" + sql);
 
 		sb.setLength(0);
-		sqlFunction.render(appender, astParams, null, translator);
+		sqlFunction.render(appender, astParams, (ReturnableType<?>) null, translator);
 		Assertions.assertEquals(query, appender.toString());
 
 		sb.setLength(0);
-		sqlFunction.render(appender, astParams, null, null, translator);
+		sqlFunction.render(appender, astParams, null, (ReturnableType<?>) null, translator);
 		Assertions.assertEquals(query, appender.toString());
 
 		sb.setLength(0);
-		sqlFunction.render(appender, astParams, null, null, null, translator);
+		sqlFunction.render(appender, astParams, null, null, (ReturnableType<?>) null, translator);
 		Assertions.assertEquals(query, appender.toString());
 		return query;
 	}

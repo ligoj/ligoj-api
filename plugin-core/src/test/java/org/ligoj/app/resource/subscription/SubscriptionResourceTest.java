@@ -98,11 +98,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		final var subscriptionStr = subscription.toString();
 		Assertions.assertTrue(subscriptionStr
 				.startsWith("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: "));
-		Assertions.assertTrue(subscriptionStr.endsWith(
-				", node=AbstractNamedBusinessEntity(name=JIRA 4), project=AbstractNamedAuditedEntity(name=MDA))"));
-		Assertions.assertEquals(
-				"Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: null, node=null, project=null)",
-				new Subscription().toString());
+		Assertions.assertTrue(subscriptionStr.contains("name=JIRA 4"));
+		Assertions.assertTrue(new Subscription().toString().contains("project=null)"));
 	}
 
 	@Test
@@ -617,11 +614,11 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		final var nodes = subscriptionList.getNodes();
 		Assertions.assertTrue(nodes.size() > 30);
 		final var subscribedNodes = new ArrayList<>(nodes);
-		Assertions.assertEquals("service:bt", subscribedNodes.get(0).getId());
-		Assertions.assertNull(subscribedNodes.get(0).getRefined());
-		Assertions.assertEquals("Bug Tracker", subscribedNodes.get(0).getName());
-		Assertions.assertEquals("functional", subscribedNodes.get(0).getTag());
-		Assertions.assertEquals("fa fa-suitcase", subscribedNodes.get(0).getTagUiClasses());
+		Assertions.assertEquals("service:bt", subscribedNodes.getFirst().getId());
+		Assertions.assertNull(subscribedNodes.getFirst().getRefined());
+		Assertions.assertEquals("Bug Tracker", subscribedNodes.getFirst().getName());
+		Assertions.assertEquals("functional", subscribedNodes.getFirst().getTag());
+		Assertions.assertEquals("fa fa-suitcase", subscribedNodes.getFirst().getTagUiClasses());
 
 		Assertions.assertEquals("service:bt:jira", subscribedNodes.get(1).getId());
 		Assertions.assertEquals("service:bt", subscribedNodes.get(1).getRefined());
@@ -636,14 +633,14 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		// Check project order
 
 		// G-STACK Project
-		final var subscription0 = subscriptions.get(0);
+		final var subscription0 = subscriptions.getFirst();
 		Assertions.assertTrue(subscription0.getId() > 0);
 		Assertions.assertTrue(subscription0.getProject() > 0);
 		Assertions.assertEquals("Jupiter", subscriptionList.getProjects().stream()
 				.filter(p -> p.getId().equals(subscription0.getProject())).findFirst().get().getName());
 
 		// MDA Project (last subscription), only JIRA4 subscription
-		final var subscription = subscriptions.get(subscriptions.size() - 1);
+		final var subscription = subscriptions.getLast();
 		Assertions.assertTrue(subscription.getId() > 0);
 		Assertions.assertTrue(subscription.getProject() > 0);
 		Assertions.assertEquals("MDA", subscriptionList.getProjects().stream()

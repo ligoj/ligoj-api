@@ -31,10 +31,6 @@
 			<artifactId>mockito-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.ligoj.bootstrap</groupId>
 			<artifactId>bootstrap-business-test</artifactId>
 		</dependency>

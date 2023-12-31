@@ -74,10 +74,4 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	@JsonIgnore
 	@OneToMany(mappedBy = "project", cascade = CascadeType.REMOVE)
 	private List<CacheProjectGroup> cacheGroups;
-
-	/**
-	 * A free form text at creation time only.
-	 */
-	@Column(length = 1024, updatable = false)
-	private String creationContext;
 }

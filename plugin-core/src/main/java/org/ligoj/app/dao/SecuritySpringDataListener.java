@@ -7,6 +7,7 @@ import org.hibernate.QueryException;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.query.ReturnableType;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.sql.ast.SqlAstTranslator;
 import org.hibernate.sql.ast.spi.SqlAppender;
@@ -131,29 +132,51 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 		}
 
 		@Override
-		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, SqlAstTranslator<?> translator) {
+		public void render(
+				SqlAppender sqlAppender,
+				List<? extends SqlAstNode> sqlAstArguments,
+				ReturnableType<?> returnType,
+				SqlAstTranslator<?> walker) {
 			if (sqlAstArguments.size() != args.size()) {
-				throw new QueryException("The function requires " + args.size() + " arguments, but received " + sqlAstArguments.size());
+				throw new QueryException("The function requires " + args.size() + " arguments, but received " + sqlAstArguments.size(), query);
 			}
-			parse("(" + Objects.toString(query, "") + ")", sqlAppender, sqlAstArguments, translator);
+			parse("(" + Objects.toString(query, "") + ")", sqlAppender, sqlAstArguments, walker);
 		}
 
 		@Override
-		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, Predicate
-				filter, SqlAstTranslator<?> translator) {
-			this.render(sqlAppender, sqlAstArguments, translator);
+		public void render(
+				SqlAppender sqlAppender,
+				List<? extends SqlAstNode> sqlAstArguments,
+				Predicate filter,
+				Boolean respectNulls,
+				Boolean fromFirst,
+				ReturnableType<?> returnType,
+				SqlAstTranslator<?> walker) {
+			// Ignore the filter by default. Subclasses will override this
+			render(sqlAppender, sqlAstArguments, returnType, walker);
 		}
 
 		@Override
-		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, Predicate
-				filter, List<SortSpecification> withinGroup, SqlAstTranslator<?> translator) {
-			this.render(sqlAppender, sqlAstArguments, translator);
+		public void render(
+				SqlAppender sqlAppender,
+				List<? extends SqlAstNode> sqlAstArguments,
+				Predicate filter,
+				ReturnableType<?> returnType,
+				SqlAstTranslator<?> walker) {
+			// Ignore the filter by default. Subclasses will override this
+			render(sqlAppender, sqlAstArguments, returnType, walker);
 		}
 
 		@Override
-		public void render(SqlAppender sqlAppender, List<? extends SqlAstNode> sqlAstArguments, Predicate
-				filter, Boolean respectNulls, Boolean fromFirst, SqlAstTranslator<?> walker) {
-			this.render(sqlAppender, sqlAstArguments, walker);
+		public void render(
+				SqlAppender sqlAppender,
+				List<? extends SqlAstNode> sqlAstArguments,
+				Predicate filter,
+				List<SortSpecification> withinGroup,
+				ReturnableType<?> returnType,
+				SqlAstTranslator<?> walker) {
+			// Ignore the filter by default. Subclasses will override this
+			render(sqlAppender, sqlAstArguments, returnType, walker);
 		}
 
 		private String member(final String parent, final String child) {
