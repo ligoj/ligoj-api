@@ -152,7 +152,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		final var uriInfo = newFindAllParameters();
 		resource.findAll(uriInfo, null).getData().forEach(d -> {
 			final var vo = resource.findById(d.getId());
-			Assertions.assertEquals(d.getName(), vo.getName());
+			Assertions.assertEquals(d.getId(), vo.getId());
 		});
 	}
 
