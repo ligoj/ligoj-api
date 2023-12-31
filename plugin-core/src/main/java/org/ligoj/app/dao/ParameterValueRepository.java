@@ -55,7 +55,6 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 			    WHERE
 			""" + RELATED_SUBSCRIPTION)
 	List<ParameterValue> findAllBySubscription(int subscription);
-	//  (s.id = :subscription AND (v.subscription.id = :subscription OR v.node.id = s.node.id OR s.node.id LIKE CONCAT(v.node.id, ':%')))
 
 	/**
 	 * Return all unsecured parameters (name and raw value) associated to a subscription. Sensitive parameters are not

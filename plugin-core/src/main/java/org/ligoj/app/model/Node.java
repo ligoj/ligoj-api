@@ -3,24 +3,17 @@
  */
 package org.ligoj.app.model;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Transient;
-import jakarta.persistence.UniqueConstraint;
-import jakarta.validation.constraints.NotNull;
-
-import org.ligoj.app.api.NodeScoped;
-import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.bootstrap.core.model.AbstractNamedBusinessEntity;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.ligoj.app.api.NodeScoped;
+import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.bootstrap.core.INamableBean;
+import org.springframework.data.domain.Persistable;
 
 /**
  * Node definition. Node#key is used as additional business key.
@@ -28,13 +21,24 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
-public class Node extends AbstractNamedBusinessEntity<String> implements Refining<Node>, NodeScoped<String> {
+public class Node implements Refining<Node>, NodeScoped<String>, INamableBean<String>, Persistable<String> {
 
 	/**
 	 * SID, for Hazelcast
 	 */
 	private static final long serialVersionUID = 1L;
+
+	/**
+	 * Business key.
+	 */
+	@Id
+	@NotNull
+	private String id;
+
+	@NotBlank
+	private String name;
 
 	/**
 	 * Instance of tool proving the expected service.
@@ -70,6 +74,15 @@ public class Node extends AbstractNamedBusinessEntity<String> implements Refinin
 	@JsonIgnore
 	public Node getNode() {
 		return this;
+	}
+
+	/**
+	 * Returns if the {@code Persistable} is new or was persisted already.
+	 *
+	 * @return if {@literal true} the object is new.
+	 */
+	public boolean isNew() {
+		return getId() == null;
 	}
 
 }

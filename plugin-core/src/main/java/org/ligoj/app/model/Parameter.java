@@ -3,27 +3,17 @@
  */
 package org.ligoj.app.model;
 
-import java.util.List;
-
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotNull;
-
-import org.hibernate.validator.constraints.Length;
-import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.validator.constraints.Length;
+import org.ligoj.app.api.SubscriptionMode;
+import org.springframework.data.domain.Persistable;
+
+import java.util.List;
 
 /**
  * Parameter definition.
@@ -31,8 +21,16 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@ToString
 @Table(name = "LIGOJ_PARAMETER")
-public class Parameter extends AbstractBusinessEntity<String> {
+public class Parameter implements Persistable<String> {
+
+	/**
+	 * Business key.
+	 */
+	@Id
+	@NotNull
+	private String id;
 
 	/**
 	 * Type
@@ -102,4 +100,13 @@ public class Parameter extends AbstractBusinessEntity<String> {
 	@ManyToMany(cascade = CascadeType.REMOVE)
 	@JsonIgnore
 	private List<Parameter> depends;
+
+	/**
+	 * Returns if the {@code Persistable} is new or was persisted already.
+	 *
+	 * @return if {@literal true} the object is new.
+	 */
+	public boolean isNew() {
+		return getId() == null;
+	}
 }

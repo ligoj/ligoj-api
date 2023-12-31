@@ -65,7 +65,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 		// For JPA coverage
 		//noinspection ResultOfMethodCallIgnored
-		repository.findAll().iterator().next().getSubscription();
+		repository.findAll().getFirst().getSubscription();
 	}
 
 	private void assertValue(final String name, final String value) {
@@ -89,8 +89,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		parameterValue.setParameter(parameterRepository.findOne("service:bt:jira:jdbc-url").getId());
 		parameterValue.setText("value");
 		final var entity = resource.createInternal(parameterValue);
-		Assertions.assertTrue(entity.toString()
-				.startsWith("ParameterValue(parameter=AbstractBusinessEntity(id=service:bt:jira:jdbc-url), data="));
+		Assertions.assertTrue(entity.toString().contains("id=service:bt:jira:jdbc-url"));
 		Assertions.assertEquals(parameterValue.getParameter(), entity.getParameter().getId());
 		Assertions.assertNotEquals("value", entity.getData());
 		Assertions.assertEquals("value", encryptor.decrypt(entity.getData()));
@@ -622,8 +621,8 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 		final var values = repository.findAllBy("node.id", "create-test-id");
 		Assertions.assertEquals(1, values.size());
-		Assertions.assertEquals("10074", values.get(0).getData());
-		Assertions.assertEquals(JiraBaseResource.PARAMETER_PROJECT, values.get(0).getParameter().getId());
+		Assertions.assertEquals("10074", values.getFirst().getData());
+		Assertions.assertEquals(JiraBaseResource.PARAMETER_PROJECT, values.getFirst().getParameter().getId());
 	}
 
 	@Test
@@ -728,7 +727,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 				resource.findAll(projectId, "service:bt:jira:pkey", "service:bt:jira:4", "MD"));
 		Assertions.assertEquals(1, parameterValues.size());
 
-		final var pValue = parameterValues.get(0);
+		final var pValue = parameterValues.getFirst();
 		Assertions.assertEquals("MDA", pValue.getText());
 
 	}
