@@ -80,7 +80,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assertions.assertFalse(entity.isManaged());
 
 		// someone;company;any;false;true;cn=any,ou=groups,dc=sample,dc=com
-		entity = result.getData().get(0);
+		entity = result.getData().getFirst();
 		Assertions.assertEquals("any", entity.getName());
 		Assertions.assertEquals(DelegateType.COMPANY, entity.getType());
 		assertAdmin(entity);
@@ -112,7 +112,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 		// mlavoine;tree;cn=Biz Agency,ou=tools;false;false;cn=Biz
 		// Agency,ou=tools,dc=sample,dc=com
-		final var entity = result.getData().get(0);
+		final var entity = result.getData().getFirst();
 		Assertions.assertEquals("cn=biz agency,ou=tools,dc=sample,dc=com", entity.getName());
 		Assertions.assertEquals(DelegateType.TREE, entity.getType());
 		Assertions.assertNotNull(entity.getCreatedDate());
@@ -148,6 +148,26 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		checkDelegateTree(result.getData().get(3));
 	}
 
+	private void checkFind() {
+		final var uriInfo = newFindAllParameters();
+		resource.findAll(uriInfo, null).getData().forEach(d -> {
+			final var vo = resource.findById(d.getId());
+			Assertions.assertEquals(d.getName(), vo.getName());
+		});
+	}
+
+	@Test
+	void findByIdReceiverGroup() {
+		initSpringSecurityContext("admin-test");
+		checkFind();
+	}
+
+	@Test
+	void findByIdAdmin() {
+		initSpringSecurityContext(DEFAULT_USER);
+		checkFind();
+	}
+
 	/**
 	 * A delegate visible by user "admin-test". This delegate add visibility of company "ing" for all members of
 	 * "ligoj-jupiter". And user "admin-test" is member of group "ligoj-jupiter".
@@ -160,7 +180,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsTotal());
 
-		final var vo = result.getData().get(0);
+		final var vo = result.getData().getFirst();
 		Assertions.assertEquals("ing", vo.getName());
 		Assertions.assertEquals(DelegateType.COMPANY, vo.getType());
 		Assertions.assertEquals("ligoj-jupiter", vo.getReceiver().getId());
@@ -176,7 +196,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals(1, result.getRecordsTotal());
 
-		final var entity = result.getData().get(0);
+		final var entity = result.getData().getFirst();
 		Assertions.assertEquals("Business Solution", entity.getName());
 		Assertions.assertEquals(DelegateType.GROUP, entity.getType());
 		Assertions.assertEquals("ing", entity.getReceiver().getId());

@@ -123,6 +123,16 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	boolean canCreate(String user, String dn, DelegateType type);
 
 	/**
+	 * Return a visible {@link DelegateOrg} from its identifier.
+	 *
+	 * @param user The target username, receiving the delegation.
+	 * @param id   The identifier.
+	 * @return A visible {@link DelegateOrg} from its identifier.
+	 */
+	@Query("FROM DelegateOrg d WHERE id=:id AND " + VISIBLE_DELEGATE)
+	DelegateOrg findById(String user, int id);
+
+	/**
 	 * Return all {@link DelegateOrg} objects regarding the given criteria.
 	 *
 	 * @param user     The target username, receiving the delegation.
@@ -131,7 +141,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * @param page     The pagination.
 	 * @return All {@link DelegateOrg} objects with the given name. Insensitive case search is used.
 	 */
-	@Query("SELECT d FROM DelegateOrg d WHERE " + VISIBLE_DELEGATE + """
+	@Query("FROM DelegateOrg d WHERE " + VISIBLE_DELEGATE + """
 			 AND (CAST(:type as string) IS NULL OR d.type = :type)
 			  AND (:criteria = ''
 			   OR   UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))

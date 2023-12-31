@@ -60,6 +60,7 @@ public class DelegateOrgResource {
 	 * Ordered columns.
 	 */
 	private static final Map<String, String> ORDERED_COLUMNS = new HashMap<>();
+
 	static {
 		ORDERED_COLUMNS.put("id", "id");
 		ORDERED_COLUMNS.put("name", "name");
@@ -143,8 +144,19 @@ public class DelegateOrgResource {
 		final var findAll = repository.findAll(securityHelper.getLogin(), DataTableAttributes.getSearch(uriInfo),
 				typeSearch, pageRequest);
 
-		// apply pagination and prevent lazy initialization issue
+		// Apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, this::toVo);
+	}
+
+	/**
+	 * Return entity by its identifier.
+	 *
+	 * @param id the entity identifier.
+	 */
+	@GET
+	@Path("{id:\\d+}")
+	public DelegateOrg findById(@PathParam("id") final int id) {
+		return repository.findById(securityHelper.getLogin(), id);
 	}
 
 	/**
