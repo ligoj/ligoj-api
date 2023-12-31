@@ -10,6 +10,7 @@ import org.ligoj.bootstrap.model.system.SystemUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.NoRepositoryBean;
 
 /**
  * {@link CacheContainer} base repository
@@ -17,6 +18,7 @@ import org.springframework.data.jpa.repository.Query;
  * @param <C> Cache container type.
  */
 @SuppressWarnings("ALL")
+@NoRepositoryBean
 public interface CacheContainerRepository<C extends CacheContainer> {
 
 	/**
