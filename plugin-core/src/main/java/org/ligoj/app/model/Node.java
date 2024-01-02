@@ -19,8 +19,9 @@ import org.ligoj.bootstrap.core.INamableBean;
  */
 @Getter
 @Setter
+@Entity
 @ToString
-@MappedSuperclass
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
 public class Node extends AbstractStringKeyEntity implements Refining<Node>, NodeScoped<String>, INamableBean<String> {
 
 	/**

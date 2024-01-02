@@ -3,10 +3,8 @@
  */
 package org.ligoj.app.model;
 
-import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,9 +17,8 @@ import org.springframework.data.domain.Persistable;
  */
 @Getter
 @Setter
-@Entity
 @ToString
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
+@MappedSuperclass
 public abstract class AbstractStringKeyEntity implements Persistable<String> {
 
 	/**
