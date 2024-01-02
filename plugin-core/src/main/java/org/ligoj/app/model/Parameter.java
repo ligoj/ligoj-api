@@ -11,7 +11,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.api.SubscriptionMode;
-import org.springframework.data.domain.Persistable;
 
 import java.util.List;
 
@@ -23,14 +22,7 @@ import java.util.List;
 @Entity
 @ToString
 @Table(name = "LIGOJ_PARAMETER")
-public class Parameter implements Persistable<String> {
-
-	/**
-	 * Business key.
-	 */
-	@Id
-	@NotNull
-	private String id;
+public class Parameter extends AbstractStringKeyEntity {
 
 	/**
 	 * Type
@@ -101,12 +93,4 @@ public class Parameter implements Persistable<String> {
 	@JsonIgnore
 	private List<Parameter> depends;
 
-	/**
-	 * Returns if the {@code Persistable} is new or was persisted already.
-	 *
-	 * @return if {@literal true} the object is new.
-	 */
-	public boolean isNew() {
-		return getId() == null;
-	}
 }

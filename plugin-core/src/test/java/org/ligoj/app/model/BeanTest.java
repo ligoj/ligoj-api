@@ -38,6 +38,7 @@ class BeanTest {
 		Assertions.assertNull(new CacheProjectGroup().getGroup());
 		Assertions.assertNull(new CacheProjectGroup().getProject());
 		Assertions.assertNull(new Project().getCacheGroups());
+		Assertions.assertTrue(new AbstractStringKeyEntity(){}.isNew());
 		new Project().setCacheGroups(Collections.emptyList());
 	}
 

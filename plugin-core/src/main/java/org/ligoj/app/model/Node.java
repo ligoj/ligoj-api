@@ -13,17 +13,15 @@ import lombok.ToString;
 import org.ligoj.app.api.NodeScoped;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.INamableBean;
-import org.springframework.data.domain.Persistable;
 
 /**
  * Node definition. Node#key is used as additional business key.
  */
 @Getter
 @Setter
-@Entity
 @ToString
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
-public class Node implements Refining<Node>, NodeScoped<String>, INamableBean<String>, Persistable<String> {
+@MappedSuperclass
+public class Node extends AbstractStringKeyEntity implements Refining<Node>, NodeScoped<String>, INamableBean<String> {
 
 	/**
 	 * SID, for Hazelcast
