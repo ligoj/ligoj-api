@@ -131,9 +131,10 @@ public class DelegateNodeResource {
 	}
 
 	/**
-	 * Return entity by its identifier.
+	 * Return a visible entity by its identifier.
 	 *
 	 * @param id the entity identifier.
+	 * @return A visible entity by its identifier.
 	 */
 	@GET
 	@Path("{id:\\d+}")
