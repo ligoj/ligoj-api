@@ -87,6 +87,10 @@ class SecuritySpringDataListenerTest {
 		sb.setLength(0);
 		sqlFunction.render(appender, astParams, null, null, (ReturnableType<?>) null, translator);
 		Assertions.assertEquals(query, appender.toString());
+
+		sb.setLength(0);
+		sqlFunction.render(appender, astParams, null, false,false, null, translator);
+		Assertions.assertEquals(query, appender.toString());
 		return query;
 	}
 
