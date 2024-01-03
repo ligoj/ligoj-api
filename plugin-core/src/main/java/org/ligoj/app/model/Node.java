@@ -29,13 +29,6 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	 */
 	private static final long serialVersionUID = 1L;
 
-	/**
-	 * Business key.
-	 */
-	@Id
-	@NotNull
-	private String id;
-
 	@NotBlank
 	private String name;
 
