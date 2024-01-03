@@ -20,7 +20,7 @@ import java.util.List;
 @Getter
 @Setter
 @Entity
-@ToString
+@ToString(callSuper = true)
 @Table(name = "LIGOJ_PARAMETER")
 public class Parameter extends AbstractStringKeyEntity {
 

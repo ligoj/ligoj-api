@@ -20,7 +20,7 @@ import org.ligoj.bootstrap.core.INamableBean;
 @Getter
 @Setter
 @Entity
-@ToString
+@ToString(callSuper = true)
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = "name"), name = "LIGOJ_NODE")
 public class Node extends AbstractStringKeyEntity implements Refining<Node>, NodeScoped<String>, INamableBean<String> {
 
@@ -66,15 +66,6 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	@JsonIgnore
 	public Node getNode() {
 		return this;
-	}
-
-	/**
-	 * Returns if the {@code Persistable} is new or was persisted already.
-	 *
-	 * @return if {@literal true} the object is new.
-	 */
-	public boolean isNew() {
-		return getId() == null;
 	}
 
 }
