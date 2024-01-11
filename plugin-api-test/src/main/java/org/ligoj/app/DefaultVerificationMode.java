@@ -14,7 +14,7 @@ import org.mockito.verification.VerificationMode;
  */
 public class DefaultVerificationMode implements VerificationMode {
 
-	private Consumer<VerificationData> dataVerify;
+	private final Consumer<VerificationData> dataVerify;
 
 	/**
 	 * Verification mode.

@@ -61,7 +61,7 @@ public class SimpleUser implements INamableBean<String> {
 	private String lastName;
 
 	/**
-	 * User name/login/UID.
+	 * Username/login/UID.
 	 */
 	@NotBlank
 	@LowerCase

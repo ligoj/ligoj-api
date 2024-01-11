@@ -23,7 +23,7 @@ public class EmptyIamProvider implements IamProvider, FeaturePlugin {
 
 	private IamConfiguration iamConfiguration;
 
-	private EmptyIamProvider self = this;
+	private final EmptyIamProvider self = this;
 
 	@Override
 	public Authentication authenticate(final Authentication authentication) {
