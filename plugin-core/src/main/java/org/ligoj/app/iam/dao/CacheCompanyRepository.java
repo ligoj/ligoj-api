@@ -22,7 +22,7 @@ public interface CacheCompanyRepository
 	/**
 	 * Filter to determine the company is visible or not.
 	 */
-	String VISIBLE_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR visiblecompany(l.description,:user)=true)";
+	String VISIBLE_RESOURCE = "(" + SystemUser.IS_ADMIN + " OR visibleCompany(l.description,:user)=true)";
 
 	@Override
 	@Query("FROM CacheCompany l WHERE (UPPER(cast(id as string)) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND "
