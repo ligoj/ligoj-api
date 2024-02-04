@@ -52,6 +52,13 @@ class XmlUtilsTest {
 	}
 
 	@Test
+	void getTagTextNull() throws SAXException, IOException, ParserConfigurationException {
+		final var jobsAsInput = IOUtils.toInputStream("<root></root>", StandardCharsets.UTF_8);
+		final var root = resource.parse(jobsAsInput);
+		Assertions.assertNull(resource.getTagText((Element) root.getFirstChild(), "any"));
+	}
+
+	@Test
 	void getXpath() throws SAXException, IOException, ParserConfigurationException, XPathExpressionException {
 		Assertions.assertEquals(2,
 				resource.getXpath(
@@ -78,13 +85,7 @@ class XmlUtilsTest {
 
 	@Test
 	void getInstalledEntitiesService() {
-		Assertions.assertTrue(new ServicePlugin() {
-
-			@Override
-			public String getKey() {
-				return "key";
-			}
-		}.getInstalledEntities().isEmpty());
+		Assertions.assertTrue(((ServicePlugin) () -> "key").getInstalledEntities().isEmpty());
 	}
 
 }

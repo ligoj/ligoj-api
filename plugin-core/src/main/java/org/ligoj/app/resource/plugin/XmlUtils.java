@@ -117,7 +117,7 @@ public class XmlUtils {
 	 * @return The trimmed tag value when tag is found of <code>null</code>.
 	 */
 	public String getTagText(final Element element, final String tag) {
-		return Optional.ofNullable(DomUtils.getChildElementByTagName(element, tag))
+		return Optional.ofNullable(element).map(e->DomUtils.getChildElementByTagName(e, tag))
 				.map(Node::getTextContent)
 				.map(StringUtils::trimToNull)
 				.orElse(null);
