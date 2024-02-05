@@ -23,26 +23,6 @@ public class ConfluencePluginResource extends AbstractToolPluginResource {
 	 */
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
-	/**
-	 * Web site URL
-	 */
-	public static final String PARAMETER_URL = KEY + ":url";
-
-	/**
-	 * Confluence space KEY (not name).
-	 */
-	public static final String PARAMETER_SPACE = KEY + ":space";
-
-	/**
-	 * Confluence username able to perform index.
-	 */
-	public static final String PARAMETER_USER = KEY + ":user";
-
-	/**
-	 * Confluence user password able to perform index.
-	 */
-	public static final String PARAMETER_PASSWORD = KEY + ":password";
-
 	@Override
 	public String getKey() {
 		return KEY;

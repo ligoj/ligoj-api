@@ -22,11 +22,6 @@ public class ScmResource extends AbstractServicePlugin {
 	 */
 	public static final String SERVICE_KEY = SERVICE_URL.replace('/', ':').substring(1);
 
-	/**
-	 * SCM site URL
-	 */
-	public static final String PARAMETER_URL = SERVICE_KEY + ":url";
-
 	@Override
 	public String getKey() {
 		return SERVICE_KEY;

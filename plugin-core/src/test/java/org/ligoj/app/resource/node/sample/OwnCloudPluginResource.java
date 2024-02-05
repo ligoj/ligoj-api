@@ -22,21 +22,6 @@ public class OwnCloudPluginResource extends AbstractToolPluginResource {
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
 	/**
-	 * OwnCloud username able to connect to instance.
-	 */
-	public static final String PARAMETER_USER = KEY + ":user";
-
-	/**
-	 * OwnCloud user password able to connect to instance.
-	 */
-	public static final String PARAMETER_PASSWORD = KEY + ":password";
-
-	/**
-	 * OwnCloud project's identifier, an integer
-	 */
-	public static final String PARAMETER_DIRECTORY = KEY + ":directory";
-
-	/**
 	 * Web site URL
 	 */
 	public static final String PARAMETER_URL = KEY + ":url";

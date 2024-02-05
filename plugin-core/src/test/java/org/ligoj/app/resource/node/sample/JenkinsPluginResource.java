@@ -21,30 +21,6 @@ public class JenkinsPluginResource extends AbstractToolPluginResource {
 	 */
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
-	/**
-	 * Jenkins's username able to connect to instance.
-	 */
-	public static final String PARAMETER_USER = KEY + ":user";
-
-	/**
-	 * Jenkins's user api-token able to connect to instance.
-	 */
-	public static final String PARAMETER_TOKEN = KEY + ":api-token";
-
-	/**
-	 * Jenkins job's name.
-	 */
-	public static final String PARAMETER_JOB = KEY + ":job";
-
-	/**
-	 * Jenkins job's name.
-	 */
-	public static final String PARAMETER_TEMPLATE_JOB = KEY + ":template-job";
-
-	/**
-	 * Web site URL
-	 */
-	public static final String PARAMETER_URL = KEY + ":url";
 
 	@Override
 	public String getKey() {

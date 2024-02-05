@@ -153,7 +153,7 @@ class ParameterResourceTest extends AbstractAppTest {
 				"service:id:ldap:people-dn", "service:id:ldap:people-internal-dn", "service:id:ldap:people-class",
 				"service:id:ldap:quarantine-dn", "service:id:ldap:referral", "service:id:ldap:uid-attribute",
 				"service:id:uid-pattern", "service:id:ldap:url", "service:id:ldap:company-pattern",
-				"service:id:ldap:department-attribute", "service:id:ldap:user-dn");
+				"service:id:ldap:department-attribute", "service:id:ldap:user-dn","service:id:ldap:login-attributes");
 		Assertions.assertTrue(parameters.stream().map(ParameterVo::getId).allMatch(expected::contains));
 	}
 
@@ -168,7 +168,9 @@ class ParameterResourceTest extends AbstractAppTest {
 				"service:id:ldap:people-internal-dn", "service:id:ldap:people-class", "service:id:ldap:quarantine-dn",
 				"service:id:ldap:referral", "service:id:ldap:uid-attribute", "service:id:uid-pattern",
 				"service:id:ldap:url", "service:id:ldap:department-attribute", "service:id:ldap:company-pattern",
-				"service:id:ldap:user-dn");
+				"service:id:ldap:user-dn",
+				"service:id:ldap:login-attributes"
+				);
 		Assertions.assertTrue(parameters.stream().map(ParameterVo::getId).allMatch(expected::contains));
 	}
 

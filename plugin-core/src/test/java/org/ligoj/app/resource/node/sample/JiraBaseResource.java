@@ -19,29 +19,9 @@ public class JiraBaseResource extends AbstractToolPluginResource {
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
 	/**
-	 * Database JDBC URL key
-	 */
-	public static final String PARAMETER_JDBC_URL = KEY + ":jdbc-url";
-
-	/**
-	 * Database JDBC Driver
-	 */
-	public static final String PARAMETER_JDBC_DRIVER = KEY + ":jdbc-driver";
-
-	/**
-	 * Database username
-	 */
-	public static final String PARAMETER_JDBC_USER = KEY + ":jdbc-user";
-
-	/**
 	 * Database password
 	 */
 	public static final String PARAMETER_JDBC_PASSWORD = KEY + ":jdbc-password";
-
-	/**
-	 * Web site URL
-	 */
-	public static final String PARAMETER_URL = KEY + ":url";
 
 	/**
 	 * JIRA internal identifier.
@@ -52,22 +32,6 @@ public class JiraBaseResource extends AbstractToolPluginResource {
 	 * JIRA external string identifier, AKA pkey.
 	 */
 	public static final String PARAMETER_PKEY = KEY + ":pkey";
-
-	/**
-	 * JIRA username able to perform index.
-	 */
-	public static final String PARAMETER_ADMIN_USER = KEY + ":user";
-
-	/**
-	 * JIRA user password able to perform index.
-	 */
-	public static final String PARAMETER_ADMIN_PASSWORD = KEY + ":password";
-
-	/**
-	 * Parameter corresponding to the associated version. Not yet saved in database, only in-memory to save request
-	 * during status checks.
-	 */
-	protected static final String PARAMETER_CACHE_VERSION = KEY + ":version";
 
 	@Override
 	public String getKey() {

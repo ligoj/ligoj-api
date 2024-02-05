@@ -21,30 +21,6 @@ public class FortifyPluginResource extends AbstractToolPluginResource {
 	 */
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
-	/**
-	 * Web site URL
-	 */
-	public static final String PARAMETER_URL = KEY + ":url";
-
-	/**
-	 * Fortify project identifier.
-	 */
-	public static final String PARAMETER_KEY = KEY + ":pkey";
-
-	/**
-	 * Fortify project-version identifier.
-	 */
-	public static final String PARAMETER_VERSION = KEY + ":version";
-
-	/**
-	 * Fortify user name able to perform index.
-	 */
-	public static final String PARAMETER_USER = KEY + ":user";
-
-	/**
-	 * Fortify user password able to perform index.
-	 */
-	public static final String PARAMETER_PASSWORD = KEY + ":password";
 
 	@Override
 	public String getKey() {
