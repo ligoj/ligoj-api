@@ -21,11 +21,6 @@ public class OwnCloudPluginResource extends AbstractToolPluginResource {
 	 */
 	public static final String KEY = URL.replace('/', ':').substring(1);
 
-	/**
-	 * Web site URL
-	 */
-	public static final String PARAMETER_URL = KEY + ":url";
-
 	@Override
 	public String getKey() {
 		return KEY;

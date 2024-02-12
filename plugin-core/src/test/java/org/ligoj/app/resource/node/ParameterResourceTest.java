@@ -107,7 +107,7 @@ class ParameterResourceTest extends AbstractAppTest {
 	void getNotProvidedParametersTool() {
 		final var parameters = resource.getNotProvidedParameters("service:bt:jira", SubscriptionMode.LINK);
 		Assertions.assertEquals(32, parameters.size());
-		Assertions.assertEquals("c_10", parameters.get(0).getId());
+		Assertions.assertEquals("c_10", parameters.getFirst().getId());
 		final var nonDummyStartIndex = 23;
 		Assertions.assertEquals("service:bt:jira:jdbc-driver", parameters.get(nonDummyStartIndex).getId());
 		Assertions.assertEquals("service:bt:jira:jdbc-password", parameters.get(nonDummyStartIndex + 1).getId());
@@ -196,7 +196,7 @@ class ParameterResourceTest extends AbstractAppTest {
 	void getNotProvidedParametersServiceToNode() {
 		final var parameters = resource.getNotProvidedParameters("service:id:ldap:dig", SubscriptionMode.LINK);
 		Assertions.assertEquals(1, parameters.size());
-		Assertions.assertEquals("service:id:group", parameters.get(0).getId());
+		Assertions.assertEquals("service:id:group", parameters.getFirst().getId());
 	}
 
 }

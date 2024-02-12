@@ -169,7 +169,7 @@ public interface IUserRepository {
 
 	/**
 	 * Reset user password to the given value. The given password is not stored inside the given {@link UserOrg}
-	 * instance, but only in the remote storage, and in a hashed form. Some LDAP modules such as PPOLICY requires a
+	 * instance, but only in the remote storage, and in a hashed form. Some LDAP modules such as PPolicy requires a
 	 * fully authenticated of the target user to apply the password policy.
 	 *
 	 * @param user        The user to update.
@@ -238,7 +238,7 @@ public interface IUserRepository {
 	 * <li>Clear the locked flag</li>
 	 * </ul>
 	 * Note the password stills as is. If this user was previously locked, the password stills cleared.<br>
-	 * Depending on the final implementation, other attributes or changes may be added. Such as PPOLICY for LDAP when
+	 * Depending on the final implementation, other attributes or changes may be added. Such as PPolicy for LDAP when
 	 * supported.
 	 *
 	 * @param user The LDAP user to disable.
@@ -266,7 +266,7 @@ public interface IUserRepository {
 	 * <li>Clear the password to prevent new authentication</li>
 	 * <li>Set the disabled flag.</li>
 	 * </ul>
-	 * Depending on the final implementation, other attributes or changes may be added. Such as PPOLICY for LDAP when
+	 * Depending on the final implementation, other attributes or changes may be added. Such as PPolicy for LDAP when
 	 * supported.
 	 *
 	 * @param principal User requesting the lock.
