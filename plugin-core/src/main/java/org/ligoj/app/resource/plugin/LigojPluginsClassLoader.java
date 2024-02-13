@@ -80,7 +80,7 @@ public class LigojPluginsClassLoader extends PluginsClassLoader {
 	private String[] toFragments(final Node node) {
 		final var fragments = new ArrayList<String>();
 		addFragments(node, fragments);
-		return fragments.toArray(new String[fragments.size()]);
+		return fragments.toArray(new String[0]);
 	}
 
 	/**
