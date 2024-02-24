@@ -88,7 +88,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *
 	 * @param id The subscription identifier.
 	 * @return secured associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	@GET
 	@Path("{id:\\d+}")
@@ -133,7 +133,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *
 	 * @param id The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getParameters(final int id) {
@@ -147,7 +147,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *
 	 * @param id The subscription identifier.
 	 * @return all associated parameters values. Key of returned map is the identifier of
-	 *         {@link org.ligoj.app.model.Parameter}
+	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<String, String> getParametersNoCheck(final int id) {
@@ -198,8 +198,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * @throws Exception When the link/create fails. Managed at upper level.
 	 */
 	private void delegateToPlugin(final SubscriptionEditionVo vo, final Subscription entity) throws Exception {
-		for (var p = locator.getResource(vo.getNode()); p != null; p = locator
-				.getResource(locator.getParent(p.getKey()))) {
+		for (var p = locator.getResource(vo.getNode()); p != null; p = locator.getResource(locator.getParent(p.getKey()))) {
 			if (vo.getMode() == SubscriptionMode.CREATE) {
 				// Create mode
 				p.create(entity.getId());
@@ -230,8 +229,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	private Node checkManagedNodeForSubscription(final String node) {
 		// Check the node can be subscribed by the principal user
-		final var entity = Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin()))
-				.orElseThrow(() -> new ValidationJsonException("node", BusinessException.KEY_UNKNOWN_ID, "0", node));
+		final var entity = Optional.ofNullable(nodeRepository.findOneForSubscription(node, securityHelper.getLogin())).orElseThrow(() -> new ValidationJsonException("node", BusinessException.KEY_UNKNOWN_ID, "0", node));
 
 		// Check the node accept subscription
 		if (entity.getMode() == SubscriptionMode.NONE) {
@@ -247,20 +245,15 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * @param acceptedParameters The accepted parameters.
 	 * @param mode               The related mode.
 	 */
-	protected void checkMandatoryParameters(final List<ParameterValueCreateVo> parameters,
-			final List<Parameter> acceptedParameters, final SubscriptionMode mode) {
+	protected void checkMandatoryParameters(final List<ParameterValueCreateVo> parameters, final List<Parameter> acceptedParameters, final SubscriptionMode mode) {
 		// Check each mandatory parameter for the current mode
-		acceptedParameters.stream()
-				.filter(parameter -> (parameter.getMode() == mode || parameter.getMode() == SubscriptionMode.ALL)
-						&& parameter.isMandatory())
-				.forEach(parameter -> checkMandatoryParameter(parameters, parameter));
+		acceptedParameters.stream().filter(parameter -> (parameter.getMode() == mode || parameter.getMode() == SubscriptionMode.ALL) && parameter.isMandatory()).forEach(parameter -> checkMandatoryParameter(parameters, parameter));
 	}
 
 	/**
 	 * Check mandatory parameter is provided.
 	 */
-	private void checkMandatoryParameter(final Collection<ParameterValueCreateVo> parameters,
-			final Persistable<String> parameter) {
+	private void checkMandatoryParameter(final Collection<ParameterValueCreateVo> parameters, final Persistable<String> parameter) {
 		// This parameter must exist
 		if (parameters.stream().noneMatch(value -> value.getParameter().equals(parameter.getId()))) {
 			// Missing mandatory parameter
@@ -291,8 +284,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	@Path("{id:\\d+}/{deleteRemoteData}")
 	@DELETE
-	public void delete(@PathParam("id") final int id, @PathParam("deleteRemoteData") final boolean deleteRemoteData)
-			throws Exception {
+	public void delete(@PathParam("id") final int id, @PathParam("deleteRemoteData") final boolean deleteRemoteData) throws Exception {
 		final var entity = checkVisible(id);
 		checkManagedProject(entity.getProject().getId());
 
@@ -306,8 +298,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	@Override
-	protected void delete(final ServicePlugin plugin, final Integer id, final boolean deleteRemoteData)
-			throws Exception {
+	protected void delete(final ServicePlugin plugin, final Integer id, final boolean deleteRemoteData) throws Exception {
 		plugin.delete(id, deleteRemoteData);
 	}
 
@@ -349,8 +340,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Return all subscriptions and related nodes. Very light data are returned there since a lot of subscriptions
-	 * there. Parameters values are not fetch.
+	 * Return all subscriptions and related nodes. Very light data is returned there due the large number of  subscriptions.
+	 * Parameters values are not fetch.
 	 *
 	 * @return Status of each subscription of each project and each node.
 	 */
@@ -383,20 +374,17 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Extract the distinct nodes from the subscriptions.
 	 */
-	private Map<String, SubscribedNodeVo> toNodes(final Map<String, NodeVo> nodes,
-			final Collection<SubscriptionLightVo> subscriptions) {
+	private Map<String, SubscribedNodeVo> toNodes(final Map<String, NodeVo> nodes, final Collection<SubscriptionLightVo> subscriptions) {
 		final var filteredNodes = new TreeMap<String, SubscribedNodeVo>();
 		// Add the related node of each subscription
-		subscriptions.stream().map(SubscriptionLightVo::getNode).map(nodes::get)
-				.forEach(n -> addNodeAsNeeded(filteredNodes, nodes, n));
+		subscriptions.stream().map(SubscriptionLightVo::getNode).map(nodes::get).forEach(n -> addNodeAsNeeded(filteredNodes, nodes, n));
 		return filteredNodes;
 	}
 
 	/**
 	 * Convert the subscriptions result set to {@link SubscriptionLightVo}
 	 */
-	private Collection<SubscriptionLightVo> toSubscriptions(final List<Object[]> subscriptions,
-			final Map<Integer, SubscribingProjectVo> projects) {
+	private Collection<SubscriptionLightVo> toSubscriptions(final List<Object[]> subscriptions, final Map<Integer, SubscribingProjectVo> projects) {
 		// Prepare the subscriptions container with project name ordering
 		return subscriptions.stream().filter(rs -> projects.containsKey(rs[1])).map(rs -> {
 			// Build the subscription data
@@ -405,10 +393,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 			vo.setProject((Integer) rs[1]);
 			vo.setNode((String) rs[2]);
 			return vo;
-		}).collect(
-				() -> new TreeSet<>((o1, o2) -> (projects.get(o1.getProject()).getName() + "," + o1.getId())
-						.compareToIgnoreCase(projects.get(o2.getProject()).getName() + "," + o2.getId())),
-				TreeSet::add, TreeSet::addAll);
+		}).collect(() -> new TreeSet<>((o1, o2) -> (projects.get(o1.getProject()).getName() + "," + o1.getId()).compareToIgnoreCase(projects.get(o2.getProject()).getName() + "," + o2.getId())), TreeSet::add, TreeSet::addAll);
 	}
 
 	/**
@@ -430,8 +415,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Add a node to the filtered nodes, and also add recursively the parent.
 	 */
-	private void addNodeAsNeeded(final Map<String, SubscribedNodeVo> filteredNodes, final Map<String, NodeVo> allNodes,
-			final NodeVo node) {
+	private void addNodeAsNeeded(final Map<String, SubscribedNodeVo> filteredNodes, final Map<String, NodeVo> allNodes, final NodeVo node) {
 		if (!filteredNodes.containsKey(node.getId())) {
 
 			// Build the node wrapper
@@ -464,8 +448,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<Integer, EventVo> getStatusByProject(@PathParam("project") final int project) {
-		return eventRepository.findLastEvents(project).stream().map(EventResource::toVo)
-				.collect(Collectors.toMap(EventVo::getSubscription, Function.identity()));
+		return eventRepository.findLastEvents(project).stream().map(EventResource::toVo).collect(Collectors.toMap(EventVo::getSubscription, Function.identity()));
 	}
 
 	/**
@@ -491,8 +474,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@Path("status/refresh")
 	@GET
 	public Map<Integer, SubscriptionStatusWithData> refreshStatuses(@QueryParam("id") final Set<Integer> ids) {
-		return ids.stream().map(this::refreshStatus)
-				.collect(Collectors.toMap(SubscriptionStatusWithData::getId, Function.identity()));
+		return ids.stream().map(this::refreshStatus).collect(Collectors.toMap(SubscriptionStatusWithData::getId, Function.identity()));
 	}
 
 	/**
@@ -512,7 +494,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		return statusWithData;
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
 	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?, AbstractLockedResource<Subscription, Integer>>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerSubscription.class;
