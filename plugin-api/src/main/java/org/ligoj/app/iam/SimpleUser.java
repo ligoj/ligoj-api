@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.util.Map;
+
 /**
  * Abstract LDAP entry
  */
@@ -99,6 +101,11 @@ public class SimpleUser implements INamableBean<String> {
 	}
 
 	/**
+	 * Optional custom attributes.
+	 */
+	private Map<String, String> customAttributes;
+
+	/**
 	 * Copy all non secured data.
 	 *
 	 * @param to the target object.
@@ -110,6 +117,7 @@ public class SimpleUser implements INamableBean<String> {
 		to.setCompany(getCompany());
 		to.setDepartment(getDepartment());
 		to.setLocalId(getLocalId());
+		to.setCustomAttributes(getCustomAttributes());
 	}
 
 }

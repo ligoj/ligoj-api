@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.data.domain.Page;
@@ -315,4 +316,14 @@ public interface IUserRepository {
 	default void checkLockStatus(UserOrg user) {
 		// By default not supported
 	}
+
+	/**
+	 * Return optional custom attributes.
+	 *
+	 * @return Optional custom attributes.
+	 */
+	default String[] getCustomAttributes() {
+		return ArrayUtils.EMPTY_STRING_ARRAY;
+	}
+
 }
