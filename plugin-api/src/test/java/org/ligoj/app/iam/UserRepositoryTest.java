@@ -199,4 +199,8 @@ class UserRepositoryTest {
 		Assertions.assertEquals("user2", emptyUserRepository.findByIdExpected("user1", "user2").getId());
 	}
 
+	@Test
+	void getCustomAttributes() {
+		Assertions.assertEquals(0, new EmptyUserRepository().getCustomAttributes().length);
+	}
 }
