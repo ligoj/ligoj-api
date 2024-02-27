@@ -13,6 +13,7 @@ import lombok.ToString;
 import org.ligoj.app.api.NodeScoped;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.INamableBean;
+import org.ligoj.bootstrap.core.model.AbstractStringKeyEntity;
 
 /**
  * Node definition. Node#key is used as additional business key.

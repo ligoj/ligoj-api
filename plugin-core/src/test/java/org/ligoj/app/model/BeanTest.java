@@ -3,19 +3,15 @@
  */
 package org.ligoj.app.model;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.ligoj.app.iam.model.*;
+import org.ligoj.app.resource.plugin.BitBucketTag;
+import org.ligoj.app.resource.plugin.BitBucketTags;
+
 import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
-import org.ligoj.app.iam.model.CacheCompany;
-import org.ligoj.app.iam.model.CacheGroup;
-import org.ligoj.app.iam.model.CacheUser;
-import org.ligoj.app.iam.model.DelegateType;
-import org.ligoj.app.iam.model.ReceiverType;
-import org.ligoj.app.resource.plugin.BitBucketTag;
-import org.ligoj.app.resource.plugin.BitBucketTags;
 
 /**
  * Simple test of API beans for coverage and automatic nullability checks.
@@ -38,7 +34,6 @@ class BeanTest {
 		Assertions.assertNull(new CacheProjectGroup().getGroup());
 		Assertions.assertNull(new CacheProjectGroup().getProject());
 		Assertions.assertNull(new Project().getCacheGroups());
-		Assertions.assertTrue(new AbstractStringKeyEntity(){}.isNew());
 		new Project().setCacheGroups(Collections.emptyList());
 	}
 

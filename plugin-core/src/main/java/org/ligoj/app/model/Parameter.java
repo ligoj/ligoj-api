@@ -11,6 +11,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.bootstrap.core.model.AbstractStringKeyEntity;
 
 import java.util.List;
 
