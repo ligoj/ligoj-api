@@ -117,7 +117,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @return The visible node or <code>null</code>.
 	 */
 	@Query("FROM Node n WHERE n.id=:id AND " + ADMIN_NODES)
-	Node findOneAdministerable(String id, String user);
+	Node findOneAdministrable(String id, String user);
 
 	/**
 	 * Return all visible {@link Node} for current user.

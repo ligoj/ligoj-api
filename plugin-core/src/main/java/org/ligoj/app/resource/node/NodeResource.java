@@ -64,9 +64,6 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	private ParameterRepository parameterRepository;
 
 	@Autowired
-	private ParameterValueRepository pvRepository;
-
-	@Autowired
 	private ParameterValueResource pvResource;
 
 	@Autowired
@@ -327,7 +324,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@Path("{id:service:.+:.+:.*}")
 	@CacheRemoveAll(cacheName = "nodes")
 	public void delete(@PathParam("id") final String id) throws Exception {
-		checkAdministerable(id);
+		checkAdministrable(id);
 		final var nbSubscriptions = subscriptionRepository.countByNode(id);
 		if (nbSubscriptions > 0) {
 			// Subscriptions need to be deleted first
@@ -726,8 +723,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @param id The node identifier to check.
 	 * @return The node the principal can administer.
 	 */
-	public Node checkAdministerable(final String id) {
-		return checkNode(id, repository::findOneAdministerable);
+	public Node checkAdministrable(final String id) {
+		return checkNode(id, repository::findOneAdministrable);
 	}
 
 	@SuppressWarnings({"unchecked", "rawtypes"})

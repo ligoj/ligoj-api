@@ -279,7 +279,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Delete entity and cascaded associations : parameters, events then subscription.
 	 *
 	 * @param id               the entity identifier.
-	 * @param deleteRemoteData When <code>true</code>, remote data will be also destroyed.
+	 * @param deleteRemoteData When <code>true</code>, created remote data will be also destroyed.
 	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}/{deleteRemoteData}")
