@@ -144,7 +144,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Retrieve all project with pagination, and filtered. A visible project is attached to a visible group.
+	 * Retrieve all projects with pagination, and filtered. A visible project is attached to a visible group.
 	 *
 	 * @param uriInfo  pagination data.
 	 * @param criteria the optional criteria to match.
@@ -228,15 +228,16 @@ public class ProjectResource {
 	/**
 	 * Delete entity. Should be protected with RBAC.
 	 *
-	 * @param id The entity identifier.
+	 * @param id               The entity identifier.
+	 * @param deleteRemoteData When <code>true</code>, created remote data will be also destroyed.
 	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
 	@DELETE
 	@Path("{id:\\d+}")
-	public void delete(@PathParam("id") final int id) throws Exception {
+	public void delete(@PathParam("id") final int id, @QueryParam("deleteRemoteData") @DefaultValue("false") final boolean deleteRemoteData) throws Exception {
 		final var project = findOneVisible(repository::findOneVisible, id, Function.identity());
 		for (final var subscription : project.getSubscriptions()) {
-			subscriptionResource.delete(subscription.getId());
+			subscriptionResource.delete(subscription.getId(), deleteRemoteData);
 		}
 		project.getSubscriptions().clear();
 		repository.delete(project);

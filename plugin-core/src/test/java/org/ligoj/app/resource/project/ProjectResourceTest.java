@@ -387,7 +387,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * test update
+	 * Test update
 	 */
 	@Test
 	void updateWithSubscriptions() {
@@ -409,7 +409,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * test update
+	 * Test update
 	 */
 	@Test
 	void update() {
@@ -465,31 +465,25 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertThrows(ConstraintViolationException.class, () -> resource.update(vo));
 	}
 
-	/**
-	 * test update
-	 */
 	@Test
 	void deleteNotVisible() {
 		em.clear();
 		initSpringSecurityContext("mlavoine");
 		final var id = testProject.getId();
-		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(id));
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(id, false));
 	}
 
-	/**
-	 * test update
-	 */
 	@Test
 	void deleteNotExists() {
 		em.clear();
-		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(-1));
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.delete(-1, false));
 	}
 
 	@Test
 	void delete() throws Exception {
 		final var initCount = repository.count();
 		em.clear();
-		resource.delete(testProject.getId());
+		resource.delete(testProject.getId(), false);
 		em.flush();
 		em.clear();
 		Assertions.assertEquals(initCount - 1, repository.count());
