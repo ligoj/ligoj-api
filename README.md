@@ -111,8 +111,16 @@ See all command options with `ligoj plugin`
 
 ### Install a local plugin
 
-The command is: `ligoj plugin upload --id "plugin-id-ldap" --version "1.1.4" --from "/path/to/plugin-id-ldap-1.1.4.jar"`
+The command is:
+
+```bash
+ligoj plugin upload --id "plugin-id-ldap" --version "1.1.4" --from "/path/to/plugin-id-ldap-1.1.4.jar"
+```
 
 ### Install a deployed Maven plugin
 
-The command is: `ligoj plugin install --id "plugin-id-ldap" --version "1.1.4"  --repository "central" --javadoc`
+The command is:
+
+```bash
+ligoj plugin install --id "plugin-id-ldap" --version "1.1.4"  --repository "central" --javadoc
+```
