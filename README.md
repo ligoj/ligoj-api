@@ -52,7 +52,7 @@ Minimal Maven structure for a plugin:
         <dependencies>
             <dependency>
                 <groupId>org.ligoj.plugin</groupId>
-                <artifactId>plugin-id</artifactId>        <!-- Service plugin version -->
+                <artifactId>plugin-id</artifactId>        <!-- Service plugin artifact-id -->
                 <version>[2.2.0-SNAPSHOT,2.3.0)</version> <!-- Service plugin version range -->
                 <scope>provided</scope>                   <!-- Always provided -->
             </dependency>
@@ -67,7 +67,7 @@ Produced artifacts for a plugin named `plugin-id-ldap` are:
 - Main jar file: `plugin-id-ldap-1.0.0.jar`
 - Javadoc jar file: `plugin-id-ldap-1.0.0-javadoc.jar`. Optional, but when deployed, contributes to generated OpenAPI JSON file.
 - Sources jar file: `plugin-id-ldap-1.0.0-sources.jar`. Optional.
-- Sources jar file: `plugin-id-ldap-1.0.0-test-sources.jar`. Optional.
+- Test sources jar file: `plugin-id-ldap-1.0.0-test-sources.jar`. Optional.
 - Jacoco coverage result
 
 The following command generate all artifacts and run UTs and Its
@@ -85,7 +85,7 @@ The common steps:
 - Choose the `Plugin` section
 
 
-## Install a local plugin
+### Install a local plugin
 
 The specific steps:
 - Click on `Install > Install from file`
@@ -93,7 +93,7 @@ The specific steps:
 - Upload it
 - Restart the application
 
-## Install a deployed Maven plugin
+### Install a deployed Maven plugin
 
 The specific steps:
 - Click on `Install > Install from repository`
@@ -109,10 +109,10 @@ The [Ligoj CLI](https://github.com/ligoj/cli) is an administration tool for all 
 
 See all command options with `ligoj plugin`
 
-## Install a local plugin
+### Install a local plugin
 
 The command is: `ligoj plugin upload --id "plugin-id-ldap" --version "1.1.4" --from "/path/to/plugin-id-ldap-1.1.4.jar"`
 
-# Install a deployed Maven plugin
+### Install a deployed Maven plugin
 
 The command is: `ligoj plugin install --id "plugin-id-ldap" --version "1.1.4"  --repository "central" --javadoc`
