@@ -10,13 +10,7 @@ import org.junit.jupiter.api.Test;
  */
 class ServicePluginTest {
 
-	private final ServicePlugin plugin = new ServicePlugin() {
-
-		@Override
-		public String getKey() {
-			return "service:s1:t2";
-		}
-	};
+	private final ServicePlugin plugin = () -> "service:s1:t2";
 
 	@Test
 	void delete() throws Exception {

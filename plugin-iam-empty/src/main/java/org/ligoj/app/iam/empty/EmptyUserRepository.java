@@ -3,24 +3,15 @@
  */
 package org.ligoj.app.iam.empty;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.logging.log4j.util.Strings;
-import org.ligoj.app.iam.CompanyOrg;
-import org.ligoj.app.iam.GroupOrg;
-import org.ligoj.app.iam.ICompanyRepository;
-import org.ligoj.app.iam.IUserRepository;
-import org.ligoj.app.iam.UserOrg;
+import org.ligoj.app.iam.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 /**
  * A mocked user repository. Details of a specific person always succeed but the search of people return an empty list.
@@ -134,8 +125,8 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void updateMembership(Collection<String> groups, UserOrg user) {
-		// Nothing managed here
+	public UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
+		return new UserUpdateResult();
 	}
 
 	@Override

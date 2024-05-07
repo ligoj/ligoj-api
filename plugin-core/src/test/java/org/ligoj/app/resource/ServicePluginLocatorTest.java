@@ -40,9 +40,7 @@ class ServicePluginLocatorTest extends AbstractAppTest {
 
 	@Test
 	void getResourceExpectedNotExist() {
-		Assertions.assertEquals("any", Assertions.assertThrows(PluginNotFoundException.class, () -> {
-			component.getResourceExpected("any", ServicePlugin.class);
-		}).getPlugin());
+		Assertions.assertEquals("any", Assertions.assertThrows(PluginNotFoundException.class, () -> component.getResourceExpected("any", ServicePlugin.class)).getPlugin());
 	}
 
 	@Test
@@ -54,14 +52,14 @@ class ServicePluginLocatorTest extends AbstractAppTest {
 	void getResourceType() {
 		final var resource = component.getResource(JiraBaseResource.KEY, ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
-		Assertions.assertTrue(resource instanceof BugTrackerResource);
+		Assertions.assertInstanceOf(BugTrackerResource.class, resource);
 	}
 
 	@Test
 	void getResourceTypeParent() {
 		final var resource = component.getResource(JiraBaseResource.KEY + ":any", ConfigurablePlugin.class);
 		Assertions.assertNotNull(resource);
-		Assertions.assertTrue(resource instanceof BugTrackerResource);
+		Assertions.assertInstanceOf(BugTrackerResource.class, resource);
 	}
 
 	@Test

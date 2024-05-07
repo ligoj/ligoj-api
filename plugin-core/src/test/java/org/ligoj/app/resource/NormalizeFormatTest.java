@@ -19,7 +19,7 @@ class NormalizeFormatTest {
 
 	@Test
 	void testParseObject() {
-		Assertions.assertEquals(Integer.valueOf(1), new NormalizeFormat().parseObject("1", null));
+		Assertions.assertEquals(1, new NormalizeFormat().parseObject("1", null));
 	}
 
 }

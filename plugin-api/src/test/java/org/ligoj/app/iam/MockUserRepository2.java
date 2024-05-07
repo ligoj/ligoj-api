@@ -104,8 +104,8 @@ class MockUserRepository2 implements IUserRepository {
 	}
 
 	@Override
-	public void updateMembership(Collection<String> groups, UserOrg user) {
-		// Nothing to do
+	public UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
+		return new UserUpdateResult();
 	}
 
 	@Override

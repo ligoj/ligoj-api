@@ -29,7 +29,8 @@ class UserRepositoryTest {
 			}
 
 			@Override
-			public void updateMembership(Collection<String> groups, UserOrg user) {
+			public UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
+				return new UserUpdateResult();
 			}
 
 			@Override

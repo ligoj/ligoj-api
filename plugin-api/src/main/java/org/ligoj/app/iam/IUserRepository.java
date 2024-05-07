@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -288,8 +289,41 @@ public interface IUserRepository {
 	 *
 	 * @param groups the target groups CN, not normalized.
 	 * @param user   the target user.
+	 * @return the updated attributes and related changes. Currently only `groups` attributes is supported and contains only the
 	 */
-	void updateMembership(Collection<String> groups, UserOrg user);
+	default UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
+		final var result = new UserUpdateResult();
+		result.setAddedGroups(CollectionUtils.subtract(groups, user.getGroups()));
+		result.setRemovedGroups( CollectionUtils.subtract(user.getGroups(), groups));
+
+		// Add new groups
+		addUserToGroups(user,result.getAddedGroups());
+
+		// Remove old groups
+		removeUserFromGroups(user, result.getRemovedGroups());
+
+		return result;
+	}
+
+	/**
+	 * Add the user from the given groups. Cache is also updated.
+	 *
+	 * @param user   The user to add to the given groups.
+	 * @param groups the groups to add, normalized.
+	 */
+	default void addUserToGroups(final UserOrg user, final Collection<String> groups) {
+		groups.forEach(g -> getGroupRepository().addUser(user, g));
+	}
+
+	/**
+	 * Remove the user from the given groups.Cache is also updated.
+	 *
+	 * @param user   The user to remove from the given groups.
+	 * @param groups the groups to remove, normalized.
+	 */
+	default void removeUserFromGroups(final UserOrg user, final Collection<String> groups) {
+		groups.forEach(g -> getGroupRepository().removeUser(user, g));
+	}
 
 	/**
 	 * Create an entry.

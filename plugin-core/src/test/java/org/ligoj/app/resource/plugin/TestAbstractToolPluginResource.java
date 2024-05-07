@@ -96,13 +96,7 @@ class TestAbstractToolPluginResource {
 
 	@Test
 	void getInstalledEntitiesService() {
-		Assertions.assertTrue(new ServicePlugin() {
-
-			@Override
-			public String getKey() {
-				return "key";
-			}
-		}.getInstalledEntities().isEmpty());
+		Assertions.assertTrue(((ServicePlugin) () -> "key").getInstalledEntities().isEmpty());
 	}
 
 }

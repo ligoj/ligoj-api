@@ -9,11 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.ligoj.app.iam.CompanyOrg;
-import org.ligoj.app.iam.GroupOrg;
-import org.ligoj.app.iam.ICompanyRepository;
-import org.ligoj.app.iam.IUserRepository;
-import org.ligoj.app.iam.UserOrg;
+import org.ligoj.app.iam.*;
 import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -114,8 +110,8 @@ class MockUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void updateMembership(Collection<String> groups, UserOrg user) {
-		// Nothing to do
+	public UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
+		return new UserUpdateResult();
 	}
 
 	@Override

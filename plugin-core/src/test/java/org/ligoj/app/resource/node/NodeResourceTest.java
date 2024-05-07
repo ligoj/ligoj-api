@@ -399,7 +399,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void getServices() {
 		final var resources = resource.findAll(newUriInfo(), null, "service", null, -1).getData();
 		Assertions.assertEquals(10, resources.size());
-		final var service = resources.get(0);
+		final var service = resources.getFirst();
 		Assertions.assertEquals(BugTrackerResource.SERVICE_KEY, service.getId());
 		Assertions.assertEquals("Bug Tracker", service.getName());
 		Assertions.assertNull(service.getRefined());
@@ -509,7 +509,7 @@ class NodeResourceTest extends AbstractAppTest {
 
 		// Secured data
 		Assertions.assertNotEquals("secret",
-				parameterValueRepository.getParameterValues("service:bt:jira:some-7").get(0).getData());
+				parameterValueRepository.getParameterValues("service:bt:jira:some-7").getFirst().getData());
 	}
 
 	@Test
@@ -585,8 +585,8 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("secret2", parameters.get("service:bt:jira:jdbc-password"));
 		Assertions.assertEquals(3, parameters.size());
 		final var parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
-		Assertions.assertNotNull(parameterValues.get(0).getData());
-		Assertions.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
+		Assertions.assertNotNull(parameterValues.getFirst().getData());
+		Assertions.assertEquals("service:bt:jira:password", parameterValues.getFirst().getParameter().getId());
 		Assertions.assertEquals("http://remote", parameters.get("service:bt:jira:url"));
 		Assertions.assertEquals("http://remote", parameterValues.get(1).getData());
 		Assertions.assertEquals("service:bt:jira:url", parameterValues.get(1).getParameter().getId());
@@ -646,8 +646,8 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("secret", parameters.get("service:bt:jira:password"));
 		Assertions.assertEquals(1, parameters.size());
 		final var parameterValues = parameterValueRepository.getParameterValues("service:bt:jira:7");
-		Assertions.assertNotNull(parameterValues.get(0).getData());
-		Assertions.assertEquals("service:bt:jira:password", parameterValues.get(0).getParameter().getId());
+		Assertions.assertNotNull(parameterValues.getFirst().getData());
+		Assertions.assertEquals("service:bt:jira:password", parameterValues.getFirst().getParameter().getId());
 		Assertions.assertEquals(1, parameterValues.size());
 	}
 
@@ -808,7 +808,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void findAllByParent() {
 		final var resources = resource.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, null, -1).getData();
 		Assertions.assertEquals(1, resources.size());
-		final var service = resources.get(0);
+		final var service = resources.getFirst();
 		Assertions.assertEquals("service:bt:jira", service.getId());
 		Assertions.assertEquals("JIRA", service.getName());
 		Assertions.assertEquals("service:bt", service.getRefined().getId());
@@ -835,7 +835,7 @@ class NodeResourceTest extends AbstractAppTest {
 		final var resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, SubscriptionMode.CREATE, -1)
 				.getData();
 		Assertions.assertEquals(1, resources.size());
-		final var service = resources.get(0);
+		final var service = resources.getFirst();
 		Assertions.assertEquals("service:id:ldap:dig", service.getId());
 		Assertions.assertEquals("OpenLDAP", service.getName());
 		Assertions.assertEquals("service:id:ldap", service.getRefined().getId());
@@ -856,7 +856,7 @@ class NodeResourceTest extends AbstractAppTest {
 		final var resources = resource
 				.findAll(newUriInfo(), null, BugTrackerResource.SERVICE_KEY, SubscriptionMode.LINK, 2).getData();
 		Assertions.assertEquals(1, resources.size());
-		final var service = resources.get(0);
+		final var service = resources.getFirst();
 		Assertions.assertEquals("service:bt:jira", service.getId());
 		Assertions.assertEquals("JIRA", service.getName());
 		Assertions.assertEquals("service:bt", service.getRefined().getId());
@@ -868,7 +868,7 @@ class NodeResourceTest extends AbstractAppTest {
 		final var resources = resource.findAll(newUriInfo(), null, "service:scm:git", SubscriptionMode.LINK, -1)
 				.getData();
 		Assertions.assertEquals(1, resources.size());
-		final var service = resources.get(0);
+		final var service = resources.getFirst();
 		Assertions.assertEquals("service:scm:git:dig", service.getId());
 		Assertions.assertEquals("git DIG", service.getName());
 		Assertions.assertEquals("service:scm:git", service.getRefined().getId());
@@ -879,7 +879,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void findAllByParentCreateMode() {
 		final var resources = resource.findAll(newUriInfo(), null, LdapPluginResource.KEY, null, -1).getData();
 		Assertions.assertEquals(1, resources.size());
-		final var service = resources.get(0);
+		final var service = resources.getFirst();
 		Assertions.assertEquals("service:id:ldap:dig", service.getId());
 		Assertions.assertEquals("OpenLDAP", service.getName());
 		Assertions.assertEquals("service:id:ldap", service.getRefined().getId());
@@ -892,7 +892,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void findAllByParentMultiple() {
 		final var resources = resource.findAll(newUriInfo(), null, JiraBaseResource.KEY, null, -1).getData();
 		Assertions.assertEquals(2, resources.size());
-		Assertions.assertEquals("service:bt:jira:4", resources.get(0).getId());
+		Assertions.assertEquals("service:bt:jira:4", resources.getFirst().getId());
 		Assertions.assertEquals("service:bt:jira:6", resources.get(1).getId());
 	}
 
@@ -901,12 +901,12 @@ class NodeResourceTest extends AbstractAppTest {
 		final var nodes = resource.getNodeStatus();
 		Assertions.assertEquals(2, nodes.size());
 		Assertions.assertTrue(
-				nodes.get(0).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(0).getValue())
-						|| NodeStatus.DOWN.name().equals(nodes.get(0).getValue()));
+				nodes.getFirst().getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.getFirst().getValue())
+						|| NodeStatus.DOWN.name().equals(nodes.getFirst().getValue()));
 		Assertions.assertTrue(
 				nodes.get(1).getNode().getId().endsWith("build") && NodeStatus.UP.name().equals(nodes.get(1).getValue())
 						|| NodeStatus.DOWN.name().equals(nodes.get(1).getValue()));
-		Assertions.assertEquals(EventType.STATUS, nodes.get(0).getType());
+		Assertions.assertEquals(EventType.STATUS, nodes.getFirst().getType());
 	}
 
 	@Test
@@ -969,10 +969,10 @@ class NodeResourceTest extends AbstractAppTest {
 		final var result = resource.findAll(newFindAllParameters(), "sonar", null, null, -1).getData();
 		Assertions.assertEquals(2, result.size());
 		// Check SonarQube
-		Assertions.assertEquals("service:kpi:sonar", result.get(0).getId());
-		Assertions.assertEquals("SonarQube", result.get(0).getName());
-		Assertions.assertEquals("service:kpi", result.get(0).getRefined().getId());
-		Assertions.assertEquals("KPI Collection", result.get(0).getRefined().getName());
+		Assertions.assertEquals("service:kpi:sonar", result.getFirst().getId());
+		Assertions.assertEquals("SonarQube", result.getFirst().getName());
+		Assertions.assertEquals("service:kpi", result.getFirst().getRefined().getId());
+		Assertions.assertEquals("KPI Collection", result.getFirst().getRefined().getName());
 
 		Assertions.assertEquals("service:kpi:sonar:bpr", result.get(1).getId());
 		Assertions.assertEquals("SonarQube DIG", result.get(1).getName());
@@ -984,8 +984,8 @@ class NodeResourceTest extends AbstractAppTest {
 		final var result = findAll.getData();
 		Assertions.assertEquals(10, result.size());
 		Assertions.assertTrue(findAll.getRecordsTotal() > 30);
-		Assertions.assertEquals("service:bt", result.get(0).getId());
-		Assertions.assertEquals("Bug Tracker", result.get(0).getName());
+		Assertions.assertEquals("service:bt", result.getFirst().getId());
+		Assertions.assertEquals("Bug Tracker", result.getFirst().getName());
 	}
 
 	@Test

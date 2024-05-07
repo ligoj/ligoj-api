@@ -11,14 +11,7 @@ import org.junit.jupiter.api.Test;
  */
 class ToolPluginTest {
 
-	private final ToolPlugin plugin = new ToolPlugin() {
-
-		@Override
-		public String getKey() {
-			return "service:s1:t2";
-		}
-
-	};
+	private final ToolPlugin plugin = () -> "service:s1:t2";
 
 	@Test
 	void checkStatus() throws Exception {

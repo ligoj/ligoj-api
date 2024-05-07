@@ -3,27 +3,22 @@
  */
 package org.ligoj.app.iam;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.util.*;
 
 /**
  * A mocked user repository. Details of a specific person always succeed but the search of people return an empty list.
  */
 @SuppressWarnings("unused")
+@Getter
+@Setter
 public class EmptyUserRepository implements IUserRepository {
 
-	@Getter
-	@Setter
 	private ICompanyRepository companyRepository;
 
 	@Override
@@ -128,8 +123,8 @@ public class EmptyUserRepository implements IUserRepository {
 	}
 
 	@Override
-	public void updateMembership(Collection<String> groups, UserOrg user) {
-		// Nothing to do
+	public UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
+		return new UserUpdateResult();
 	}
 
 	@Override

@@ -4,11 +4,7 @@
 package org.ligoj.app.resource.node;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import jakarta.persistence.EntityNotFoundException;
@@ -24,6 +20,7 @@ import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
+import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,7 +204,7 @@ public class ParameterResource {
 					.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())));
 		}
 		final var clone = new ArrayList<>(parameters.values());
-		clone.sort((o1, o2) -> o1.getId().compareTo(o2.getId()));
+		clone.sort(Comparator.comparing(AbstractBusinessEntity::getId));
 		clone.sort(COMPARATOR);
 		return clone;
 	}

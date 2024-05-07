@@ -10,11 +10,13 @@ API framework for Ligoj plugins
 
 # Extension points
 
-## Plugin definition extension points: 
+## Plugin definition extension points
+
 - [org.ligoj.app.api.ServicePlugin](plugin-api/src/main/java/org/ligoj/app/api/ServicePlugin.java)
 - [org.ligoj.app.api.ToolPlugin](plugin-api/src/main/java/org/ligoj/app/api/ToolPlugin.java)
 
 ## IAM extension points
+
 - [org.ligoj.app.iam.IamProvider](plugin-api/src/main/java/org/ligoj/app/iam/IamProvider.java): Identity and Access Management (IAM) provider of the application.
 - [org.ligoj.app.iam.IamConfigurationProvider](plugin-api/src/main/java/org/ligoj/app/iam/IamConfigurationProvider.java)
 - [org.ligoj.app.iam.IAuthenticationContributor](plugin-api/src/main/java/org/ligoj/app/iam/IAuthenticationContributor.java)

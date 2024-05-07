@@ -149,9 +149,9 @@ class ToVoConverterTest {
 
 		// Check the statuses and their order by node
 		final var subscriptionsVo = vo.getSubscriptions();
-		Assertions.assertNull(subscriptionsVo.get(0).getStatus());
-		Assertions.assertEquals("service:n1", subscriptionsVo.get(0).getNode().getId());
-		Assertions.assertTrue(subscriptionsVo.get(0).getNode().getEnabled());
+		Assertions.assertNull(subscriptionsVo.getFirst().getStatus());
+		Assertions.assertEquals("service:n1", subscriptionsVo.getFirst().getNode().getId());
+		Assertions.assertTrue(subscriptionsVo.getFirst().getNode().getEnabled());
 		Assertions.assertEquals(NodeStatus.UP, subscriptionsVo.get(1).getStatus());
 		Assertions.assertEquals("service:n2", subscriptionsVo.get(1).getNode().getId());
 		Assertions.assertFalse(subscriptionsVo.get(1).getNode().getEnabled());

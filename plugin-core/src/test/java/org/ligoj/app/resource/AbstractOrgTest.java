@@ -80,7 +80,7 @@ public abstract class AbstractOrgTest extends AbstractAppTest {
 		final var groups = csvForJpa.insert("csv", CacheGroup.class, StandardCharsets.UTF_8.name()).stream()
 				.map(c -> new GroupOrg(c.getDescription(), c.getName(), new HashSet<>()))
 				.collect(Collectors.toMap(GroupOrg::getId, Function.identity()));
-		var cacheMembership = csvForJpa.insert("csv", CacheMembership.class, StandardCharsets.UTF_8.name()).get(0);
+		var cacheMembership = csvForJpa.insert("csv", CacheMembership.class, StandardCharsets.UTF_8.name()).getFirst();
 		csvForJpa.insert("csv", CacheProjectGroup.class, StandardCharsets.UTF_8.name());
 
 		// Coverage required here only there because of JPA bean
