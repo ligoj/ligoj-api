@@ -88,7 +88,7 @@ public class Parameter extends AbstractStringKeyEntity {
 	 * <ul>
 	 * <li>To order the displayed parameters, from the root ones to the most depending ones</li>
 	 * <li>To invalidate the child parameters when a parent one is updated</li>
-	 * <ul>
+	 * </ul>
 	 */
 	@ManyToMany(cascade = CascadeType.REMOVE)
 	@JsonIgnore
