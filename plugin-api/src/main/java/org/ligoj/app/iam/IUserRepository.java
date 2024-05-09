@@ -312,7 +312,8 @@ public interface IUserRepository {
 	 * @param groups the groups to add, normalized.
 	 */
 	default void addUserToGroups(final UserOrg user, final Collection<String> groups) {
-		groups.forEach(g -> getGroupRepository().addUser(user, g));
+		final var repository = getGroupRepository();
+		groups.forEach(g -> repository.addUser(user, g));
 	}
 
 	/**
