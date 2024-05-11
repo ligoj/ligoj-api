@@ -3,12 +3,6 @@
  */
 package org.ligoj.app.iam;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.ligoj.bootstrap.core.resource.BusinessException;
@@ -16,6 +10,8 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
+
+import java.util.*;
 
 /**
  * User repository
@@ -323,7 +319,8 @@ public interface IUserRepository {
 	 * @param groups the groups to remove, normalized.
 	 */
 	default void removeUserFromGroups(final UserOrg user, final Collection<String> groups) {
-		groups.forEach(g -> getGroupRepository().removeUser(user, g));
+		final var repository = getGroupRepository();
+		groups.forEach(g -> repository.removeUser(user, g));
 	}
 
 	/**

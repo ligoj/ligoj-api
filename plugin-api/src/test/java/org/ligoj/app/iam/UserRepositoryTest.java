@@ -3,11 +3,6 @@
  */
 package org.ligoj.app.iam;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -15,22 +10,29 @@ import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Test class of {@link IUserRepository}
  */
 class UserRepositoryTest {
 
 	@Test
-	void coverage() {
+	void updateMembership() {
 		final var repository = new IUserRepository() {
 
+			IGroupRepository groupRepository;
+
 			@Override
-			public void updateUser(UserOrg user) {
+			public IGroupRepository getGroupRepository() {
+				return groupRepository == null ? IUserRepository.super.getGroupRepository():groupRepository;
 			}
 
 			@Override
-			public UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
-				return new UserUpdateResult();
+			public void updateUser(UserOrg user) {
 			}
 
 			@Override
@@ -114,6 +116,12 @@ class UserRepositoryTest {
 		};
 		Assertions.assertNull(repository.getCompanyRepository());
 		Assertions.assertNull(repository.getGroupRepository());
+		final var user = new UserOrg();
+		repository.groupRepository = Mockito.mock(IGroupRepository.class);
+		user.setGroups(List.of("group1", "group2"));
+		final var result = repository.updateMembership(List.of("group1", "group3"), user);
+		Assertions.assertEquals(List.of("group3"), result.getAddedGroups());
+		Assertions.assertEquals(List.of("group2"), result.getRemovedGroups());
 	}
 
 	@Test
