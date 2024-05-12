@@ -31,7 +31,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Test class of {@link SecuritySpringDataListener}
@@ -67,7 +66,7 @@ class SecuritySpringDataListenerTest {
 		}).when(translator).render(Mockito.any(SqlAstNode.class), Mockito.any(SqlAstNodeRenderingMode.class));
 		var astParams = Arrays.stream(args).map(a ->
 				new QueryLiteral<>(a,
-						new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).collect(Collectors.toList());
+						new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).toList();
 
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		final var sqlFunction = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name);
