@@ -544,7 +544,7 @@ public class ParameterValueResource {
 	 */
 	@CacheRemove(cacheName = "subscription-parameters")
 	public void deleteBySubscription(@CacheKey final int subscription) {
-		repository.deleteAllBy("subscription.id", subscription);
+		repository.deleteAll(repository.findAllBy("subscription.id", subscription));
 	}
 
 	/**
