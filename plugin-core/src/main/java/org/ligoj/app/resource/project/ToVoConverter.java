@@ -101,13 +101,13 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 			// Build the subscription root instance
 			final var vo = new SubscriptionVo();
 			vo.copyAuditData(entity, userConverter);
-			vo.setId(entity.getId());
+			vo.setId(id);
 			vo.setMode(entity.getMode());
 			vo.setNode(NodeResource.toVo(entity.getNode(), locator));
 			vo.setParameters(new HashMap<>());
 
 			// Add subscription status
-			final var lastEvent = subscriptionStatus.get(entity.getId());
+			final var lastEvent = subscriptionStatus.get(id);
 			if (lastEvent != null) {
 				vo.setStatus(NodeStatus.valueOf(lastEvent.getValue()));
 			}
