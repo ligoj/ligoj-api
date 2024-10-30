@@ -410,6 +410,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 				JiraBaseResource.PARAMETER_PROJECT));
 		Assertions.assertEquals("MDA",
 				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
+		Assertions.assertEquals(SubscriptionMode.LINK, repository.findOneExpected(subscription).getMode());
 	}
 
 	/**
@@ -488,7 +489,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final var vo = new SubscriptionEditionVo();
-		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
+		final var parameters = new ArrayList<ParameterValueCreateVo>();
 		final var parameterValueEditionVo = new ParameterValueCreateVo();
 		parameterValueEditionVo.setParameter(JiraBaseResource.PARAMETER_PROJECT);
 		parameterValueEditionVo.setInteger(10074);
@@ -499,6 +500,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		parameters.add(parameterValueEditionVo2);
 		vo.setParameters(parameters);
 		vo.setNode("service:bt:jira:4");
+		vo.setMode(SubscriptionMode.LINK);
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='Jupiter'", Integer.class).getSingleResult());
 		return vo;
 	}
@@ -603,6 +605,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setParameters(parameters);
 		vo.setNode("service:bt:jira:4");
 		vo.setProject(project.getId());
+		vo.setMode(SubscriptionMode.CREATE);
 		return vo;
 	}
 

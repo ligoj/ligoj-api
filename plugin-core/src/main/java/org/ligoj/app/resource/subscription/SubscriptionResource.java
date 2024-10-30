@@ -78,6 +78,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		entity.setProject(project);
 		entity.setId(vo.getId());
 		entity.setNode(node);
+		entity.setMode(vo.getMode());
 		return entity;
 	}
 
@@ -279,7 +280,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Delete entity and cascaded associations : parameters, events then subscription.
 	 *
 	 * @param id               the entity identifier.
-	 * @param deleteRemoteData When <code>true</code>, created remote data will be also destroyed.
+	 * @param deleteRemoteData When <code>true</code>, created remote data will be also destroyed. Ignored if the subscription mode is 'LINK'.
 	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
 	@Path("{id:\\d+}/{deleteRemoteData}")
@@ -292,7 +293,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		eventRepository.deleteAllBy("subscription", entity);
 
 		// Delegate the deletion
-		deleteWithTasks(entity.getNode().getId(), id, deleteRemoteData);
+		deleteWithTasks(entity.getNode().getId(), id, SubscriptionMode.LINK != entity.getMode() && deleteRemoteData);
 		parameterValueResource.deleteBySubscription(id);
 		repository.delete(entity);
 	}

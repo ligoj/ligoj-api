@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
@@ -345,6 +346,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertNotNull(subscription.getId());
 		Assertions.assertEquals(DEFAULT_USER, subscription.getCreatedBy().getId());
 		Assertions.assertEquals(DEFAULT_USER, subscription.getLastModifiedBy().getId());
+		Assertions.assertEquals(SubscriptionMode.LINK, subscription.getMode());
 
 		// Check service (ordered by id)
 		final var service = subscription.getNode();

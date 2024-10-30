@@ -1,5 +1,5 @@
-node.id;project.name
-service:bt:jira:4;MDA
+node.id;project.name;mode
+service:bt:jira:4;MDA;LINK
 service:bt:jira:6;Jupiter
 service:build:jenkins:bpr;Jupiter
 service:kpi:sonar:bpr;Jupiter

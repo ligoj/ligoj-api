@@ -102,6 +102,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 			final var vo = new SubscriptionVo();
 			vo.copyAuditData(entity, userConverter);
 			vo.setId(entity.getId());
+			vo.setMode(entity.getMode());
 			vo.setNode(NodeResource.toVo(entity.getNode(), locator));
 			vo.setParameters(new HashMap<>());
 

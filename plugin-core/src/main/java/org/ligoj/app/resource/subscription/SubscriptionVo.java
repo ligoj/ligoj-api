@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.NodeVo;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.SimpleUser;
 import org.ligoj.bootstrap.core.AuditedBean;
 
@@ -35,6 +36,10 @@ public class SubscriptionVo extends AuditedBean<SimpleUser, Integer> implements 
 	 * last event attached to this subscription
 	 */
 	private NodeStatus status;
+	/**
+	 * The optional Subscription mode if available
+	 */
+	private SubscriptionMode mode;
 
 	/**
 	 * Subscribed service : directly a service, a tool or a node inside a tool.

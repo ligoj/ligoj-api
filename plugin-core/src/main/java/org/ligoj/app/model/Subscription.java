@@ -11,6 +11,7 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.app.api.NodeScoped;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.model.AbstractAudited;
 
 import lombok.Getter;
@@ -45,5 +46,10 @@ public class Subscription extends AbstractAudited<Integer> implements NodeScoped
 	@ManyToOne
 	@NotNull
 	private Project project;
+
+	/**
+	 * Subscription mode. By default is the node's mode
+	 */
+	private SubscriptionMode mode;
 
 }
