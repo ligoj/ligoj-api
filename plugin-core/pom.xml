@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>parent</artifactId>
-		<version>4.1.10-SNAPSHOT</version>
+		<version>4.1.10</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -19,12 +19,12 @@
 		<dependency>
 			<groupId>org.ligoj.api</groupId>
 			<artifactId>plugin-api</artifactId>
-			<version>4.1.10-SNAPSHOT</version>
+			<version>4.1.10</version>
 		</dependency>
 		<dependency>
 			<groupId>org.ligoj.api</groupId>
 			<artifactId>plugin-api-test</artifactId>
-			<version>4.1.10-SNAPSHOT</version>
+			<version>4.1.10</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
