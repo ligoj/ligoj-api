@@ -16,10 +16,7 @@ import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
-import org.ligoj.app.resource.node.EventVo;
-import org.ligoj.app.resource.node.NodeResource;
-import org.ligoj.app.resource.node.ParameterValueHelper;
-import org.ligoj.app.resource.node.ParameterValueVo;
+import org.ligoj.app.resource.node.*;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.ligoj.bootstrap.core.DescribedBean;
 
@@ -103,7 +100,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 			vo.copyAuditData(entity, userConverter);
 			vo.setId(id);
 			vo.setMode(entity.getMode());
-			vo.setNode(NodeResource.toVo(entity.getNode(), locator));
+			vo.setNode(NodeHelper.toVo(entity.getNode(), locator));
 			vo.setParameters(new HashMap<>());
 
 			// Add subscription status

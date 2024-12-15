@@ -99,7 +99,7 @@ public class ParameterValueResource {
 
 		// Map node
 		if (entity.getNode() != null) {
-			vo.setNode(NodeResource.toVo(entity.getNode()));
+			vo.setNode(NodeHelper.toVo(entity.getNode()));
 		}
 
 		// Map criteria value

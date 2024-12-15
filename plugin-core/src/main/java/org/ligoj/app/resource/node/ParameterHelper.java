@@ -126,7 +126,7 @@ public class ParameterHelper {
 		vo.setType(entity.getType());
 		vo.setMandatory(entity.isMandatory());
 		vo.setSecured(entity.isSecured());
-		vo.setOwner(NodeResource.toVo(entity.getOwner()));
+		vo.setOwner(NodeHelper.toVo(entity.getOwner()));
 		vo.setDefaultValue(entity.getDefaultValue());
 		vo.setDepends(entity.getDepends().stream().map(Persistable::getId).collect(Collectors.toSet()));
 

@@ -3,15 +3,7 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
 import jakarta.transaction.Transactional;
-
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
@@ -19,6 +11,8 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  * {@link Event} resource.
@@ -98,9 +92,9 @@ public class EventResource {
 		vo.setType(entity.getType());
 		if (entity.getNode() == null) {
 			vo.setSubscription(entity.getSubscription().getId());
-			vo.setNode(NodeResource.toVoLight(entity.getSubscription().getNode()));
+			vo.setNode(NodeHelper.toVoLight(entity.getSubscription().getNode()));
 		} else {
-			vo.setNode(NodeResource.toVoLight(entity.getNode()));
+			vo.setNode(NodeHelper.toVoLight(entity.getNode()));
 		}
 		return vo;
 	}
@@ -138,7 +132,7 @@ public class EventResource {
 			final String eventValue) {
 		final var service = parents.computeIfAbsent(parent.getId(), key -> {
 			final var result = new EventVo();
-			result.setNode(NodeResource.toVoLight(parent));
+			result.setNode(NodeHelper.toVoLight(parent));
 			result.setValue(eventValue);
 			result.setType(eventVo.getType());
 			return result;

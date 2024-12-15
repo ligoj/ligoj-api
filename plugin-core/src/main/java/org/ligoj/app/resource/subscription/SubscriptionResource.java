@@ -117,7 +117,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		// Copy subscription details
 		final var entity = checkVisible(id);
 		final var vo = new ConfigurationVo();
-		vo.setNode(NodeResource.toVo(entity.getNode(), locator));
+		vo.setNode(NodeHelper.toVo(entity.getNode(), locator));
 		vo.setParameters(this.getNonSecuredParameters(id));
 		vo.setSubscription(id);
 		vo.setProject(DescribedBean.clone(entity.getProject()));
