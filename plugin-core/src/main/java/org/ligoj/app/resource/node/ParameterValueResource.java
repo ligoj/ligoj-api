@@ -201,7 +201,7 @@ public class ParameterValueResource {
 	private void checkCompleteness(final BasicParameterValueVo vo, final Parameter parameter) {
 		Arrays.stream(new Supplier<?>[]{vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger,
 						vo::getTags, vo::getSelections}).map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst()
-				.ifPresent(_ -> {
+				.ifPresent(e -> {
 					final var exception = new ValidationJsonException();
 					exception.addError(parameter.getId(), "Too many values");
 					throw exception;
