@@ -357,9 +357,13 @@ public class ParameterValueResource {
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
 
 		// Build the target parameter values
-		final var newParam = values.stream().map(v -> saveOrUpdate(oldMap, v)).filter(Objects::nonNull)
-				.peek(v -> v.setNode(node)).map(repository::saveAndFlush).map(v -> v.getParameter().getId())
-				.collect(Collectors.toSet());
+		final var newParam = values.stream().map(v -> saveOrUpdate(oldMap, v))
+				.filter(Objects::nonNull)
+				.map(v -> {
+					v.setNode(node);
+					repository.saveAndFlush(v);
+					return v.getParameter().getId();
+				}).collect(Collectors.toSet());
 
 		// Delete the existing but not provided values
 		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
