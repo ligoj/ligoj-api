@@ -40,6 +40,7 @@ jobs:
         run: mvn -B -e -V clean package jacoco:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           -Dmaven.test.redirectTestOutputToFile=false
           -Djava.net.preferIPv4Stack=true
+          -DargLine="--enable-preview -XX:+EnableDynamicAgentLoading"
           -Dsurefire.useFile=false
           -DbuildVersion=${{ env.RELEASE_VERSION }}
           -Dskip-sonarsource-repo=true
