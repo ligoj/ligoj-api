@@ -16,7 +16,7 @@ import java.util.Optional;
 import java.util.function.Function;
 
 /**
- * {@link Node} resource.
+ * {@link Node} helper resource.
  */
 public class NodeHelper {
 

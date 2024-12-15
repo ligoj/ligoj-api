@@ -345,7 +345,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		Mockito.when(badList.isEmpty()).thenReturn(Boolean.FALSE);
 		Mockito.when(badList.iterator()).thenThrow(new IllegalStateException());
 		parameterValue.setTags(badList);
-		Assertions.assertThrows(TechnicalException.class, () -> ParameterValueHelper.toData(parameterValue));
+		Assertions.assertThrows(TechnicalException.class, () -> ParameterValueResource.toData(parameterValue));
 	}
 
 	@Test

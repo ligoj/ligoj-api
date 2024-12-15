@@ -374,7 +374,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		} else {
 			// All subscription of this are marked as DOWN
 			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptions.size());
-			subscriptions.forEach((s,ignored) -> eventResource.registerEvent(s, EventType.STATUS, NodeStatus.DOWN.name()));
+			subscriptions.forEach((s, ignored) -> eventResource.registerEvent(s, EventType.STATUS, NodeStatus.DOWN.name()));
 		}
 	}
 
