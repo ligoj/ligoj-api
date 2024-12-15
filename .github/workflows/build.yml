@@ -37,10 +37,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          MAVEN_OPTS: --enable-preview
         run: mvn -B -e -V clean package jacoco:report org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
           -Dmaven.test.redirectTestOutputToFile=false
           -Djava.net.preferIPv4Stack=true
-          -DargLine="--enable-preview -XX:+EnableDynamicAgentLoading"
           -Dsurefire.useFile=false
           -DbuildVersion=${{ env.RELEASE_VERSION }}
           -Dskip-sonarsource-repo=true
