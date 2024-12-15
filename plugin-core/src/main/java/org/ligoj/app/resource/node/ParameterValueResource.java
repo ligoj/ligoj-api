@@ -36,7 +36,6 @@ import org.springframework.stereotype.Service;
 import javax.cache.annotation.CacheKey;
 import javax.cache.annotation.CacheRemove;
 import javax.cache.annotation.CacheResult;
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -96,7 +95,7 @@ public class ParameterValueResource {
 		vo.copyAuditData(entity,
 				(Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
-		vo.setParameter(ParameterResource.toVo(entity.getParameter()));
+		vo.setParameter(ParameterHelper.toVo(entity.getParameter()));
 
 		// Map node
 		if (entity.getNode() != null) {

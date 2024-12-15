@@ -60,11 +60,11 @@ public class ParameterValueHelper {
 		TO_VALUE.put(ParameterType.INTEGER,
 				new ParameterValueMapper<>(BasicParameterValueVo::setInteger, Integer::valueOf));
 		TO_VALUE.put(ParameterType.MULTIPLE,
-				new ParameterValueMapper<>(BasicParameterValueVo::setSelections, ParameterResource::toListInteger));
+				new ParameterValueMapper<>(BasicParameterValueVo::setSelections, ParameterHelper::toListInteger));
 		TO_VALUE.put(ParameterType.SELECT,
 				new ParameterValueMapper<>(BasicParameterValueVo::setIndex, Integer::valueOf));
 		TO_VALUE.put(ParameterType.TAGS,
-				new ParameterValueMapper<>(BasicParameterValueVo::setTags, ParameterResource::toListString));
+				new ParameterValueMapper<>(BasicParameterValueVo::setTags, ParameterHelper::toListString));
 		TO_VALUE.put(ParameterType.TEXT,
 				new ParameterValueMapper<>(BasicParameterValueVo::setText, Function.identity()));
 
@@ -73,8 +73,8 @@ public class ParameterValueHelper {
 		TO_STRING.put(BasicParameterValueVo::getDate, o -> String.valueOf(((Date) o).getTime()));
 		TO_STRING.put(BasicParameterValueVo::getIndex, Object::toString);
 		TO_STRING.put(BasicParameterValueVo::getInteger, Object::toString);
-		TO_STRING.put(BasicParameterValueVo::getTags, o -> ParameterResource.toJSon(o).toUpperCase(Locale.ENGLISH));
-		TO_STRING.put(BasicParameterValueVo::getSelections, ParameterResource::toJSon);
+		TO_STRING.put(BasicParameterValueVo::getTags, o -> ParameterHelper.toJSon(o).toUpperCase(Locale.ENGLISH));
+		TO_STRING.put(BasicParameterValueVo::getSelections, ParameterHelper::toJSon);
 	}
 
 	/**
@@ -139,7 +139,7 @@ public class ParameterValueHelper {
 	 */
 	private void checkMultiple(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getSelections(), parameter.getId());
-		final var multiple = ParameterResource.toListString(parameter.getData());
+		final var multiple = ParameterHelper.toListString(parameter.getData());
 
 		// Check each index
 		vo.getSelections().forEach(i -> checkArrayBound(i, multiple.size(), parameter));
@@ -150,7 +150,7 @@ public class ParameterValueHelper {
 	 */
 	private void checkSelect(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getIndex(), parameter.getId());
-		final var single = ParameterResource.toListString(parameter.getData());
+		final var single = ParameterHelper.toListString(parameter.getData());
 
 		// Check the index
 		checkArrayBound(vo.getIndex(), single.size(), parameter);
@@ -183,7 +183,7 @@ public class ParameterValueHelper {
 	 */
 	private void checkInteger(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getInteger(), parameter.getId());
-		final var minMax = ParameterResource.toMapInteger(parameter.getData());
+		final var minMax = ParameterHelper.toMapInteger(parameter.getData());
 		// Check minimal value
 		Optional.ofNullable(minMax.get("max")).ifPresent(m -> checkMax(vo.getInteger(), m, parameter));
 
@@ -198,7 +198,7 @@ public class ParameterValueHelper {
 		// Check the value if not empty
 		if (StringUtils.isNotBlank(vo.getText()) && StringUtils.isNotBlank(parameter.getData())) {
 			// Check the pattern if present
-			final var stringProperties = ParameterResource.toMapString(parameter.getData());
+			final var stringProperties = ParameterHelper.toMapString(parameter.getData());
 			final var patternString = stringProperties.get("pattern");
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
