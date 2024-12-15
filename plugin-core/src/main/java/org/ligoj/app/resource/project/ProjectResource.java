@@ -13,9 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
-import org.ligoj.app.iam.UserOrg;
 import org.ligoj.app.model.Project;
-import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.json.PaginationJson;
@@ -56,7 +54,7 @@ public class ProjectResource {
 	private SubscriptionResource subscriptionResource;
 
 	@Autowired
-	private ServicePluginLocator locator;
+	private ProjectHelper helper;
 
 	@Autowired
 	protected IamProvider[] iamProvider;
@@ -77,71 +75,6 @@ public class ProjectResource {
 		ORDERED_COLUMNS.put("nbSubscriptions", "COUNT(s)");
 	}
 
-	/**
-	 * Converter from {@link Project} to {@link ProjectVo} with the associated subscriptions.
-	 *
-	 * @param project Entity to convert.
-	 * @return The project description with subscriptions.
-	 */
-	public ProjectVo toVo(final Project project) {
-		// Get subscriptions
-		final var subscriptionsResultSet = subscriptionRepository.findAllWithValuesSecureByProject(project.getId());
-
-		// Get subscriptions status
-		final var subscriptionStatus = subscriptionResource.getStatusByProject(project.getId());
-
-		// Convert users, project and subscriptions
-		final var projectVo = new ToVoConverter(locator, toUser(), subscriptionsResultSet, subscriptionStatus)
-				.apply(project);
-		projectVo.setManageSubscriptions(repository.isManageSubscription(project.getId(), securityHelper.getLogin()));
-		return projectVo;
-	}
-
-	private Function<String, ? extends UserOrg> toUser() {
-		return iamProvider[0].getConfiguration().getUserRepository()::toUser;
-	}
-
-	/**
-	 * Converter from {@link Project} to {@link ProjectLightVo} with subscription count.
-	 *
-	 * @param resultSet Entity to convert and the associated subscription count.
-	 * @return The project description with subscription counter.
-	 */
-	public ProjectLightVo toVoLightCount(final Object[] resultSet) { // NOSONAR -- varargs
-		final var vo = toVoLight((Project) resultSet[0]);
-		vo.setNbSubscriptions(((Long) resultSet[1]).intValue());
-		return vo;
-	}
-
-	/**
-	 * Converter from {@link Project} to {@link ProjectLightVo} without subscription count.
-	 *
-	 * @param entity Entity to convert.
-	 * @return The project description without subscription counter.
-	 */
-	public ProjectLightVo toVoLight(final Project entity) {
-
-		// Convert users, project and subscriptions
-		final var vo = new ProjectLightVo();
-		vo.copyAuditData(entity, toUser());
-		DescribedBean.copy(entity, vo);
-		vo.setPkey(entity.getPkey());
-		vo.setTeamLeader(toUser().apply(entity.getTeamLeader()));
-		return vo;
-	}
-
-	/**
-	 * /** Converter from {@link ProjectEditionVo} to {@link Project}
-	 */
-	private static Project toEntity(final ProjectEditionVo vo) {
-		final var entity = new Project();
-		// map project
-		DescribedBean.copy(vo, entity);
-		entity.setPkey(vo.getPkey());
-		entity.setTeamLeader(vo.getTeamLeader());
-		entity.setCreationContext(vo.getCreationContext());
-		return entity;
-	}
 
 	/**
 	 * Retrieve all projects with pagination, and filtered. A visible project is attached to a visible group.
@@ -157,7 +90,7 @@ public class ProjectResource {
 				paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS));
 
 		// apply pagination and prevent lazy initialization issue
-		return paginationJson.applyPagination(uriInfo, findAll, this::toVoLightCount);
+		return paginationJson.applyPagination(uriInfo, findAll, helper::toVoLightCount);
 	}
 
 	/**
@@ -169,7 +102,7 @@ public class ProjectResource {
 	@GET
 	@Path("{id:\\d+}")
 	public ProjectVo findById(@PathParam("id") final int id) {
-		return findOneVisible(repository::findOneVisible, id, this::toVo);
+		return findOneVisible(repository::findOneVisible, id, helper::toVo);
 	}
 
 	/**
@@ -181,18 +114,7 @@ public class ProjectResource {
 	@GET
 	@Path("{pkey:" + Project.PKEY_PATTERN + "}")
 	public ProjectVo findByPKeyFull(@PathParam("pkey") final String pkey) {
-		return findOneVisible(repository::findByPKey, pkey, this::toVo);
-	}
-
-	/**
-	 * Return a project without subscription details.
-	 *
-	 * @param pkey Project pkey.
-	 * @return Found element. Never <code>null</code>.
-	 */
-	public ProjectLightVo findByPKey(final String pkey) {
-		return Optional.ofNullable(repository.findByPKeyNoFetch(pkey, securityHelper.getLogin())).map(this::toVoLight)
-				.orElseThrow(() -> new EntityNotFoundException(pkey));
+		return findOneVisible(repository::findByPKey, pkey, helper::toVo);
 	}
 
 	/**
@@ -203,7 +125,7 @@ public class ProjectResource {
 	 */
 	@POST
 	public int create(final ProjectEditionVo vo) {
-		return repository.saveAndFlush(ProjectResource.toEntity(vo)).getId();
+		return repository.saveAndFlush(ProjectHelper.toEntity(vo)).getId();
 	}
 
 	/**
@@ -248,4 +170,5 @@ public class ProjectResource {
 		return Optional.ofNullable(finder.apply(key, securityHelper.getLogin())).map(mapper)
 				.orElseThrow(() -> new EntityNotFoundException(key.toString()));
 	}
+
 }

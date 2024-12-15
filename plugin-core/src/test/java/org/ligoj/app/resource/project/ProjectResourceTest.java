@@ -42,6 +42,9 @@ class ProjectResourceTest extends AbstractOrgTest {
 	private ProjectResource resource;
 
 	@Autowired
+	private ProjectHelper helper;
+
+	@Autowired
 	private ProjectRepository repository;
 
 	@Autowired
@@ -56,7 +59,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	void setUpEntities2() {
 		resource = new ProjectResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
-		resource.iamProvider = new IamProvider[] { iamProvider };
+		resource.iamProvider = new IamProvider[]{iamProvider};
 		testProject = repository.findByName("MDA");
 
 		// Ensure LDAP cache is loaded
@@ -250,7 +253,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	@Test
 	void findByIdWithSubscription() throws IOException {
 		final var byName = repository.findByName("Jupiter");
-		persistEntities("csv", new Class<?>[] { Event.class }, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
 
 		initSpringSecurityContext("admin-test");
 		final var project = resource.findById(byName.getId());
@@ -305,21 +308,21 @@ class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	/**
-	 * test {@link ProjectResource#findByPKey(String)}
+	 * test {@link ProjectHelper#findByPKey(String)}
 	 */
 	@Test
 	void findByPKey() {
 		initSpringSecurityContext("fdaugan");
-		checkProject(resource.findByPKey("mda"));
+		checkProject(helper.findByPKey("mda"));
 	}
 
 	/**
-	 * test {@link ProjectResource#findByPKey(String)}
+	 * test {@link ProjectHelper#findByPKey(String)}
 	 */
 	@Test
 	void findByPKeyNotExists() {
 		initSpringSecurityContext("any");
-		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findByPKey("mda"));
+		Assertions.assertThrows(EntityNotFoundException.class, () -> helper.findByPKey("mda"));
 	}
 
 	private void checkProject(final BasicProjectVo project) {

@@ -21,7 +21,7 @@ import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.SimpleUserOrg;
 import org.ligoj.app.model.*;
-import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.ligoj.app.resource.project.ProjectHelper;
 import org.ligoj.bootstrap.core.crypto.CryptoHelper;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
@@ -79,7 +79,7 @@ public class ParameterValueResource {
 	private SubscriptionRepository subscriptionRepository;
 
 	@Autowired
-	private SubscriptionResource subscriptionResource;
+	private ProjectHelper projectHelper;
 
 	@Autowired
 	private NodeResource nodeResource;
@@ -700,7 +700,7 @@ public class ParameterValueResource {
 	public Collection<ParameterValueVo> findAll(@PathParam("project") final int project,
 			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
 			@PathParam("criteria") final String criteria) {
-		subscriptionResource.checkVisibleProject(project);
+		projectHelper.checkVisibleProject(project);
 		return repository.findAll(node, parameter, project, criteria).stream().map(this::toVo).toList();
 	}
 }

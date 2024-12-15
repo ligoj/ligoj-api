@@ -18,6 +18,7 @@ import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.model.*;
 import org.ligoj.app.resource.node.*;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
+import org.ligoj.app.resource.project.ProjectHelper;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.NamedBean;
 import org.ligoj.bootstrap.core.resource.BusinessException;
@@ -46,6 +47,9 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	@Autowired
 	private ProjectRepository projectRepository;
+
+	@Autowired
+	private ProjectHelper projectHelper;
 
 	@Autowired
 	private NodeRepository nodeRepository;
@@ -166,7 +170,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	public int create(final SubscriptionEditionVo vo) throws Exception {
 
 		// Validate entities
-		final var project = checkVisibleProject(vo.getProject());
+		final var project = projectHelper.checkVisibleProject(vo.getProject());
 		checkManagedProject(vo.getProject());
 		final var node = checkManagedNodeForSubscription(vo.getNode());
 		final var acceptedParameters = checkInputParameters(vo);
@@ -315,21 +319,6 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		}
 	}
 
-	/**
-	 * Check the associated project is visible for current user.
-	 *
-	 * @param id Project's identifier.
-	 * @return the loaded project.
-	 */
-	public Project checkVisibleProject(final int id) {
-		final var project = projectRepository.findOneVisible(id, securityHelper.getLogin());
-		if (project == null) {
-			// Associated project is not visible
-			throw new EntityNotFoundException(String.valueOf(id));
-		}
-		return project;
-	}
-
 	@Override
 	public Subscription checkVisible(final Integer id) {
 		final var entity = repository.findOneExpected(id);
@@ -449,7 +438,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<Integer, EventVo> getStatusByProject(@PathParam("project") final int project) {
-		return eventRepository.findLastEvents(project).stream().map(EventResource::toVo).collect(Collectors.toMap(EventVo::getSubscription, Function.identity()));
+		return projectHelper.getStatusByProject(project);
 	}
 
 	/**
