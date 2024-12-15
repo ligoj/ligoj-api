@@ -18,7 +18,7 @@ import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.NodeResource;
-import org.ligoj.app.resource.node.ParameterValueResource;
+import org.ligoj.app.resource.node.ParameterValueHelper;
 import org.ligoj.app.resource.node.ParameterValueVo;
 import org.ligoj.app.resource.subscription.SubscriptionVo;
 import org.ligoj.bootstrap.core.DescribedBean;
@@ -76,7 +76,7 @@ class ToVoConverter implements Function<Project, ProjectVo> {
 			// Add subscription value
 			final var parameterValue = (ParameterValue) resultSet[1];
 			addVo(subscriptions, (Subscription) resultSet[0]).getParameters().put(parameterValue.getParameter().getId(),
-					ParameterValueResource.parseValue(parameterValue, new ParameterValueVo()));
+					ParameterValueHelper.parseValue(parameterValue, new ParameterValueVo()));
 		}
 
 		// Merge with subscription without parameters

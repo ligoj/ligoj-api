@@ -51,6 +51,9 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	private ParameterValueResource resource;
 
 	@Autowired
+	private ParameterValueHelper helper;
+
+	@Autowired
 	private ProjectRepository projectRepository;
 
 	@Autowired
@@ -59,7 +62,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	@BeforeEach
 	void prepare() throws IOException {
 		persistEntities("csv",
-				new Class<?>[] { Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class },
+				new Class<?>[]{Node.class, Parameter.class, Project.class, Subscription.class, ParameterValue.class},
 				StandardCharsets.UTF_8);
 		persistSystemEntities();
 
@@ -338,12 +341,11 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void createSelectJSonError() {
 		final var parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
-		@SuppressWarnings("unchecked")
-		final List<String> badList = Mockito.mock(List.class);
+		@SuppressWarnings("unchecked") final List<String> badList = Mockito.mock(List.class);
 		Mockito.when(badList.isEmpty()).thenReturn(Boolean.FALSE);
 		Mockito.when(badList.iterator()).thenThrow(new IllegalStateException());
 		parameterValue.setTags(badList);
-		Assertions.assertThrows(TechnicalException.class, () -> ParameterValueResource.toData(parameterValue));
+		Assertions.assertThrows(TechnicalException.class, () -> ParameterValueHelper.toData(parameterValue));
 	}
 
 	@Test
@@ -525,7 +527,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<SystemRole> values = new ArrayList<>();
 		values.add(newUser("u1", 1));
 		values.add(newUser("u2", 2));
-		final Map<Integer, SystemRole> valuesAsMap = resource.toMap(values);
+		final Map<Integer, SystemRole> valuesAsMap = helper.toMap(values);
 		Assertions.assertEquals(2, valuesAsMap.size());
 		Assertions.assertEquals("u1", valuesAsMap.get(1).getName());
 		Assertions.assertEquals("u2", valuesAsMap.get(2).getName());
@@ -540,7 +542,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		p2.setId("p2");
 		values.add(newParameterValue("u1", p1));
 		values.add(newParameterValue("u2", p2));
-		final var valuesAsMap = resource.toMapValues(values);
+		final var valuesAsMap = helper.toMapValues(values);
 		Assertions.assertEquals(2, valuesAsMap.size());
 		Assertions.assertEquals("u1", valuesAsMap.get("p1"));
 		Assertions.assertEquals("u2", valuesAsMap.get("p2"));

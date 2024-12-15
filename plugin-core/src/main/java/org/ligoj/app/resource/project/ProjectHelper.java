@@ -112,9 +112,9 @@ public class ProjectHelper {
 	}
 
 	/**
-	 * /** Converter from {@link ProjectEditionVo} to {@link Project}
+	 * Converter from {@link ProjectEditionVo} to {@link Project}
 	 */
-	public static Project toEntity(final ProjectEditionVo vo) {
+	static Project toEntity(final ProjectEditionVo vo) {
 		final var entity = new Project();
 		// map project
 		DescribedBean.copy(vo, entity);

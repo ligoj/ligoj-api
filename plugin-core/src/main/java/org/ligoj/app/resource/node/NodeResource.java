@@ -15,7 +15,10 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.*;
-import org.ligoj.app.dao.*;
+import org.ligoj.app.dao.EventRepository;
+import org.ligoj.app.dao.NodeRepository;
+import org.ligoj.app.dao.ParameterRepository;
+import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.dao.task.LongTaskNodeRepository;
 import org.ligoj.app.model.*;
 import org.ligoj.app.resource.ServicePluginLocator;
@@ -188,7 +191,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 			// Copy the parameter value if present
 			Optional.ofNullable((ParameterValue) resultSet[1]).ifPresent(v -> vo.getParameters()
-					.put(v.getParameter().getId(), ParameterValueResource.parseValue(v, new ParameterValueVo())));
+					.put(v.getParameter().getId(), ParameterValueHelper.parseValue(v, new ParameterValueVo())));
 		}
 
 		// Complete the hierarchy
