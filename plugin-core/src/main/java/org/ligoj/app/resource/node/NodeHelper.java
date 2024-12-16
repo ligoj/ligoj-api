@@ -29,6 +29,11 @@ import java.util.stream.Collectors;
  */
 public class NodeHelper {
 
+	/**
+	 * Utility class
+	 */
+	private NodeHelper() {}
+
 	private static final TypeReference<List<Integer>> LIST_INTEGER_TYPE = new TypeReference<>() {
 		// Nothing to do
 	};
@@ -42,7 +47,6 @@ public class NodeHelper {
 	private static final TypeReference<Map<String, String>> MAP_STRING_STRING_TYPE = new TypeReference<>() {
 		// Nothing to do
 	};
-
 
 	/**
 	 * A mapper configuration to parse string to parameter value.
