@@ -26,8 +26,8 @@ class EmptyIamProviderTest {
 	@Test
 	void testIamEmptyCache() {
 		@SuppressWarnings("unchecked")
-		final Function<String, CacheConfig<?, ?>> provider = Mockito.mock(Function.class);
-		new IamEmptyCache().onCreate(Mockito.mock(HazelcastCacheManager.class), provider);
+		final Function<String, CacheConfig<?, ?>> mock = Mockito.mock(Function.class);
+		new IamEmptyCache().onCreate(Mockito.mock(HazelcastCacheManager.class), mock);
 	}
 
 	@Test

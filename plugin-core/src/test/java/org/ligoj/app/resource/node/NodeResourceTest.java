@@ -84,13 +84,13 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	private void mockApplicationContext() {
-		final var resource = new NodeResource();
+		final var mock = new NodeResource();
 		super.applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
 		resource.self = resource;
 
 		// Replace the plug-in locator
-		resource.locator = Mockito.mock(ServicePluginLocator.class);
-		this.resourceMock = resource;
+		mock.locator = Mockito.mock(ServicePluginLocator.class);
+		this.resourceMock = mock;
 	}
 
 	@Test
@@ -99,14 +99,14 @@ class NodeResourceTest extends AbstractAppTest {
 		// This user sees only Jenkins nodes
 		mockApplicationContext();
 		initSpringSecurityContext("user1");
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 
 		// Mock the servers
 		prepareEvent();
 
 		// check status
 		final var eventsCount = eventRepository.count();
-		resource.checkNodesStatus();
+		mock.checkNodesStatus();
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
 		 * subscriptions :<br> +1 : Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
@@ -122,14 +122,14 @@ class NodeResourceTest extends AbstractAppTest {
 		// This user sees all nodes
 		mockApplicationContext();
 		initSpringSecurityContext(DEFAULT_USER);
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 
 		// Mock the servers
 		prepareEvent();
 
 		// check status
 		final var eventsCount = eventRepository.count();
-		resource.checkNodesStatus();
+		mock.checkNodesStatus();
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
 		 * subscriptions :<br> +1 : Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
@@ -145,7 +145,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// This user sees only Jenkins nodes
 		mockApplicationContext();
 		initSpringSecurityContext("user1");
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 
 		// Mock the servers
 		prepareEvent();
@@ -154,14 +154,14 @@ class NodeResourceTest extends AbstractAppTest {
 		final var eventsCount = eventRepository.count();
 
 		// Not visible node
-		Assertions.assertNull(resource.checkNodeStatus("service:id:ldap:dig"));
+		Assertions.assertNull(mock.checkNodeStatus("service:id:ldap:dig"));
 		Assertions.assertEquals(eventsCount, eventRepository.count());
 	}
 
 	@Test
 	void checkNodeStatus() throws Exception {
 		mockApplicationContext();
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 
 		// Mock the servers
 		prepareEvent();
@@ -170,26 +170,26 @@ class NodeResourceTest extends AbstractAppTest {
 		final var eventsCount = eventRepository.count();
 
 		// Visible and down node
-		Assertions.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(NodeStatus.DOWN, mock.checkNodeStatus("service:id:ldap:dig"));
 		Assertions.assertEquals(eventsCount + 3, eventRepository.count());
 	}
 
 	@Test
 	void getNodeStatusSingleNode() throws Exception {
 		mockApplicationContext();
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 
 		// Mock the servers
 		prepareEvent();
 
 		// Visible node, but without event/check
-		Assertions.assertNull(resource.getNodeStatus("service:id:ldap:dig"));
+		Assertions.assertNull(mock.getNodeStatus("service:id:ldap:dig"));
 
 		// First check to create the event
-		Assertions.assertEquals(NodeStatus.DOWN, resource.checkNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(NodeStatus.DOWN, mock.checkNodeStatus("service:id:ldap:dig"));
 
 		// Visible and down node
-		Assertions.assertEquals(NodeStatus.DOWN, resource.getNodeStatus("service:id:ldap:dig"));
+		Assertions.assertEquals(NodeStatus.DOWN, mock.getNodeStatus("service:id:ldap:dig"));
 	}
 
 	/**
@@ -232,7 +232,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void checkNodesStatusScheduler() throws Exception {
 		mockApplicationContext();
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 
 		// data
 		final var jiraNode = repository.findByName("JIRA 4");
@@ -256,7 +256,7 @@ class NodeResourceTest extends AbstractAppTest {
 
 		// check status
 		final var eventsCount = eventRepository.count();
-		resource.checkNodesStatusScheduler();
+		mock.checkNodesStatusScheduler();
 		/*
 		 * Expected count 5 changes for tools :<br> +1 : Sonar UP, discovered <br> +1 : Jenkins DOWN, was UP <br> +1 :
 		 * Jira 4 was UP <br> +1 : Confluence DOWN, discovered <br> +1 : Fortify DOWN, discovered <br> +1 : vCloud DOWN,
@@ -285,9 +285,9 @@ class NodeResourceTest extends AbstractAppTest {
 
 		// This user sees only Jenkins nodes
 		initSpringSecurityContext("user1");
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 		final var eventsCount = prepareSubscriptionsEvent();
-		resource.checkSubscriptionsStatus();
+		mock.checkSubscriptionsStatus();
 
 		/*
 		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> Expected changes for subscriptions :<br>
@@ -345,7 +345,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void checkSubscriptionsStatusScheduler() throws Exception {
 		mockApplicationContext();
 		initSpringSecurityContext(DEFAULT_USER);
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 		final var eventsCount = prepareSubscriptionsEvent();
 		resource.checkSubscriptionsStatusScheduler();
 
@@ -359,7 +359,7 @@ class NodeResourceTest extends AbstractAppTest {
 
 		// All nodes changed [(1* nb services) + 1 (LDAP*2) + 1(Source*2)
 		// +1(BT*2)] but Jira6 node
-		final var nbServices = resource.findAll(newUriInfo(), null, "service", null, 0).getData().size();
+		final var nbServices = mock.findAll(newUriInfo(), null, "service", null, 0).getData().size();
 		expectedCount += nbServices + 1 + 1 - 1;
 
 		// All subscriptions changed (1* nb services) + 1 (LDAP*2) + 1(Source*2)
@@ -371,7 +371,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void checkSubscriptionStatusException() throws Exception {
 		mockApplicationContext();
-		final var resource = resourceMock;
+		final var mock = resourceMock;
 		final var servicePluginLocator = resourceMock.locator;
 
 		// data
@@ -389,7 +389,7 @@ class NodeResourceTest extends AbstractAppTest {
 
 		// check status
 		final var eventsCount = eventRepository.count();
-		resource.checkSubscriptionStatus(jiraNode, NodeStatus.UP);
+		mock.checkSubscriptionStatus(jiraNode, NodeStatus.UP);
 
 		// 1 subscription
 		Assertions.assertEquals(eventsCount + 1, eventRepository.count());

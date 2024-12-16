@@ -419,7 +419,7 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("fdaugan", entity.getReceiver());
 		Assertions.assertEquals(ReceiverType.USER, entity.getReceiverType());
 		Assertions.assertFalse(entity.isCanWrite());
-		Assertions.assertFalse(entity.isCanWrite());
+		Assertions.assertFalse(entity.isCanAdmin());
 	}
 
 	@Test
@@ -618,18 +618,17 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 
 	@Test
 	void deleteFromBaseDn() {
-		final var initCount = repository.count();
-		em.clear();
-		resource.delete(expected.getId());
-		em.flush();
-		em.clear();
-		Assertions.assertEquals(initCount - 1, repository.count());
+		assertDelete(expected.getId());
 	}
 
 	@Test
 	void deleteSubTreeGroup() {
 		initSpringSecurityContext("fdaugan");
 		final int id = em.createQuery("SELECT id FROM DelegateOrg WHERE receiver=:user AND name=:name", Integer.class).setParameter("user", "someone").setParameter("name", "dig rha").getSingleResult();
+		assertDelete(id);
+	}
+
+	private void assertDelete(int id) {
 		final var initCount = repository.count();
 		em.clear();
 		resource.delete(id);
@@ -637,7 +636,6 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		em.clear();
 		Assertions.assertEquals(initCount - 1, repository.count());
 	}
-
 	@Test
 	void delete() {
 		final var initCount = repository.count();

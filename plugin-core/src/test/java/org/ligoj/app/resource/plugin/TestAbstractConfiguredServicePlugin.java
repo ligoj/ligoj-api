@@ -118,22 +118,22 @@ class TestAbstractConfiguredServicePlugin {
 
 	@Test
 	void checkVisibility() {
-		final var subscription = new Subscription();
+		final var entity = new Subscription();
 		final var node = new Node();
 		node.setId("service:s:t:i");
-		subscription.setNode(node);
-		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s"));
-		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s:t"));
-		Assertions.assertSame(subscription, resource.checkVisibility(subscription, "service:s:t:i"));
+		entity.setNode(node);
+		Assertions.assertSame(entity, resource.checkVisibility(entity, "service:s"));
+		Assertions.assertSame(entity, resource.checkVisibility(entity, "service:s:t"));
+		Assertions.assertSame(entity, resource.checkVisibility(entity, "service:s:t:i"));
 	}
 
 	@Test
 	void checkVisibilityKo() {
-		final var subscription = new Subscription();
+		final var entity = new Subscription();
 		final var node = new Node();
 		node.setId("service:s:t:i");
-		subscription.setNode(node);
-		subscription.setId(2000);
-		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.checkVisibility(subscription, "any"));
+		entity.setNode(node);
+		entity.setId(2000);
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.checkVisibility(entity, "any"));
 	}
 }

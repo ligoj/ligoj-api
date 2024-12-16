@@ -33,84 +33,101 @@ class UserRepositoryTest {
 
 			@Override
 			public void updateUser(UserOrg user) {
+				// Only for mock
 			}
 
 			@Override
 			public void unlock(UserOrg user) {
+				// Only for mock
 			}
 
 			@Override
 			public String toDn(UserOrg newUser) {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public void setPassword(UserOrg user, String password, String newPassword) {
+				// Only for mock
 			}
 
 			@Override
 			public void setPassword(UserOrg user, String password) {
+				// Only for mock
 			}
 
 			@Override
 			public void restore(UserOrg user) {
+				// Only for mock
 			}
 
 			@Override
 			public void move(UserOrg user, CompanyOrg company) {
+				// Only for mock
 			}
 
 			@Override
 			public void lock(String principal, UserOrg user) {
+				// Only for mock
 			}
 
 			@Override
 			public void isolate(String principal, UserOrg user) {
+				// Only for mock
 			}
 
 			@Override
 			public String getToken(String id) {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public String getPeopleInternalBaseDn() {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public UserOrg findByIdNoCache(String id) {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public List<UserOrg> findAllBy(String attribute, String value) {
-				// TODO Auto-generated method stub
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public Page<UserOrg> findAll(Collection<GroupOrg> requiredGroups, Set<String> companies, String criteria,
 					Pageable pageable) {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public Map<String, UserOrg> findAll() {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public void delete(UserOrg user) {
+				// Only for mock
 			}
 
 			@Override
 			public UserOrg create(UserOrg entry) {
+				// Only for mock
 				return null;
 			}
 
 			@Override
 			public UserOrg authenticate(String name, String password) {
+				// Only for mock
 				return null;
 			}
 		};

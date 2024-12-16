@@ -94,8 +94,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void toStringTest() {
-		final var subscription = repository.findOneExpected(this.subscription);
-		final var subscriptionStr = subscription.toString();
+		final var entity = repository.findOneExpected(this.subscription);
+		final var subscriptionStr = entity.toString();
 		Assertions.assertTrue(subscriptionStr
 				.startsWith("Subscription(super=Entity of type org.ligoj.app.model.Subscription with id: "));
 		Assertions.assertTrue(subscriptionStr.contains("name=JIRA 4"));
@@ -164,15 +164,15 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void getConfiguration() throws Exception {
-		final int subscription = repository.findByExpected("node.id", "service:vm:vcloud:sample").getId();
-		final var configuration = resource.getConfiguration(subscription);
+		final int entity = repository.findByExpected("node.id", "service:vm:vcloud:sample").getId();
+		final var configuration = resource.getConfiguration(entity);
 
 		// Not secured parameter
 		Assertions.assertEquals("http://localhost:8120", configuration.getParameters().get("service:vm:vcloud:url"));
 
 		// Secured parameter
 		Assertions.assertNull(configuration.getParameters().get("service:vm:vcloud:user"));
-		Assertions.assertEquals(subscription, configuration.getSubscription());
+		Assertions.assertEquals(entity, configuration.getSubscription());
 		Assertions.assertEquals("Jupiter", configuration.getProject().getName());
 		Assertions.assertEquals("service:vm:vcloud:sample", configuration.getNode().getId());
 		Assertions.assertNotNull(configuration.getConfiguration());
@@ -180,9 +180,9 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void getConfigurationNone() throws Exception {
-		final int subscription = repository.findByExpected("node.id", "service:km:confluence:dig").getId();
-		final var configuration = resource.getConfiguration(subscription);
-		Assertions.assertEquals(subscription, configuration.getSubscription());
+		final int entity = repository.findByExpected("node.id", "service:km:confluence:dig").getId();
+		final var configuration = resource.getConfiguration(entity);
+		Assertions.assertEquals(entity, configuration.getSubscription());
 		Assertions.assertEquals("Jupiter", configuration.getProject().getName());
 		Assertions.assertEquals("service:km:confluence:dig", configuration.getNode().getId());
 
@@ -402,15 +402,15 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void create() throws Exception {
-		final var subscription = resource.create(newCreateVo());
+		final var entity = resource.create(newCreateVo());
 		em.flush();
 		em.clear();
 
-		Assertions.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(subscription,
+		Assertions.assertEquals("10074", parameterValueRepository.getSubscriptionParameterValue(entity,
 				JiraBaseResource.PARAMETER_PROJECT));
 		Assertions.assertEquals("MDA",
 				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
-		Assertions.assertEquals(SubscriptionMode.LINK, repository.findOneExpected(subscription).getMode());
+		Assertions.assertEquals(SubscriptionMode.LINK, repository.findOneExpected(entity).getMode());
 	}
 
 	/**
@@ -508,8 +508,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void createCreateMode() throws Exception {
 		// Prepare data
-		final var subscription = createCreateBase("ligoj-jupiter", "ligoj-jupiter-client");
-		Assertions.assertEquals("ligoj-jupiter", parameterValueRepository.getSubscriptionParameterValue(subscription,
+		final var entity = createCreateBase("ligoj-jupiter", "ligoj-jupiter-client");
+		Assertions.assertEquals("ligoj-jupiter", parameterValueRepository.getSubscriptionParameterValue(entity,
 				IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
@@ -524,12 +524,12 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setProject(em.createQuery("SELECT id FROM Project WHERE name='Jupiter'", Integer.class).getSingleResult());
 
 		initSpringSecurityContext(DEFAULT_USER);
-		final var subscription = resource.create(vo);
+		final var entity = resource.create(vo);
 
 		Assertions.assertEquals(group,
-				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_GROUP));
+				parameterValueRepository.getSubscriptionParameterValue(entity, IdentityResource.PARAMETER_GROUP));
 		Assertions.assertEquals("ligoj",
-				parameterValueRepository.getSubscriptionParameterValue(subscription, IdentityResource.PARAMETER_OU));
+				parameterValueRepository.getSubscriptionParameterValue(entity, IdentityResource.PARAMETER_OU));
 		return subscription;
 	}
 
@@ -555,9 +555,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void createCreateModeBlank() throws Exception {
-		final var subscription = createCreateBase("", "ligoj-jupiter-client2");
-		Assertions.assertNull(parameterValueRepository.getSubscriptionParameterValue(subscription,
-				IdentityResource.PARAMETER_PARENT_GROUP));
+		final var entity = createCreateBase("", "ligoj-jupiter-client2");
+		Assertions.assertNull(parameterValueRepository.getSubscriptionParameterValue(entity, IdentityResource.PARAMETER_PARENT_GROUP));
 	}
 
 	@Test
@@ -573,8 +572,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		parameterValueEditionVo3.setInteger(1007400);
 		vo.getParameters().add(parameterValueEditionVo3);
 
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class,
-						() -> resource.create(vo)),
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(vo)),
 				JiraBaseResource.PARAMETER_JDBC_PASSWORD, "not-accepted-parameter");
 	}
 
@@ -643,25 +641,25 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 				.filter(p -> p.getId().equals(subscription0.getProject())).findFirst().get().getName());
 
 		// MDA Project (last subscription), only JIRA4 subscription
-		final var subscription = subscriptions.getLast();
-		Assertions.assertTrue(subscription.getId() > 0);
-		Assertions.assertTrue(subscription.getProject() > 0);
+		final var entity = subscriptions.getLast();
+		Assertions.assertTrue(entity.getId() > 0);
+		Assertions.assertTrue(entity.getProject() > 0);
 		Assertions.assertEquals("MDA", subscriptionList.getProjects().stream()
-				.filter(p -> p.getId().equals(subscription.getProject())).findFirst().get().getName());
-		Assertions.assertEquals("service:bt:jira:4", subscription.getNode());
+				.filter(p -> p.getId().equals(entity.getProject())).findFirst().get().getName());
+		Assertions.assertEquals("service:bt:jira:4", entity.getNode());
 
 		// Check projects
 		final var projects = subscriptionList.getProjects();
 		Assertions.assertEquals(2, projects.size());
 
 		// Check subscription project
-		final var projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), subscription.getProject()))
+		final var projectVo = projects.stream().filter(p -> Objects.equals(p.getId(), entity.getProject()))
 				.findFirst().get();
 		Assertions.assertEquals("MDA", projectVo.getName());
 		Assertions.assertEquals("mda", projectVo.getPkey());
 
 		// Check subscription node
-		final var nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), subscription.getNode())).findFirst()
+		final var nodeVo = nodes.stream().filter(p -> Objects.equals(p.getId(), entity.getNode())).findFirst()
 				.get();
 		Assertions.assertEquals("JIRA 4", nodeVo.getName());
 		Assertions.assertEquals("service:bt:jira:4", nodeVo.getId());
