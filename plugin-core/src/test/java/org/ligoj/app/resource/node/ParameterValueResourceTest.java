@@ -51,9 +51,6 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	private ParameterValueResource resource;
 
 	@Autowired
-	private ParameterValueHelper helper;
-
-	@Autowired
 	private ProjectRepository projectRepository;
 
 	@Autowired
@@ -527,7 +524,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final List<SystemRole> values = new ArrayList<>();
 		values.add(newUser("u1", 1));
 		values.add(newUser("u2", 2));
-		final Map<Integer, SystemRole> valuesAsMap = helper.toMap(values);
+		final Map<Integer, SystemRole> valuesAsMap = NodeHelper.toMap(values);
 		Assertions.assertEquals(2, valuesAsMap.size());
 		Assertions.assertEquals("u1", valuesAsMap.get(1).getName());
 		Assertions.assertEquals("u2", valuesAsMap.get(2).getName());
@@ -542,7 +539,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		p2.setId("p2");
 		values.add(newParameterValue("u1", p1));
 		values.add(newParameterValue("u2", p2));
-		final var valuesAsMap = helper.toMapValues(values);
+		final var valuesAsMap = resource.toMapValues(values);
 		Assertions.assertEquals(2, valuesAsMap.size());
 		Assertions.assertEquals("u1", valuesAsMap.get("p1"));
 		Assertions.assertEquals("u2", valuesAsMap.get("p2"));

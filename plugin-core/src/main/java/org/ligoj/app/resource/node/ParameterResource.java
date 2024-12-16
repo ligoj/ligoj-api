@@ -67,7 +67,7 @@ public class ParameterResource {
 			@PathParam("mode") final SubscriptionMode mode) {
 		// Build the parameters map
 		final var parameters = new HashMap<String, ParameterVo>();
-		repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(ParameterHelper::toVo)
+		repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(NodeHelper::toVo)
 				.forEach(v -> parameters.put(v.getId(), v));
 
 		// Complete the dependencies graph
@@ -92,6 +92,6 @@ public class ParameterResource {
 	 */
 	public List<ParameterVo> getNotProvidedAndAssociatedParameters(final String node, final SubscriptionMode mode) {
 		return repository.getOrphanParametersExt(node, mode, securityHelper.getLogin()).stream()
-				.map(ParameterHelper::toVo).toList();
+				.map(NodeHelper::toVo).toList();
 	}
 }

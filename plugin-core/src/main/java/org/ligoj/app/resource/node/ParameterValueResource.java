@@ -83,9 +83,6 @@ public class ParameterValueResource {
 	@Autowired
 	private CacheManager cacheManager;
 
-	@Autowired
-	private ParameterValueHelper helper;
-
 	/**
 	 * A checker configuration to check a value against the contract of the parameter.
 	 */
@@ -103,8 +100,8 @@ public class ParameterValueResource {
 		TO_STRING.put(BasicParameterValueVo::getDate, o -> String.valueOf(((Date) o).getTime()));
 		TO_STRING.put(BasicParameterValueVo::getIndex, Object::toString);
 		TO_STRING.put(BasicParameterValueVo::getInteger, Object::toString);
-		TO_STRING.put(BasicParameterValueVo::getTags, o -> ParameterHelper.toJSon(o).toUpperCase(Locale.ENGLISH));
-		TO_STRING.put(BasicParameterValueVo::getSelections, ParameterHelper::toJSon);
+		TO_STRING.put(BasicParameterValueVo::getTags, o -> NodeHelper.toJSon(o).toUpperCase(Locale.ENGLISH));
+		TO_STRING.put(BasicParameterValueVo::getSelections, NodeHelper::toJSon);
 	}
 
 	/**
@@ -134,7 +131,7 @@ public class ParameterValueResource {
 		vo.copyAuditData(entity,
 				(Function<String, SimpleUserOrg>) iamProvider[0].getConfiguration().getUserRepository()::toUser);
 		vo.setId(entity.getId());
-		vo.setParameter(ParameterHelper.toVo(entity.getParameter()));
+		vo.setParameter(NodeHelper.toVo(entity.getParameter()));
 
 		// Map node
 		if (entity.getNode() != null) {
@@ -142,7 +139,7 @@ public class ParameterValueResource {
 		}
 
 		// Map criteria value
-		ParameterValueHelper.parseValue(entity, vo);
+		NodeHelper.parseValue(entity, vo);
 		return vo;
 	}
 
@@ -350,7 +347,7 @@ public class ParameterValueResource {
 	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	public Map<String, String> getNonSecuredSubscriptionParameters(final int subscription) {
-		return helper.toMapValues(repository.findAllSecureBySubscription(subscription));
+		return toMapValues(repository.findAllSecureBySubscription(subscription));
 	}
 
 	/**
@@ -362,7 +359,34 @@ public class ParameterValueResource {
 	 */
 	@CacheResult(cacheName = "subscription-parameters")
 	public Map<String, String> getSubscriptionParameters(@CacheKey final int subscription) {
-		return helper.toMapValues(repository.findAllBySubscription(subscription));
+		return toMapValues(repository.findAllBySubscription(subscription));
+	}
+
+	/**
+	 * Transform {@link List} to {@link Map} where key is the parameter name. Secured parameters are decrypted.
+	 *
+	 * @param values The parameters list.
+	 * @return the corresponding key/values. Never <code>null</code>.
+	 */
+	Map<String, String> toMapValues(final List<ParameterValue> values) {
+		final Map<String, String> result = new HashMap<>();
+		for (final var value : values) {
+			String data;
+			if (value.getParameter().isSecured()) {
+				// Value may be encrypted
+				data = cryptoHelper.decryptAsNeeded(value.getData());
+			} else {
+				data = value.getData();
+			}
+
+			// Trim the data to get only the relevant values
+			data = StringUtils.trimToNull(data);
+			if (data != null) {
+				// Non-empty value, can be stored
+				result.put(value.getParameter().getId(), data);
+			}
+		}
+		return result;
 	}
 
 	private ParameterValue saveOrUpdate(final Map<String, ParameterValue> existing,
@@ -415,7 +439,7 @@ public class ParameterValueResource {
 	@CacheResult(cacheName = "node-parameters")
 	public Map<String, String> getNodeParameters(@CacheKey final String node) {
 		// Get parameters of given node
-		return helper.toMapValues(repository.getParameterValues(node));
+		return toMapValues(repository.getParameterValues(node));
 	}
 
 	/**
@@ -480,7 +504,7 @@ public class ParameterValueResource {
 					}
 				} else {
 					// Return the parsed value
-					ParameterValueHelper.parseValue(vmap.get(p.getId()), vo);
+					NodeHelper.parseValue(vmap.get(p.getId()), vo);
 				}
 			}
 			return vo;
@@ -538,7 +562,7 @@ public class ParameterValueResource {
 	 */
 	private void checkMultiple(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getSelections(), parameter.getId());
-		final var multiple = ParameterHelper.toListString(parameter.getData());
+		final var multiple = NodeHelper.toListString(parameter.getData());
 
 		// Check each index
 		vo.getSelections().forEach(i -> checkArrayBound(i, multiple.size(), parameter));
@@ -549,7 +573,7 @@ public class ParameterValueResource {
 	 */
 	private void checkSelect(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getIndex(), parameter.getId());
-		final var single = ParameterHelper.toListString(parameter.getData());
+		final var single = NodeHelper.toListString(parameter.getData());
 
 		// Check the index
 		checkArrayBound(vo.getIndex(), single.size(), parameter);
@@ -582,7 +606,7 @@ public class ParameterValueResource {
 	 */
 	private void checkInteger(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getInteger(), parameter.getId());
-		final var minMax = ParameterHelper.toMapInteger(parameter.getData());
+		final var minMax = NodeHelper.toMapInteger(parameter.getData());
 		// Check minimal value
 		Optional.ofNullable(minMax.get("max")).ifPresent(m -> checkMax(vo.getInteger(), m, parameter));
 
@@ -597,7 +621,7 @@ public class ParameterValueResource {
 		// Check the value if not empty
 		if (StringUtils.isNotBlank(vo.getText()) && StringUtils.isNotBlank(parameter.getData())) {
 			// Check the pattern if present
-			final var stringProperties = ParameterHelper.toMapString(parameter.getData());
+			final var stringProperties = NodeHelper.toMapString(parameter.getData());
 			final var patternString = stringProperties.get("pattern");
 			if (StringUtils.isNotBlank(patternString)) {
 				// Pattern is provided, check the string
