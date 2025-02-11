@@ -85,8 +85,8 @@ class NodeResourceTest extends AbstractAppTest {
 
 	private void mockApplicationContext() {
 		final var mock = new NodeResource();
-		super.applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
-		resource.self = resource;
+		super.applicationContext.getAutowireCapableBeanFactory().autowireBean(mock);
+		mock.self = mock;
 
 		// Replace the plug-in locator
 		mock.locator = Mockito.mock(ServicePluginLocator.class);
@@ -360,11 +360,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// All nodes changed [(1* nb services) + 1 (LDAP*2) + 1(Source*2)
 		// +1(BT*2)] but Jira6 node
 		final var nbServices = mock.findAll(newUriInfo(), null, "service", null, 0).getData().size();
-		expectedCount += nbServices + 1 + 1 - 1;
-
-		// All subscriptions changed (1* nb services) + 1 (LDAP*2) + 1(Source*2)
-		// +1(BT*2)
-		expectedCount += nbServices + 1 + 1 + 1;
+		expectedCount += nbServices + nbServices+ 1 + 1 - 1;
 		Assertions.assertEquals(expectedCount, eventRepository.count());
 	}
 

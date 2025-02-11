@@ -50,7 +50,7 @@ import java.util.function.BiFunction;
 public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	@Autowired
-	private NodeRepository repository;
+	protected NodeRepository repository;
 
 	@Autowired
 	private EventResource eventResource;

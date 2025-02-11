@@ -530,7 +530,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 				parameterValueRepository.getSubscriptionParameterValue(entity, IdentityResource.PARAMETER_GROUP));
 		Assertions.assertEquals("ligoj",
 				parameterValueRepository.getSubscriptionParameterValue(entity, IdentityResource.PARAMETER_OU));
-		return subscription;
+		return entity;
 	}
 
 	private static ArrayList<ParameterValueCreateVo> getParameterValueCreateVos(String parent, String group) {
