@@ -3,23 +3,14 @@
  */
 package org.ligoj.app.model;
 
-import java.util.Date;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
-
+import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.api.NodeScoped;
 import org.ligoj.bootstrap.core.model.AbstractPersistable;
 
-import lombok.Getter;
-import lombok.Setter;
+import java.time.Instant;
 
 /**
  * Event associated to a node or a subscription.
@@ -46,8 +37,7 @@ public class Event extends AbstractPersistable<Integer> implements NodeScoped<In
 	/**
 	 * Date of event.
 	 */
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date date;
+	private Instant date;
 
 	/**
 	 * Optional linked node providing this value. Either this attribute, either {@link #subscription} is not

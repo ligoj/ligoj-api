@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.iam;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 
@@ -37,7 +38,7 @@ public class SimpleUserOrg extends SimpleUser {
 	/**
 	 * When not <code>null</code> this user is locked and corresponds to the date since this account is this state.
 	 */
-	private Date locked;
+	private Instant locked;
 
 	/**
 	 * When not <code>null</code> this user is locked and corresponds to the author user login of this lock.

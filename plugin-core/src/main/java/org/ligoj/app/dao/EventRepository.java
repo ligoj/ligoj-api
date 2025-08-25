@@ -59,7 +59,7 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 * @return last events of a specific node.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
+	@Query("SELECT e FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
 			+ NodeRepository.VISIBLE_NODES)
 	Event findLastEvent(String user, String node);
 

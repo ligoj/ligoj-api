@@ -3,14 +3,6 @@
  */
 package org.ligoj.app.resource.project;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.api.NodeStatus;
@@ -19,17 +11,15 @@ import org.ligoj.app.iam.IUserRepository;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
 import org.ligoj.app.iam.UserOrg;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterType;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+
+import java.time.Instant;
+import java.util.*;
 
 /**
  * Test class of {@link ToVoConverter}
@@ -127,9 +117,9 @@ class ToVoConverterTest {
 		entity.setName("N");
 		entity.setDescription("D");
 		entity.setLastModifiedBy("U1");
-		entity.setLastModifiedDate(new Date());
+		entity.setLastModifiedDate(Instant.now());
 		entity.setCreatedBy("U2");
-		entity.setCreatedDate(new Date());
+		entity.setCreatedDate(Instant.now());
 		entity.setPkey("PK");
 		entity.setTeamLeader("U3");
 		entity.setSubscriptions(Arrays.asList(subscription, subscription2));

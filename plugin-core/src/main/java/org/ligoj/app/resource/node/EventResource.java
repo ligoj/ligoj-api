@@ -12,6 +12,7 @@ import org.ligoj.app.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.*;
 
 /**
@@ -76,7 +77,7 @@ public class EventResource {
 	private void saveEvent(final Event event, final EventType eventType, final String value) {
 		event.setValue(value);
 		event.setType(eventType);
-		event.setDate(new Date());
+		event.setDate(Instant.now());
 		repository.save(event);
 	}
 

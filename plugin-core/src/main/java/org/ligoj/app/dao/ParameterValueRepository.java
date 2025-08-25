@@ -25,7 +25,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @return All parameter values associated to a node.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM ParameterValue v INNER JOIN v.node n WHERE n.id = :node OR :node LIKE CONCAT(n.id, ':%')")
+	@Query("SELECT v FROM ParameterValue v INNER JOIN v.node n WHERE n.id = :node OR :node LIKE CONCAT(n.id, ':%')")
 	List<ParameterValue> getParameterValues(String node);
 
 	/**
@@ -96,7 +96,7 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	 * @return The visible parameter or <code>null</code> when not found.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM ParameterValue v INNER JOIN FETCH v.node n WHERE v.id=:id AND n IS NOT NULL AND "
+	@Query("SELECT v FROM ParameterValue v INNER JOIN FETCH v.node n WHERE v.id=:id AND n IS NOT NULL AND "
 			+ NodeRepository.WRITE_NODES)
 	ParameterValue findOneVisible(int id, String user);
 

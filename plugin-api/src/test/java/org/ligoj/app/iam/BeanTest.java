@@ -10,6 +10,7 @@ import org.mockito.Mockito;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.function.BiConsumer;
@@ -87,7 +88,7 @@ class BeanTest {
 		// InetOrg Person attributes
 		check(user, SimpleUserOrg::setSecured, SimpleUserOrg::isSecured, true);
 		check(user, SimpleUserOrg::setIsolated, SimpleUserOrg::getIsolated, "quarantine");
-		check(user, SimpleUserOrg::setLocked, SimpleUserOrg::getLocked, new Date());
+		check(user, SimpleUserOrg::setLocked, SimpleUserOrg::getLocked, Instant.now());
 		check(user, SimpleUserOrg::setMails, SimpleUserOrg::getMails, Collections.emptyList());
 		check(user, SimpleUserOrg::setLockedBy, SimpleUserOrg::getLockedBy, "some");
 

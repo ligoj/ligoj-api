@@ -66,7 +66,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *
 	 * @return instance nodes considered as final .
 	 */
-	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL ORDER BY UPPER(n.name)")
+	@Query("SELECT n FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL ORDER BY UPPER(n.name)")
 	List<Node> findAllInstance();
 
 	/**
@@ -75,7 +75,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param user The user requesting the nodes.
 	 * @return instance nodes considered as final .
 	 */
-	@Query("FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL AND " + VISIBLE_NODES
+	@Query("SELECT n FROM Node n INNER JOIN FETCH n.refined tool WHERE tool.refined IS NOT NULL AND " + VISIBLE_NODES
 			+ " ORDER BY UPPER(n.name)")
 	List<Node> findAllInstance(String user);
 
@@ -96,7 +96,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param user The user requesting the node.
 	 * @return The visible node or <code>null</code>.
 	 */
-	@Query("FROM Node n WHERE n.id=:id AND " + VISIBLE_NODES)
+	@Query("SELECT n FROM Node n WHERE n.id=:id AND " + VISIBLE_NODES)
 	Node findOneVisible(String id, String user);
 
 	/**
@@ -106,7 +106,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param user The user requesting the node.
 	 * @return The visible node or <code>null</code>.
 	 */
-	@Query("FROM Node n WHERE n.id=:id AND " + WRITE_NODES)
+	@Query("SELECT n FROM Node n WHERE n.id=:id AND " + WRITE_NODES)
 	Node findOneWritable(String id, String user);
 
 	/**
@@ -116,7 +116,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param user The user requesting the node.
 	 * @return The visible node or <code>null</code>.
 	 */
-	@Query("FROM Node n WHERE n.id=:id AND " + ADMIN_NODES)
+	@Query("SELECT n FROM Node n WHERE n.id=:id AND " + ADMIN_NODES)
 	Node findOneAdministrable(String id, String user);
 
 	/**
@@ -150,7 +150,7 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param user The user requesting the node.
 	 * @return The visible node the user can subscribe or <code>null</code>.
 	 */
-	@Query("FROM Node n WHERE n.id=:id AND " + SUBSCRIBE_NODES)
+	@Query("SELECT n FROM Node n WHERE n.id=:id AND " + SUBSCRIBE_NODES)
 	Node findOneForSubscription(String id, String user);
 
 	/**

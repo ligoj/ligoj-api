@@ -221,7 +221,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		final var acceptedParameters = nodeResource.checkInputParameters(vo);
 
 		// Check all mandatory parameters for the current subscription mode
-		vo.setParameters(ObjectUtils.defaultIfNull(vo.getParameters(), new ArrayList<>()));
+		vo.setParameters(ObjectUtils.getIfNull(vo.getParameters(), new ArrayList<>()));
 		checkMandatoryParameters(vo.getParameters(), acceptedParameters, vo.getMode());
 		return acceptedParameters;
 	}

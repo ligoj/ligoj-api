@@ -3,13 +3,7 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-
 import jakarta.transaction.Transactional;
-
-import org.apache.commons.lang3.time.DateUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,17 +12,15 @@ import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.ProjectRepository;
-import org.ligoj.app.model.Event;
-import org.ligoj.app.model.EventType;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 
 /**
  * {@link NodeResource} test cases.
@@ -67,7 +59,7 @@ class EventResourceTest extends AbstractAppTest {
 		Assertions.assertTrue(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(++count, repository.count());
 		final var lastEvent = repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS);
-		Assertions.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
+		Assertions.assertTrue(lastEvent.getDate().plusSeconds(5).isAfter(Instant.now()));
 		Assertions.assertFalse(resource.registerEvent(node, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(count, repository.count());
 		Assertions.assertEquals(lastEvent, repository.findFirstByNodeAndTypeOrderByIdDesc(node, EventType.STATUS));
@@ -85,7 +77,7 @@ class EventResourceTest extends AbstractAppTest {
 		Assertions.assertTrue(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(++count, repository.count());
 		final var lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS);
-		Assertions.assertTrue(DateUtils.addSeconds(lastEvent.getDate(), 5).after(new Date()));
+		Assertions.assertTrue(lastEvent.getDate().plusSeconds(5).isAfter(Instant.now()));
 		Assertions.assertFalse(resource.registerEvent(subscription, EventType.STATUS, NodeStatus.DOWN.name()));
 		Assertions.assertEquals(count, repository.count());
 		Assertions.assertEquals(lastEvent,

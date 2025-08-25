@@ -60,7 +60,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * @return The visible parameter or <code>null</code> when not found.
 	 */
 	@SuppressWarnings("unused")
-	@Query("FROM Parameter p INNER JOIN p.owner n WHERE p.id=:id AND " + NodeRepository.VISIBLE_NODES)
+	@Query("SELECT p FROM Parameter p INNER JOIN p.owner n WHERE p.id=:id AND " + NodeRepository.VISIBLE_NODES)
 	Parameter findOneVisible(String id, String user);
 
 	/**

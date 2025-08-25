@@ -258,7 +258,7 @@ public class NodeHelper {
 	 */
 	public static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
 		try {
-			return MAPPER.readValue(ObjectUtils.defaultIfNull(content, "{}"), valueTypeRef);
+			return MAPPER.readValue(ObjectUtils.getIfNull(content, "{}"), valueTypeRef);
 		} catch (final IOException e) {
 			throw new TechnicalException("Unable to build configuration from " + content, e);
 		}

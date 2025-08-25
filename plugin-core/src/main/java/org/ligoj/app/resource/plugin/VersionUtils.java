@@ -37,7 +37,7 @@ public class VersionUtils {
 		// Get the download index
 		try (final var processor = new CurlProcessor()) {
 			final var versionsAsJson = ObjectUtils
-					.defaultIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"), "[]");
+					.getIfNull(processor.get(serverUrl + "/rest/api/2/project/" + project + "/versions"), "[]");
 			final var versionsRaw = new ObjectMapper().readValue(versionsAsJson,
 					new TypeReference<List<AtlassianVersion>>() {
 						// Nothing to override

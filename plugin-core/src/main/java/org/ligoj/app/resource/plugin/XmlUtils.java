@@ -69,7 +69,7 @@ public class XmlUtils {
 	 *                                      creates cannot support this feature.
 	 */
 	public Element parse(final String input) throws SAXException, IOException, ParserConfigurationException {
-		final var jobsAsInput = IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, "<a/>"), StandardCharsets.UTF_8);
+		final var jobsAsInput = IOUtils.toInputStream(ObjectUtils.getIfNull(input, "<a/>"), StandardCharsets.UTF_8);
 		return parse(jobsAsInput).getDocumentElement();
 	}
 
@@ -105,7 +105,7 @@ public class XmlUtils {
 			throws XPathExpressionException, SAXException, IOException, ParserConfigurationException {
 		final var xPath = xpathFactory.newXPath();
 		return (NodeList) xPath.compile(expression).evaluate(
-				parse(IOUtils.toInputStream(ObjectUtils.defaultIfNull(input, ""), StandardCharsets.UTF_8)),
+				parse(IOUtils.toInputStream(ObjectUtils.getIfNull(input, ""), StandardCharsets.UTF_8)),
 				XPathConstants.NODESET);
 	}
 
