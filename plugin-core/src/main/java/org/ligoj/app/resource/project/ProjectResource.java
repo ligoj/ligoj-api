@@ -118,7 +118,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Create project. Should be protected with RBAC.
+	 * Create a project. Should be protected with RBAC.
 	 *
 	 * @param vo the object to create.
 	 * @return the entity's identifier.
@@ -129,7 +129,7 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Update project. Should be protected with RBAC.
+	 * Update a project. Should be protected with RBAC.
 	 *
 	 * @param vo the object to save.
 	 */
