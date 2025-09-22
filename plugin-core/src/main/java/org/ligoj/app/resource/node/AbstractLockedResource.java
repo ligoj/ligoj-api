@@ -30,7 +30,7 @@ public abstract class AbstractLockedResource<L extends Persistable<I>, I extends
 	protected ApplicationContext applicationContext;
 
 	/**
-	 * Delete all tasks related the given entity and check there is no running tasks.
+	 * Delete all tasks related to the given entity and check there is no running tasks.
 	 *
 	 * @param plugin The related resource plug-in managing the entity being deleted.
 	 * @param id     The entity's identifier being deleted.

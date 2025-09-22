@@ -108,8 +108,12 @@ class NodeResourceTest extends AbstractAppTest {
 		final var eventsCount = eventRepository.count();
 		mock.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
-		 * subscriptions :<br> +1 : Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * Expected count 5 changes for tools:
+		 * +1: Jenkins DOWN, was UP
+		 * Expected count 6 changes for
+		 * subscriptions:
+		 * +1: Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN
+		 * Nb events =
 		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already known nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
@@ -131,8 +135,10 @@ class NodeResourceTest extends AbstractAppTest {
 		final var eventsCount = eventRepository.count();
 		mock.checkNodesStatus();
 		/*
-		 * Expected count 5 changes for tools :<br> +1 : Jenkins DOWN, was UP <br> Expected count 6 changes for
-		 * subscriptions :<br> +1 : Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN <br> Nb events =
+		 * Expected count 5 changes for tools:
+		 * +1: Jenkins DOWN, was UP <br> Expected count 6 changes for the subscriptions:
+		 * +1: Subscription Jupiter - Jenkins, discovered, DOWN since node is DOWN
+		 * Nb events =
 		 * nbPreviousEvents + nbNodes x2 (Because one node implies one subscription) less the already known nodes<br> =
 		 * nbPreviousEvents + nbNodes x2<br>
 		 */
@@ -198,7 +204,7 @@ class NodeResourceTest extends AbstractAppTest {
 	private long prepareEvent() throws Exception {
 		final var servicePluginLocator = resourceMock.locator;
 
-		// 1 : service is down
+		// 1: service is down
 		final var jira = Mockito.mock(JiraPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith(":jira"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
@@ -206,7 +212,7 @@ class NodeResourceTest extends AbstractAppTest {
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
 		Mockito.when(jira.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(false);
 
-		// 2 : service is up
+		// 2: service is up
 		final var sonar = Mockito.mock(SonarPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":sonar"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
@@ -214,7 +220,7 @@ class NodeResourceTest extends AbstractAppTest {
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
 		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
-		// 3 : service throw an exception (down)
+		// 3: service throw an exception (down)
 		final var jenkins = Mockito.mock(JenkinsPluginResource.class);
 		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
@@ -290,8 +296,10 @@ class NodeResourceTest extends AbstractAppTest {
 		mock.checkSubscriptionsStatus();
 
 		/*
-		 * Expected changes for instance :<br> +1 : Jenkins DOWN, was UP <br> Expected changes for subscriptions :<br>
-		 * +1 : Subscription Jenkins - was UP<br>
+		 * Expected changes for the instance:
+		 * +1: Jenkins DOWN was UP
+		 * Expected changes for the subscriptions:
+		 * +1: Subscription Jenkins - was UP
 		 */
 		var expectedCount = eventsCount; // Initial amount
 
@@ -360,7 +368,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// All nodes changed [(1* nb services) + 1 (LDAP*2) + 1(Source*2)
 		// +1(BT*2)] but Jira6 node
 		final var nbServices = mock.findAll(newUriInfo(), null, "service", null, 0).getData().size();
-		expectedCount += nbServices + nbServices+ 1 + 1 - 1;
+		expectedCount += nbServices + nbServices + 1 + 1 - 1;
 		Assertions.assertEquals(expectedCount, eventRepository.count());
 	}
 
@@ -373,7 +381,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// data
 		final var jiraNode = repository.findByName("JIRA 4");
 
-		// subscription throw an exception
+		// The subscription throws an exception
 		final var jenkins = Mockito.mock(JenkinsPluginResource.class);
 		Mockito.when(
 						servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
@@ -572,7 +580,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// Omit the parameter to delete (value3)
 		node.setParameters(Arrays.asList(value, value2, value4));
 
-		// Update the node : 1 untouched, 1 new, 1 added, 1 updated
+		// Update the node: 1 untouched, 1 new, 1 added, 1 updated
 		resource.update(node);
 
 		final var parameters = parameterValueResource.getNodeParameters("service:bt:jira:7");
@@ -648,7 +656,7 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * The relationship is valid regarding the syntax but the parent does not exist.
+	 * The relationship is valid regarding the syntax, but the parent does not exist.
 	 */
 	@Test
 	void createNotExistRefined() {
@@ -715,7 +723,7 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Cannot create sub node of a parent node having different subscription mode different from "ALL".
+	 * Cannot create a sub node of a parent node having different subscription mode different from "ALL".
 	 */
 	@Test
 	void createOnParentDifferentMode() {
@@ -724,7 +732,7 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Cannot create sub node of a parent node having subscription mode "NONE".
+	 * Cannot create a sub node of a parent node having subscription mode "NONE".
 	 */
 	@Test
 	void createOnParentDifferentMode2() {
@@ -733,7 +741,7 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	/**
-	 * Create sub node of a parent node having subscription mode "NONE".
+	 * Create a sub node of a parent node having subscription mode "NONE".
 	 */
 	@Test
 	void createOnParentNoneMode() {
@@ -822,7 +830,7 @@ class NodeResourceTest extends AbstractAppTest {
 		// Tools + Services only
 		Assertions.assertEquals(21, resource.findAll(newUriInfo, null, null, null, 1).getData().size());
 
-		// No limit : Instances + Services + instances
+		// No limit: Instances + Services + instances
 		Assertions.assertEquals(33, resource.findAll(newUriInfo, null, null, null, 2).getData().size());
 	}
 
@@ -836,7 +844,7 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("OpenLDAP", service.getName());
 		Assertions.assertEquals("service:id:ldap", service.getRefined().getId());
 
-		// This node accept creation
+		// This node accepts creation
 		Assertions.assertEquals(SubscriptionMode.CREATE, service.getMode());
 	}
 
@@ -880,7 +888,7 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("OpenLDAP", service.getName());
 		Assertions.assertEquals("service:id:ldap", service.getRefined().getId());
 
-		// This node accept creation
+		// This node accepts creation
 		Assertions.assertEquals(SubscriptionMode.CREATE, service.getMode());
 	}
 
@@ -907,7 +915,7 @@ class NodeResourceTest extends AbstractAppTest {
 
 	@Test
 	void nodeStatus() {
-		// dummy test : used to cover enum methods.
+		// Simple test: used to cover enum methods.
 		Assertions.assertEquals(NodeStatus.UP, NodeStatus.valueOf("UP"));
 		Assertions.assertEquals(2, NodeStatus.values().length);
 	}
@@ -915,7 +923,7 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void getNodeStatistics() {
 		final var nodes = resource.getNodeStatistics();
-		// +2 Since there are 2 nodes for JIRA and 2 for source
+		// +2 Since there are 2 nodes for JIRA and 2 for the source
 		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2,
 				nodes.size());
 	}

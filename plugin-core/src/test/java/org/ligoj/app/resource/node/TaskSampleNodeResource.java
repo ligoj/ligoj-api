@@ -50,12 +50,12 @@ public class TaskSampleNodeResource
 
 	@Override
 	public TaskSampleNode startTask(final String node, final Consumer<TaskSampleNode> initializer) {
-		return LongTaskRunnerNode.super.startTask(node, initializer);
+		return LongTaskRunnerNode.super.startTaskInternal(node, initializer);
 	}
 
 	@Override
 	public TaskSampleNode endTask(final String node, final boolean failed) {
-		return LongTaskRunnerNode.super.endTask(node, failed);
+		return LongTaskRunnerNode.super.endTaskInternal(node, failed, (t) ->{});
 	}
 
 	@Override

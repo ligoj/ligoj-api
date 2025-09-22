@@ -30,7 +30,7 @@ import org.springframework.data.domain.Persistable;
  * <li>At most one task can run per node</li>
  * <li>A subscription cannot be deleted while there is a running attached task</li>
  * <li>A running task is task without "end" date.
- * <li>When a task is started, is will always ends.
+ * <li>When a task is started, it will always end.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
  *
@@ -53,19 +53,19 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	/**
 	 * Return the {@link AbstractLockedResource} managing the locked resource.
 	 *
-	 * @return The resource used to fetch related subscription entity of a task.
+	 * @return The resource used to fetch a related subscription entity of a task.
 	 */
 	S getLockedResource();
 
 	/**
 	 * Return the {@link RestRepository} managing the locked resource.
 	 *
-	 * @return The repository used to fetch related subscription entity of a task.
+	 * @return The repository used to fetch the related subscription entity of a task.
 	 */
 	A getLockedRepository();
 
 	/**
-	 * Check there is no running task for given subscription before the deletion.
+	 * Check there is no running task for a given subscription before the deletion.
 	 *
 	 * @param lockedId The locked entity's identifier.
 	 */
@@ -90,15 +90,20 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * Release the lock on the locked entity by its identifier. The task is considered as finished.
 	 *
 	 * @param lockedId The locked entity's identifier.
-	 * @param failed   The task status as resolution of this task.
+	 * @param failed   The task status as a resolution of this task.
 	 * @return The ended task if present.
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T endTask(final I lockedId, final boolean failed) {
-		return endTask(lockedId, failed, t -> {
+		// Execute within a real new transaction to ensure commit visibility to the caller
+		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
+		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
+		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		return template.execute(status -> endTaskInternal(lockedId, failed, t -> {
 			// Nothing to do by default
-		});
+		}));
 	}
+
 
 	/**
 	 * Release the lock on the locked entity by its identifier. The task is considered as finished.
@@ -110,13 +115,22 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T endTask(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
+		// Execute within a real new transaction to ensure commit visibility to caller
+		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
+		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
+		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		return template.execute(status -> endTaskInternal(lockedId, failed, finalizer));
+	}
+
+	/**
+	 * Internal end task logic without opening a transaction.
+	 */
+	default T endTaskInternal(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
 		return Optional.ofNullable(getTaskInternal(lockedId)).map(task -> {
 			checkNotFinished(task);
 			task.setEnd(new Date());
 			task.setFailed(failed);
 			finalizer.accept(task);
-
-			// Save now the new state
 			return getTaskRepository().saveAndFlush(task);
 		}).orElse(null);
 	}
@@ -132,7 +146,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Check there no running task within the same scope of the locked object 's identifier and starts a new task.
+	 * Check there no running task within the same scope of the locked object's identifier and starts a new task.
 	 *
 	 * @param lockedId    The locked entity's identifier.
 	 * @param initializer The function to call while initializing the task.
@@ -140,11 +154,26 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T startTask(final I lockedId, final Consumer<T> initializer) {
+		// Execute within a real new transaction to ensure commit visibility to the caller
+		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
+		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
+		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		return template.execute(status -> startTaskInternal(lockedId,initializer));
+	}
+
+	/**
+	 * Check there no running task within the same scope of the locked object's identifier and starts a new task.
+	 *
+	 * @param lockedId    The locked entity's identifier.
+	 * @param initializer The function to call while initializing the task.
+	 * @return the locked task with status.
+	 */
+	@Transactional(value = TxType.REQUIRES_NEW)
+	default T startTaskInternal(final I lockedId, final Consumer<T> initializer) {
 		synchronized (getLockedRepository()) {
 
 			// Check there is no running task on the same node
 			Optional.ofNullable(getTaskRepository().findNotFinishedByLocked(lockedId)).ifPresent(t -> {
-				// On this service, there is already a running import
 				throw new BusinessException("concurrent-task", t.getAuthor(), t.getStart(), lockedId);
 			});
 
@@ -161,7 +190,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * When <code>true</code> the task is really finished. Can be overridden to update the real finished state stored in
-	 * database. For sample, a task can be finished from the client side, but not fully executed at the server side.
+	 * the database. For sample, a task can be finished from the client side but not fully executed at the server side.
 	 *
 	 * @param task The not <code>null</code> task to evaluate.
 	 * @return <code>true</code> when the task is finished.
@@ -171,7 +200,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Get or create a new task associated to given subscription.
+	 * Get or create a new task associated with given subscription.
 	 *
 	 * @param lockedId The locked entity's identifier. The related entity will be locked.
 	 * @return The task, never <code>null</code>.
@@ -199,7 +228,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Move forward the next step of given import status.
+	 * Move forward the next step of the given import status.
 	 *
 	 * @param lockedId The locked resource identifier.
 	 * @param stepper  The function to call to update the task for this next step.
@@ -207,12 +236,17 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T nextStep(final I lockedId, final Consumer<T> stepper) {
-		final var task = Optional.ofNullable(getTaskInternal(lockedId))
-				.orElseThrow(() -> new EntityNotFoundException(lockedId.toString()));
-		checkNotFinished(task);
-		stepper.accept(task);
-		getTaskRepository().saveAndFlush(task);
-		return task;
+		// Execute within a real new transaction to ensure commit visibility to caller
+		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
+		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
+		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
+		return template.execute(status -> {
+			final var task = Optional.ofNullable(getTaskInternal(lockedId))
+					.orElseThrow(() -> new EntityNotFoundException(lockedId.toString()));
+			checkNotFinished(task);
+			stepper.accept(task);
+			return getTaskRepository().saveAndFlush(task);
+		});
 	}
 
 	/**
