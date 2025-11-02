@@ -178,21 +178,22 @@ public interface IUserRepository {
 	void setPassword(UserOrg user, @Nullable String password, String newPassword);
 
 	/**
-	 * Return a safe {@link UserOrg} instance, even if the user is not in LDAP directory.
+	 * Return a safe {@link UserOrg} instance from one of the user's primary attributes, even if the user is not in LDAP directory.
+	 * This method is similar to {@link #findById(String)}, but proceed to a lookup of a matching user from its identifier and other login attributes such as mail or any plugin level configuration.
 	 *
-	 * @param id The user identifier. Must not be <code>null</code>.
+	 * @param login The user identifier. Must not be <code>null</code>.
 	 * @return a not <code>null</code> {@link UserOrg} instance with at least identifier attribute.
 	 */
-	default UserOrg toUser(final String id) {
-		if (id == null) {
+	default UserOrg toUser(final String login) {
+		if (login == null) {
 			return null;
 		}
 
 		// Non null user name
-		var result = findById(id);
+		var result = findById(login);
 		if (result == null) {
 			result = new UserOrg();
-			result.setId(id);
+			result.setId(login);
 		}
 		return result;
 	}
@@ -290,10 +291,10 @@ public interface IUserRepository {
 	default UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
 		final var result = new UserUpdateResult();
 		result.setAddedGroups(CollectionUtils.subtract(groups, user.getGroups()));
-		result.setRemovedGroups( CollectionUtils.subtract(user.getGroups(), groups));
+		result.setRemovedGroups(CollectionUtils.subtract(user.getGroups(), groups));
 
 		// Add new groups
-		addUserToGroups(user,result.getAddedGroups());
+		addUserToGroups(user, result.getAddedGroups());
 
 		// Remove old groups
 		removeUserFromGroups(user, result.getRemovedGroups());
@@ -346,7 +347,7 @@ public interface IUserRepository {
 	 * @param user Target user to check.
 	 */
 	default void checkLockStatus(UserOrg user) {
-		// By default not supported
+		// By default, not supported
 	}
 
 	/**
