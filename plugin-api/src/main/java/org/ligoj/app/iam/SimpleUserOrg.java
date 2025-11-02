@@ -3,14 +3,12 @@
  */
 package org.ligoj.app.iam;
 
-import java.time.Instant;
-import java.util.Date;
-import java.util.List;
-
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.time.Instant;
+import java.util.List;
 
 /**
  * Organizational User

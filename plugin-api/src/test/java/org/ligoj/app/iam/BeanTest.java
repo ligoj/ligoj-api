@@ -12,7 +12,6 @@ import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
 import java.time.Instant;
 import java.util.Collections;
-import java.util.Date;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
 
