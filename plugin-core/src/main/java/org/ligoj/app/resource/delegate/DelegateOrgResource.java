@@ -141,7 +141,8 @@ public class DelegateOrgResource {
 		getUser().findAll();
 
 		final var pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
-		final var findAll = repository.findAll(securityHelper.getLogin(), DataTableAttributes.getSearch(uriInfo),
+		final var findAll = repository.findAll(securityHelper.getLogin(),
+				StringUtils.trimToEmpty(DataTableAttributes.getSearch(uriInfo)),
 				typeSearch, pageRequest);
 
 		// Apply pagination and prevent lazy initialization issue

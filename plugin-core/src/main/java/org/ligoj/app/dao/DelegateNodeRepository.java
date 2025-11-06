@@ -36,9 +36,11 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	 * @return all {@link DelegateNode} objects with the given name. Insensitive case search is used.
 	 */
 	@SuppressWarnings("unused")
-	@Query("SELECT d FROM DelegateNode d WHERE (CAST(:criteria as string) IS NULL                                                           "
-			+ "       OR (UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "           OR UPPER(d.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))" + " AND "
+	@Query("""
+			SELECT d FROM DelegateNode d WHERE (:criteria = ''                                                           "
+			       OR (UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))
+			          OR UPPER(d.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))) AND 
+			"""
 			+ VISIBLE_DELEGATE)
 	Page<DelegateNode> findAll(String user, String criteria, Pageable page);
 

@@ -66,7 +66,7 @@ public class DelegateNodeResource {
 	public TableItem<DelegateNode> findAll(@Context final UriInfo uriInfo,
 			@QueryParam(DataTableAttributes.SEARCH) final String criteria) {
 		final var pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
-		final var findAll = repository.findAll(securityHelper.getLogin(), StringUtils.trimToNull(criteria),
+		final var findAll = repository.findAll(securityHelper.getLogin(), StringUtils.trimToEmpty(criteria),
 				pageRequest);
 
 		// apply pagination and prevent lazy initialization issue
