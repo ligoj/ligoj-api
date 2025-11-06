@@ -11,6 +11,8 @@ import javax.cache.expiry.Duration;
 import javax.cache.expiry.ModifiedExpiryPolicy;
 
 import org.ligoj.bootstrap.resource.system.cache.CacheManagerAware;
+import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
 import com.hazelcast.cache.HazelcastCacheManager;
@@ -21,6 +23,7 @@ import com.hazelcast.config.EvictionConfig;
  * Nodes data cache configurations.
  */
 @Component
+@Role(BeanDefinition.ROLE_INFRASTRUCTURE)
 public class NodeCache implements CacheManagerAware {
 
 	@Override
