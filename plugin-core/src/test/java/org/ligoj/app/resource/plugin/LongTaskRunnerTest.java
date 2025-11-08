@@ -55,8 +55,8 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	void prepareSubscription() throws IOException {
 		persistEntities("csv", new Class<?>[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8);
 		this.subscription = getSubscription("MDA");
-		this.resource = applicationContext.getAutowireCapableBeanFactory()
-				.createBean(TaskSampleSubscriptionResource.class);
+		this.resource = new TaskSampleSubscriptionResource();
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(this.resource);
 		this.resourceNode = applicationContext.getAutowireCapableBeanFactory().createBean(TaskSampleNodeResource.class);
 	}
 
@@ -184,7 +184,7 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
-	void startTask() {
+	void startTask() {getSubscription("MDA");
 		resource.startTask(subscription, task -> task.setData("init"));
 		final var task = resource.getTask(subscription);
 		assertTask(task, "init");

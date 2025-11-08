@@ -3,16 +3,9 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.Optional;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.transaction.Transactional.TxType;
-
 import org.ligoj.app.dao.task.LongTaskRepository;
 import org.ligoj.app.model.AbstractLongTask;
 import org.ligoj.app.resource.node.AbstractLockedResource;
@@ -22,6 +15,12 @@ import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.data.domain.Persistable;
+
+import java.io.Serializable;
+import java.util.Date;
+import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * A resource running some long task. Implementing this interface causes the subscription management checks there is no
@@ -158,7 +157,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
 		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
 		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		return template.execute(status -> startTaskInternal(lockedId,initializer));
+		return template.execute(status -> startTaskInternal(lockedId, initializer));
 	}
 
 	/**
@@ -168,7 +167,6 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @param initializer The function to call while initializing the task.
 	 * @return the locked task with status.
 	 */
-	@Transactional(value = TxType.REQUIRES_NEW)
 	default T startTaskInternal(final I lockedId, final Consumer<T> initializer) {
 		synchronized (getLockedRepository()) {
 
@@ -234,19 +232,28 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @param stepper  The function to call to update the task for this next step.
 	 * @return The updated task.
 	 */
-	@Transactional(value = TxType.REQUIRES_NEW)
 	default T nextStep(final I lockedId, final Consumer<T> stepper) {
 		// Execute within a real new transaction to ensure commit visibility to caller
 		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
 		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
 		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		return template.execute(status -> {
-			final var task = Optional.ofNullable(getTaskInternal(lockedId))
-					.orElseThrow(() -> new EntityNotFoundException(lockedId.toString()));
-			checkNotFinished(task);
-			stepper.accept(task);
-			return getTaskRepository().saveAndFlush(task);
-		});
+		return template.execute(status -> nextStepInternal(lockedId,stepper));
+	}
+
+	/**
+	 * Move forward the next step of the given import status.
+	 *
+	 * @param lockedId The locked resource identifier.
+	 * @param stepper  The function to call to update the task for this next step.
+	 * @return The updated task.
+	 */
+	@Transactional(value = TxType.REQUIRES_NEW)
+	default T nextStepInternal(final I lockedId, final Consumer<T> stepper) {
+		final var task = Optional.ofNullable(getTaskInternal(lockedId))
+				.orElseThrow(() -> new EntityNotFoundException(lockedId.toString()));
+		checkNotFinished(task);
+		stepper.accept(task);
+		return getTaskRepository().saveAndFlush(task);
 	}
 
 	/**
