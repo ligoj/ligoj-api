@@ -1,4 +1,4 @@
-## :link: Ligoj API plugin [![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.ligoj.api/root/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.ligoj.api/root)
+## :link: Ligoj API plugin ![Maven Central](https://img.shields.io/maven-central/v/org.ligoj.api/root)
 API framework for Ligoj plugins
 
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.ligoj.api%3Aroot&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=org.ligoj.api%3Aroot)
