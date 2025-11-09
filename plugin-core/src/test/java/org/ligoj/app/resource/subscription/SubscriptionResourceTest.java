@@ -398,7 +398,11 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		final int project = one.getProject().getId();
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
 		em.clear();
-		resource.delete(subscription, withRemoteData);
+		if (withRemoteData) {
+			resource.delete(subscription, withRemoteData);
+		} else {
+			resource.delete(subscription);
+		}
 		em.flush();
 		em.clear();
 
