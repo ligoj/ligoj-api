@@ -55,7 +55,8 @@ public class TaskSampleNodeResource
 
 	@Override
 	public TaskSampleNode endTask(final String node, final boolean failed) {
-		return LongTaskRunnerNode.super.endTaskInternal(node, failed, (t) ->{});
+		return LongTaskRunnerNode.super.endTaskInternal(node, failed, t -> {
+		});
 	}
 
 	@Override

@@ -3,34 +3,31 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Date;
-
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.dao.TaskSampleNodeRepository;
 import org.ligoj.app.dao.TaskSampleSubscriptionRepository;
-import org.ligoj.app.model.DelegateNode;
-import org.ligoj.app.model.Event;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Subscription;
-import org.ligoj.app.model.TaskSampleNode;
-import org.ligoj.app.model.TaskSampleSubscription;
+import org.ligoj.app.model.*;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.app.resource.node.TaskSampleNodeResource;
 import org.ligoj.app.resource.node.sample.BugTrackerResource;
+import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.ligoj.app.resource.subscription.TaskSampleSubscriptionNoTxResource;
 import org.ligoj.app.resource.subscription.TaskSampleSubscriptionResource;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Date;
 
 /**
  * Test class of {@link LongTaskRunner}
@@ -46,14 +43,22 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 
 	@Autowired
 	protected TaskSampleSubscriptionRepository repository;
+
 	@Autowired
 	protected TaskSampleNodeRepository repositoryNode;
+
+	@Autowired
+	protected SubscriptionRepository subscriptionRepository;
+
+	@Autowired
+	protected SubscriptionResource subscriptionResource;
+
 
 	protected int subscription;
 
 	@BeforeEach
 	void prepareSubscription() throws IOException {
-		persistEntities("csv", new Class<?>[] { Event.class, DelegateNode.class }, StandardCharsets.UTF_8);
+		persistEntities("csv", new Class<?>[]{Event.class, DelegateNode.class}, StandardCharsets.UTF_8);
 		this.subscription = getSubscription("MDA");
 		this.resource = new TaskSampleSubscriptionResource();
 		applicationContext.getAutowireCapableBeanFactory().autowireBean(this.resource);
@@ -178,13 +183,31 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 	}
 
 	@Test
+	void endTaskNoLockedInNewTransaction() {
+		final var newTaskSample = newTaskSample();
+		newTaskSample.setEnd(null);
+		repository.saveAndFlush(newTaskSample);
+		final var resource = new TaskSampleSubscriptionNoTxResource(newTaskSample);
+		applicationContext.getAutowireCapableBeanFactory().autowireBean(resource);
+		resource.startTask(subscription, t -> {
+		});
+		Assertions.assertEquals("started", newTaskSample.getData());
+		resource.nextStep(subscription,t -> {
+		});
+		Assertions.assertEquals("next", newTaskSample.getData());
+		resource.endTask(subscription, true);
+		Assertions.assertEquals("ended", newTaskSample.getData());
+	}
+
+	@Test
 	void endTaskAlreadyFinished() {
 		repository.saveAndFlush(newTaskSample());
 		Assertions.assertThrows(BusinessException.class, () -> resource.endTask(subscription, true));
 	}
 
 	@Test
-	void startTask() {getSubscription("MDA");
+	void startTask() {
+		getSubscription("MDA");
 		resource.startTask(subscription, task -> task.setData("init"));
 		final var task = resource.getTask(subscription);
 		assertTask(task, "init");

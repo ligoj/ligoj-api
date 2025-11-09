@@ -94,15 +94,10 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 */
 	@Transactional(value = TxType.REQUIRES_NEW)
 	default T endTask(final I lockedId, final boolean failed) {
-		// Execute within a real new transaction to ensure commit visibility to the caller
-		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
-		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
-		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		return template.execute(status -> endTaskInternal(lockedId, failed, t -> {
+		return endTask(lockedId, failed, t -> {
 			// Nothing to do by default
-		}));
+		});
 	}
-
 
 	/**
 	 * Release the lock on the locked entity by its identifier. The task is considered as finished.
@@ -123,6 +118,11 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 
 	/**
 	 * Internal end task logic without opening a transaction.
+	 *
+	 * @param lockedId  The locked entity's identifier.
+	 * @param failed    The task status as resolution of this task.
+	 * @param finalizer The function to call while finalizing the task.
+	 * @return The ended task if present.
 	 */
 	default T endTaskInternal(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
 		return Optional.ofNullable(getTaskInternal(lockedId)).map(task -> {
@@ -237,7 +237,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 		final var txManager = SpringUtils.getBean(org.springframework.transaction.PlatformTransactionManager.class);
 		final var template = new org.springframework.transaction.support.TransactionTemplate(txManager);
 		template.setPropagationBehavior(org.springframework.transaction.TransactionDefinition.PROPAGATION_REQUIRES_NEW);
-		return template.execute(status -> nextStepInternal(lockedId,stepper));
+		return template.execute(status -> nextStepInternal(lockedId, stepper));
 	}
 
 	/**
