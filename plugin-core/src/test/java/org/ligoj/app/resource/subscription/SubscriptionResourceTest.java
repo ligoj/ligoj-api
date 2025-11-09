@@ -258,7 +258,30 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void deleteByAdmin() throws Exception {
 		initSpringSecurityContext("junit");
-		assertDelete();
+		assertDelete(true);
+	}
+
+	private void setSubscriptionMode(SubscriptionMode mode) {
+		// Change the subscription mode of the entity to delete
+		var entity = em.find(Subscription.class, subscription);
+		entity.setMode(mode);
+		em.merge(entity);
+		em.flush();
+
+	}
+
+	@Test
+	void deleteByAdminWithRemoteTasks() throws Exception {
+		initSpringSecurityContext("junit");
+		setSubscriptionMode(SubscriptionMode.CREATE);
+		assertDelete(true);
+	}
+
+	@Test
+	void deleteByAdminWithRemoteTasksDisabled() throws Exception {
+		initSpringSecurityContext("junit");
+		setSubscriptionMode(SubscriptionMode.CREATE);
+		assertDelete(false);
 	}
 
 	/**
@@ -270,7 +293,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		delegateOrgRepository.findAll().forEach(d -> d.setCanWrite(false));
 		projectRepository.findAll().forEach(d -> d.setTeamLeader("fdaugan"));
 		newDelegateNode();
-		assertDelete();
+		assertDelete(false);
 	}
 
 	/**
@@ -287,7 +310,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		delegate.setCanWrite(true);
 		em.flush();
 
-		assertDelete();
+		assertDelete(false);
 	}
 
 	/**
@@ -370,12 +393,12 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		return delegate;
 	}
 
-	private void assertDelete() throws Exception {
+	private void assertDelete(boolean withRemoteData) throws Exception {
 		final var one = repository.findOne(subscription);
 		final int project = one.getProject().getId();
 		Assertions.assertEquals(1, repository.findAllByProject(project).size());
 		em.clear();
-		resource.delete(subscription);
+		resource.delete(subscription, withRemoteData);
 		em.flush();
 		em.clear();
 
