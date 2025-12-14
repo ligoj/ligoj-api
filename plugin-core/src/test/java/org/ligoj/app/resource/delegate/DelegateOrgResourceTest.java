@@ -139,13 +139,14 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 		// create a mock URI info with pagination information
 		final var uriInfo = newFindAllParameters();
 		uriInfo.getQueryParameters().putSingle("length", "12");
+		uriInfo.getQueryParameters().putSingle("columns[0][data]", "canAdmin");
 
 		final var result = resource.findAll(uriInfo, null);
 		Assertions.assertEquals(12, result.getData().size());
 		Assertions.assertEquals(23, result.getRecordsTotal());
 
-		checkDelegateGroup2(result.getData().get(11));
-		checkDelegateTree(result.getData().get(3));
+		checkDelegateGroup2(result.getData().get(0));
+		checkDelegateTree(result.getData().get(9));
 	}
 
 	private void checkFind() {

@@ -23,6 +23,8 @@ import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -66,6 +68,7 @@ public class DelegateOrgResource {
 		ORDERED_COLUMNS.put("name", "name");
 		ORDERED_COLUMNS.put("type", "type");
 		ORDERED_COLUMNS.put("receiver", "receiver");
+		ORDERED_COLUMNS.put("resource", "dn");
 		ORDERED_COLUMNS.put("receiverType", "receiverType");
 		ORDERED_COLUMNS.put("canAdmin", "canAdmin");
 		ORDERED_COLUMNS.put("canWrite", "canWrite");
@@ -140,7 +143,16 @@ public class DelegateOrgResource {
 		// Trigger cache loading
 		getUser().findAll();
 
-		final var pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
+		var pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
+		final var sorting = pageRequest.getSort().stream().findFirst().orElse(new Sort.Order(Sort.Direction.ASC,"-"));
+		if (sorting.getProperty().startsWith("can")) {
+			var newOrder = new Sort.Order(sorting.getDirection(),sorting.getProperty(), false, Sort.NullHandling.NATIVE);
+			pageRequest = PageRequest.of(
+					pageRequest.getPageNumber(),
+					pageRequest.getPageSize(),
+					Sort.by(newOrder));
+
+		}
 		final var findAll = repository.findAll(securityHelper.getLogin(),
 				StringUtils.trimToEmpty(DataTableAttributes.getSearch(uriInfo)),
 				typeSearch, pageRequest);
@@ -164,7 +176,7 @@ public class DelegateOrgResource {
 	/**
 	 * Create a delegate. Rules are :
 	 * <ul>
-	 * <li>Related company, group or tree must be managed by the current user, directly or via a another parent
+	 * <li>Related company, group or tree must be managed by the current user, directly or via another parent
 	 * delegate.</li>
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
@@ -183,11 +195,11 @@ public class DelegateOrgResource {
 	 * database.<br>
 	 * Rules, order is important :
 	 * <ul>
-	 * <li>Related company must be managed by the current user, directly or via a another parent delegate tree/company,
+	 * <li>Related company must be managed by the current user, directly or via another parent delegate tree/company,
 	 * or act as if the company does not exist.</li>
-	 * <li>Related group must be managed by the current user, directly or via a another parent delegate group/tree, or
+	 * <li>Related group must be managed by the current user, directly or via another parent delegate group/tree, or
 	 * act as if the group does not exist.</li>
-	 * <li>Related tree must be managed by the current user, directly or via a another parent delegate tree.</li>
+	 * <li>Related tree must be managed by the current user, directly or via another parent delegate tree.</li>
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
@@ -314,7 +326,7 @@ public class DelegateOrgResource {
 	 * Delete entity. Rules, order is important :
 	 * <ul>
 	 * <li>Related delegate must exist</li>
-	 * <li>Related delegate must be managed by the principal user with 'canAdmin' right, directly or via a another
+	 * <li>Related delegate must be managed by the principal user with 'canAdmin' right, directly or via another
 	 * parent delegate tree/company/.., or act as if the delegate does not exist.</li>
 	 * </ul>
 	 * Attention, DN is case-sensitive.
