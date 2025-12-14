@@ -23,8 +23,6 @@ import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.EnumMap;
@@ -70,8 +68,8 @@ public class DelegateOrgResource {
 		ORDERED_COLUMNS.put("receiver", "receiver");
 		ORDERED_COLUMNS.put("resource", "dn");
 		ORDERED_COLUMNS.put("receiverType", "receiverType");
-		ORDERED_COLUMNS.put("canAdmin", "canAdmin");
-		ORDERED_COLUMNS.put("canWrite", "canWrite");
+		ORDERED_COLUMNS.put("canAdmin", "CAST(canAdmin as String)");
+		ORDERED_COLUMNS.put("canWrite", "CAST(canWrite as String)");
 	}
 
 	/**
@@ -144,15 +142,6 @@ public class DelegateOrgResource {
 		getUser().findAll();
 
 		var pageRequest = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS);
-		final var sorting = pageRequest.getSort().stream().findFirst().orElse(new Sort.Order(Sort.Direction.ASC,"-"));
-		if (sorting.getProperty().startsWith("can")) {
-			var newOrder = new Sort.Order(sorting.getDirection(),sorting.getProperty(), false, Sort.NullHandling.NATIVE);
-			pageRequest = PageRequest.of(
-					pageRequest.getPageNumber(),
-					pageRequest.getPageSize(),
-					Sort.by(newOrder));
-
-		}
 		final var findAll = repository.findAll(securityHelper.getLogin(),
 				StringUtils.trimToEmpty(DataTableAttributes.getSearch(uriInfo)),
 				typeSearch, pageRequest);

@@ -50,9 +50,9 @@ public class DelegateNodeResource {
 		ORDERED_COLUMNS.put("name", "name");
 		ORDERED_COLUMNS.put("receiver", "receiver");
 		ORDERED_COLUMNS.put("receiverType", "receiverType");
-		ORDERED_COLUMNS.put("canAdmin", "canAdmin");
-		ORDERED_COLUMNS.put("canWrite", "canWrite");
-		ORDERED_COLUMNS.put("canSubscribe", "canSubscribe");
+		ORDERED_COLUMNS.put("canAdmin", "CAST(canAdmin AS String)");
+		ORDERED_COLUMNS.put("canWrite", "CAST(canWrite AS String)");
+		ORDERED_COLUMNS.put("canSubscribe", "CAST(canSubscribe AS String)");
 	}
 
 	/**
@@ -76,7 +76,7 @@ public class DelegateNodeResource {
 	/**
 	 * Create a delegate. Rules are :
 	 * <ul>
-	 * <li>Related node must be managed by the current user, directly or via a another parent delegate.</li>
+	 * <li>Related node must be managed by the current user, directly or via another parent delegate.</li>
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>At least one delegate with 'admin' flag must be present for the current user and the related node.</li>
 	 * </ul>
@@ -93,7 +93,7 @@ public class DelegateNodeResource {
 	/**
 	 * Validate the user changes regarding the current user's right. Rules, order is important :
 	 * <ul>
-	 * <li>Related node must be managed by the current user, directly or via a another parent delegate or act as if the
+	 * <li>Related node must be managed by the current user, directly or via another parent delegate or act as if the
 	 * company does not exist.</li>
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
@@ -117,7 +117,7 @@ public class DelegateNodeResource {
 	/**
 	 * Create a delegate. Rules are :
 	 * <ul>
-	 * <li>Related node must be managed by the current user, directly or via a another parent delegate.</li>
+	 * <li>Related node must be managed by the current user, directly or via another parent delegate.</li>
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
@@ -146,7 +146,7 @@ public class DelegateNodeResource {
 	 * Delete entity. Rules, order is important :
 	 * <ul>
 	 * <li>Related delegate must exist</li>
-	 * <li>Related delegate must be managed by the current user with 'admin' right, directly or via a another parent or
+	 * <li>Related delegate must be managed by the current user with 'admin' right, directly or via another parent or
 	 * act as if the delegate does not exist.</li>
 	 * </ul>
 	 *

@@ -67,7 +67,7 @@ public class ProjectResource {
 	static {
 		ORDERED_COLUMNS.put("id", "id");
 		ORDERED_COLUMNS.put("description", "description");
-		ORDERED_COLUMNS.put("createdDate", "createdDate");
+		ORDERED_COLUMNS.put("createdDate", "CAST(p.createdDate AS String)");
 		ORDERED_COLUMNS.put("teamLeader", "teamLeader");
 
 		// This mapping does not work for native spring-data "findAll"
