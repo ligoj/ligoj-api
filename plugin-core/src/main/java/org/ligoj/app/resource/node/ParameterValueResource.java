@@ -488,23 +488,23 @@ public class ParameterValueResource {
 	private List<ParameterNodeVo> getNodeParameters(final String node,
 			final SubscriptionMode mode, final boolean unsecured) {
 		final var parameters = parameterResource.getNotProvidedAndAssociatedParameters(node, mode);
-		final var vmap = repository.getParameterValues(node).stream()
+		final var values = repository.getParameterValues(node).stream()
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
 		return parameters.stream().map(p -> {
 			final var vo = new ParameterNodeVo();
 			vo.setParameter(p);
-			if (vmap.containsKey(p.getId())) {
+			if (values.containsKey(p.getId())) {
 				if (p.isSecured()) {
+					// Value may be an encrypted string
 					if (unsecured) {
-						// Value may be encrypted
-						vo.setText(cryptoHelper.decryptAsNeeded(vmap.get(p.getId()).getData()));
+						vo.setText(cryptoHelper.decryptAsNeeded(values.get(p.getId()).getData()));
 					} else {
-						// Secured parameter value is not returned
+						// Secured parameter value must not be returned
 						vo.setText("-secured-");
 					}
 				} else {
-					// Return the parsed value
-					NodeHelper.parseValue(vmap.get(p.getId()), vo);
+					// Return the parsed typed value
+					NodeHelper.parseValue(values.get(p.getId()), vo);
 				}
 			}
 			return vo;

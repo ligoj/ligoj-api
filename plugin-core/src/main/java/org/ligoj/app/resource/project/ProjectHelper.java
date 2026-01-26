@@ -121,6 +121,7 @@ public class ProjectHelper {
 		entity.setPkey(vo.getPkey());
 		entity.setTeamLeader(vo.getTeamLeader());
 		entity.setCreationContext(vo.getCreationContext());
+		entity.setMetadata(vo.getMetadata());
 		return entity;
 	}
 

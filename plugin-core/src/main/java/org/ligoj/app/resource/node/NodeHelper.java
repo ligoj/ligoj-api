@@ -244,7 +244,7 @@ public class NodeHelper {
 		try {
 			return MAPPER.writeValueAsString(any);
 		} catch (final JsonProcessingException e) {
-			throw new TechnicalException("Unable to build JSon data from bean " + any, e);
+			throw new TechnicalException("Unable to build JSON data from bean " + any, e);
 		}
 	}
 

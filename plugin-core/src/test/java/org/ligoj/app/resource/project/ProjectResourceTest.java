@@ -380,6 +380,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
 		vo.setCreationContext("context");
+		vo.setMetadata("metadata");
 		final var id = resource.create(vo);
 		em.clear();
 
@@ -388,6 +389,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("Description", entity.getDescription());
 		Assertions.assertEquals("artifact-id", entity.getPkey());
 		Assertions.assertEquals("context", entity.getCreationContext());
+		Assertions.assertEquals("metadata", entity.getMetadata());
 		Assertions.assertEquals(DEFAULT_USER, entity.getTeamLeader());
 	}
 
