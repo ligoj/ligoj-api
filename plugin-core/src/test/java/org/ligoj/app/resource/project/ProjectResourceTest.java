@@ -29,6 +29,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * Test class of {@link ProjectResource}
@@ -380,7 +381,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		vo.setPkey("artifact-id");
 		vo.setTeamLeader(DEFAULT_USER);
 		vo.setCreationContext("context");
-		vo.setMetadata("metadata");
+		vo.setMetadata(Map.of("key", "value"));
 		final var id = resource.create(vo);
 		em.clear();
 
@@ -389,7 +390,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("Description", entity.getDescription());
 		Assertions.assertEquals("artifact-id", entity.getPkey());
 		Assertions.assertEquals("context", entity.getCreationContext());
-		Assertions.assertEquals("metadata", entity.getMetadata());
+		Assertions.assertEquals(Map.of("key", "value"), entity.getMetadata());
 		Assertions.assertEquals(DEFAULT_USER, entity.getTeamLeader());
 	}
 
