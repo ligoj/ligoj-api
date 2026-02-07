@@ -40,7 +40,7 @@ Minimal Maven structure for a plugin:
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>plugin-parent</artifactId>
-        <version>4.1.15</version> <!-- Version of plugin API -->
+        <version>4.1.16</version> <!-- Version of plugin API -->
 		<relativePath />
 	</parent>
 
