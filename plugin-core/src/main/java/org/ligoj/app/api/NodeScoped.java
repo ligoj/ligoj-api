@@ -5,8 +5,8 @@ package org.ligoj.app.api;
 
 import jakarta.persistence.Transient;
 
+import org.jspecify.annotations.Nullable;
 import org.ligoj.app.model.Node;
-import org.springframework.lang.Nullable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 

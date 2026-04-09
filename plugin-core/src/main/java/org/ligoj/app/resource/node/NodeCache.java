@@ -3,21 +3,17 @@
  */
 package org.ligoj.app.resource.node;
 
-import static java.util.concurrent.TimeUnit.HOURS;
-
-import java.util.function.Function;
-
-import javax.cache.expiry.Duration;
-import javax.cache.expiry.ModifiedExpiryPolicy;
-
+import com.hazelcast.cache.HazelcastCacheManager;
+import com.hazelcast.config.EvictionConfig;
+import org.ligoj.bootstrap.resource.system.cache.CacheConfigurer;
 import org.ligoj.bootstrap.resource.system.cache.CacheManagerAware;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.context.annotation.Role;
 import org.springframework.stereotype.Component;
 
-import com.hazelcast.cache.HazelcastCacheManager;
-import com.hazelcast.config.CacheConfig;
-import com.hazelcast.config.EvictionConfig;
+import javax.cache.expiry.Duration;
+
+import static java.util.concurrent.TimeUnit.HOURS;
 
 /**
  * Nodes data cache configurations.
@@ -27,17 +23,16 @@ import com.hazelcast.config.EvictionConfig;
 public class NodeCache implements CacheManagerAware {
 
 	@Override
-	public void onCreate(final HazelcastCacheManager cacheManager, final Function<String, CacheConfig<?, ?>> provider) {
-		cacheManager.createCache("nodes", provider.apply("nodes"));
-		cacheManager.createCache("node-parameters", provider.apply("node-parameters"));
-		cacheManager.createCache("services", provider.apply("services"));
-		cacheManager.createCache("node-enablement", provider.apply("node-enablement"));
-		final CacheConfig<?, ?> tokens = provider.apply("curl-tokens");
-		tokens.setExpiryPolicyFactory(ModifiedExpiryPolicy.factoryOf(new Duration(HOURS, 10)));
+	public void onCreate(final HazelcastCacheManager cacheManager, final CacheConfigurer configurer) {
+		cacheManager.createCache("nodes", configurer.newCacheConfig("nodes"));
+		cacheManager.createCache("node-parameters", configurer.newCacheConfig("node-parameters"));
+		cacheManager.createCache("services", configurer.newCacheConfig("services"));
+		cacheManager.createCache("node-enablement", configurer.newCacheConfig("node-enablement"));
+		final var tokens = configurer.newCacheConfig("curl-tokens",new Duration(HOURS, 10));
 		tokens.setEvictionConfig(new EvictionConfig());
 		cacheManager.createCache("curl-tokens", tokens);
-		cacheManager.createCache("subscription-parameters", provider.apply("subscription-parameters"));
-		cacheManager.createCache("plugin-data", provider.apply("plugin-data"));
+		cacheManager.createCache("subscription-parameters", configurer.newCacheConfig("subscription-parameters"));
+		cacheManager.createCache("plugin-data", configurer.newCacheConfig("plugin-data"));
 	}
 
 }
