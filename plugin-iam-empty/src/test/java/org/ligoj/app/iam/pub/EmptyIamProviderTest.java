@@ -3,18 +3,15 @@
  */
 package org.ligoj.app.iam.pub;
 
-import java.util.function.Function;
-
+import com.hazelcast.cache.HazelcastCacheManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.empty.EmptyIamProvider;
 import org.ligoj.app.iam.empty.IamEmptyCache;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.ligoj.bootstrap.resource.system.cache.CacheConfigurer;
 import org.mockito.Mockito;
 import org.springframework.security.core.Authentication;
-
-import com.hazelcast.cache.HazelcastCacheManager;
-import com.hazelcast.config.CacheConfig;
 
 /**
  * Test class of {@link EmptyIamProvider}.
@@ -25,9 +22,7 @@ class EmptyIamProviderTest {
 
 	@Test
 	void testIamEmptyCache() {
-		@SuppressWarnings("unchecked")
-		final Function<String, CacheConfig<?, ?>> mock = Mockito.mock(Function.class);
-		new IamEmptyCache().onCreate(Mockito.mock(HazelcastCacheManager.class), mock);
+		new IamEmptyCache().onCreate(Mockito.mock(HazelcastCacheManager.class), Mockito.mock(CacheConfigurer.class));
 	}
 
 	@Test

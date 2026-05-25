@@ -51,7 +51,7 @@ public abstract class AbstractDelegate extends AbstractNamedAuditedEntity<Intege
 
 	/**
 	 * Receiver can create, delete or update all delegates within the same scope and propagate this right to another
-	 * receiver. This includes this delegate. The 'canWrite' attribute cannot be augmented.
+	 * receiver. This includes this delegate. However, the `canWrite` flag cannot be changed to `true`.
 	 */
 	private boolean canAdmin;
 
