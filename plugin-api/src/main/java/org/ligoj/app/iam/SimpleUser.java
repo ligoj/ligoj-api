@@ -3,19 +3,16 @@
  */
 package org.ligoj.app.iam;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-
-import org.ligoj.bootstrap.core.INamableBean;
-import org.ligoj.bootstrap.core.validation.LowerCase;
-
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import org.ligoj.bootstrap.core.INamableBean;
+import org.ligoj.bootstrap.core.validation.LowerCase;
 
 import java.util.Map;
 
@@ -36,7 +33,7 @@ public class SimpleUser implements INamableBean<String> {
 	/**
 	 * User identifier pattern.
 	 */
-	public static final String USER_PATTERN = "[a-z0-9](?:-?[\\-a-z\\.@_0-9]){1,100}";
+	public static final String USER_PATTERN = "[a-z0-9](?:-?[\\-a-z.@_0-9]){0,100}";
 
 	/**
 	 * User identifier pattern in REST path.
