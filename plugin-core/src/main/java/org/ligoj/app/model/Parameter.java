@@ -34,7 +34,7 @@ public class Parameter extends AbstractStringKeyEntity {
 	private ParameterType type = ParameterType.TEXT;
 
 	/**
-	 * Optional JSon constraint data. The value of this field can be read from different manners depending on the
+	 * Optional JSON constraint data. The value of this field can be read from different manners depending on the
 	 * {@link #type} value :
 	 * <ul>
 	 * <li>Case of 'text' : contains an optional 'pattern' property to validate the text.</li>
@@ -84,14 +84,26 @@ public class Parameter extends AbstractStringKeyEntity {
 	private boolean secured;
 
 	/**
-	 * Parameters this parameter is depending on. This relationship is used :
+	 * Parameters this parameter is depending on. This relationship is used:
 	 * <ul>
-	 * <li>To order the displayed parameters, from the root ones to the most depending ones</li>
+	 * <li>To order the displayed parameters, from the root ones to the most constrained ones</li>
 	 * <li>To invalidate the child parameters when a parent one is updated</li>
 	 * </ul>
 	 */
 	@ManyToMany(cascade = CascadeType.REMOVE)
 	@JsonIgnore
 	private List<Parameter> depends;
+
+	/**
+	 * <code>true</code> when this parameter is available at subscription level. Otherwise, this parameter is hidden, and ignored for subscription.
+	 * Default is <code>true</code>.
+	 */
+	private Boolean availableForSubscription;
+
+	/**
+	 * <code>true</code> when this parameter is available at node level. Otherwise, this parameter is hidden, and ignored for node configuration.
+	 * Default is <code>true</code>.
+	 */
+	private Boolean availableForNode;
 
 }

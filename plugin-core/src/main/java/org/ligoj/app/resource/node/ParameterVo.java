@@ -62,4 +62,19 @@ public class ParameterVo extends AbstractBusinessEntity<String> {
 	 */
 	private Set<String> depends;
 
+	/**
+	 * <code>true</code> when this parameter is available at the subscription level (i.e. as a value bound to a
+	 * {@link org.ligoj.app.model.Subscription}). Mirrors {@code Parameter#getAvailableForSubscription}; a {@code null}
+	 * entity value is exposed as {@link Boolean#TRUE} so the wire shape is always definitive for the UI's mode-specific
+	 * filtering in {@code SubscribeWizardView}.
+	 */
+	private Boolean availableForSubscription;
+
+	/**
+	 * <code>true</code> when this parameter is available at the node level (i.e. as a value bound to a
+	 * {@link org.ligoj.app.model.Node} during node create / edit). Mirrors {@code Parameter#getAvailableForNode};
+	 * a {@code null} entity value is exposed as {@link Boolean#TRUE}.
+	 */
+	private Boolean availableForNode;
+
 }

@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.ParameterValueRepository;
 import org.ligoj.app.dao.ProjectRepository;
@@ -600,7 +601,7 @@ class ParameterValueResourceTest extends AbstractAppTest {
 
 	@Test
 	void createInternal() {
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
+		em.createQuery("DELETE FROM Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
 		final var parameterValueEditionVo = new ParameterValueCreateVo();
@@ -695,6 +696,108 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		node2.setId("service:id:sub");
 		node2.setRefined(node);
 		resource.checkOwnership(parameter, node2);
+	}
+
+	/* ------- availability flags: availableForSubscription / availableForNode ------- */
+
+	/**
+	 * {@code availableForSubscription=false} on a parameter must reject a subscription-level
+	 * create. The validation runs before any persistence touches the {@link Subscription},
+	 * so passing {@code null} for the subscription is enough to prove the early-bail path.
+	 */
+	@Test
+	void createSubscriptionRejectsUnavailableForSubscription() {
+		final var parameter = parameterRepository.findOneExpected(JiraBaseResource.PARAMETER_PROJECT);
+		parameter.setAvailableForSubscription(Boolean.FALSE);
+		parameterRepository.saveAndFlush(parameter);
+
+		final var vo = new ParameterValueCreateVo();
+		vo.setParameter(parameter.getId());
+		vo.setInteger(10074);
+
+		Assertions.assertThrows(ValidationJsonException.class,
+				() -> resource.create(List.of(vo), (Subscription) null));
+	}
+
+	/**
+	 * {@code availableForNode=false} on a parameter must reject a node-level create.
+	 */
+	@Test
+	void createNodeRejectsUnavailableForNode() {
+		final var parameter = parameterRepository.findOneExpected(JiraBaseResource.PARAMETER_PROJECT);
+		parameter.setAvailableForNode(Boolean.FALSE);
+		parameterRepository.saveAndFlush(parameter);
+
+		final var vo = new ParameterValueCreateVo();
+		vo.setParameter(parameter.getId());
+		vo.setInteger(10074);
+
+		Assertions.assertThrows(ValidationJsonException.class,
+				() -> resource.create(List.of(vo), (Node) null));
+	}
+
+	/**
+	 * {@code availableForNode=false} on a parameter must reject node updates that touch it.
+	 */
+	@Test
+	void updateNodeRejectsUnavailableForNode() {
+		final var parameter = parameterRepository.findOneExpected(JiraBaseResource.PARAMETER_PROJECT);
+		parameter.setAvailableForNode(Boolean.FALSE);
+		parameterRepository.saveAndFlush(parameter);
+
+		final var vo = new ParameterValueCreateVo();
+		vo.setParameter(parameter.getId());
+		vo.setInteger(10074);
+
+		Assertions.assertThrows(ValidationJsonException.class,
+				() -> resource.update(List.of(vo), null));
+	}
+
+	/**
+	 * An {@code untouched=true} value re-uses the existing entity, so it bypasses the
+	 * availability check — needed for "no-op update" flows that don't intend to change the
+	 * value but still serialize it through the wizard's payload.
+	 */
+	@Test
+	void updateNodeSkipsCheckForUntouchedValue() {
+		final var parameter = parameterRepository.findOneExpected(JiraBaseResource.PARAMETER_PROJECT);
+		parameter.setAvailableForNode(Boolean.FALSE);
+		parameterRepository.saveAndFlush(parameter);
+
+		final var vo = new ParameterValueCreateVo();
+		vo.setParameter(parameter.getId());
+		vo.setUntouched(true);
+
+		// Call against an empty target node — the availability check is skipped, then
+		// `saveOrUpdate` finds no existing value and throws BusinessException ("untouched
+		// value must exist") which proves we reached past the availability gate.
+		final var node = new Node();
+		node.setId("service:bt:jira:availability-test");
+		node.setName("availability-test");
+		node.setRefined(em.find(Node.class, "service:bt:jira"));
+		em.persist(node);
+		em.flush();
+		em.clear();
+
+		Assertions.assertThrows(BusinessException.class,
+				() -> resource.update(List.of(vo), em.find(Node.class, "service:bt:jira:availability-test")));
+	}
+
+	/**
+	 * Parameters flagged {@code availableForNode=false} must be filtered out of the
+	 * node-parameter-value listing — the wizard's edit-node form uses this list and
+	 * showing a parameter the backend won't accept would mislead the user.
+	 */
+	@Test
+	void getNodeParametersFiltersUnavailableForNode() {
+		final var hidden = parameterRepository.findOneExpected("service:bt:jira:user");
+		hidden.setAvailableForNode(Boolean.FALSE);
+		parameterRepository.saveAndFlush(hidden);
+
+		final var parameters = resource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
+		Assertions.assertTrue(parameters.stream()
+				.map(p -> p.getParameter().getId())
+				.noneMatch("service:bt:jira:user"::equals));
 	}
 
 	@Test

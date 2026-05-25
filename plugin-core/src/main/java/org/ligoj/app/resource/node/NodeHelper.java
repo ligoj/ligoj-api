@@ -6,6 +6,7 @@ package org.ligoj.app.resource.node;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.model.Node;
@@ -280,6 +281,11 @@ public class NodeHelper {
 		vo.setOwner(NodeHelper.toVo(entity.getOwner()));
 		vo.setDefaultValue(entity.getDefaultValue());
 		vo.setDepends(entity.getDepends().stream().map(Persistable::getId).collect(Collectors.toSet()));
+		// Availability flags. A null entity value means "available" — the
+		// migration default for legacy rows. Normalise here so every consumer
+		// (wizard filter, value-create checks) reads a definitive Boolean.
+		vo.setAvailableForSubscription(!BooleanUtils.isFalse(entity.getAvailableForSubscription()));
+		vo.setAvailableForNode(!BooleanUtils.isFalse(entity.getAvailableForNode()));
 
 		// Map constraint data
 		if (entity.getType().isArray()) {

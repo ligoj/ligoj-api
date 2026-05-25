@@ -13,6 +13,7 @@ import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.dao.ParameterRepository;
@@ -191,6 +192,11 @@ public class ParameterValueResource {
 	 * @param node   The related node.
 	 */
 	public void update(final List<ParameterValueCreateVo> values, final Node node) {
+		// Reject values targeting parameters that the parameter owner has
+		// flagged as not available for node configuration. Untouched values
+		// re-use the existing entity, so the constraint doesn't apply to them.
+		checkAvailability(values.stream().filter(v -> !v.isUntouched()).toList(), false);
+
 		// Build the old parameter values
 		final var oldList = repository.getParameterValues(node.getId());
 		final var oldMap = oldList.stream()
@@ -217,6 +223,7 @@ public class ParameterValueResource {
 	 * @param subscription The related subscription.
 	 */
 	public void create(final List<ParameterValueCreateVo> values, final Subscription subscription) {
+		checkAvailability(values, true);
 		create(values, v -> v.setSubscription(subscription));
 		evict("subscription-parameters", subscription);
 	}
@@ -228,8 +235,34 @@ public class ParameterValueResource {
 	 * @param node   The related node.
 	 */
 	public void create(final List<ParameterValueCreateVo> values, final Node node) {
+		checkAvailability(values, false);
 		create(values, v -> v.setNode(node));
 		evict("node-parameters", node);
+	}
+
+	/**
+	 * Reject values targeting parameters that the parameter owner flagged as not available in the given context.
+	 * <p>
+	 * Parameters carry two independent availability flags ({@link Parameter#getAvailableForSubscription()} and
+	 * {@link Parameter#getAvailableForNode()}). A {@code null} value is treated as available — that's the migration
+	 * default for legacy rows that pre-date the flags. Anything explicitly set to {@code false} rejects the call
+	 * before any value is persisted, so the caller (subscribe wizard, node create / edit dialog) gets a deterministic
+	 * 400 instead of a silently-dropped value.
+	 *
+	 * @param values          The values to validate. Already-resolved as create/update inputs; pass an empty list for
+	 *                        a no-op.
+	 * @param forSubscription {@code true} to test {@code availableForSubscription}; {@code false} to test
+	 *                        {@code availableForNode}.
+	 */
+	private void checkAvailability(final List<ParameterValueCreateVo> values, final boolean forSubscription) {
+		for (final var vo : values) {
+			final var parameter = parameterRepository.findOneExpected(vo.getParameter());
+			final var disabled = BooleanUtils.isFalse(forSubscription ? parameter.getAvailableForSubscription() : parameter.getAvailableForNode());
+			if (disabled) {
+				throw new ValidationJsonException(parameter.getId(),
+						forSubscription ? "not-available-for-subscription" : "not-available-for-node");
+			}
+		}
 	}
 
 	private void create(final List<ParameterValueCreateVo> values, final Consumer<ParameterValue> preSave) {
@@ -490,7 +523,11 @@ public class ParameterValueResource {
 		final var parameters = parameterResource.getNotProvidedAndAssociatedParameters(node, mode);
 		final var values = repository.getParameterValues(node).stream()
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
-		return parameters.stream().map(p -> {
+		// Drop parameters that are not available at node level. The flag
+		// defaults to `true` in the VO (legacy rows have null), so this
+		// filter only strips parameters whose owner explicitly opted out
+		// — e.g. `service:id:group` which only makes sense per-subscription.
+		return parameters.stream().filter(p -> !Boolean.FALSE.equals(p.getAvailableForNode())).map(p -> {
 			final var vo = new ParameterNodeVo();
 			vo.setParameter(p);
 			if (values.containsKey(p.getId())) {
