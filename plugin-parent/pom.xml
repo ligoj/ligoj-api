@@ -73,4 +73,66 @@
 			</resource>
 		</resources>
 	</build>
+
+	<profiles>
+		<!--
+			Code signing of the plugin JAR (jarsigner, embedded signature - unrelated to the detached GPG
+			signature required by Maven Central). Auto-activated when the release machine holds the
+			code-signing keystore. The signature is verified at startup by the host's PluginsClassLoader and
+			the signer identity is displayed in the plugin administration view.
+
+			One-time keystore creation:
+			  keytool -genkeypair -keystore ~/.ligoj/code-signing.p12 -storetype PKCS12 -alias ligoj \
+			    -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Ligoj, O=Ligoj"
+			Truststore for the runtime verification (certificates only, never the signing key), read from
+			the 'ligoj.plugin.signature.truststore' system property, defaulting to the 'plugin-vendors.p12'
+			file inside the LIGOJ_HOME directory of the installation:
+			  keytool -exportcert -keystore ~/.ligoj/code-signing.p12 -alias ligoj -file ligoj-vendor.cer
+			  keytool -importcert -keystore plugin-vendors.p12 -storetype PKCS12 -alias ligoj -file ligoj-vendor.cer -noprompt
+
+			The keystore password comes from the LIGOJ_SIGN_STOREPASS environment variable or the
+			'ligoj.sign.storepass' property.
+		-->
+		<profile>
+			<id>code-sign</id>
+			<activation>
+				<file>
+					<exists>${user.home}/.ligoj/code-signing.p12</exists>
+				</file>
+			</activation>
+			<properties>
+				<ligoj.sign.keystore>${user.home}/.ligoj/code-signing.p12</ligoj.sign.keystore>
+				<ligoj.sign.alias>ligoj</ligoj.sign.alias>
+				<ligoj.sign.storepass>${env.LIGOJ_SIGN_STOREPASS}</ligoj.sign.storepass>
+				<!-- RFC3161 timestamping: keeps the signature valid after the certificate expiry -->
+				<ligoj.sign.tsa>http://timestamp.digicert.com</ligoj.sign.tsa>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<version>3.1.0</version>
+						<executions>
+							<execution>
+								<id>sign-plugin</id>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<keystore>${ligoj.sign.keystore}</keystore>
+							<storetype>PKCS12</storetype>
+							<alias>${ligoj.sign.alias}</alias>
+							<storepass>${ligoj.sign.storepass}</storepass>
+							<tsa>${ligoj.sign.tsa}</tsa>
+							<!-- Only the main JAR carries code: sources/javadoc artifacts stay untouched -->
+							<processAttachedArtifacts>false</processAttachedArtifacts>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>
