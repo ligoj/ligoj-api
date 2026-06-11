@@ -9,6 +9,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.ligoj.app.api.NodeVo;
+import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.model.ParameterType;
@@ -96,7 +97,48 @@ public class NodeHelper {
 	public static NodeVo toVo(final Node entity, final ServicePluginLocator locator) {
 		final var vo = toVo(entity);
 		vo.setEnabled(locator.isEnabled(entity.getId()));
+		applyPlugin(vo, entity, locator);
 		return vo;
+	}
+
+	/**
+	 * Apply plugin-derived metadata on the VO when a ServicePlugin is
+	 * registered for this node. Currently fills {@link NodeVo#getPreferredColor()}
+	 * from {@link ServicePlugin#getPreferredColor()}, walking up the parent
+	 * chain to inherit a color declared at the service level when the leaf
+	 * tool does not override it.
+	 *
+	 * @param vo      The target value object to enrich.
+	 * @param entity  The source node entity.
+	 * @param locator The plugin locator.
+	 */
+	private static void applyPlugin(final NodeVo vo, final Node entity, final ServicePluginLocator locator) {
+		vo.setPreferredColor(resolvePreferredColor(entity, locator));
+	}
+
+	/**
+	 * Walk up the parent chain to resolve the preferred color, returning the
+	 * first non-null value found. Returns {@code null} when no plugin in the
+	 * chain declares a color (default behavior).
+	 *
+	 * @param entity  The starting node.
+	 * @param locator The plugin locator.
+	 * @return The hex color string, or {@code null} when no color is declared
+	 *         anywhere on the chain.
+	 */
+	private static String resolvePreferredColor(final Node entity, final ServicePluginLocator locator) {
+		Node current = entity;
+		while (current != null) {
+			final var plugin = locator.getResource(current.getId(), ServicePlugin.class);
+			if (plugin != null) {
+				final String color = plugin.getPreferredColor();
+				if (color != null) {
+					return color;
+				}
+			}
+			current = current.getRefined();
+		}
+		return null;
 	}
 
 	/**
@@ -123,6 +165,7 @@ public class NodeHelper {
 	private static NodeVo toVoParameter(final Node entity, final ServicePluginLocator locator) {
 		final var vo = toVoParameter(entity);
 		vo.setEnabled(locator.isEnabled(entity.getId()));
+		applyPlugin(vo, entity, locator);
 		return vo;
 	}
 
@@ -150,6 +193,7 @@ public class NodeHelper {
 	protected static NodeVo toVoLight(final Node entity, final ServicePluginLocator locator) {
 		final var vo = toVoLight(entity);
 		vo.setEnabled(locator.isEnabled(entity.getId()));
+		applyPlugin(vo, entity, locator);
 		return vo;
 	}
 
