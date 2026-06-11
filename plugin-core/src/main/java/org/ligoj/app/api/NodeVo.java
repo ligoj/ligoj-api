@@ -39,6 +39,14 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	private String uiClasses;
 
 	/**
+	 * CSS color string declared by the plugin via
+	 * {@link ServicePlugin#getPreferredColor()}. {@code null} when no
+	 * preference is declared; the UI is expected to fall back to its
+	 * own derivation in that case.
+	 */
+	private String preferredColor;
+
+	/**
 	 * Parameter values attached to this node directly of from one of its parent. So some parameters come from the
 	 * parent node and are not directly linked to the current node.<br>
 	 * Depending on the called service to build this node, sometimes for the performance purpose, the values are not

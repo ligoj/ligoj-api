@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.api;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -30,5 +31,10 @@ class ServicePluginTest {
 	@Test
 	void deleteNode() throws Exception {
 		plugin.delete("service:s1:t2:n3", true);
+	}
+
+	@Test
+	void getPreferredColor() {
+		Assertions.assertNull(plugin.getPreferredColor());
 	}
 }
