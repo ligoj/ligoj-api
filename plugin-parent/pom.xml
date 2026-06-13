@@ -31,13 +31,13 @@
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-api-test</artifactId>
-				<version>4.2.3</version>
+				<version>4.3.1-SNAPSHOT</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-iam-empty</artifactId>
-				<version>4.2.3</version>
+				<version>4.3.1-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
