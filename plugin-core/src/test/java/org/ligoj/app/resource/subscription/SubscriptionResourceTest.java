@@ -27,9 +27,11 @@ import org.ligoj.app.resource.node.sample.JiraBaseResource;
 import org.ligoj.app.resource.node.sample.JiraPluginResource;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.MatcherUtil;
+import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -257,7 +259,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void deleteByAdmin() throws Exception {
-		initSpringSecurityContext("junit");
+		initSpringSecurityContext(DEFAULT_USER, new SimpleGrantedAuthority(SecurityHelper.ADMIN));
 		assertDelete(true);
 	}
 
@@ -272,14 +274,14 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void deleteByAdminWithRemoteTasks() throws Exception {
-		initSpringSecurityContext("junit");
+		initSpringSecurityContext(DEFAULT_USER, new SimpleGrantedAuthority(SecurityHelper.ADMIN));
 		setSubscriptionMode(SubscriptionMode.CREATE);
 		assertDelete(true);
 	}
 
 	@Test
 	void deleteByAdminWithRemoteTasksDisabled() throws Exception {
-		initSpringSecurityContext("junit");
+		initSpringSecurityContext(DEFAULT_USER, new SimpleGrantedAuthority(SecurityHelper.ADMIN));
 		setSubscriptionMode(SubscriptionMode.CREATE);
 		assertDelete(false);
 	}
@@ -513,7 +515,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	private SubscriptionEditionVo newCreateVo() {
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
+		em.createQuery("DELETE FROM Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final var vo = new SubscriptionEditionVo();
 		final var parameters = new ArrayList<ParameterValueCreateVo>();
@@ -541,7 +543,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	private int createCreateBase(final String parent, final String group) throws Exception {
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
+		em.createQuery("DELETE FROM Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 		final var vo = new SubscriptionEditionVo();
 		final var parameters = getParameterValueCreateVos(parent, group);
 
@@ -612,7 +614,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	private SubscriptionEditionVo newCreateVoBadParameters() {
-		em.createQuery("DELETE Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
+		em.createQuery("DELETE FROM Parameter WHERE id LIKE ?1").setParameter(1, "c_%").executeUpdate();
 
 		final var project = new Project();
 		project.setName("TEST");

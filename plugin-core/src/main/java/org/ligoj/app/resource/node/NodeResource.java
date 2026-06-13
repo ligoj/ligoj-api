@@ -19,10 +19,11 @@ import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ParameterRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
-import org.ligoj.app.dao.task.LongTaskNodeRepository;
+import org.ligoj.app.dao.task.LongTaskRepository;
 import org.ligoj.app.model.*;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.core.NamedBean;
+import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.json.PaginationJson;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
@@ -612,7 +613,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	protected Class<? extends LongTaskRunner<AbstractLongTaskNode, LongTaskNodeRepository<AbstractLongTaskNode>, Node, String, NodeRepository, AbstractLockedResource<Node, String>>> getLongTaskRunnerClass() {
+	protected <
+			T extends AbstractLongTask<Node, String>,
+			R extends LongTaskRepository<T, Node, String>,
+			A extends RestRepository<Node, String>,
+			S extends AbstractLockedResource<Node, String>
+			> Class<? extends LongTaskRunner<T, R, Node, String, A, S>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerNode.class;
 	}
 

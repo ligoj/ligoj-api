@@ -15,12 +15,14 @@ import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
+import org.ligoj.app.dao.task.LongTaskRepository;
 import org.ligoj.app.model.*;
 import org.ligoj.app.resource.node.*;
 import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.app.resource.project.ProjectHelper;
 import org.ligoj.bootstrap.core.DescribedBean;
 import org.ligoj.bootstrap.core.NamedBean;
+import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -486,7 +488,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	@SuppressWarnings({"unchecked", "rawtypes"})
 	@Override
-	protected Class<? extends LongTaskRunner<?, ?, ?, Integer, ?, AbstractLockedResource<Subscription, Integer>>> getLongTaskRunnerClass() {
+	protected <
+			T extends AbstractLongTask<Subscription, Integer>,
+			R extends LongTaskRepository<T, Subscription, Integer>,
+			A extends RestRepository<Subscription, Integer>,
+			S extends AbstractLockedResource<Subscription, Integer>
+			> Class<? extends LongTaskRunner<T, R, Subscription, Integer, A, S>> getLongTaskRunnerClass() {
 		return (Class) LongTaskRunnerSubscription.class;
 	}
 

@@ -131,8 +131,10 @@ class ProjectResourceTest extends AbstractOrgTest {
 
 	@Test
 	void findAllNotMemberButTreeVisible() {
-		// Drop administrator right from "junit" user
+		// Drop administrator right from "junit" user. The administration access level is now resolved from the
+		// principal authorities, so the virtual authority must be dropped too by re-initializing the context.
 		em.createQuery("DELETE FROM SystemRoleAssignment").executeUpdate();
+		initSpringSecurityContext(DEFAULT_USER);
 
 		// create a mock URI info with pagination information
 		final var uriInfo = newFindAllParameters();
@@ -287,7 +289,7 @@ class ProjectResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void findByIdNoParameter() {
-		// Pre check
+		// Pre-check
 		initSpringSecurityContext("fdaugan");
 		Assertions.assertEquals(1, resource.findById(testProject.getId()).getSubscriptions().size());
 		em.flush();

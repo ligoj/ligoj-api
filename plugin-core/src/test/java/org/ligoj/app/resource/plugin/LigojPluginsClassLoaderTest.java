@@ -35,6 +35,7 @@ class LigojPluginsClassLoaderTest {
 	}
 
 	@Test
+	@SuppressWarnings("try")
 	void getInstance() {
 		try (var ignored = new ThreadClassLoaderScope(
 				new URLClassLoader(new URL[0], Mockito.mock(LigojPluginsClassLoader.class)))) {

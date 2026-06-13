@@ -39,7 +39,7 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	@Query("""
 			SELECT d FROM DelegateNode d WHERE (:criteria = ''
 			       OR UPPER(d.receiver) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))
-			       OR UPPER(d.name)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND 
+			       OR UPPER(d.name)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) AND
 			"""
 			+ VISIBLE_DELEGATE)
 	Page<DelegateNode> findAll(String user, String criteria, Pageable page);
