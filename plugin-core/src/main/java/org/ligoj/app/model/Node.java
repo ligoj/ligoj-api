@@ -53,6 +53,12 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	private String uiClasses;
 
 	/**
+	 * Optional preferred CSS color (e.g. {@code "#0052CC"}) used to accent this
+	 * node in the UI. Companion of {@link #uiClasses}; {@code null} when unset.
+	 */
+	private String uiColor;
+
+	/**
 	 * Optional tag name.
 	 */
 	private String tag;

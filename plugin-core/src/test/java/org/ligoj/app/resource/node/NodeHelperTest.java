@@ -3,123 +3,82 @@
  */
 package org.ligoj.app.resource.node;
 
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.resource.ServicePluginLocator;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 /**
- * Test class of {@link NodeHelper}, focused on the plugin-derived
- * {@code preferredColor} enrichment applied by {@code applyPlugin}.
+ * Test class of {@link NodeHelper}, focused on the {@code uiColor} attribute
+ * carried from the {@link Node} entity to the {@link org.ligoj.app.api.NodeVo}
+ * (companion of {@code uiClasses}).
  */
 class NodeHelperTest {
 
 	private static final String NODE_ID = "service:test:tool";
 	private static final String PARENT_ID = "service:test";
 
-	private Node newNode() {
-		return newNode(NODE_ID, "Test tool");
-	}
-
-	private Node newNode(final String id, final String name) {
+	private Node newNode(final String id, final String name, final String uiColor) {
 		final var entity = new Node();
 		entity.setId(id);
 		entity.setName(name);
+		entity.setUiColor(uiColor);
 		return entity;
 	}
 
-	/**
-	 * Build a locator stubbing the given plugin for a single node id.
-	 */
-	private void stub(final ServicePluginLocator locator, final String id, final ServicePlugin plugin) {
-		Mockito.when(locator.getResource(ArgumentMatchers.eq(id), ArgumentMatchers.eq(ServicePlugin.class)))
-				.thenReturn(plugin);
+	@Test
+	void toVoCopiesUiColorFromEntity() {
+		final var vo = NodeHelper.toVo(newNode(NODE_ID, "Test tool", "#0052CC"));
+		Assertions.assertEquals("#0052CC", vo.getUiColor());
 	}
 
-	private ServicePlugin pluginWithColor(final String color) {
-		final var plugin = Mockito.mock(ServicePlugin.class);
-		Mockito.when(plugin.getPreferredColor()).thenReturn(color);
-		return plugin;
+	@Test
+	void toVoKeepsUiColorNullWhenUnset() {
+		final var vo = NodeHelper.toVo(newNode(NODE_ID, "Test tool", null));
+		Assertions.assertNull(vo.getUiColor());
 	}
 
-	private ServicePluginLocator locatorReturning(final ServicePlugin plugin) {
+	@Test
+	void toVoLightAndToVoParametersAlsoCopyUiColor() {
 		final var locator = Mockito.mock(ServicePluginLocator.class);
-		Mockito.when(locator.getResource(ArgumentMatchers.eq(NODE_ID), ArgumentMatchers.eq(ServicePlugin.class)))
-				.thenReturn(plugin);
-		return locator;
-	}
+		Mockito.when(locator.isEnabled(NODE_ID)).thenReturn(true);
 
-	@Test
-	void toVoFillsPreferredColorFromPlugin() {
-		final var plugin = Mockito.mock(ServicePlugin.class);
-		Mockito.when(plugin.getPreferredColor()).thenReturn("#0052CC");
-
-		final var vo = NodeHelper.toVo(newNode(), locatorReturning(plugin));
-
-		Assertions.assertEquals("#0052CC", vo.getPreferredColor());
-	}
-
-	@Test
-	void toVoKeepsPreferredColorNullWhenPluginAbsent() {
-		final var vo = NodeHelper.toVo(newNode(), locatorReturning(null));
-
-		Assertions.assertNull(vo.getPreferredColor());
-	}
-
-	@Test
-	void toVoKeepsPreferredColorNullWhenPluginDeclaresNull() {
-		// Anonymous plugin relying on the default getPreferredColor() == null
-		final ServicePlugin plugin = () -> NODE_ID;
-
-		final var vo = NodeHelper.toVo(newNode(), locatorReturning(plugin));
-
-		Assertions.assertNull(vo.getPreferredColor());
-	}
-
-	@Test
-	void toVoLightAndToVoParameterAlsoFillPreferredColor() {
-		final var plugin = Mockito.mock(ServicePlugin.class);
-		Mockito.when(plugin.getPreferredColor()).thenReturn("#0052CC");
-		final var locator = locatorReturning(plugin);
-
-		Assertions.assertEquals("#0052CC", NodeHelper.toVoLight(newNode(), locator).getPreferredColor());
-
-		final var rows = new java.util.ArrayList<Object[]>();
-		rows.add(new Object[] { newNode(), null });
 		Assertions.assertEquals("#0052CC",
-				NodeHelper.toVoParameters(rows, locator).get(NODE_ID).getPreferredColor());
+				NodeHelper.toVoLight(newNode(NODE_ID, "Test tool", "#0052CC"), locator).getUiColor());
+
+		final var rows = new ArrayList<Object[]>();
+		rows.add(new Object[] { newNode(NODE_ID, "Test tool", "#0052CC"), null });
+		Assertions.assertEquals("#0052CC",
+				NodeHelper.toVoParameters(rows, locator).get(NODE_ID).getUiColor());
 	}
 
 	@Test
-	void toVoInheritsPreferredColorFromParent() {
-		final var child = newNode();
-		child.setRefined(newNode(PARENT_ID, "Test service"));
+	void toVoCarriesUiColorPerNode() {
+		// Each node keeps its own color; the parent's color is exposed on the
+		// refined VO — there is no backend parent-chain inheritance (a UI
+		// concern via the `refined` reference).
+		final var child = newNode(NODE_ID, "Test tool", "#FF0000");
+		child.setRefined(newNode(PARENT_ID, "Test service", "#0052CC"));
 
-		final var locator = Mockito.mock(ServicePluginLocator.class);
-		// Leaf tool declares no color, parent service does.
-		stub(locator, NODE_ID, pluginWithColor(null));
-		stub(locator, PARENT_ID, pluginWithColor("#0052CC"));
+		final var vo = NodeHelper.toVo(child);
 
-		final var vo = NodeHelper.toVo(child, locator);
-
-		Assertions.assertEquals("#0052CC", vo.getPreferredColor());
+		Assertions.assertEquals("#FF0000", vo.getUiColor());
+		Assertions.assertEquals("#0052CC", vo.getRefined().getUiColor());
 	}
 
 	@Test
-	void toVoChildPreferredColorOverridesParent() {
-		final var child = newNode();
-		child.setRefined(newNode(PARENT_ID, "Test service"));
+	void toVoLeafWithoutColorDoesNotInheritParent() {
+		// Confirms the removed backend inheritance: a leaf without a color stays
+		// null even when its parent declares one.
+		final var child = newNode(NODE_ID, "Test tool", null);
+		child.setRefined(newNode(PARENT_ID, "Test service", "#0052CC"));
 
-		final var locator = Mockito.mock(ServicePluginLocator.class);
-		// Leaf tool overrides the color declared by its parent service.
-		stub(locator, NODE_ID, pluginWithColor("#FF0000"));
-		stub(locator, PARENT_ID, pluginWithColor("#0052CC"));
+		final var vo = NodeHelper.toVo(child);
 
-		final var vo = NodeHelper.toVo(child, locator);
-
-		Assertions.assertEquals("#FF0000", vo.getPreferredColor());
+		Assertions.assertNull(vo.getUiColor());
+		Assertions.assertEquals("#0052CC", vo.getRefined().getUiColor());
 	}
 }

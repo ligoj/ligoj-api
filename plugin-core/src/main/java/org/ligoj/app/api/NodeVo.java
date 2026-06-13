@@ -39,12 +39,12 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	private String uiClasses;
 
 	/**
-	 * CSS color string declared by the plugin via
-	 * {@link ServicePlugin#getPreferredColor()}. {@code null} when no
-	 * preference is declared; the UI is expected to fall back to its
-	 * own derivation in that case.
+	 * Optional preferred CSS color (e.g. {@code "#0052CC"}) used to accent this
+	 * node in the UI. Sourced from {@link org.ligoj.app.model.Node#getUiColor()};
+	 * {@code null} when none is set, in which case the UI is expected to fall
+	 * back to its own derivation.
 	 */
-	private String preferredColor;
+	private String uiColor;
 
 	/**
 	 * Parameter values attached to this node directly of from one of its parent. So some parameters come from the
