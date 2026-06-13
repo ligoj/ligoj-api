@@ -10,7 +10,7 @@ jobs:
     name: Build and analyze
     runs-on: ubuntu-latest
     steps:
-      - uses: s4u/setup-maven-action@6c4e9964d4ecb8f1026310cd8618791fd51a8016
+      - uses: s4u/setup-maven-action@ba34de01b7f4ba2ab8e2860df8993a29f4477056
         with:
           checkout-fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
           java-version: 21
