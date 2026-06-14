@@ -24,4 +24,11 @@ public class SubscribedNodeVo extends AbstractNodeVo {
 	 * Instance of tool proving the expected service.
 	 */
 	private String refined;
+
+	/**
+	 * Optional CSS classes used to render the node icon (e.g. <code>fab fa-aws</code>).
+	 * Carried in this light model so the UI can render the real icon (via NodeIcon)
+	 * without a second lookup.
+	 */
+	private String uiClasses;
 }

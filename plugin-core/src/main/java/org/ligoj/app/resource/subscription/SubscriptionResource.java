@@ -415,6 +415,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 			NamedBean.copy(node, subscribedNode);
 			subscribedNode.setTag(node.getTag());
 			subscribedNode.setTagUiClasses(node.getTagUiClasses());
+			subscribedNode.setUiClasses(node.getUiClasses());
 			filteredNodes.put(node.getId(), subscribedNode);
 
 			// Now check the parent exists or not and add it to the target
