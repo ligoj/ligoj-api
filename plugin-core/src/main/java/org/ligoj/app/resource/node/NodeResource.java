@@ -524,12 +524,64 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public TableItem<NodeVo> findAll(@Context final UriInfo uriInfo,
 			@QueryParam(DataTableAttributes.SEARCH) final String criteria, @QueryParam("refined") final String refined,
-			@QueryParam("mode") final SubscriptionMode mode, @QueryParam("depth") @DefaultValue("-1") final int depth) {
-		final var findAll = repository.findAllVisible(securityHelper.getLogin(), StringUtils.trimToEmpty(criteria),
+			@QueryParam("mode") final SubscriptionMode mode, @QueryParam("depth") @DefaultValue("-1") final int depth,
+			@QueryParam("status") @DefaultValue("false") final boolean status) {
+		final var login = securityHelper.getLogin();
+		final var findAll = repository.findAllVisible(login, StringUtils.trimToEmpty(criteria),
 				refined, mode, depth, paginationJson.getPageRequest(uriInfo, ORM_MAPPING));
 
+		// Optionally surface the last known status from the most recent STATUS event,
+		// fetched in a SINGLE bulk query for the whole page (avoids an N+1).
+		final var statuses = status ? toLastStatuses(login, findAll.getContent()) : Map.<String, NodeStatus>of();
+
 		// apply pagination and prevent lazy initialization issue
-		return paginationJson.applyPagination(uriInfo, findAll, n -> NodeHelper.toVo(n, locator));
+		return paginationJson.applyPagination(uriInfo, findAll, n -> {
+			final var vo = NodeHelper.toVo(n, locator);
+			if (status) {
+				vo.setStatus(statuses.get(n.getId()));
+			}
+			return vo;
+		});
+	}
+
+	/**
+	 * {@link #findAll(UriInfo, String, String, SubscriptionMode, int, boolean)} without the optional status flag —
+	 * convenience overload (equivalent to {@code status = false}) kept for the internal and test callers.
+	 *
+	 * @param uriInfo  Filter data.
+	 * @param criteria the optional criteria to match.
+	 * @param refined  the optional parent node identifier.
+	 * @param mode     the optional subscription mode.
+	 * @param depth    the maximum depth of refining. <code>-1</code> for an unbounded depth.
+	 * @return All visible nodes matching the criteria.
+	 */
+	public TableItem<NodeVo> findAll(final UriInfo uriInfo, final String criteria, final String refined,
+			final SubscriptionMode mode, final int depth) {
+		return findAll(uriInfo, criteria, refined, mode, depth, false);
+	}
+
+	/**
+	 * Return the last known {@link NodeStatus} of each given node from its most recent status event, resolved with a
+	 * single bulk query (avoids an N+1 over the page).
+	 *
+	 * @param user  The principal requesting the data (for visibility).
+	 * @param nodes The nodes of the current page.
+	 * @return A map of node identifier to its last known status; nodes without a parsable status event are absent.
+	 */
+	private Map<String, NodeStatus> toLastStatuses(final String user, final List<Node> nodes) {
+		if (nodes.isEmpty()) {
+			return Map.of();
+		}
+		final var ids = nodes.stream().map(Node::getId).toList();
+		final var statuses = new HashMap<String, NodeStatus>();
+		for (final var event : eventRepository.findLastEvents(user, ids)) {
+			try {
+				statuses.put(event.getNode().getId(), NodeStatus.valueOf(event.getValue()));
+			} catch (final IllegalArgumentException e) {
+				// Unknown / non-status value — ignore.
+			}
+		}
+		return statuses;
 	}
 
 	/**

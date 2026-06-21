@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.dao;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.ligoj.app.model.Event;
@@ -62,6 +63,19 @@ public interface EventRepository extends RestRepository<Event, String> {
 	@Query("SELECT e FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id = :node AND"
 			+ NodeRepository.VISIBLE_NODES)
 	Event findLastEvent(String user, String node);
+
+	/**
+	 * Return the last event, if any, of each given visible node for a user, in a single query (bulk variant of
+	 * {@link #findLastEvent(String, String)} to avoid an N+1 over a node list).
+	 *
+	 * @param user  The principal user requesting the nodes.
+	 * @param nodes The related node identifiers.
+	 * @return the last event of each matching node; nodes without an event are simply absent.
+	 */
+	@SuppressWarnings("unused")
+	@Query("SELECT e FROM Event e INNER JOIN e.node n WHERE e.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.node = n) AND n.id IN :nodes AND"
+			+ NodeRepository.VISIBLE_NODES)
+	List<Event> findLastEvents(String user, Collection<String> nodes);
 
 	/**
 	 * find last events for a project

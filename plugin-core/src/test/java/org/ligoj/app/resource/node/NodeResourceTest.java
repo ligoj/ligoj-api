@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.NodeStatus;
+import org.ligoj.app.api.NodeVo;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.api.ToolPlugin;
@@ -1075,5 +1076,58 @@ class NodeResourceTest extends AbstractAppTest {
 		} finally {
 			destroySingleton("taskSampleResource");
 		}
+	}
+
+	private NodeStatus findStatus(final java.util.List<NodeVo> data, final String id) {
+		return data.stream().filter(n -> id.equals(n.getId())).findFirst().orElseThrow().getStatus();
+	}
+
+	@Test
+	void findAllWithLastStatus() {
+		initSpringSecurityContext(DEFAULT_USER);
+		final var data = resource.findAll(newUriInfo(), null, null, null, -1, true).getData();
+		// Instances with a STATUS event in the fixture surface their last known status.
+		Assertions.assertEquals(NodeStatus.DOWN, findStatus(data, "service:bt:jira:6"));
+		Assertions.assertEquals(NodeStatus.UP, findStatus(data, "service:bt:jira:4"));
+		// A node without any status event has a null status.
+		Assertions.assertNull(findStatus(data, "service:bt:jira"));
+	}
+
+	@Test
+	void findAllWithoutStatus() {
+		initSpringSecurityContext(DEFAULT_USER);
+		// status=false (explicit) → the field stays null even when events exist.
+		final var data = resource.findAll(newUriInfo(), null, null, null, -1, false).getData();
+		Assertions.assertNull(findStatus(data, "service:bt:jira:6"));
+	}
+
+	@Test
+	void findAllStatusOverloadDefaultsFalse() {
+		initSpringSecurityContext(DEFAULT_USER);
+		// 5-arg overload → no status resolution.
+		final var data = resource.findAll(newUriInfo(), null, null, null, -1).getData();
+		Assertions.assertNull(findStatus(data, "service:bt:jira:6"));
+	}
+
+	@Test
+	void findAllStatusEmpty() {
+		initSpringSecurityContext(DEFAULT_USER);
+		// No node matches → toLastStatuses short-circuits on the empty page.
+		Assertions.assertTrue(resource.findAll(newUriInfo(), "zzz-no-such-node", null, null, -1, true).getData().isEmpty());
+	}
+
+	@Test
+	void findAllStatusUnparsable() {
+		initSpringSecurityContext(DEFAULT_USER);
+		// A STATUS event whose value is not a NodeStatus is ignored (parse catch branch).
+		final var event = new Event();
+		event.setNode(repository.findOneExpected("service:bt:jira:6"));
+		event.setType(EventType.STATUS);
+		event.setValue("NOT_A_STATUS");
+		event.setDate(java.time.Instant.now());
+		em.persist(event);
+		em.flush();
+		final var data = resource.findAll(newUriInfo(), null, null, null, -1, true).getData();
+		Assertions.assertNull(findStatus(data, "service:bt:jira:6"));
 	}
 }

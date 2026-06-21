@@ -60,4 +60,11 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	 * plug-in. When <code>null</code>, the state has not been resolved.
 	 */
 	private Boolean enabled;
+
+	/**
+	 * Optional last known operational status, computed from the most recent
+	 * {@link org.ligoj.app.model.EventType#STATUS} event of this node. Only populated on demand (see
+	 * {@code NodeResource#findAll} with the {@code status} flag); <code>null</code> when not requested or unknown.
+	 */
+	private NodeStatus status;
 }
