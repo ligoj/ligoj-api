@@ -134,5 +134,82 @@
 				</plugins>
 			</build>
 		</profile>
+		<!--
+			Build the plugin's Vue.js front-end (Vite) and emit it into
+			src/main/resources/.../webjars/<plugin>/vue (the Vite outDir), which
+			process-resources then copies into target/classes so it is packaged in
+			the plugin JAR. That bundle is gitignored, so without this a clean
+			`mvn package` would ship a JAR with no front-end.
+
+			Bound to generate-resources — i.e. BEFORE process-resources copies
+			src/main/resources to target/classes; binding to `package` would be too
+			late (the JAR is already assembled). Self-contained: a pinned Node/npm is
+			downloaded under target/, then `npm ci` + `npm run build`.
+
+			Auto-activated ONLY when ui/package.json exists, so Java-only plugins are
+			left untouched and no useless Node download happens. Skip explicitly with
+			-Dskip.ui.build=true (e.g. for a fast Java-only build).
+		-->
+		<profile>
+			<id>ui-build</id>
+			<activation>
+				<file>
+					<exists>${project.basedir}/ui/package.json</exists>
+				</file>
+			</activation>
+			<properties>
+				<skip.ui.build>false</skip.ui.build>
+				<ui.node.version>v25.7.0</ui.node.version>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>1.15.4</version>
+						<configuration>
+							<workingDirectory>ui</workingDirectory>
+							<!-- Node/npm extracted under target/ so `mvn clean` removes them -->
+							<installDirectory>${project.build.directory}</installDirectory>
+							<skip>${skip.ui.build}</skip>
+						</configuration>
+						<executions>
+							<execution>
+								<id>ui-install-node-npm</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+								<configuration>
+									<nodeVersion>${ui.node.version}</nodeVersion>
+									<!-- use the npm bundled with the installed Node -->
+									<npmVersion>provided</npmVersion>
+								</configuration>
+							</execution>
+							<execution>
+								<id>ui-npm-ci</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>ci</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>ui-npm-build</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>run build</arguments>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
 	</profiles>
 </project>
