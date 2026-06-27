@@ -81,6 +81,8 @@
 			code-signing keystore. The signature is verified at startup by the host's PluginsClassLoader and
 			the signer identity is displayed in the plugin administration view.
 
+			Use `-Djarsigner.skip=true` to skip the sign.
+
 			One-time keystore creation:
 			  keytool -genkeypair -keystore ~/.ligoj/code-signing.p12 -storetype PKCS12 -alias ligoj \
 			    -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Ligoj, O=Ligoj"
