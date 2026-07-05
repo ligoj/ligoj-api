@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Criteria values Business Layer for entity {@link Parameter}
@@ -29,11 +28,6 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Path("/node")
 public class ParameterResource {
-
-	/**
-	 * Node parameter comparator.
-	 */
-	private static final DependencyComparator COMPARATOR = new DependencyComparator();
 
 	@Autowired
 	private ParameterRepository repository;
@@ -54,7 +48,8 @@ public class ParameterResource {
 
 	/**
 	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. The
-	 * parameters are ordered by dependencies, root first.
+	 * parameters are ordered by identifier, ascending. The UI ({@code SubscribeWizardView}) re-orders them by display
+	 * name and applies any plugin-provided ordering/grouping.
 	 *
 	 * @param node The node identifier.
 	 * @param mode Subscription mode.
@@ -65,21 +60,8 @@ public class ParameterResource {
 	@Path("{node:service:.+}/parameter/{mode}")
 	public List<ParameterVo> getNotProvidedParameters(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
-		// Build the parameters map
-		final var parameters = new HashMap<String, ParameterVo>();
-		repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(NodeHelper::toVo)
-				.forEach(v -> parameters.put(v.getId(), v));
-
-		// Complete the dependencies graph
-		var updated = true;
-		while (updated) {
-			updated = parameters.values().stream().anyMatch(p -> p.getDepends().addAll(p.getDepends().stream()
-					.flatMap(d -> parameters.get(d).getDepends().stream()).collect(Collectors.toSet())));
-		}
-		final var clone = new ArrayList<>(parameters.values());
-		clone.sort(Comparator.comparing(AbstractBusinessEntity::getId));
-		clone.sort(COMPARATOR);
-		return clone;
+		return repository.getOrphanParameters(node, mode, securityHelper.getLogin()).stream().map(NodeHelper::toVo)
+				.sorted(Comparator.comparing(AbstractBusinessEntity::getId)).toList();
 	}
 
 	/**

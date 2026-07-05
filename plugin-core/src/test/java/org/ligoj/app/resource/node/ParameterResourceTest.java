@@ -6,9 +6,7 @@ package org.ligoj.app.resource.node;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.IntStream;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
@@ -20,12 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.dao.ParameterRepository;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterType;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -67,41 +60,6 @@ class ParameterResourceTest extends AbstractAppTest {
 		Assertions.assertNull(parameters.get(nonDummyStartIndex + 1).getDefaultValue());
 	}
 
-	@Test
-	void getNotProvidedParametersWithDependencies() {
-
-		// c_16->[c_10], c_10->[c_15, c8,c2], c8->c2, c2->[c7], c7->[c14]
-		repository.findOneExpected("c_16").getDepends().add(repository.findOneExpected("c_10"));
-		repository.findOneExpected("c_10").getDepends().add(repository.findOneExpected("c_15"));
-		repository.findOneExpected("c_10").getDepends().add(repository.findOneExpected("c_8"));
-		repository.findOneExpected("c_10").getDepends().add(repository.findOneExpected("c_2"));
-		repository.findOneExpected("c_8").getDepends().add(repository.findOneExpected("c_2"));
-		repository.findOneExpected("c_2").getDepends().add(repository.findOneExpected("c_7"));
-		repository.findOneExpected("c_7").getDepends().add(repository.findOneExpected("c_14"));
-		final var parameters = resource.getNotProvidedParameters("service:bt:jira:6", SubscriptionMode.LINK);
-
-		// Dependency order check
-		Assertions.assertTrue(indexOf("c_16", parameters) > indexOf("c_10", parameters));
-		Assertions.assertTrue(indexOf("c_10", parameters) > indexOf("c_15", parameters));
-		Assertions.assertTrue(indexOf("c_10", parameters) > indexOf("c_8", parameters));
-		Assertions.assertTrue(indexOf("c_10", parameters) > indexOf("c_2", parameters));
-		Assertions.assertTrue(indexOf("c_8", parameters) > indexOf("c_2", parameters));
-		Assertions.assertTrue(indexOf("c_7", parameters) > indexOf("c_14", parameters));
-		Assertions.assertTrue(indexOf("c_2", parameters) > indexOf("c_7", parameters));
-		Assertions.assertTrue(indexOf("c_8", parameters) > indexOf("c_2", parameters));
-
-		// Natural order check
-		Assertions.assertTrue(indexOf("c_12", parameters) > indexOf("c_11", parameters));
-		Assertions.assertTrue(indexOf("c_18", parameters) > indexOf("c_17", parameters));
-
-		// Coverage only
-		new Parameter().setDepends(Collections.emptyList());
-	}
-
-	private int indexOf(final String parameter, final List<ParameterVo> result) {
-		return IntStream.range(0, result.size()).filter(idx -> result.get(idx).getId().equals(parameter)).findFirst()
-				.getAsInt();
-	}
 
 	@Test
 	void getNotProvidedParametersTool() {

@@ -3,7 +3,6 @@
  */
 package org.ligoj.app.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -12,8 +11,6 @@ import lombok.ToString;
 import org.hibernate.validator.constraints.Length;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.model.AbstractStringKeyEntity;
-
-import java.util.List;
 
 /**
  * Parameter definition.
@@ -82,17 +79,6 @@ public class Parameter extends AbstractStringKeyEntity {
 	 * be encrypted.
 	 */
 	private boolean secured;
-
-	/**
-	 * Parameters this parameter is depending on. This relationship is used:
-	 * <ul>
-	 * <li>To order the displayed parameters, from the root ones to the most constrained ones</li>
-	 * <li>To invalidate the child parameters when a parent one is updated</li>
-	 * </ul>
-	 */
-	@ManyToMany(cascade = CascadeType.REMOVE)
-	@JsonIgnore
-	private List<Parameter> depends;
 
 	/**
 	 * <code>true</code> when this parameter is available at subscription level. Otherwise, this parameter is hidden, and ignored for subscription.

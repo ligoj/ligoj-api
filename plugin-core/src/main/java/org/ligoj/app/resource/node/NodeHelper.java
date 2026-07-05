@@ -281,7 +281,6 @@ public class NodeHelper {
 		vo.setSecured(entity.isSecured());
 		vo.setOwner(NodeHelper.toVo(entity.getOwner()));
 		vo.setDefaultValue(entity.getDefaultValue());
-		vo.setDepends(entity.getDepends().stream().map(Persistable::getId).collect(Collectors.toSet()));
 		// Availability flags. A null entity value means "available" — the
 		// migration default for legacy rows. Normalise here so every consumer
 		// (wizard filter, value-create checks) reads a definitive Boolean.

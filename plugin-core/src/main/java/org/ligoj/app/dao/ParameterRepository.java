@@ -28,7 +28,7 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT DISTINCT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2"
-			+ " LEFT JOIN FETCH p.depends WHERE n.id = :node AND (o.id=n.id OR o.id=n1.id OR o.id=n2.id)"
+			+ " WHERE n.id = :node AND (o.id=n.id OR o.id=n1.id OR o.id=n2.id)"
 			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
 			+ NodeRepository.VISIBLE_NODES
 			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND (node.id=n.id OR node.id=n1.id OR node.id=n2.id))")
