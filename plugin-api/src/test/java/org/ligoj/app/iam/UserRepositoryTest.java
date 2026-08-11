@@ -6,7 +6,6 @@ package org.ligoj.app.iam;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +13,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link IUserRepository}
@@ -134,7 +136,7 @@ class UserRepositoryTest {
 		Assertions.assertNull(repository.getCompanyRepository());
 		Assertions.assertNull(repository.getGroupRepository());
 		final var user = new UserOrg();
-		repository.groupRepository = Mockito.mock(IGroupRepository.class);
+		repository.groupRepository = mock(IGroupRepository.class);
 		user.setGroups(List.of("group1", "group2"));
 		final var result = repository.updateMembership(List.of("group1", "group3"), user);
 		Assertions.assertEquals(List.of("group3"), result.getAddedGroups());
@@ -211,7 +213,7 @@ class UserRepositoryTest {
 	@Test
 	void findByIdExpectedCompanyNotExists() {
 		final var emptyUserRepository = new EmptyUserRepository();
-		emptyUserRepository.setCompanyRepository(Mockito.mock(ICompanyRepository.class));
+		emptyUserRepository.setCompanyRepository(mock(ICompanyRepository.class));
 		Assertions.assertThrows(ValidationJsonException.class,
 				() -> emptyUserRepository.findByIdExpected("user1", "user2"));
 	}
@@ -219,8 +221,8 @@ class UserRepositoryTest {
 	@Test
 	void findByIdExpected() {
 		final var emptyUserRepository = new EmptyUserRepository();
-		final var companyRepository = Mockito.mock(ICompanyRepository.class);
-		Mockito.when(companyRepository.findById("user1", "company")).thenReturn(new CompanyOrg("", ""));
+		final var companyRepository = mock(ICompanyRepository.class);
+		when(companyRepository.findById("user1", "company")).thenReturn(new CompanyOrg("", ""));
 		emptyUserRepository.setCompanyRepository(companyRepository);
 		Assertions.assertEquals("user2", emptyUserRepository.findByIdExpected("user1", "user2").getId());
 	}

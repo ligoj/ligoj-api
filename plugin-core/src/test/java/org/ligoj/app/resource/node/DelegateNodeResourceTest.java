@@ -3,13 +3,9 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.UriInfo;
-
 import org.apache.cxf.jaxrs.impl.MetadataMap;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,18 +13,18 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.dao.DelegateNodeRepository;
 import org.ligoj.app.iam.model.ReceiverType;
-import org.ligoj.app.model.DelegateNode;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.Parameter;
-import org.ligoj.app.model.ParameterValue;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.ligoj.bootstrap.AbstractJpaTest;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link DelegateNodeResource}
@@ -253,8 +249,8 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 
 	@Test
 	void findAllNoCriteriaOrder() {
-		final var uriInfo = Mockito.mock(UriInfo.class);
-		Mockito.when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
+		final var uriInfo = mock(UriInfo.class);
+		when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
 		uriInfo.getQueryParameters().add("draw", "1");
 		uriInfo.getQueryParameters().add("start", "0");
 		uriInfo.getQueryParameters().add("length", "10");

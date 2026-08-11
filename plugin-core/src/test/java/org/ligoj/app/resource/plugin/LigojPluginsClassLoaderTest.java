@@ -3,13 +3,6 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
-import java.security.NoSuchAlgorithmException;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.eclipse.jetty.util.thread.ThreadClassLoaderScope;
@@ -19,7 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.bootstrap.core.plugin.PluginsClassLoader;
-import org.mockito.Mockito;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.StandardCharsets;
+import java.security.NoSuchAlgorithmException;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test class of {@link LigojPluginsClassLoader}
@@ -38,7 +39,7 @@ class LigojPluginsClassLoaderTest {
 	@SuppressWarnings("try")
 	void getInstance() {
 		try (var ignored = new ThreadClassLoaderScope(
-				new URLClassLoader(new URL[0], Mockito.mock(LigojPluginsClassLoader.class)))) {
+				new URLClassLoader(new URL[0], mock(LigojPluginsClassLoader.class)))) {
 			Assertions.assertNotNull(LigojPluginsClassLoader.getInstance());
 		}
 	}

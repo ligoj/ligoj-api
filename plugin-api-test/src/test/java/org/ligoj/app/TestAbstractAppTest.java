@@ -3,18 +3,19 @@
  */
 package org.ligoj.app;
 
-import java.util.Collections;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.iam.IamConfiguration;
 import org.ligoj.app.iam.IamProvider;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
+
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link AbstractAppTest}
@@ -33,10 +34,10 @@ class TestAbstractAppTest extends AbstractAppTest {
 	 */
 	@Test
 	void coverage() {
-		iamProvider = Mockito.mock(IamProvider.class);
-		var configuration = Mockito.mock(IamConfiguration.class);
-		Mockito.when(iamProvider.getConfiguration()).thenReturn(configuration);
-		em = Mockito.mock(EntityManager.class);
+		iamProvider = mock(IamProvider.class);
+		var configuration = mock(IamConfiguration.class);
+		when(iamProvider.getConfiguration()).thenReturn(configuration);
+		em = mock(EntityManager.class);
 		getUser();
 		getCompany();
 		getGroup();
@@ -45,13 +46,13 @@ class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
 	void getSubscription() {
-		em = Mockito.mock(EntityManager.class);
+		em = mock(EntityManager.class);
 		@SuppressWarnings("unchecked")
-		final TypedQuery<Object> typeQuery = Mockito.mock(TypedQuery.class);
-		Mockito.when(typeQuery.setParameter(ArgumentMatchers.anyInt(), ArgumentMatchers.any())).thenReturn(typeQuery);
-		Mockito.when(typeQuery.setMaxResults(1)).thenReturn(typeQuery);
-		Mockito.when(typeQuery.getResultList()).thenReturn(Collections.singletonList(3));
-		Mockito.when(em.createQuery(ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(typeQuery);
+		final TypedQuery<Object> typeQuery = mock(TypedQuery.class);
+		when(typeQuery.setParameter(ArgumentMatchers.anyInt(), ArgumentMatchers.any())).thenReturn(typeQuery);
+		when(typeQuery.setMaxResults(1)).thenReturn(typeQuery);
+		when(typeQuery.getResultList()).thenReturn(Collections.singletonList(3));
+		when(em.createQuery(ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(typeQuery);
 		Assertions.assertEquals(3, getSubscription("some", "service"));
 	}
 

@@ -3,15 +3,12 @@
  */
 package org.ligoj.app.iam;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+
+import java.util.*;
+
+import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("unused")
 class MockUserRepository2 implements IUserRepository {
@@ -60,7 +57,7 @@ class MockUserRepository2 implements IUserRepository {
 
 	@Override
 	public ICompanyRepository getCompanyRepository() {
-		return Mockito.mock(ICompanyRepository.class);
+		return mock(ICompanyRepository.class);
 	}
 
 	@Override

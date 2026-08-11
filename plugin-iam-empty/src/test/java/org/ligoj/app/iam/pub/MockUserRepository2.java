@@ -4,11 +4,12 @@
 package org.ligoj.app.iam.pub;
 
 import org.ligoj.app.iam.*;
-import org.mockito.Mockito;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
 
 class MockUserRepository2 implements IUserRepository {
 
@@ -56,7 +57,7 @@ class MockUserRepository2 implements IUserRepository {
 
 	@Override
 	public ICompanyRepository getCompanyRepository() {
-		return Mockito.mock(ICompanyRepository.class);
+		return mock(ICompanyRepository.class);
 	}
 
 	@Override

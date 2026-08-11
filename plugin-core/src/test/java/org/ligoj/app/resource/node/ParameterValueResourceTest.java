@@ -23,7 +23,6 @@ import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.bootstrap.model.system.SystemRole;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,6 +31,9 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * {@link ParameterValueResource} test cases.
@@ -339,9 +341,9 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	void createSelectJSonError() {
 		final var parameterValue = new ParameterValueCreateVo();
 		parameterValue.setParameter(parameterRepository.findOne("c_22").getId());
-		@SuppressWarnings("unchecked") final List<String> badList = Mockito.mock(List.class);
-		Mockito.when(badList.isEmpty()).thenReturn(Boolean.FALSE);
-		Mockito.when(badList.iterator()).thenThrow(new IllegalStateException());
+		@SuppressWarnings("unchecked") final List<String> badList = mock(List.class);
+		when(badList.isEmpty()).thenReturn(Boolean.FALSE);
+		when(badList.iterator()).thenThrow(new IllegalStateException());
 		parameterValue.setTags(badList);
 		Assertions.assertThrows(TechnicalException.class, () -> ParameterValueResource.toData(parameterValue));
 	}

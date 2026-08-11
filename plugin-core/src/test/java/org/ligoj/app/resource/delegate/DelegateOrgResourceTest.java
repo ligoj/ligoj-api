@@ -21,12 +21,14 @@ import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.bootstrap.MatcherUtil;
 import org.ligoj.bootstrap.core.json.datatable.DataTableAttributes;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.ObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link DelegateOrgResource}
@@ -274,8 +276,8 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	}
 
 	private UriInfo newFindAllParameters() {
-		final var uriInfo = Mockito.mock(UriInfo.class);
-		Mockito.when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
+		final var uriInfo = mock(UriInfo.class);
+		when(uriInfo.getQueryParameters()).thenReturn(new MetadataMap<>());
 		uriInfo.getQueryParameters().add("draw", "1");
 		uriInfo.getQueryParameters().add("start", "0");
 		uriInfo.getQueryParameters().add("length", "10");

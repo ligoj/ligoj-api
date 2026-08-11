@@ -3,21 +3,22 @@
  */
 package org.ligoj.app;
 
-import java.util.Collections;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link AbstractAppTest}
@@ -30,13 +31,13 @@ class TestAbstractAppTest extends AbstractAppTest {
 
 	@Test
 	void getSubscription() {
-		em = Mockito.mock(EntityManager.class);
+		em = mock(EntityManager.class);
 		@SuppressWarnings("unchecked")
-		final TypedQuery<Object> typeQuery = Mockito.mock(TypedQuery.class);
-		Mockito.when(typeQuery.setParameter(ArgumentMatchers.anyInt(), ArgumentMatchers.any())).thenReturn(typeQuery);
-		Mockito.when(typeQuery.setMaxResults(1)).thenReturn(typeQuery);
-		Mockito.when(typeQuery.getResultList()).thenReturn(Collections.singletonList(3));
-		Mockito.when(em.createQuery(ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(typeQuery);
+		final TypedQuery<Object> typeQuery = mock(TypedQuery.class);
+		when(typeQuery.setParameter(ArgumentMatchers.anyInt(), ArgumentMatchers.any())).thenReturn(typeQuery);
+		when(typeQuery.setMaxResults(1)).thenReturn(typeQuery);
+		when(typeQuery.getResultList()).thenReturn(Collections.singletonList(3));
+		when(em.createQuery(ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(typeQuery);
 		Assertions.assertEquals(3, getSubscription("some", "service"));
 	}
 

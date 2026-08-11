@@ -16,10 +16,11 @@ import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.EventVo;
 import org.ligoj.app.resource.node.sample.IdentityResource;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 
 import java.time.Instant;
 import java.util.*;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Test class of {@link ToVoConverter}
@@ -28,7 +29,7 @@ class ToVoConverterTest {
 
 	@Test
 	void applyEmpty() {
-		final var locator = Mockito.mock(ServicePluginLocator.class);
+		final var locator = mock(ServicePluginLocator.class);
 		final var converter = new ToVoConverter(locator, s -> null, new ArrayList<>(), new HashMap<>());
 		final var entity = new Project();
 		entity.setSubscriptions(Collections.emptyList());
@@ -48,12 +49,12 @@ class ToVoConverterTest {
 	void apply() {
 
 		// Sub user repository
-		final var iamProvider = Mockito.mock(IamProvider.class);
-		final var userRepository = Mockito.mock(IUserRepository.class);
+		final var iamProvider = mock(IamProvider.class);
+		final var userRepository = mock(IUserRepository.class);
 		final var configuration = new IamConfiguration();
 		configuration.setUserRepository(userRepository);
-		Mockito.when(iamProvider.getConfiguration()).thenReturn(configuration);
-		Mockito.when(userRepository.findById(ArgumentMatchers.anyString()))
+		when(iamProvider.getConfiguration()).thenReturn(configuration);
+		when(userRepository.findById(ArgumentMatchers.anyString()))
 				.then(invocation -> toUser((String) invocation.getArguments()[0]));
 
 		// Stub subscriptions
@@ -108,9 +109,9 @@ class ToVoConverterTest {
 		events.put(1, event);
 
 		// Call
-		final var locator = Mockito.mock(ServicePluginLocator.class);
-		Mockito.doReturn(true).when(locator).isEnabled("service:n1");
-		Mockito.doReturn(false).when(locator).isEnabled("service:n2");
+		final var locator = mock(ServicePluginLocator.class);
+		doReturn(true).when(locator).isEnabled("service:n1");
+		doReturn(false).when(locator).isEnabled("service:n2");
 		final var converter = new ToVoConverter(locator, this::toUser, subscriptions, events);
 		final var entity = new Project();
 		entity.setId(1);

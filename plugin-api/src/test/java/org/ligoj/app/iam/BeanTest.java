@@ -6,7 +6,6 @@ package org.ligoj.app.iam;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.DateUtils;
-import org.mockito.Mockito;
 
 import javax.naming.InvalidNameException;
 import javax.naming.ldap.LdapName;
@@ -14,6 +13,8 @@ import java.time.Instant;
 import java.util.Collections;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Simple test of API beans.
@@ -29,11 +30,11 @@ class BeanTest {
 	@Test
 	void testIamConfiguration() {
 		check(new IamConfiguration(), IamConfiguration::setCompanyRepository, IamConfiguration::getCompanyRepository,
-				Mockito.mock(ICompanyRepository.class));
+				mock(ICompanyRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setGroupRepository, IamConfiguration::getGroupRepository,
-				Mockito.mock(IGroupRepository.class));
+				mock(IGroupRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setUserRepository, IamConfiguration::getUserRepository,
-				Mockito.mock(IUserRepository.class));
+				mock(IUserRepository.class));
 		check(new IamConfiguration(), IamConfiguration::setNode, IamConfiguration::getNode, "service:plugin:id");
 	}
 

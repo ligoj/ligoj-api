@@ -6,8 +6,9 @@ package org.ligoj.app.iam;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.mockito.Mockito;
 import org.springframework.security.core.Authentication;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test class of {@link IamProvider}.
@@ -16,7 +17,7 @@ class IamProviderTest {
 
 	@Test
 	void authenticate() {
-		final var mock = Mockito.mock(Authentication.class);
+		final var mock = mock(Authentication.class);
 		Assertions.assertSame(mock, new EmptyIamProvider().authenticate(mock));
 	}
 

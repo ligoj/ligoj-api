@@ -11,11 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
-import org.ligoj.app.api.NodeStatus;
-import org.ligoj.app.api.NodeVo;
-import org.ligoj.app.api.SubscriptionMode;
-import org.ligoj.app.api.SubscriptionStatusWithData;
-import org.ligoj.app.api.ToolPlugin;
+import org.ligoj.app.api.*;
 import org.ligoj.app.dao.*;
 import org.ligoj.app.model.*;
 import org.ligoj.app.resource.ServicePluginLocator;
@@ -24,7 +20,6 @@ import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.mockito.ArgumentMatchers;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
@@ -36,6 +31,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 /**
  * {@link NodeResource} test cases.
@@ -90,7 +87,7 @@ class NodeResourceTest extends AbstractAppTest {
 		mock.self = mock;
 
 		// Replace the plug-in locator
-		mock.locator = Mockito.mock(ServicePluginLocator.class);
+		mock.locator = mock(ServicePluginLocator.class);
 		this.resourceMock = mock;
 	}
 
@@ -206,28 +203,28 @@ class NodeResourceTest extends AbstractAppTest {
 		final var servicePluginLocator = resourceMock.locator;
 
 		// 1: service is down
-		final var jira = Mockito.mock(JiraPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.endsWith(":jira"),
+		final var jira = mock(JiraPluginResource.class);
+		when(servicePluginLocator.getResource(ArgumentMatchers.endsWith(":jira"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith(":jira"),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.endsWith(":jira"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(jira.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(false);
+		when(jira.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(false);
 
 		// 2: service is up
-		final var sonar = Mockito.mock(SonarPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":sonar"),
+		final var sonar = mock(SonarPluginResource.class);
+		when(servicePluginLocator.getResource(ArgumentMatchers.contains(":sonar"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":sonar"),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":sonar"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
-		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
+		when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
 		// 3: service throw an exception (down)
-		final var jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
+		final var jenkins = mock(JenkinsPluginResource.class);
+		when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(jenkins.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+		when(jenkins.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenThrow(new TechnicalException("junit"));
 
 		final var nbNodes = repository.findAllInstance().size();
@@ -319,32 +316,32 @@ class NodeResourceTest extends AbstractAppTest {
 		final var servicePluginLocator = resourceMock.locator;
 
 		// Service is up --> SONAR
-		final var sonar = Mockito.mock(SonarPluginResource.class);
-		Mockito.when(
+		final var sonar = mock(SonarPluginResource.class);
+		when(
 						servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(sonar);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(sonar);
-		Mockito.when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
+		when(sonar.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
 				ArgumentMatchers.anyMap())).thenReturn(new SubscriptionStatusWithData());
-		Mockito.when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
+		when(sonar.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
 
 		// Service is down --> JIRA
-		final var jira = Mockito.mock(JiraPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jira"),
+		final var jira = mock(JiraPluginResource.class);
+		when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jira"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jira"),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jira"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jira);
-		Mockito.when(jira.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
+		when(jira.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
 				ArgumentMatchers.anyMap())).thenReturn(new SubscriptionStatusWithData(false));
 
 		// Service throw an exception --> JENKINS
-		final var jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
+		final var jenkins = mock(JenkinsPluginResource.class);
+		when(servicePluginLocator.getResource(ArgumentMatchers.contains(":jenkins"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.contains(":jenkins"),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
+		when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyInt(), ArgumentMatchers.anyString(),
 				ArgumentMatchers.anyMap())).thenThrow(new TechnicalException("junit"));
 
 		return eventsCount;
@@ -383,13 +380,13 @@ class NodeResourceTest extends AbstractAppTest {
 		final var jiraNode = repository.findByName("JIRA 4");
 
 		// The subscription throws an exception
-		final var jenkins = Mockito.mock(JenkinsPluginResource.class);
-		Mockito.when(
+		final var jenkins = mock(JenkinsPluginResource.class);
+		when(
 						servicePluginLocator.getResource(ArgumentMatchers.anyString(), ArgumentMatchers.eq(ToolPlugin.class)))
 				.thenReturn(jenkins);
-		Mockito.when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
+		when(servicePluginLocator.getResourceExpected(ArgumentMatchers.anyString(),
 				ArgumentMatchers.eq(ToolPlugin.class))).thenReturn(jenkins);
-		Mockito.when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+		when(jenkins.checkSubscriptionStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
 				.thenThrow(new TechnicalException("junit"));
 
 		// check status
@@ -997,7 +994,7 @@ class NodeResourceTest extends AbstractAppTest {
 	void toVoLightDisabled() {
 		final var entity = new Node();
 		entity.setId("disabled:node");
-		final var locator = Mockito.mock(ServicePluginLocator.class);
+		final var locator = mock(ServicePluginLocator.class);
 		Assertions.assertFalse(NodeHelper.toVoLight(entity, locator).getEnabled());
 	}
 
@@ -1005,8 +1002,8 @@ class NodeResourceTest extends AbstractAppTest {
 	void toVoLightEnabled() {
 		final var entity = new Node();
 		entity.setId("enabled:node");
-		final var locator = Mockito.mock(ServicePluginLocator.class);
-		Mockito.doReturn(true).when(locator).isEnabled("enabled:node");
+		final var locator = mock(ServicePluginLocator.class);
+		doReturn(true).when(locator).isEnabled("enabled:node");
 		Assertions.assertTrue(NodeHelper.toVoLight(entity, locator).getEnabled());
 	}
 

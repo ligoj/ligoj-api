@@ -8,7 +8,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.internal.SessionFactoryImpl;
-import org.hibernate.metamodel.model.domain.ReturnableType;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.sql.ast.SqlAstTranslator;
 import org.hibernate.sql.ast.spi.StringBuilderSqlAppender;
@@ -21,7 +20,6 @@ import org.hibernate.type.internal.NamedBasicTypeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.test.annotation.Rollback;
@@ -31,6 +29,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+
+import static org.mockito.Mockito.*;
 
 /**
  * Test class of {@link SecuritySpringDataListener}
@@ -53,38 +53,38 @@ class SecuritySpringDataListenerTest {
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		final var function = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor("visibleGroup");
 		final List<? extends SqlAstNode> empty = Collections.emptyList();
-		Assertions.assertThrows(QueryException.class, () -> function.render(null, empty, (ReturnableType<?>) null, null));
+		Assertions.assertThrows(QueryException.class, () -> function.render(null, empty, null, null));
 	}
 
 	private String assertFunction(final String name, final int nbQueryParam, final String sql, String... args) {
 		var sb = new StringBuilder();
 		var appender = new StringBuilderSqlAppender(sb);
-		var translator = Mockito.mock(SqlAstTranslator.class);
-		Mockito.doAnswer(invocation -> {
+		var translator = mock(SqlAstTranslator.class);
+		doAnswer(invocation -> {
 			appender.append(((Literal) invocation.getArgument(0)).getLiteralValue().toString());
 			return null;
-		}).when(translator).render(Mockito.any(SqlAstNode.class), Mockito.any(SqlAstNodeRenderingMode.class));
+		}).when(translator).render(any(SqlAstNode.class), any(SqlAstNodeRenderingMode.class));
 		var astParams = Arrays.stream(args).map(a ->
 				new QueryLiteral<>(a,
 						new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).toList();
 
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
 		final var sqlFunction = (StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name);
-		sqlFunction.render(appender, astParams,(ReturnableType<?>) null,  translator);
+		sqlFunction.render(appender, astParams, null,  translator);
 		final var query = appender.toString();
 		Assertions.assertEquals(nbQueryParam, StringUtils.countMatches(query, '?'));
 		Assertions.assertTrue(query.contains(sql), query + "-- not contains --" + sql);
 
 		sb.setLength(0);
-		sqlFunction.render(appender, astParams, (ReturnableType<?>) null, translator);
+		sqlFunction.render(appender, astParams, null, translator);
 		Assertions.assertEquals(query, appender.toString());
 
 		sb.setLength(0);
-		sqlFunction.render(appender, astParams, null, (ReturnableType<?>) null, translator);
+		sqlFunction.render(appender, astParams, null, null, translator);
 		Assertions.assertEquals(query, appender.toString());
 
 		sb.setLength(0);
-		sqlFunction.render(appender, astParams, null, null, (ReturnableType<?>) null, translator);
+		sqlFunction.render(appender, astParams, null, null, null, translator);
 		Assertions.assertEquals(query, appender.toString());
 
 		sb.setLength(0);

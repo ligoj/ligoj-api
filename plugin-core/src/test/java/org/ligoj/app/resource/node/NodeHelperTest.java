@@ -3,13 +3,15 @@
  */
 package org.ligoj.app.resource.node;
 
-import java.util.ArrayList;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.resource.ServicePluginLocator;
-import org.mockito.Mockito;
+
+import java.util.ArrayList;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link NodeHelper}, focused on the {@code uiColor} attribute
@@ -43,8 +45,8 @@ class NodeHelperTest {
 
 	@Test
 	void toVoLightAndToVoParametersAlsoCopyUiColor() {
-		final var locator = Mockito.mock(ServicePluginLocator.class);
-		Mockito.when(locator.isEnabled(NODE_ID)).thenReturn(true);
+		final var locator = mock(ServicePluginLocator.class);
+		when(locator.isEnabled(NODE_ID)).thenReturn(true);
 
 		Assertions.assertEquals("#0052CC",
 				NodeHelper.toVoLight(newNode(NODE_ID, "Test tool", "#0052CC"), locator).getUiColor());

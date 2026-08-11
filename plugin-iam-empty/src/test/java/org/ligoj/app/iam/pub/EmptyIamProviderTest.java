@@ -10,8 +10,9 @@ import org.ligoj.app.iam.empty.EmptyIamProvider;
 import org.ligoj.app.iam.empty.IamEmptyCache;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.bootstrap.resource.system.cache.CacheConfigurer;
-import org.mockito.Mockito;
 import org.springframework.security.core.Authentication;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test class of {@link EmptyIamProvider}.
@@ -22,12 +23,12 @@ class EmptyIamProviderTest {
 
 	@Test
 	void testIamEmptyCache() {
-		new IamEmptyCache().onCreate(Mockito.mock(HazelcastCacheManager.class), Mockito.mock(CacheConfigurer.class));
+		new IamEmptyCache().onCreate(mock(HazelcastCacheManager.class), mock(CacheConfigurer.class));
 	}
 
 	@Test
 	void authenticate() {
-		final var mock = Mockito.mock(Authentication.class);
+		final var mock = mock(Authentication.class);
 		Assertions.assertSame(mock, provider.authenticate(mock));
 	}
 

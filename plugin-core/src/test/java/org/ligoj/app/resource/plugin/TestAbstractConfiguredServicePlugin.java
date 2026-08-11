@@ -3,24 +3,21 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.util.Collections;
-
 import jakarta.persistence.EntityNotFoundException;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
-import org.ligoj.app.model.Configurable;
-import org.ligoj.app.model.Node;
-import org.ligoj.app.model.PluginConfiguration;
-import org.ligoj.app.model.Project;
-import org.ligoj.app.model.Subscription;
+import org.ligoj.app.model.*;
 import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
-import org.mockito.Mockito;
+
+import java.util.Collections;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link AbstractConfiguredServicePlugin}
@@ -53,27 +50,27 @@ class TestAbstractConfiguredServicePlugin {
 				return configuration;
 			}
 		};
-		resource.subscriptionRepository = Mockito.mock(SubscriptionRepository.class);
-		resource.projectRepository = Mockito.mock(ProjectRepository.class);
-		resource.securityHelper = Mockito.mock(SecurityHelper.class);
+		resource.subscriptionRepository = mock(SubscriptionRepository.class);
+		resource.projectRepository = mock(ProjectRepository.class);
+		resource.securityHelper = mock(SecurityHelper.class);
 
-		repository = Mockito.mock(RestRepository.class);
-		configuration = Mockito.mock(PluginConfiguration.class);
-		configurable = Mockito.mock(NamedConfigurable.class);
+		repository = mock(RestRepository.class);
+		configuration = mock(PluginConfiguration.class);
+		configurable = mock(NamedConfigurable.class);
 		subscription = new Subscription();
 		subscription.setId(33);
 		project = new Project();
 		project.setId(44);
 		subscription.setProject(project);
-		Mockito.when(resource.securityHelper.getLogin()).thenReturn("junit");
-		Mockito.when(configurable.getConfiguration()).thenReturn(configuration);
-		Mockito.when(configurable.getId()).thenReturn(1);
-		Mockito.when(configurable.getName()).thenReturn("my-name");
-		Mockito.when(configuration.getSubscription()).thenReturn(subscription);
-		Mockito.when(resource.subscriptionRepository.findOneExpected(33)).thenReturn(subscription);
-		Mockito.when(resource.projectRepository.findOneVisible(44, "junit")).thenReturn(project);
-		Mockito.when(repository.findOneExpected(1)).thenReturn(configurable);
-		Mockito.when(repository.findAllBy("configuration.subscription.id", subscription.getId(),
+		when(resource.securityHelper.getLogin()).thenReturn("junit");
+		when(configurable.getConfiguration()).thenReturn(configuration);
+		when(configurable.getId()).thenReturn(1);
+		when(configurable.getName()).thenReturn("my-name");
+		when(configuration.getSubscription()).thenReturn(subscription);
+		when(resource.subscriptionRepository.findOneExpected(33)).thenReturn(subscription);
+		when(resource.projectRepository.findOneVisible(44, "junit")).thenReturn(project);
+		when(repository.findOneExpected(1)).thenReturn(configurable);
+		when(repository.findAllBy("configuration.subscription.id", subscription.getId(),
 				new String[] { "name" }, "my-name")).thenReturn(Collections.singletonList(configurable));
 	}
 

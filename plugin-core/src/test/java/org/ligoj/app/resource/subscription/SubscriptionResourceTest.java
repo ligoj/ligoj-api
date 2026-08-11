@@ -29,7 +29,6 @@ import org.ligoj.app.resource.plugin.LongTaskRunner;
 import org.ligoj.bootstrap.MatcherUtil;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.Rollback;
@@ -39,6 +38,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Test class of {@link SubscriptionResource}
@@ -217,7 +218,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	 */
 	@Test
 	void deleteTasksNoTaskRunner() {
-		resource.deleteTasks(Mockito.mock(ServicePlugin.class), 0);
+		resource.deleteTasks(mock(ServicePlugin.class), 0);
 	}
 
 	@Autowired

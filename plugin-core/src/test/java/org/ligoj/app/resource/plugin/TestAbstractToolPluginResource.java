@@ -13,11 +13,13 @@ import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Parameter;
 import org.ligoj.app.resource.subscription.SubscriptionResource;
 import org.ligoj.bootstrap.resource.system.configuration.ConfigurationResource;
-import org.mockito.Mockito;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class of {@link AbstractToolPluginResource}
@@ -56,17 +58,17 @@ class TestAbstractToolPluginResource {
 	@Test
 	void getVersion() throws Exception {
 		// Return the version from the subscription parameters
-		resource.subscriptionResource = Mockito.mock(SubscriptionResource.class);
-		Mockito.when(resource.subscriptionResource.getParameters(55)).thenReturn(new HashMap<>());
+		resource.subscriptionResource = mock(SubscriptionResource.class);
+		when(resource.subscriptionResource.getParameters(55)).thenReturn(new HashMap<>());
 		Assertions.assertEquals("1.0.0", resource.getVersion(0));
 	}
 
 
 	@Test
 	void getParameter() {
-		resource.configuration = Mockito.mock(ConfigurationResource.class);
-		Mockito.when(resource.configuration.get("param", "value-def")).thenReturn("value-conf");
-		Mockito.when(resource.configuration.get("param2", "value-def")).thenReturn("value-def");
+		resource.configuration = mock(ConfigurationResource.class);
+		when(resource.configuration.get("param", "value-def")).thenReturn("value-conf");
+		when(resource.configuration.get("param2", "value-def")).thenReturn("value-def");
 		Assertions.assertEquals("value-node", resource.getParameter(Map.of("param", "value-node"), "param", "value-def"));
 		Assertions.assertEquals("value-conf", resource.getParameter(Collections.emptyMap(), "param", "value-def"));
 		Assertions.assertEquals("value-def", resource.getParameter(Collections.emptyMap(), "param2", "value-def"));
@@ -74,7 +76,7 @@ class TestAbstractToolPluginResource {
 
 	@Test
 	void download() {
-		Assertions.assertNotNull(AbstractToolPluginResource.download(Mockito.mock(StreamingOutput.class), "file"));
+		Assertions.assertNotNull(AbstractToolPluginResource.download(mock(StreamingOutput.class), "file"));
 	}
 
 	@Test
