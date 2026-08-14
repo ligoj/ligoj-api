@@ -555,6 +555,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @param depth    the maximum depth of refining. <code>-1</code> for an unbounded depth.
 	 * @return All visible nodes matching the criteria.
 	 */
+	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public TableItem<NodeVo> findAll(final UriInfo uriInfo, final String criteria, final String refined,
 			final SubscriptionMode mode, final int depth) {
 		return findAll(uriInfo, criteria, refined, mode, depth, false);
@@ -601,6 +602,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @param vo The parameterized object.
 	 * @return The corresponding and also validated {@link Parameter} entities.
 	 */
+	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public List<Parameter> checkInputParameters(final AbstractParameterizedVo vo) {
 		final var acceptedParameters = parameterRepository.getOrphanParameters(vo.getNode(), vo.getMode(),
 				securityHelper.getLogin());
