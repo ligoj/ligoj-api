@@ -617,6 +617,15 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertNull(nodeParameters.get(31).getText());
 		Assertions.assertEquals("service:bt:jira:user", nodeParameters.get(31).getParameter().getId());
 		Assertions.assertTrue(nodeParameters.get(31).getParameter().isSecured());
+
+		// A parameter flagged 'availableForNode=false' disappears from the listing
+		parameterRepository.findOneExpected("service:bt:jira:url").setAvailableForNode(Boolean.FALSE);
+		em.flush();
+		em.clear();
+		final var filtered = parameterValueResource.getNodeParameters("service:bt:jira:7", SubscriptionMode.LINK);
+		Assertions.assertEquals(31, filtered.size());
+		Assertions.assertTrue(filtered.stream().map(p -> p.getParameter().getId())
+				.noneMatch("service:bt:jira:url"::equals));
 	}
 
 	@Test

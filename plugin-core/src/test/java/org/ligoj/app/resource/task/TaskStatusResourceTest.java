@@ -141,6 +141,84 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, stats.failed());
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@Test
+	void findAllOtherRunner() {
+		// A runner that is neither node nor subscription scoped: classified OTHER,
+		// tasks listed from the plain repository, locked reference unclassified
+		final var runner = org.mockito.Mockito.mock(org.ligoj.app.resource.plugin.LongTaskRunner.class);
+		final var repository = org.mockito.Mockito.mock(org.ligoj.app.dao.task.LongTaskRepository.class);
+		final var running = org.mockito.Mockito.mock(org.ligoj.app.model.AbstractLongTask.class);
+		org.mockito.Mockito.when(running.getStart()).thenReturn(new Date(1000));
+		final var succeeded = org.mockito.Mockito.mock(org.ligoj.app.model.AbstractLongTask.class);
+		org.mockito.Mockito.when(succeeded.getStart()).thenReturn(new Date(2000));
+		org.mockito.Mockito.when(succeeded.getEnd()).thenReturn(new Date(2500));
+		final var failed = org.mockito.Mockito.mock(org.ligoj.app.model.AbstractLongTask.class);
+		org.mockito.Mockito.when(failed.getStart()).thenReturn(new Date(3000));
+		org.mockito.Mockito.when(failed.getEnd()).thenReturn(new Date(3500));
+		org.mockito.Mockito.when(failed.isFailed()).thenReturn(true);
+		org.mockito.Mockito.when(repository.findAll()).thenReturn(List.of(running, succeeded, failed));
+		org.mockito.Mockito.when(runner.getTaskRepository()).thenReturn(repository);
+		org.mockito.Mockito.when(runner.newTask()).thenReturn((java.util.function.Supplier) TaskSampleNode::new);
+		beanFactory().registerSingleton("otherRunner", runner);
+		try {
+			final var vo = runner(resource.findAll(), "otherRunner");
+			Assertions.assertNotNull(vo);
+			Assertions.assertEquals(TaskStatusType.OTHER, vo.getType());
+			Assertions.assertEquals(3, vo.getStats().total());
+			Assertions.assertEquals(1, vo.getStats().running());
+			Assertions.assertEquals(1, vo.getStats().succeeded());
+			Assertions.assertEquals(1, vo.getStats().failed());
+
+			final var tasks = resource.findTasks("otherRunner", newUriInfo(), null);
+			Assertions.assertEquals(3, tasks.getData().size());
+			Assertions.assertEquals(TaskStatusType.OTHER, tasks.getData().getFirst().getLocked().getType());
+		} finally {
+			destroyRunner("otherRunner");
+		}
+	}
+
+	@Test
+	void comparators() {
+		final var t1 = taskVo(1, "bob", 1000L, 4000L, TaskStatus.SUCCEEDED);
+		final var t2 = taskVo(2, "Alice", 2000L, null, TaskStatus.RUNNING);
+
+		// Single property comparators, unknown falls back to start date
+		Assertions.assertTrue(resource.comparatorFor("id").compare(t1, t2) < 0);
+		Assertions.assertTrue(resource.comparatorFor("author").compare(t1, t2) > 0);
+		Assertions.assertTrue(resource.comparatorFor("end").compare(t1, t2) < 0);
+		Assertions.assertTrue(resource.comparatorFor("status").compare(t1, t2) > 0);
+		Assertions.assertTrue(resource.comparatorFor("unknown-property").compare(t1, t2) < 0);
+
+		// Composed sort: ascending then descending secondary
+		final var composed = resource.comparator(
+				org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Order.asc("author"),
+						org.springframework.data.domain.Sort.Order.desc("id")));
+		Assertions.assertTrue(composed.compare(t2, t1) < 0);
+
+		// No sort: default is start date descending
+		Assertions.assertTrue(resource.comparator(org.springframework.data.domain.Sort.unsorted()).compare(t2, t1) < 0);
+	}
+
+	private TaskVo taskVo(final int id, final String author, final Long start, final Long end, final TaskStatus status) {
+		final var vo = new TaskVo();
+		vo.setId(id);
+		vo.setAuthor(author);
+		vo.setStart(start == null ? null : new Date(start));
+		vo.setEnd(end == null ? null : new Date(end));
+		vo.setStatus(status);
+		return vo;
+	}
+
+	@Test
+	void statusJsonAndParse() {
+		Assertions.assertEquals("failed", TaskStatus.FAILED.toJson());
+		Assertions.assertEquals("other", TaskStatusType.OTHER.toJson());
+		Assertions.assertNull(TaskStatus.parse(null));
+		Assertions.assertNull(TaskStatus.parse("  "));
+		Assertions.assertEquals(TaskStatus.RUNNING, TaskStatus.parse(" running "));
+	}
+
 	@Test
 	void findTasksSortedByStartDesc() {
 		nodeTask("service:bt:jira", 1000, new Date(), false);

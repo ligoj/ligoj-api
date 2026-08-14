@@ -118,4 +118,17 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "no-match-zzz");
 		Assertions.assertEquals(0, result.getRecordsTotal());
 	}
+
+	@Test
+	void findAllBlankMailSegmentIgnored() {
+		// A blank segment in the comma-separated mails is dropped from the decoration
+		final var cacheUser = em.find(org.ligoj.app.iam.model.CacheUser.class, "fdaugan");
+		cacheUser.setMails("fabrice.daugan@sample.com, ");
+		em.flush();
+		em.clear();
+
+		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "fdauga");
+		Assertions.assertEquals(1, result.getRecordsTotal());
+		Assertions.assertEquals(List.of("fabrice.daugan@sample.com"), result.getData().getFirst().getMails());
+	}
 }

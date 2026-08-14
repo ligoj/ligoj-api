@@ -72,6 +72,21 @@ class NodeHelperTest {
 	}
 
 	@Test
+	void toVoParameterUnavailableFlags() {
+		// Explicit `false` flags survive the null-means-available normalization
+		final var entity = new org.ligoj.app.model.Parameter();
+		entity.setId("p:test");
+		entity.setType(org.ligoj.app.model.ParameterType.TEXT);
+		entity.setOwner(newNode(NODE_ID, "Test tool", null));
+		entity.setAvailableForSubscription(Boolean.FALSE);
+		entity.setAvailableForNode(Boolean.FALSE);
+
+		final var vo = NodeHelper.toVo(entity);
+		Assertions.assertFalse(vo.getAvailableForSubscription());
+		Assertions.assertFalse(vo.getAvailableForNode());
+	}
+
+	@Test
 	void toVoLeafWithoutColorDoesNotInheritParent() {
 		// Confirms the removed backend inheritance: a leaf without a color stays
 		// null even when its parent declares one.

@@ -142,11 +142,10 @@ public class TaskStatusResource {
 		var failed = 0;
 		final var tasks = visibleTasks(runner, user);
 		for (final var task : tasks) {
-			switch (status(task)) {
-			case RUNNING -> running++;
-			case SUCCEEDED -> succeeded++;
-			case FAILED -> failed++;
-			}
+			final var status = status(task);
+			running += status == TaskStatus.RUNNING ? 1 : 0;
+			succeeded += status == TaskStatus.SUCCEEDED ? 1 : 0;
+			failed += status == TaskStatus.FAILED ? 1 : 0;
 		}
 		final var label = runner.newTask().get().getClass().getSimpleName();
 		return new LongTaskRunnerVo(key, label, type(runner), new TaskStatsVo(tasks.size(), running, succeeded, failed));
