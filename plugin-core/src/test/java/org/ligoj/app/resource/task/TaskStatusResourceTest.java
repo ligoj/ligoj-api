@@ -6,10 +6,6 @@ package org.ligoj.app.resource.task;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.UriInfo;
-
-import java.util.Date;
-import java.util.List;
-
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +26,9 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * Test class of {@link TaskStatusResource}.
@@ -141,7 +140,7 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, stats.failed());
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes" })
 	@Test
 	void findAllOtherRunner() {
 		// A runner that is neither node nor subscription scoped: classified OTHER,
@@ -159,7 +158,7 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		org.mockito.Mockito.when(failed.isFailed()).thenReturn(true);
 		org.mockito.Mockito.when(repository.findAll()).thenReturn(List.of(running, succeeded, failed));
 		org.mockito.Mockito.when(runner.getTaskRepository()).thenReturn(repository);
-		org.mockito.Mockito.when(runner.newTask()).thenReturn((java.util.function.Supplier) TaskSampleNode::new);
+		org.mockito.Mockito.when(runner.newTask()).thenReturn(TaskSampleNode::new);
 		beanFactory().registerSingleton("otherRunner", runner);
 		try {
 			final var vo = runner(resource.findAll(), "otherRunner");
