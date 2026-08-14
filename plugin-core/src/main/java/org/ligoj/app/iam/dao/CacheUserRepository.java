@@ -19,15 +19,23 @@ public interface CacheUserRepository extends RestRepository<CacheUser, String> {
 	/**
 	 * Lookup criteria of the system user search extended to the IAM attributes: empty criteria matches all,
 	 * otherwise the login or any IAM detail (first name, last name, mails) of the same identifier is matched.
-	 * There is no JPA association between these entities — the "ad hoc" entity join on the common primary key
-	 * bridges them; a system user without IAM entry is still returned (LEFT JOIN), only matchable by its login.
+	 * There is no JPA association between these entities — the correlated EXISTS on the common primary key
+	 * bridges them; a system user without IAM entry is still returned, only matchable by its login.
+	 * An EXISTS (not a root-level entity join) on purpose: since Hibernate 7.4, paginating a
+	 * collection-fetch query wraps the root into a derived table, and a root-level ad hoc join
+	 * referenced from the WHERE clause is not carried inside it, producing invalid SQL.
 	 */
-	String LOOKUP_CRITERIA = " FROM SystemUser u LEFT JOIN CacheUser cu ON cu.id = u.login"
-			+ " WHERE :criteria = ''"
-			+ "    OR UPPER(u.login)      LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "    OR UPPER(cu.firstName) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "    OR UPPER(cu.lastName)  LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "    OR UPPER(cu.mails)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))";
+	String LOOKUP_WHERE = " WHERE :criteria = ''"
+			+ "    OR UPPER(u.login) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "    OR EXISTS(SELECT 1 FROM CacheUser cu WHERE cu.id = u.login"
+			+ "       AND (UPPER(cu.firstName) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "         OR UPPER(cu.lastName)  LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "         OR UPPER(cu.mails)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))";
+
+	/**
+	 * Full criteria including the FROM clause, shared with the count query.
+	 */
+	String LOOKUP_CRITERIA = " FROM SystemUser u" + LOOKUP_WHERE;
 
 	/**
 	 * Return the {@link SystemUser} page (roles fetched) matching the given criteria against the login or the IAM
@@ -37,13 +45,7 @@ public interface CacheUserRepository extends RestRepository<CacheUser, String> {
 	 * @param page     The pagination/sort information.
 	 * @return The matching system users with fetched roles.
 	 */
-	@Query(value = "SELECT u FROM SystemUser u LEFT JOIN FETCH u.roles ra LEFT JOIN FETCH ra.role"
-			+ " LEFT JOIN CacheUser cu ON cu.id = u.login"
-			+ " WHERE :criteria = ''"
-			+ "    OR UPPER(u.login)      LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "    OR UPPER(cu.firstName) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "    OR UPPER(cu.lastName)  LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "    OR UPPER(cu.mails)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))",
+	@Query(value = "SELECT u FROM SystemUser u LEFT JOIN FETCH u.roles ra LEFT JOIN FETCH ra.role" + LOOKUP_WHERE,
 			countQuery = "SELECT COUNT(u)" + LOOKUP_CRITERIA)
 	Page<SystemUser> findAllSystemUsersByDetails(String criteria, Pageable page);
 }

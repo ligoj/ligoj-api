@@ -12,6 +12,7 @@ import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.bootstrap.core.NamedBean;
+import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.springframework.data.domain.Persistable;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -239,7 +240,13 @@ public class NodeHelper {
 	 * @return The JSON string from an object.
 	 */
 	public static String toJSon(final Object any) {
-		return MAPPER.writeValueAsString(any);
+		try {
+			return MAPPER.writeValueAsString(any);
+		} catch (final RuntimeException e) {
+			// Jackson 3 exceptions are unchecked, and serializer failures are no longer
+			// wrapped into a Jackson exception: normalize any of them to TechnicalException
+			throw new TechnicalException("Unable to build JSON data from bean " + any, e);
+		}
 	}
 
 	/**
@@ -251,7 +258,12 @@ public class NodeHelper {
 	 * @return The parameter configuration.
 	 */
 	public static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
-		return MAPPER.readValue(ObjectUtils.getIfNull(content, "{}"), valueTypeRef);
+		try {
+			return MAPPER.readValue(ObjectUtils.getIfNull(content, "{}"), valueTypeRef);
+		} catch (final RuntimeException e) {
+			// Jackson 3 parse exceptions are unchecked: normalize to TechnicalException
+			throw new TechnicalException("Unable to build configuration from " + content, e);
+		}
 	}
 
 	/**
