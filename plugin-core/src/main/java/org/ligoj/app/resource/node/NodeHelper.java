@@ -3,9 +3,6 @@
  */
 package org.ligoj.app.resource.node;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.ligoj.app.api.NodeVo;
@@ -15,15 +12,14 @@ import org.ligoj.app.model.ParameterType;
 import org.ligoj.app.model.ParameterValue;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.bootstrap.core.NamedBean;
-import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.springframework.data.domain.Persistable;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 /**
  * {@link Node} helper resource.
@@ -243,11 +239,7 @@ public class NodeHelper {
 	 * @return The JSON string from an object.
 	 */
 	public static String toJSon(final Object any) {
-		try {
-			return MAPPER.writeValueAsString(any);
-		} catch (final JsonProcessingException e) {
-			throw new TechnicalException("Unable to build JSON data from bean " + any, e);
-		}
+		return MAPPER.writeValueAsString(any);
 	}
 
 	/**
@@ -259,11 +251,7 @@ public class NodeHelper {
 	 * @return The parameter configuration.
 	 */
 	public static <T> T toConfiguration(final String content, final TypeReference<T> valueTypeRef) {
-		try {
-			return MAPPER.readValue(ObjectUtils.getIfNull(content, "{}"), valueTypeRef);
-		} catch (final IOException e) {
-			throw new TechnicalException("Unable to build configuration from " + content, e);
-		}
+		return MAPPER.readValue(ObjectUtils.getIfNull(content, "{}"), valueTypeRef);
 	}
 
 	/**

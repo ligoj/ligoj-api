@@ -3,16 +3,14 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.ObjectUtils;
 import org.ligoj.bootstrap.core.curl.CurlProcessor;
 import org.springframework.stereotype.Component;
+import tools.jackson.core.type.TypeReference;
+import tools.jackson.databind.ObjectMapper;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Version utilities.
@@ -31,9 +29,8 @@ public class VersionUtils {
 	 * @param serverUrl The server base URL like "<a href="http://jira.codehaus.org">JIRA</a>"
 	 * @param project   The JIRA project identifier.
 	 * @return <code>null</code> or latest version
-	 * @throws IOException When version cannot be read from the remote URL.
 	 */
-	public AtlassianVersion getLatestReleasedVersion(final String serverUrl, final String project) throws IOException {
+	public AtlassianVersion getLatestReleasedVersion(final String serverUrl, final String project) {
 		// Get the download index
 		try (final var processor = new CurlProcessor()) {
 			final var versionsAsJson = ObjectUtils
@@ -79,9 +76,8 @@ public class VersionUtils {
 	 * @param serverUrl The server base URL like "<a href="http://jira.codehaus.org">JIRA</a>"
 	 * @param project   The JIRA project identifier.
 	 * @return <code>null</code> or latest version name.
-	 * @throws IOException When version cannot be read from the remote URL.
 	 */
-	public String getLatestReleasedVersionName(final String serverUrl, final String project) throws IOException {
+	public String getLatestReleasedVersionName(final String serverUrl, final String project) {
 		final var version = getLatestReleasedVersion(serverUrl, project);
 		if (version != null) {
 			return version.getName();

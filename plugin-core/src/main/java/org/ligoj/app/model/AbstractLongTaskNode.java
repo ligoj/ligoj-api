@@ -9,10 +9,10 @@ import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.bootstrap.core.model.ToIdSerializer;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 import lombok.Getter;
 import lombok.Setter;
+import tools.jackson.databind.annotation.JsonSerialize;
 
 /**
  * Long task status where locked resource is a node.
