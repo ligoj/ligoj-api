@@ -23,15 +23,23 @@ class CompanyRepositoryTest {
 
 	@Test
 	void delete() {
-		new EmptyCompanyRepository().delete(null);
+		final var repository = new EmptyCompanyRepository();
+		final var companyLdap = repository.create("Cn=Some", "Name");
+		repository.delete(companyLdap);
+		// Deletion was ignored
+		Assertions.assertTrue(repository.findAll().isEmpty());
 	}
 
 	@Test
 	void create() {
-		final var companyLdap = new EmptyCompanyRepository().create("Cn=Some", "Name");
+		final var repository = new EmptyCompanyRepository();
+		final var companyLdap = repository.create("Cn=Some", "Name");
 		Assertions.assertEquals("Cn=Some", companyLdap.getDn());
 		Assertions.assertEquals("Name", companyLdap.getName());
 		Assertions.assertEquals("name", companyLdap.getId());
+
+		// Create was ignored
+		Assertions.assertTrue(repository.findAll().isEmpty());
 	}
 
 }

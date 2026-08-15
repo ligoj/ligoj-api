@@ -780,9 +780,9 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		em.flush();
 		em.clear();
 		var list = List.of(vo);
+		var nodeEntity = em.find(Node.class, "service:bt:jira:availability-test");
 
-		Assertions.assertThrows(BusinessException.class,
-				() -> resource.update(list, em.find(Node.class, "service:bt:jira:availability-test")));
+		Assertions.assertThrows(BusinessException.class, () -> resource.update(list, nodeEntity));
 	}
 
 	/**

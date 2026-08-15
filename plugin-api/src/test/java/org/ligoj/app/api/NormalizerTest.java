@@ -3,13 +3,13 @@
  */
 package org.ligoj.app.api;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.ligoj.bootstrap.AbstractDataGeneratorTest;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 /**
  * Test class of {@link Normalizer}
@@ -17,7 +17,9 @@ import org.ligoj.bootstrap.AbstractDataGeneratorTest;
 class NormalizerTest extends AbstractDataGeneratorTest {
 
 	@Test
-	void normalizeSet() {
+	void normalizeSet() throws ReflectiveOperationException {
+		coverageSingleton(Normalizer.class);
+
 		final List<String> strings = new ArrayList<>();
 		strings.add("c");
 		strings.add("C");
@@ -43,11 +45,6 @@ class NormalizerTest extends AbstractDataGeneratorTest {
 	void normalizeDiacritic() {
 		Assertions.assertEquals("c", Normalizer.normalize("ç"));
 		Assertions.assertEquals("aaiconeeeuuaaiconeeeuu", Normalizer.normalize("àâîçôñéêèûùÂÀÎÇÔÑÊÉÈÛÙ"));
-	}
-
-	@Test
-	void testCoverage() throws ReflectiveOperationException {
-		coverageSingleton(Normalizer.class);
 	}
 
 }
