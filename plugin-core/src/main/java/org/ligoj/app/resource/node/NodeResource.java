@@ -340,7 +340,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		final var result = new HashMap<Subscription, Map<String, String>>();
 		for (final var entityTab : subscriptionRepository.findAllWithValuesByNode(id)) {
 			final var value = (ParameterValue) entityTab[1];
-			result.computeIfAbsent((Subscription) entityTab[0], s -> new HashMap<>()).put(value.getParameter().getId(),
+			result.computeIfAbsent((Subscription) entityTab[0], _ -> new HashMap<>()).put(value.getParameter().getId(),
 					value.getData());
 		}
 		return result;
@@ -509,8 +509,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Return all visible nodes for current user. The hierarchy data is returned but without UI data.
 	 *
-	 * @param uriInfo  pagination data.
-	 * @param criteria the optional criteria to match.
+	 * @param uriInfo  Pagination data.
+	 * @param criteria The optional criteria to match.
 	 * @param refined  The optional parent identifier to be like. Special attention for 'service' value corresponding to
 	 *                 the root.
 	 * @param mode     Expected subscription mode. When <code>null</code>, the node's mode is not checked.
@@ -518,6 +518,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 *                 <code>1</code> means refined is a service, so nodes are basically tool only. <code>2</code> means
 	 *                 refined is a tool, so nodes are basically instances only. For the other cases, there is no limit,
 	 *                 and corresponds to the default behavior.
+	 * @param status   When true, the node status are retrieved too.
 	 * @return All visible nodes with the hierarchy but without UI data.
 	 */
 	@GET
@@ -578,7 +579,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		for (final var event : eventRepository.findLastEvents(user, ids)) {
 			try {
 				statuses.put(event.getNode().getId(), NodeStatus.valueOf(event.getValue()));
-			} catch (final IllegalArgumentException e) {
+			} catch (final IllegalArgumentException _) {
 				// Unknown / non-status value — ignore.
 			}
 		}

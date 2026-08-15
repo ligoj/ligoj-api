@@ -48,11 +48,13 @@ import org.springframework.stereotype.Service;
 @Transactional
 public class TaskStatusResource {
 
+	private static final String STATUS = "status";
+	private static final String AUTHOR = "author";
 	/**
 	 * DataTables column to ORM/VO property mapping for the task list sort.
 	 */
-	private static final Map<String, String> ORM_MAPPING = Map.of("id", "id", "author", "author", "start", "start",
-			"end", "end", "status", "status");
+	private static final Map<String, String> ORM_MAPPING = Map.of("id", "id", AUTHOR, AUTHOR, "start", "start",
+			"end", "end", STATUS, STATUS);
 
 	@Autowired
 	protected ApplicationContext applicationContext;
@@ -98,7 +100,7 @@ public class TaskStatusResource {
 	@GET
 	@Path("{key}")
 	public TableItem<TaskVo> findTasks(@PathParam("key") final String key, @Context final UriInfo uriInfo,
-			@QueryParam("status") final String statusFilter) {
+			@QueryParam(STATUS) final String statusFilter) {
 		final var runner = getRunners().get(key);
 		if (runner == null) {
 			throw new NotFoundException("Unknown task runner: " + key);
@@ -122,7 +124,7 @@ public class TaskStatusResource {
 	 * {@code findAllVisible}; any other runner falls back to all its tasks (justified by the admin-only access).
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected List<? extends AbstractLongTask<?, ?>> visibleTasks(final LongTaskRunner runner, final String user) {
+	protected List<AbstractLongTask<?, ?>> visibleTasks(final LongTaskRunner runner, final String user) {
 		if (runner instanceof LongTaskRunnerNode) {
 			return ((LongTaskNodeRepository) runner.getTaskRepository()).findAllVisible(user);
 		}
@@ -225,9 +227,9 @@ public class TaskStatusResource {
 	protected Comparator<TaskVo> comparatorFor(final String property) {
 		return switch (property) {
 		case "id" -> Comparator.comparing(TaskVo::getId, Comparator.nullsLast(Comparator.naturalOrder()));
-		case "author" -> Comparator.comparing(TaskVo::getAuthor, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+		case AUTHOR -> Comparator.comparing(TaskVo::getAuthor, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 		case "end" -> Comparator.comparing(TaskVo::getEnd, Comparator.nullsLast(Comparator.naturalOrder()));
-		case "status" -> Comparator.comparing(t -> t.getStatus().name());
+		case STATUS -> Comparator.comparing(t -> t.getStatus().name());
 		default -> Comparator.comparing(TaskVo::getStart, Comparator.nullsLast(Comparator.naturalOrder()));
 		};
 	}

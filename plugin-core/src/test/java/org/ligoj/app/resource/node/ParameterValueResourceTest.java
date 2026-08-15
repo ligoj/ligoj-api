@@ -716,9 +716,8 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final var vo = new ParameterValueCreateVo();
 		vo.setParameter(parameter.getId());
 		vo.setInteger(10074);
-
-		Assertions.assertThrows(ValidationJsonException.class,
-				() -> resource.create(List.of(vo), (Subscription) null));
+		var list = List.of(vo);
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(list, (Subscription) null));
 	}
 
 	/**
@@ -733,9 +732,9 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final var vo = new ParameterValueCreateVo();
 		vo.setParameter(parameter.getId());
 		vo.setInteger(10074);
+		var list = List.of(vo);
 
-		Assertions.assertThrows(ValidationJsonException.class,
-				() -> resource.create(List.of(vo), (Node) null));
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(list, (Node) null));
 	}
 
 	/**
@@ -750,9 +749,9 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final var vo = new ParameterValueCreateVo();
 		vo.setParameter(parameter.getId());
 		vo.setInteger(10074);
+		var list = List.of(vo);
 
-		Assertions.assertThrows(ValidationJsonException.class,
-				() -> resource.update(List.of(vo), null));
+		Assertions.assertThrows(ValidationJsonException.class, () -> resource.update(list, null));
 	}
 
 	/**
@@ -780,9 +779,10 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		em.persist(node);
 		em.flush();
 		em.clear();
+		var list = List.of(vo);
 
 		Assertions.assertThrows(BusinessException.class,
-				() -> resource.update(List.of(vo), em.find(Node.class, "service:bt:jira:availability-test")));
+				() -> resource.update(list, em.find(Node.class, "service:bt:jira:availability-test")));
 	}
 
 	/**

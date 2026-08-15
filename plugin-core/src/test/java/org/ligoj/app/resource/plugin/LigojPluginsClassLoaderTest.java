@@ -38,7 +38,7 @@ class LigojPluginsClassLoaderTest {
 	@Test
 	@SuppressWarnings("try")
 	void getInstance() {
-		try (var ignored = new ThreadClassLoaderScope(
+		try (var _ = new ThreadClassLoaderScope(
 				new URLClassLoader(new URL[0], mock(LigojPluginsClassLoader.class)))) {
 			Assertions.assertNotNull(LigojPluginsClassLoader.getInstance());
 		}

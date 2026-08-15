@@ -3,8 +3,6 @@
  */
 package org.ligoj.app.resource.system;
 
-import java.util.List;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,6 +17,8 @@ import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * Test class of {@link IamSystemUserDetailsProvider}: end-to-end through the bootstrap {@link UserResource} lookup,
@@ -83,34 +83,33 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		Assertions.assertEquals(List.of(), mtuyer.getRoles());
 	}
 
+	private void assertFindAllBy(String order, String criteria, String expectedResult) {
+		final var result = resource.findAllWithRoles(newUriInfoAsc(order), criteria);
+		Assertions.assertEquals(1, result.getRecordsTotal());
+		Assertions.assertEquals(expectedResult, result.getData().getFirst().getLogin());
+	}
+
+
 	@Test
 	void findAllByMail() {
 		// Other IAM users share this mail (fdaugana, fdauganb) but are not system users
-		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "daugan@sample");
-		Assertions.assertEquals(1, result.getRecordsTotal());
-		Assertions.assertEquals("fdaugan", result.getData().getFirst().getLogin());
+		assertFindAllBy("login", "daugan@sample", "fdaugan");
 	}
 
 	@Test
 	void findAllByFirstName() {
-		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "ARCEL");
-		Assertions.assertEquals(1, result.getRecordsTotal());
-		Assertions.assertEquals("mtuyer", result.getData().getFirst().getLogin());
+		assertFindAllBy("login", "ARCEL", "mtuyer");
 	}
 
 	@Test
 	void findAllByLastName() {
-		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "Daugan");
-		Assertions.assertEquals(1, result.getRecordsTotal());
-		Assertions.assertEquals("fdaugan", result.getData().getFirst().getLogin());
+		assertFindAllBy("login", "Daugan", "fdaugan");
 	}
 
 	@Test
 	void findAllByLoginWithoutIamEntry() {
 		// "junit" has no CacheUser entry: only matchable by its login
-		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "juni");
-		Assertions.assertEquals(1, result.getRecordsTotal());
-		Assertions.assertEquals("junit", result.getData().getFirst().getLogin());
+		assertFindAllBy("login", "juni", "junit");
 	}
 
 	@Test

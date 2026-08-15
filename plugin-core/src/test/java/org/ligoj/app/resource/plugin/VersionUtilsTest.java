@@ -3,11 +3,10 @@
  */
 package org.ligoj.app.resource.plugin;
 
-import java.io.IOException;
-import java.util.Date;
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import java.util.Date;
 
 /**
  * Test class of {@link VersionUtils}
@@ -15,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class VersionUtilsTest {
 
 	@Test
-	void getLatestReleasedVersion() throws IOException {
+	void getLatestReleasedVersion() {
 		final var releasedVersion = new VersionUtils().getLatestReleasedVersion("https://jira.atlassian.com", "JRA");
 		Assertions.assertNotNull(releasedVersion);
 		Assertions.assertNotNull(releasedVersion.getName());
@@ -97,14 +96,14 @@ class VersionUtilsTest {
 	}
 
 	@Test
-	void getLatestReleasedVersionName() throws Exception {
+	void getLatestReleasedVersionName() {
 		final var releasedVersion = new VersionUtils().getLatestReleasedVersionName("https://jira.atlassian.com",
 				"JRA");
 		Assertions.assertNotNull(releasedVersion);
 	}
 
 	@Test
-	void getLatestReleasedVersionNameFailed() throws Exception {
+	void getLatestReleasedVersionNameFailed() {
 		Assertions.assertNull(new VersionUtils().getLatestReleasedVersionName("any:some", "0"));
 	}
 
