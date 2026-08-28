@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.ligoj.api</groupId>
 		<artifactId>parent</artifactId>
-		<version>4.3.4-SNAPSHOT</version>
+		<version>5.0.0-SNAPSHOT</version>
 		<relativePath>../parent/pom.xml</relativePath>
 	</parent>
 
@@ -18,6 +18,9 @@
 	<properties>
 		<sonar.sources>src/main/java,src/main/resources/META-INF/resources/webjars</sonar.sources>
 		<sonar.cpd.exclusions>**/messages.js</sonar.cpd.exclusions>
+		<frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
+		<maven-jarsigner-plugin.version>3.1.0</maven-jarsigner-plugin.version>
+
 	</properties>
 
 	<dependencyManagement>
@@ -25,19 +28,19 @@
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-core</artifactId>
-				<version>4.3.4-SNAPSHOT</version>
+				<version>5.0.0-SNAPSHOT</version>
 				<scope>provided</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-api-test</artifactId>
-				<version>4.3.4-SNAPSHOT</version>
+				<version>5.0.0-SNAPSHOT</version>
 				<scope>test</scope>
 			</dependency>
 			<dependency>
 				<groupId>org.ligoj.api</groupId>
 				<artifactId>plugin-iam-empty</artifactId>
-				<version>4.3.4-SNAPSHOT</version>
+				<version>5.0.0-SNAPSHOT</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
@@ -114,7 +117,7 @@
 					<plugin>
 						<groupId>org.apache.maven.plugins</groupId>
 						<artifactId>maven-jarsigner-plugin</artifactId>
-						<version>3.1.0</version>
+						<version>${maven-jarsigner-plugin.version}</version>
 						<executions>
 							<execution>
 								<id>sign-plugin</id>
@@ -161,14 +164,14 @@
 			</activation>
 			<properties>
 				<skip.ui.build>false</skip.ui.build>
-				<ui.node.version>v25.7.0</ui.node.version>
+				<ui.node.version>v26.8.1</ui.node.version>
 			</properties>
 			<build>
 				<plugins>
 					<plugin>
 						<groupId>com.github.eirslett</groupId>
 						<artifactId>frontend-maven-plugin</artifactId>
-						<version>1.15.4</version>
+						<version>${frontend-maven-plugin.version}</version>
 						<configuration>
 							<workingDirectory>ui</workingDirectory>
 							<!-- Node/npm extracted under target/ so `mvn clean` removes them -->
