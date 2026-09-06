@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.ligoj.app.iam.model.CacheGroup;
+import org.ligoj.app.iam.model.CacheMembership;
+import org.ligoj.app.iam.model.CacheUser;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.ligoj.bootstrap.model.system.SystemRole;
 import org.ligoj.bootstrap.model.system.SystemRoleAssignment;
@@ -19,6 +22,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Test class of {@link IamSystemUserDetailsProvider}: end-to-end through the bootstrap {@link UserResource} lookup,
@@ -47,6 +51,20 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		assignment.setRole(em.createQuery("FROM SystemRole WHERE name = 'some'", SystemRole.class).getSingleResult());
 		assignment.setUser(fdaugan);
 		em.persist(assignment);
+
+		// A group of the identity provider named (up to the case) after a system role: its members obtain the role at login
+		final var group = new CacheGroup();
+		group.setId("hr-api");
+		group.setName("hr-api");
+		group.setDescription("cn=hr-api,ou=groups,dc=sample,dc=com");
+		em.persist(group);
+		final var membership = new CacheMembership();
+		membership.setUser(em.find(CacheUser.class, "fdaugan"));
+		membership.setGroup(group);
+		em.persist(membership);
+		final var federatedRole = new SystemRole();
+		federatedRole.setName("HR-API");
+		em.persist(federatedRole);
 		em.flush();
 		em.clear();
 	}
@@ -65,6 +83,10 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, fdaugan.getRoles().size());
 		Assertions.assertEquals("some", fdaugan.getRoles().getFirst().getName());
 		Assertions.assertNotNull(fdaugan.getRoles().getFirst().getId());
+		// Federated role obtained through the "hr-api" group
+		Assertions.assertEquals(1, fdaugan.getFederatedRoles().size());
+		Assertions.assertEquals("hr-api", fdaugan.getFederatedRoles().getFirst().getId());
+		Assertions.assertEquals("HR-API", fdaugan.getFederatedRoles().getFirst().getName());
 
 		// System user without IAM entry
 		final var junit = result.getData().get(1);
@@ -73,6 +95,7 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		Assertions.assertNull(junit.getLastName());
 		Assertions.assertNull(junit.getMails());
 		Assertions.assertEquals(1, junit.getRoles().size());
+		Assertions.assertEquals(List.of(), junit.getFederatedRoles());
 
 		// IAM-enriched user without mail nor role
 		final var mtuyer = result.getData().get(2);
@@ -81,6 +104,14 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		Assertions.assertEquals("User", mtuyer.getLastName());
 		Assertions.assertEquals(List.of(), mtuyer.getMails());
 		Assertions.assertEquals(List.of(), mtuyer.getRoles());
+	}
+
+	@Test
+	void toFederatedRoles() {
+		final var roles = Map.of("HR-API", new SystemRole(), "ops", new SystemRole(), "Exact", new SystemRole());
+		final var result = IamSystemUserDetailsProvider.toFederatedRoles(List.of("hr-api", "OPS", "Exact", "none", "HR-API"), roles);
+		Assertions.assertEquals(List.of("hr-api:HR-API", "OPS:ops", "Exact:Exact"),
+				result.stream().map(r -> r.getId() + ":" + r.getName()).toList());
 	}
 
 	private void assertFindAllBy(String order, String criteria, String expectedResult) {
