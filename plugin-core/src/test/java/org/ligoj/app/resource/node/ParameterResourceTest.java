@@ -62,6 +62,16 @@ class ParameterResourceTest extends AbstractAppTest {
 
 
 	@Test
+	void deprecatedFlagFromCsv() {
+		// The optional `deprecated` CSV column reaches the entity and the view
+		Assertions.assertEquals(Boolean.TRUE, repository.findOneExpected("service:bt:jira:jdbc-driver").getDeprecated());
+		Assertions.assertNull(repository.findOneExpected("service:bt:jira:jdbc-url").getDeprecated());
+		final var parameters = resource.getNotProvidedParameters("service:bt:jira", SubscriptionMode.LINK);
+		Assertions.assertTrue(parameters.stream().filter(p -> "service:bt:jira:jdbc-driver".equals(p.getId())).findFirst().orElseThrow().isDeprecated());
+		Assertions.assertFalse(parameters.stream().filter(p -> "service:bt:jira:jdbc-url".equals(p.getId())).findFirst().orElseThrow().isDeprecated());
+	}
+
+	@Test
 	void getNotProvidedParametersTool() {
 		final var parameters = resource.getNotProvidedParameters("service:bt:jira", SubscriptionMode.LINK);
 		Assertions.assertEquals(32, parameters.size());

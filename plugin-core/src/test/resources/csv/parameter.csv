@@ -1,6 +1,6 @@
-id;owner.id;data;mandatory;type;mode;secured;defaultValue
+id;owner.id;data;mandatory;type;mode;secured;defaultValue;deprecated
 service:bt:jira:jdbc-url;service:bt:jira;;true;TEXT;;true
-service:bt:jira:jdbc-driver;service:bt:jira;;true;TEXT;;true
+service:bt:jira:jdbc-driver;service:bt:jira;;true;TEXT;;true;;true
 service:bt:jira:jdbc-user;service:bt:jira;;true;TEXT;;true
 service:bt:jira:jdbc-password;service:bt:jira;;true;TEXT;;true
 service:bt:jira:url;service:bt:jira;;true;TEXT;;

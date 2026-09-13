@@ -286,6 +286,8 @@ public class NodeHelper {
 		// (wizard filter, value-create checks) reads a definitive Boolean.
 		vo.setAvailableForSubscription(!BooleanUtils.isFalse(entity.getAvailableForSubscription()));
 		vo.setAvailableForNode(!BooleanUtils.isFalse(entity.getAvailableForNode()));
+		// Deprecation flag: null (legacy rows, plugins not declaring it) means not deprecated
+		vo.setDeprecated(BooleanUtils.isTrue(entity.getDeprecated()));
 
 		// Map constraint data
 		if (entity.getType().isArray()) {

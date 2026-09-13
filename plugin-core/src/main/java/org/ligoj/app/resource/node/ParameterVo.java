@@ -71,4 +71,9 @@ public class ParameterVo extends AbstractBusinessEntity<String> {
 	 */
 	private Boolean availableForNode;
 
+	/**
+	 * <code>true</code> when this parameter is deprecated: superseded by another one, still readable and editable.
+	 */
+	private boolean deprecated;
+
 }

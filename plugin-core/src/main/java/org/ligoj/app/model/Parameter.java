@@ -92,4 +92,11 @@ public class Parameter extends AbstractStringKeyEntity {
 	 */
 	private Boolean availableForNode;
 
+	/**
+	 * <code>true</code> when this parameter is deprecated: still read and editable, but superseded by another one. The
+	 * UI marks it and shows the optional <code>&lt;id&gt;-deprecated</code> notice of the plugin. Nullable, so the
+	 * schema update leaves existing rows untouched; <code>null</code> means not deprecated.
+	 */
+	private Boolean deprecated;
+
 }

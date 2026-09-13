@@ -87,6 +87,18 @@ class NodeHelperTest {
 	}
 
 	@Test
+	void toVoParameterDeprecated() {
+		// A deprecated definition is exposed as such; null (legacy rows) means not deprecated
+		final var entity = new org.ligoj.app.model.Parameter();
+		entity.setId("p:test");
+		entity.setType(org.ligoj.app.model.ParameterType.TEXT);
+		entity.setOwner(newNode(NODE_ID, "Test tool", null));
+		Assertions.assertFalse(NodeHelper.toVo(entity).isDeprecated());
+		entity.setDeprecated(Boolean.TRUE);
+		Assertions.assertTrue(NodeHelper.toVo(entity).isDeprecated());
+	}
+
+	@Test
 	void toVoLeafWithoutColorDoesNotInheritParent() {
 		// Confirms the removed backend inheritance: a leaf without a color stays
 		// null even when its parent declares one.
