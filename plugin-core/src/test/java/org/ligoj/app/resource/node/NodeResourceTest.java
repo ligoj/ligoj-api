@@ -370,6 +370,19 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals(expectedCount, eventRepository.count());
 	}
 
+	/**
+	 * The subscription check must run in its own transaction: a plug-in failure marks its transaction as rollback-only
+	 * even though the exception is caught, which aborted the whole scheduled check when the transaction was shared.
+	 * The tests of this class call an unproxied resource, so the isolation is asserted on the declaration itself.
+	 */
+	@Test
+	void checkSubscriptionStatusIsolatedTransaction() throws Exception {
+		final var method = NodeResource.class.getMethod("checkSubscriptionStatus", org.ligoj.app.model.Subscription.class, java.util.Map.class);
+		final var transactional = method.getAnnotation(jakarta.transaction.Transactional.class);
+		Assertions.assertNotNull(transactional);
+		Assertions.assertEquals(jakarta.transaction.Transactional.TxType.REQUIRES_NEW, transactional.value());
+	}
+
 	@Test
 	void checkSubscriptionStatusException() throws Exception {
 		mockApplicationContext();

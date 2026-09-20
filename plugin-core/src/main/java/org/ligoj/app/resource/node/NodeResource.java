@@ -382,10 +382,17 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Check status for a subscription.
 	 *
+	 * <p>
+	 * Runs in its own transaction: a failing plug-in call (for instance a query rejected by the database) marks its
+	 * transaction as rollback-only even though the exception is caught here. Sharing the transaction of the caller
+	 * would then abort the whole scheduled check of every node with an {@link org.springframework.transaction.UnexpectedRollbackException},
+	 * and drop the status events already registered.
+	 *
 	 * @param subscription Subscription entity.
 	 * @param parameters   Parameters of a subscription.
 	 * @return status of given subscription.
 	 */
+	@Transactional(Transactional.TxType.REQUIRES_NEW)
 	public SubscriptionStatusWithData checkSubscriptionStatus(final Subscription subscription,
 			final Map<String, String> parameters) {
 		final var node = subscription.getNode().getId();
