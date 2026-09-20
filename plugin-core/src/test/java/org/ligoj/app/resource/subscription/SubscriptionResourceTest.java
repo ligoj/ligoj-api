@@ -214,6 +214,16 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	/**
+	 * Without any authenticated user (scheduled task), the visibility check fails explicitly instead of sending a
+	 * null login to the database.
+	 */
+	@Test
+	void getParametersNoAuthenticatedUser() {
+		org.springframework.security.core.context.SecurityContextHolder.clearContext();
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.getParameters(subscription));
+	}
+
+	/**
 	 * Not a {@link LongTaskRunner} implementation -> does nothing
 	 */
 	@Test

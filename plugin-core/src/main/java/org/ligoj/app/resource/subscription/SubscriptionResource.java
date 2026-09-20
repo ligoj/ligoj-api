@@ -324,6 +324,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@Override
 	public Subscription checkVisible(final Integer id) {
 		final var entity = repository.findOneExpected(id);
+		if (securityHelper.getLogin() == null) {
+			// No authenticated user (scheduled task, background thread): nothing is visible. Fail explicitly here, a
+			// null login in the visibility query is rejected by the database with an obscure type error.
+			log.warn("Visibility of subscription {} checked without any authenticated user", id);
+			throw new EntityNotFoundException(String.valueOf(id));
+		}
 		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
 			// Associated project is not visible, reject the subscription access
 			throw new EntityNotFoundException(String.valueOf(id));
