@@ -262,9 +262,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	private void checkMandatoryParameter(final Collection<ParameterValueCreateVo> parameters, final Persistable<String> parameter) {
 		// This parameter must exist
-		if (parameters.stream().noneMatch(value -> value.getParameter().equals(parameter.getId()))) {
-			// Missing mandatory parameter
-			throw ValidationJsonException.newValidationJsonException(NotNull.class.getSimpleName(), parameter.getId());
+		final var value = parameters.stream().filter(v -> v.getParameter().equals(parameter.getId())).findFirst()
+				.orElseThrow(() -> ValidationJsonException.newValidationJsonException(NotNull.class.getSimpleName(), parameter.getId()));
+
+		// ... and carry an effective value: a blank text is never stored, so it would leave the plug-in without it
+		if (!value.isUntouched() && ParameterValueResource.toData(value) == null) {
+			throw ValidationJsonException.newValidationJsonException("NotBlank", parameter.getId());
 		}
 	}
 

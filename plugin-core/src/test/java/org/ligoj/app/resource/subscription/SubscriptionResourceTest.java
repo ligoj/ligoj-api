@@ -129,6 +129,38 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertThrows(ValidationJsonException.class, () -> resource.checkMandatoryParameters(parameters, acceptedParameters, null));
 	}
 
+	/**
+	 * A mandatory parameter present in the payload but without any effective value (blank text) is not provided.
+	 */
+	@Test
+	void checkMandatoryParametersMandatoryBlank() {
+		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
+		final List<Parameter> acceptedParameters = new ArrayList<>();
+		final var parameterValue = new ParameterValueCreateVo();
+		parameterValue.setParameter("p");
+		parameterValue.setText("  ");
+		parameters.add(parameterValue);
+		final var parameter = new Parameter();
+		parameter.setId("p");
+		parameter.setMandatory(true);
+		acceptedParameters.add(parameter);
+		final var error = Assertions.assertThrows(ValidationJsonException.class,
+				() -> resource.checkMandatoryParameters(parameters, acceptedParameters, null));
+		Assertions.assertEquals("NotBlank", error.getErrors().get("p").getFirst().get("rule"));
+
+		// A non-text value is a value
+		parameterValue.setInteger(3);
+		resource.checkMandatoryParameters(parameters, acceptedParameters, null);
+		parameterValue.setInteger(null);
+		parameterValue.setText("value");
+		resource.checkMandatoryParameters(parameters, acceptedParameters, null);
+
+		// An untouched value keeps its previous (checked) value
+		parameterValue.setText(null);
+		parameterValue.setUntouched(true);
+		resource.checkMandatoryParameters(parameters, acceptedParameters, null);
+	}
+
 	@Test
 	void checkMandatoryParametersMandatoryNotMode() {
 		final List<ParameterValueCreateVo> parameters = new ArrayList<>();
