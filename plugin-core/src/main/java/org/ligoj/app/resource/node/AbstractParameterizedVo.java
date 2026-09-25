@@ -32,8 +32,7 @@ public abstract class AbstractParameterizedVo {
 	/**
 	 * Defined parameters for this subscription.
 	 */
-	@Valid
-	private List<ParameterValueCreateVo> parameters;
+	private List<@Valid ParameterValueCreateVo> parameters;
 
 	/**
 	 * The restricted subscription mode.
