@@ -278,11 +278,26 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * @param id the entity identifier.
 	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
 	 */
-	@Path("{id:\\d+}")
-	@DELETE
-	public void delete(@PathParam("id") final int id) throws Exception {
+	public void delete(final int id) throws Exception {
 		// Deletion without remote deletion
 		delete(id, false);
+	}
+
+	/**
+	 * Delete entity and cascaded associations : parameters, events then subscription. The remote data created by
+	 * the subscription are deleted too when the optional {@code deleteRemoteData} query parameter is {@code true}
+	 * (ignored for a 'LINK' subscription).
+	 *
+	 * @param id               the entity identifier.
+	 * @param deleteRemoteData Optional query parameter, {@code false} by default: when {@code true}, created remote
+	 *                         data will be also destroyed.
+	 * @throws Exception When the deletion fails. Managed at JAX-RS level.
+	 */
+	@Path("{id:\\d+}")
+	@DELETE
+	public void deleteWithOption(@PathParam("id") final int id,
+			@QueryParam("deleteRemoteData") @DefaultValue("false") final Boolean deleteRemoteData) throws Exception {
+		delete(id, Boolean.TRUE.equals(deleteRemoteData));
 	}
 
 	/**

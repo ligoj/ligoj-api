@@ -322,6 +322,38 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		assertDelete(true);
 	}
 
+	/**
+	 * The plain endpoint accepts the remote deletion as an optional query parameter.
+	 */
+	@Test
+	void deleteByAdminWithRemoteQuery() throws Exception {
+		initSpringSecurityContext(DEFAULT_USER, new SimpleGrantedAuthority(SecurityHelper.ADMIN));
+		setSubscriptionMode(SubscriptionMode.CREATE);
+		final var one = repository.findOne(subscription);
+		final int project = one.getProject().getId();
+		em.clear();
+		resource.deleteWithOption(subscription, Boolean.TRUE);
+		em.flush();
+		em.clear();
+		Assertions.assertTrue(repository.findAllByProject(project).isEmpty());
+	}
+
+	/**
+	 * Absent query parameter: no remote deletion, same as the plain call.
+	 */
+	@Test
+	void deleteByAdminWithRemoteQueryAbsent() throws Exception {
+		initSpringSecurityContext(DEFAULT_USER, new SimpleGrantedAuthority(SecurityHelper.ADMIN));
+		setSubscriptionMode(SubscriptionMode.CREATE);
+		final var one = repository.findOne(subscription);
+		final int project = one.getProject().getId();
+		em.clear();
+		resource.deleteWithOption(subscription, null);
+		em.flush();
+		em.clear();
+		Assertions.assertTrue(repository.findAllByProject(project).isEmpty());
+	}
+
 	@Test
 	void deleteByAdminWithRemoteTasksDisabled() throws Exception {
 		initSpringSecurityContext(DEFAULT_USER, new SimpleGrantedAuthority(SecurityHelper.ADMIN));
