@@ -44,8 +44,8 @@ public class ParameterValue extends AbstractAudited<Integer> implements NodeScop
 	 * <li>Case of 'binary' : data is plain text to convert to boolean with {@link Boolean#parseBoolean(String)}.</li>
 	 * </ul>
 	 */
-	@Length(max = 512)
-	@Column(length = 512)
+	@Length(max = 4096)
+	@Column(length = 4096)
 	private String data;
 
 	/**
