@@ -81,8 +81,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	public static Subscription toEntity(final SubscriptionEditionVo vo, final Project project, final Node node) {
 		final var entity = new Subscription();
+		// The identifier is never copied: a new subscription cannot overwrite an existing one
 		entity.setProject(project);
-		entity.setId(vo.getId());
 		entity.setNode(node);
 		entity.setMode(vo.getMode());
 		return entity;
@@ -328,6 +328,20 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
+	 * Return the visible subscription whose project is managed by the current user: its subscriptions can be changed.
+	 *
+	 * @param id The subscription identifier.
+	 * @return The managed subscription.
+	 * @throws jakarta.persistence.EntityNotFoundException When the subscription is not visible.
+	 * @throws ForbiddenException                           When the subscription is visible but not managed.
+	 */
+	public Subscription checkManaged(final int id) {
+		final var subscription = checkVisible(id);
+		checkManagedProject(subscription.getProject().getId());
+		return subscription;
+	}
+
+	/**
 	 * Check the associated project is managed for current user. Currently, a managed project is a project where
 	 * subscription can be managed.
 	 */
@@ -465,6 +479,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<Integer, EventVo> getStatusByProject(@PathParam("project") final int project) {
+		projectHelper.checkVisibleProject(project);
 		return projectHelper.getStatusByProject(project);
 	}
 

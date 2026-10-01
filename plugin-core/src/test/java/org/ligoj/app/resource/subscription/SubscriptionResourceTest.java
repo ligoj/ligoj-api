@@ -7,6 +7,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.ForbiddenException;
 import org.apache.commons.lang3.NotImplementedException;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.ligoj.bootstrap.core.json.ObjectMapperTrim;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -515,6 +517,37 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals("MDA",
 				parameterValueRepository.getSubscriptionParameterValue(subscription, JiraBaseResource.PARAMETER_PKEY));
 		Assertions.assertEquals(SubscriptionMode.LINK, repository.findOneExpected(entity).getMode());
+	}
+
+	@Test
+	void getStatusByProjectNotVisible() {
+		final var project = em.createQuery("SELECT id FROM Project WHERE name='Jupiter'", Integer.class).getSingleResult();
+		initSpringSecurityContext("any");
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.getStatusByProject(project));
+	}
+
+	@Test
+	void createIgnoresIdentifier() throws Exception {
+		// The identifier of an existing subscription of another project must not be overwritten
+		final var victim = em.createQuery("SELECT s FROM Subscription s WHERE s.project.name <> 'Jupiter'", Subscription.class)
+				.setMaxResults(1).getSingleResult();
+		final var victimProject = victim.getProject().getId();
+		final var victimNode = victim.getNode().getId();
+		final var vo = newCreateVo();
+		FieldUtils.writeField(vo, "id", victim.getId(), true);
+		final var entity = resource.create(vo);
+		em.flush();
+		em.clear();
+		Assertions.assertNotEquals(victim.getId(), entity);
+		final var unchanged = repository.findOneExpected(victim.getId());
+		Assertions.assertEquals(victimProject, unchanged.getProject().getId());
+		Assertions.assertEquals(victimNode, unchanged.getNode().getId());
+	}
+
+	@Test
+	void createIdentifierNotBound() {
+		// The identifier is never read from the JSON input
+		Assertions.assertNull(new ObjectMapperTrim().readValue("{\"id\":42,\"project\":1}", SubscriptionEditionVo.class).getId());
 	}
 
 	/**
