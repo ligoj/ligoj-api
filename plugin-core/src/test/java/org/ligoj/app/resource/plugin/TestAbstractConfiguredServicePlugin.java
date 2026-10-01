@@ -4,6 +4,7 @@
 package org.ligoj.app.resource.plugin;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.ws.rs.ForbiddenException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import org.ligoj.bootstrap.core.security.SecurityHelper;
 import java.util.Collections;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -69,6 +72,7 @@ class TestAbstractConfiguredServicePlugin {
 		when(configuration.getSubscription()).thenReturn(subscription);
 		when(resource.subscriptionRepository.findOneExpected(33)).thenReturn(subscription);
 		when(resource.projectRepository.findOneVisible(44, "junit")).thenReturn(project);
+		when(resource.projectRepository.isManageSubscription(44, "junit")).thenReturn(true);
 		when(repository.findOneExpected(1)).thenReturn(configurable);
 		when(repository.findAllBy("configuration.subscription.id", subscription.getId(),
 				new String[] { "name" }, "my-name")).thenReturn(Collections.singletonList(configurable));
@@ -87,6 +91,27 @@ class TestAbstractConfiguredServicePlugin {
 	void deletedConfiguredKo() {
 		project.setId(-1);
 		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.deletedConfigured(repository, 1));
+	}
+
+	@Test
+	void deletedConfiguredNotManaged() {
+		// Visible, but the subscriptions of the project are not managed by the user
+		when(resource.projectRepository.isManageSubscription(44, "junit")).thenReturn(false);
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.deletedConfigured(repository, 1));
+		verify(repository, never()).delete(configurable);
+	}
+
+	@Test
+	void findConfiguredManaged() {
+		Assertions.assertEquals(configurable, resource.findConfiguredManaged(repository, 1));
+	}
+
+	@Test
+	void findConfiguredManagedKo() {
+		when(resource.projectRepository.isManageSubscription(44, "junit")).thenReturn(false);
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.findConfiguredManaged(repository, 1));
+		project.setId(-1);
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.findConfiguredManaged(repository, 1));
 	}
 
 	@Test

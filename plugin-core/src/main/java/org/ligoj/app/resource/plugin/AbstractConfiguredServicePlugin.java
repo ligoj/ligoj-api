@@ -6,6 +6,7 @@ package org.ligoj.app.resource.plugin;
 import java.io.Serializable;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.ws.rs.ForbiddenException;
 
 import org.ligoj.app.api.ConfigurablePlugin;
 import org.ligoj.app.api.NodeScoped;
@@ -64,6 +65,30 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	}
 
 	/**
+	 * Return a configured entity the current user can modify: the related subscription is visible, and the
+	 * subscriptions of its project are managed by the current user. To use before any update of the configuration,
+	 * {@link #findConfigured(RestRepository, Serializable)} only checks the visibility.
+	 *
+	 * @param repository The repository holding the configured entity.
+	 * @param id         The requested configured identifier.
+	 * @param <K>        The {@link Configurable} identifier type.
+	 * @param <T>        The {@link Configurable} type.
+	 * @return The entity where the related subscription is managed.
+	 * @throws EntityNotFoundException When the configured entity or its subscription is not visible.
+	 * @throws ForbiddenException      When the related subscription is visible but not managed.
+	 */
+	public <K extends Serializable, T extends Configurable<C, K>> T findConfiguredManaged(
+			final RestRepository<T, K> repository, final K id) {
+		final var configured = checkConfiguredVisibility(repository.findOneExpected(id));
+		final var project = configured.getConfiguration().getSubscription().getProject().getId();
+		if (!projectRepository.isManageSubscription(project, securityHelper.getLogin())) {
+			// Visible, but read only for this user
+			throw new ForbiddenException();
+		}
+		return configured;
+	}
+
+	/**
 	 * Check the visibility of a configured entity by its name.
 	 *
 	 * @param repository   The repository holding the configured entity.
@@ -102,7 +127,7 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	}
 
 	/**
-	 * Delete the configured entity if the related subscription is visible.
+	 * Delete the configured entity if the related subscription is visible and managed by the current user.
 	 *
 	 * @param repository The repository holding the configured entity.
 	 * @param <K>        The {@link Configurable} identifier type.
@@ -111,7 +136,7 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	 */
 	public <K extends Serializable, T extends Configurable<C, K>> void deletedConfigured(
 			final RestRepository<T, K> repository, final K id) {
-		repository.delete(checkConfiguredVisibility(repository.findOneExpected(id)));
+		repository.delete(findConfiguredManaged(repository, id));
 	}
 
 }
