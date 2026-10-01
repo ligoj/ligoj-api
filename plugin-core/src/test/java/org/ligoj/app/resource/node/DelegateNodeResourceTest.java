@@ -269,6 +269,27 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
+	void updateNotAdmin() {
+		// The replaced delegate is visible, but not managed without the admin flag on its node
+		final var subscriber = new DelegateNode();
+		subscriber.setNode("service:build:jenkins");
+		subscriber.setReceiver("user2");
+		subscriber.setCanSubscribe(true);
+		repository.saveAndFlush(subscriber);
+		final int user1Delegate = repository.findBy("receiver", "user1").getId();
+		initSpringSecurityContext("user2");
+		Assertions.assertNotNull(repository.findOneVisible(user1Delegate, "user2"));
+		final var vo = new DelegateNode();
+		vo.setId(user1Delegate);
+		vo.setNode("service:build:jenkins:dig");
+		vo.setReceiver("user2");
+		Assertions.assertThrows(NotFoundException.class, () -> resource.update(vo));
+		em.flush();
+		em.clear();
+		Assertions.assertEquals("service:build:jenkins", repository.findOneExpected(user1Delegate).getName());
+	}
+
+	@Test
 	void findByIdNotVisible() {
 		final int rootDelegate = repository.findBy("receiver", DEFAULT_USER).getId();
 		initSpringSecurityContext("any");
