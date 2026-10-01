@@ -5,6 +5,7 @@ package org.ligoj.app.resource.plugin;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import jakarta.ws.rs.ForbiddenException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -73,6 +74,35 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 		repositoryNode.saveAndFlush(task);
 		resourceNode.cancel(task.getLocked().getId());
 		Assertions.assertTrue(resourceNode.getTask(task.getLocked().getId()).isFailed());
+	}
+
+	@Test
+	void cancelNotWritable() {
+		// "user2" sees the node, but cannot write it: it cannot cancel the task of the node
+		final var delegate = new DelegateNode();
+		delegate.setNode("service:bt:jira");
+		delegate.setReceiver("user2");
+		em.persist(delegate);
+		final var task = newTaskSampleNode();
+		task.setEnd(null);
+		repositoryNode.saveAndFlush(task);
+		final var id = task.getLocked().getId();
+		initSpringSecurityContext("user2");
+		Assertions.assertThrows(BusinessException.class, () -> resourceNode.cancel(id));
+		Assertions.assertFalse(repositoryNode.findBy("locked.id", id).isFailed());
+	}
+
+	@Test
+	void cancelSubscriptionNotManaged() {
+		// "admin-test" sees the project "Jupiter", but does not manage its subscriptions
+		this.subscription = getSubscription("Jupiter");
+		final var task = newTaskSample();
+		task.setEnd(null);
+		repository.saveAndFlush(task);
+		final var id = task.getLocked().getId();
+		initSpringSecurityContext("admin-test");
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.cancel(id));
+		Assertions.assertFalse(repository.findBy("locked.id", id).isFailed());
 	}
 
 	@Test

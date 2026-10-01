@@ -78,7 +78,8 @@ public interface LongTaskRunnerNode<T extends AbstractLongTaskNode, R extends Lo
 	@Path("{node:service:.+}/task")
 	@OnNullReturn404
 	default T cancel(@PathParam("node") final String node) {
-		checkVisible(node);
+		// Cancelling changes the node: writable node is required, not only visible
+		getNodeResource().checkWritableNode(node);
 		return endTask(node, true);
 	}
 }
