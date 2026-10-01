@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 
@@ -24,7 +25,8 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_SUBSCRIPTION")
+@Table(name = "LIGOJ_SUBSCRIPTION", indexes = { @Index(name = "IX_SUBSCRIPTION_PROJECT", columnList = "project"),
+		@Index(name = "IX_SUBSCRIPTION_NODE", columnList = "node") })
 @ToString(of = { "node", "project" }, callSuper = true)
 public class Subscription extends AbstractAudited<Integer> implements NodeScoped<Integer>, Serializable {
 

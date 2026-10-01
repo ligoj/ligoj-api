@@ -18,7 +18,8 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_EVENT")
+@Table(name = "LIGOJ_EVENT", indexes = { @Index(name = "IX_EVENT_SUBSCRIPTION", columnList = "subscription,type,id"),
+		@Index(name = "IX_EVENT_NODE", columnList = "node,type,id") })
 public class Event extends AbstractPersistable<Integer> implements NodeScoped<Integer> {
 
 	/**

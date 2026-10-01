@@ -24,7 +24,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_DELEGATE_ORG")
+@Table(name = "LIGOJ_DELEGATE_ORG", indexes = @Index(name = "IX_DELEGATE_ORG_RECEIVER", columnList = "receiver"))
 public class DelegateOrg extends AbstractDelegate {
 
 	/**

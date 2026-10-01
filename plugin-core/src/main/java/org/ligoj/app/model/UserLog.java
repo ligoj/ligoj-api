@@ -5,6 +5,7 @@ package org.ligoj.app.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,7 +21,7 @@ import java.time.Instant;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_USER_LOG")
+@Table(name = "LIGOJ_USER_LOG", indexes = @Index(name = "IX_USER_LOG_DATE", columnList = "date"))
 public class UserLog extends AbstractPersistable<Integer> {
 
 	/**

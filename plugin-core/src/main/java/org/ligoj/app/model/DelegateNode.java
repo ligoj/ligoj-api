@@ -4,6 +4,7 @@
 package org.ligoj.app.model;
 
 import jakarta.persistence.Entity;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import org.ligoj.app.iam.model.AbstractDelegate;
@@ -20,7 +21,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_DELEGATE_NODE")
+@Table(name = "LIGOJ_DELEGATE_NODE", indexes = @Index(name = "IX_DELEGATE_NODE_RECEIVER", columnList = "receiver"))
 public class DelegateNode extends AbstractDelegate {
 
 	/**

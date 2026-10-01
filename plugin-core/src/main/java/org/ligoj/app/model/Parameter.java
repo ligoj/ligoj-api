@@ -19,7 +19,7 @@ import org.ligoj.bootstrap.core.model.AbstractStringKeyEntity;
 @Setter
 @Entity
 @ToString(callSuper = true)
-@Table(name = "LIGOJ_PARAMETER")
+@Table(name = "LIGOJ_PARAMETER", indexes = @Index(name = "IX_PARAMETER_OWNER", columnList = "owner"))
 public class Parameter extends AbstractStringKeyEntity {
 
 	/**

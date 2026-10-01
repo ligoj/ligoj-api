@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
 
 import org.ligoj.app.iam.model.CacheGroup;
@@ -21,7 +22,8 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
-@Table(name = "LIGOJ_CACHE_PROJECT_GROUP")
+@Table(name = "LIGOJ_CACHE_PROJECT_GROUP", indexes = { @Index(name = "IX_CACHE_PROJECT_GROUP_PROJECT", columnList = "project"),
+		@Index(name = "IX_CACHE_PROJECT_GROUP_GROUP", columnList = "group") })
 public class CacheProjectGroup extends AbstractPersistable<Integer> implements Serializable {
 
 	/**
