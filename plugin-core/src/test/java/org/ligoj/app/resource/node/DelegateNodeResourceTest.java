@@ -211,6 +211,71 @@ class DelegateNodeResourceTest extends AbstractJpaTest {
 	}
 
 	@Test
+	void createIgnoresIdentifier() {
+		// A creation never overwrites an existing delegate, here the one of another user on the root node
+		final var other = repository.findBy("receiver", DEFAULT_USER);
+		initSpringSecurityContext("user1");
+		final var delegate = new DelegateNode();
+		delegate.setId(other.getId());
+		delegate.setNode("service:build:jenkins:dig");
+		delegate.setReceiver("user1");
+		Assertions.assertNotEquals(other.getId(), resource.create(delegate));
+		em.flush();
+		em.clear();
+		Assertions.assertEquals("service", repository.findOneExpected(other.getId()).getName());
+	}
+
+	@Test
+	void updateNotManagedDelegate() {
+		// The replaced delegate must also be managed: here, it is the one of another user on the root node
+		final var other = repository.findBy("receiver", DEFAULT_USER);
+		initSpringSecurityContext("user1");
+		final var delegate = new DelegateNode();
+		delegate.setId(other.getId());
+		delegate.setNode("service:build:jenkins");
+		delegate.setReceiver("user1");
+		Assertions.assertThrows(NotFoundException.class, () -> resource.update(delegate));
+		em.flush();
+		em.clear();
+		Assertions.assertEquals("service", repository.findOneExpected(other.getId()).getName());
+	}
+
+	@Test
+	void updateManagedDelegate() {
+		final var delegate = repository.findBy("receiver", "user1");
+		initSpringSecurityContext("user1");
+		final var vo = new DelegateNode();
+		vo.setId(delegate.getId());
+		vo.setNode("service:build:jenkins:dig");
+		vo.setReceiver("user1");
+		resource.update(vo);
+		em.flush();
+		em.clear();
+		Assertions.assertEquals("service:build:jenkins:dig", repository.findOneExpected(delegate.getId()).getName());
+	}
+
+	@Test
+	void deleteNotAdmin() {
+		// A delegate without the admin flag on the node does not allow to delete the delegates of this node
+		final var subscriber = new DelegateNode();
+		subscriber.setNode("service:build:jenkins");
+		subscriber.setReceiver("user2");
+		subscriber.setCanSubscribe(true);
+		repository.saveAndFlush(subscriber);
+		final int user1Delegate = repository.findBy("receiver", "user1").getId();
+		initSpringSecurityContext("user2");
+		Assertions.assertThrows(NotFoundException.class, () -> resource.delete(user1Delegate));
+		Assertions.assertTrue(repository.existsById(user1Delegate));
+	}
+
+	@Test
+	void findByIdNotVisible() {
+		final int rootDelegate = repository.findBy("receiver", DEFAULT_USER).getId();
+		initSpringSecurityContext("any");
+		Assertions.assertThrows(NotFoundException.class, () -> resource.findById(rootDelegate));
+	}
+
+	@Test
 	void findAllCriteriaUser() {
 		final var items = resource.findAll(newUriInfo(), DEFAULT_USER);
 		Assertions.assertEquals(1, items.getData().size());

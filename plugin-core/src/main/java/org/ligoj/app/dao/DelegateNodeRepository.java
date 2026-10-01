@@ -68,4 +68,15 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	 */
 	@Query("SELECT d FROM DelegateNode d WHERE d.id = :id AND EXISTS (" + VISIBLE_DELEGATE_PART + " AND dz.receiver=:user)")
 	DelegateNode findById(int id, String user);
+
+	/**
+	 * Return a visible {@link DelegateNode}: the given user has a delegate on its node or one of its parents.
+	 *
+	 * @param id   The delegate identifier.
+	 * @param user The user requesting the delegate.
+	 * @return The visible delegate or <code>null</code>.
+	 */
+	@SuppressWarnings("unused")
+	@Query("SELECT d FROM DelegateNode d WHERE d.id = :id AND " + VISIBLE_DELEGATE)
+	DelegateNode findOneVisible(int id, String user);
 }
