@@ -135,8 +135,8 @@ public class ProjectResource {
 	 */
 	@PUT
 	public void update(final ProjectEditionVo vo) {
-		// pkey can't be updated if there is at least subscription.
-		final var project = repository.findOneExpected(vo.getId());
+		// The project must be visible, whatever the RBAC rules. pkey can't be updated if there is at least subscription.
+		final var project = findOneVisible(repository::findOneVisible, vo.getId(), Function.identity());
 		final var nbSubscriptions = subscriptionRepository.countByProject(vo.getId());
 		if (nbSubscriptions == 0) {
 			project.setPkey(vo.getPkey());

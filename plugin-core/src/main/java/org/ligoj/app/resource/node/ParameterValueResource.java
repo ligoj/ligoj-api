@@ -30,6 +30,7 @@ import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Persistable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -198,8 +199,9 @@ public class ParameterValueResource {
 		checkAvailability(values.stream().filter(v -> !v.isUntouched()).toList(), false);
 
 		// Build the old parameter values
+		// Only the values of this node: the inherited values of the parent nodes are neither replaced nor deleted
 		final var oldList = repository.getParameterValues(node.getId());
-		final var oldMap = oldList.stream()
+		final var oldMap = oldList.stream().filter(v -> node.getId().equals(v.getNode().getId()))
 				.collect(Collectors.toMap(v -> v.getParameter().getId(), Function.identity()));
 
 		// Build the target parameter values
@@ -501,10 +503,14 @@ public class ParameterValueResource {
 	 * mode.
 	 */
 	@GET
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAuthority('" + SecurityHelper.ADMIN + "')")
 	@Path("{node:service:.+}/parameter-value/{mode}/secured")
 	public List<ParameterNodeVo> getNodeParametersSecured(@PathParam("node") final String node,
 			@PathParam("mode") final SubscriptionMode mode) {
+		// Also checked here: the method security may not be enabled by the application
+		if (!securityHelper.isAdmin()) {
+			throw new AccessDeniedException("Administrator only");
+		}
 		return getNodeParameters(node, mode, true);
 	}
 

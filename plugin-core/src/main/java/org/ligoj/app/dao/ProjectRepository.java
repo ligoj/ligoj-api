@@ -149,6 +149,6 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 			+ "    AND dz.canWrite=true                                      "
 			+ "    AND ((dz.type=org.ligoj.app.iam.model.DelegateType.GROUP AND dz.name=cg0.id) OR"
 			+ "      (dz.type=org.ligoj.app.iam.model.DelegateType.TREE"
-			+ "       AND (cg0.description LIKE CONCAT('%,',dz.dn) OR dz.dn=cg0.description))))))))")
+			+ "       AND (RIGHT(cg0.description, LENGTH(dz.dn)+1)=CONCAT(',',dz.dn) OR dz.dn=cg0.description))))))))")
 	boolean isManageSubscription(int project, String user);
 }

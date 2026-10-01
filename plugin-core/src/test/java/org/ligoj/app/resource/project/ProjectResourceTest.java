@@ -396,6 +396,18 @@ class ProjectResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(DEFAULT_USER, entity.getTeamLeader());
 	}
 
+	@Test
+	void updateNotVisible() {
+		// An invisible project cannot be updated, whatever the RBAC rules
+		initSpringSecurityContext("any");
+		final var vo = new ProjectEditionVo();
+		vo.setId(testProject.getId());
+		vo.setName("Name");
+		vo.setPkey("artifact-id");
+		vo.setTeamLeader("any");
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.update(vo));
+	}
+
 	/**
 	 * Test update
 	 */
