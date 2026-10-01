@@ -83,7 +83,8 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	 * @param service      the service name.
 	 * @param requiredType The required resource class. For sample <code>ServicePlugin.class</code>
 	 * @param <T>          The required resource type. For sample <code>ServicePlugin</code>
-	 * @return the plug-in from the service key. <code>PluginException</code> if not found.
+	 * @return the plug-in from the service key. Never <code>null</code>.
+	 * @throws PluginNotFoundException When the plug-in is not found.
 	 */
 	public <T> T getResourceExpected(final String service, final Class<T> requiredType) {
 		return Optional.ofNullable(getResource(service, requiredType))
@@ -91,10 +92,12 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	}
 
 	/**
-	 * Return the plug-in from the service key.
+	 * Return the Spring bean name of the plug-in implementing the service key. When there is no exact match, the
+	 * parent keys are tried.
 	 *
 	 * @param service the service name.
-	 * @return the plug-in from the service key. <code>null</code> if not found.
+	 * @return the bean name of the plug-in implementing the service key or one of its parents. <code>null</code> if
+	 *         not found.
 	 */
 	@CacheResult(cacheName = "services")
 	public String getResourceName(@CacheKey final String service) {
@@ -109,10 +112,10 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	}
 
 	/**
-	 * Return the plug-in from the service key.
+	 * Return the bean names of the plug-ins implementing the service key, or the closest parent key.
 	 *
 	 * @param service the service name.
-	 * @return the plug-in from the service key.
+	 * @return the bean names of the plug-ins implementing the service key. May be empty.
 	 */
 	private List<String> getResources(final String service) {
 		return getResources(getPluginResources(), service);
@@ -159,8 +162,8 @@ public class ServicePluginLocator implements ApplicationContextAware {
 	/**
 	 * Return the parent service.
 	 *
-	 * @param service the service name. the parent service or <code>null</code>
-	 * @return the parent service key.
+	 * @param service the service name.
+	 * @return the parent service key or <code>null</code> when the given key has no parent.
 	 */
 	public String getParent(final String service) {
 		if (StringUtils.countMatches(service, ':') <= 1) {

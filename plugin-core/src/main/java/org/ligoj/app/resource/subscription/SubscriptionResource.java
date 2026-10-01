@@ -89,12 +89,12 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Return non secured parameters values related to the subscription.The attached project is validated against the
+	 * Return non secured parameters values related to the subscription. The attached project is validated against the
 	 * current user to check it is visible. Secured parameters (even the encrypted ones) are not returned. The
 	 * visibility of this subscription is checked.
 	 *
 	 * @param id The subscription identifier.
-	 * @return secured associated parameters values. Key of returned map is the identifier of
+	 * @return non secured associated parameters values. Key of returned map is the identifier of
 	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	@GET
@@ -165,7 +165,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Create subscription.
 	 *
 	 * @param vo the subscription.
-	 * @return the created {@link Subscription}.
+	 * @return the identifier of the created {@link Subscription}.
 	 * @throws Exception When the creation fails. Managed at JAX-RS level.
 	 */
 	@POST
@@ -272,7 +272,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Delete entity and cascaded associations : parameters, events then subscription. Note that remote data are not
+	 * Delete entity and cascaded associations : events, plug-in data and tasks, parameter values then subscription. Note that remote data are not
 	 * deleted. Links are just destroyed.
 	 *
 	 * @param id the entity identifier.
@@ -284,7 +284,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Delete entity and cascaded associations : parameters, events then subscription. The remote data created by
+	 * Delete entity and cascaded associations : events, plug-in data and tasks, parameter values then subscription. The remote data created by
 	 * the subscription are deleted too when the optional {@code deleteRemoteData} query parameter is {@code true}
 	 * (ignored for a 'LINK' subscription).
 	 *
@@ -301,7 +301,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Delete entity and cascaded associations : parameters, events then subscription.
+	 * Delete entity and cascaded associations : events, plug-in data and tasks, parameter values then subscription.
 	 *
 	 * @param id               the entity identifier.
 	 * @param deleteRemoteData When <code>true</code>, created remote data will be also destroyed. Ignored if the subscription mode is 'LINK'.
@@ -373,7 +373,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Return all subscriptions and related nodes. Very light data is returned there due the large number of  subscriptions.
 	 * Parameters values are not fetch.
 	 *
-	 * @return Status of each subscription of each project and each node.
+	 * @return The visible projects having at least one subscription, their subscriptions and the related nodes with
+	 *         their parents.
 	 */
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
@@ -487,8 +488,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Get fresh status of given subscription. This fresh status is also stored in the database. The project must be
 	 * visible to current user.
 	 *
-	 * @param id Node identifier
-	 * @return Status of each subscription of given project.
+	 * @param id Subscription identifier
+	 * @return Fresh status of the given subscription.
 	 */
 	@Path("status/{id:\\d+}/refresh")
 	@GET
@@ -499,8 +500,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	/**
 	 * Get fresh status of a set of subscriptions. This a loop shortcut of the per-subscription call.
 	 *
-	 * @param ids Node identifiers
-	 * @return Status of each subscription of given project. Order is not guaranteed.
+	 * @param ids Subscription identifiers
+	 * @return Fresh status of each given subscription. Key is the subscription identifier. Order is not guaranteed.
 	 * @see #refreshStatus(int)
 	 */
 	@Path("status/refresh")

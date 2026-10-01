@@ -102,7 +102,8 @@ public class DelegateNodeResource {
 	 * </ul>
 	 * Target user is not checked.
 	 *
-	 * @return Created delegate.
+	 * @param entity The delegate to create or update.
+	 * @return The saved delegate.
 	 */
 	private DelegateNode validateSaveOrUpdate(final DelegateNode entity) {
 		// Get all delegates of current user

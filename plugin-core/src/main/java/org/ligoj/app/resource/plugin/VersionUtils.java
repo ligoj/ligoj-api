@@ -54,11 +54,14 @@ public class VersionUtils {
 	}
 
 	/**
-	 * Check the given version is valid and greater/newer than the last one.
+	 * Check the given version is valid and greater/newer than the last one. Beware, "newer" relies on a plain
+	 * lexicographic comparison of the version names, not a semantic version comparison: for sample, "10.0" is
+	 * considered older than "9.0".
 	 *
 	 * @param lastVersion The last validated version.
 	 * @param jiraVersion The version to validate.
-	 * @return <code>true</code> when the version is newer then the previous one.
+	 * @return <code>true</code> when the version is released, not archived, has a release date, matches the version
+	 *         pattern and its name is lexicographically greater than the previous one.
 	 */
 	protected boolean isValidVersion(final AtlassianVersion lastVersion, final AtlassianVersion jiraVersion) {
 		return jiraVersion.isReleased() && jiraVersion.getReleaseDate() != null && !jiraVersion.isArchived()

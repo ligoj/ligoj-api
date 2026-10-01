@@ -76,8 +76,9 @@ public class NodeHelper {
 	/**
 	 * Return a list of {@link Integer} from a raw JSON string.
 	 *
-	 * @param json The raw JSON string.
-	 * @return The not <code>null</code> list.
+	 * @param json The raw JSON array string. When <code>null</code>, it is read as an empty JSON object, so fails.
+	 * @return The list read from the JSON array.
+	 * @throws TechnicalException When the JSON string is <code>null</code> or is not a valid array of integers.
 	 */
 	public static List<Integer> toListInteger(final String json) {
 		return toConfiguration(json, LIST_INTEGER_TYPE);
@@ -206,8 +207,9 @@ public class NodeHelper {
 	/**
 	 * Return a list of {@link String} from a raw JSON string.
 	 *
-	 * @param json The raw JSON string.
-	 * @return The not <code>null</code> list.
+	 * @param json The raw JSON array string. When <code>null</code>, it is read as an empty JSON object, so fails.
+	 * @return The list read from the JSON array.
+	 * @throws TechnicalException When the JSON string is <code>null</code> or is not a valid array of strings.
 	 */
 	public static List<String> toListString(final String json) {
 		return toConfiguration(json, LIST_STRING_TYPE);

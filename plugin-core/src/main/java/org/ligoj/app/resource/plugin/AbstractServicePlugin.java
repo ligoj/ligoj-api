@@ -21,6 +21,9 @@ public abstract class AbstractServicePlugin implements ServicePlugin {
 	 */
 	public static final String BASE_URL = "/service";
 
+	/**
+	 * Subscription repository.
+	 */
 	@Autowired
 	protected SubscriptionRepository subscriptionRepository;
 

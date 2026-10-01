@@ -38,7 +38,8 @@ public class XmlUtils {
 	public final XPathFactory xpathFactory = XPathFactory.newInstance();
 
 	/**
-	 * Build and return a secured document builder.
+	 * Parse the given input with a secured document builder: DTD declarations are rejected and entity references are
+	 * not expanded.
 	 *
 	 * @param input Input to parse.
 	 * @return The parsed document.
@@ -92,11 +93,11 @@ public class XmlUtils {
 	/**
 	 * Return list of tags inside the root element from XPATH.
 	 *
-	 * @param input      Input to parse. May be <code>null</code>.
+	 * @param input      Input to parse. When <code>null</code>, it is read as an empty document, so fails.
 	 * @param expression The XPATH expression.
 	 * @return Not <code>null</code> tag list.
 	 * @throws IOException                  If any IO errors occur.
-	 * @throws SAXException                 If any parse errors occur.
+	 * @throws SAXException                 If any parse errors occur, including a <code>null</code> input.
 	 * @throws ParserConfigurationException if this {@code DocumentBuilderFactory} or the {@code DocumentBuilder}s it
 	 *                                      creates cannot support this feature.
 	 * @throws XPathExpressionException     If {@code expression} cannot be compiled.

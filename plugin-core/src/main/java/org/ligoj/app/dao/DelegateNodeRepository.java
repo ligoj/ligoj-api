@@ -60,11 +60,12 @@ public interface DelegateNodeRepository extends RestRepository<DelegateNode, Int
 	int manageNode(String user, String node, boolean write);
 
 	/**
-	 * Return a visible DelegateNode, if it exists at least one delegation with administration right for this node or one its parent.
+	 * Return a visible {@link DelegateNode}: there is at least one delegate directly received by the given user on its
+	 * node or one of its parents.
 	 *
-	 * @param id   The identifier of object to delete.
-	 * @param user The user name requesting to manage a node.
-	 * @return A positive number if the given delegate has been deleted.
+	 * @param id   The delegate identifier.
+	 * @param user The user requesting the delegate.
+	 * @return The visible delegate or <code>null</code>.
 	 */
 	@Query("SELECT d FROM DelegateNode d WHERE d.id = :id AND EXISTS (" + VISIBLE_DELEGATE_PART + " AND dz.receiver=:user)")
 	DelegateNode findById(int id, String user);

@@ -113,7 +113,7 @@ public class ParameterValueResource {
 		typeToChecker.put(ParameterType.BOOL, (b, p) -> assertNotnull(b.getBool(), p.getId()));
 		typeToChecker.put(ParameterType.DATE, (b, p) -> {
 			assertNotnull(b.getDate(), p.getId());
-			assertTrue(b.getDate().getTime() > 0, p.getId(), "Min", 0);
+			assertTrue(b.getDate().getTime() > 0, "Min", p.getId(), 0);
 		});
 		typeToChecker.put(ParameterType.INTEGER, this::checkInteger);
 		typeToChecker.put(ParameterType.SELECT, this::checkSelect);
@@ -378,7 +378,7 @@ public class ParameterValueResource {
 	 * Return non secured parameters values related to the subscription. Secured parameters are not returned.
 	 *
 	 * @param subscription The subscription identifier.
-	 * @return secured associated parameters values. Key of returned map is the identifier of
+	 * @return non secured associated parameters values. Key of returned map is the identifier of
 	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	public Map<String, String> getNonSecuredSubscriptionParameters(final int subscription) {
@@ -398,7 +398,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Transform {@link List} to {@link Map} where key is the parameter name. Secured parameters are decrypted.
+	 * Transform {@link List} to {@link Map} where key is the parameter identifier. Secured parameters are decrypted.
 	 *
 	 * @param values The parameters list.
 	 * @return the corresponding key/values. Never <code>null</code>.
@@ -555,14 +555,14 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Returns the list of {@link ParameterValue} with given node and project.
+	 * Returns the non secured values of the given parameter used by the subscriptions of the given project to the given
+	 * node or one of its children.
 	 *
-	 * @param node      The node identifier subscribed.
+	 * @param node      The node identifier subscribed, or one of its parents.
 	 * @param project   Project identifier
 	 * @param parameter The id of the parameter.
-	 * @param criteria  the optional criteria used to check name (CN).
-	 * @return The list of object containing for each entry the {@link Subscription} and its associated
-	 * {@link ParameterValue}
+	 * @param criteria  The criteria the value data must contain, case-insensitive.
+	 * @return The matching {@link ParameterValueVo}, ordered by data then identifier.
 	 */
 	@GET
 	@Path("{project:\\d+}/{parameter}/{node:service:.+}/{criteria}")
@@ -586,7 +586,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Check the data constraints and return the associated parameter definition.
+	 * Check the data constraints of the given value against the given parameter definition.
 	 */
 	void checkConstraints(final BasicParameterValueVo vo, final Parameter parameter) {
 		typeToChecker.get(parameter.getType()).accept(vo, parameter);
@@ -650,10 +650,10 @@ public class ParameterValueResource {
 	private void checkInteger(final BasicParameterValueVo vo, final Parameter parameter) {
 		assertNotnull(vo.getInteger(), parameter.getId());
 		final var minMax = NodeHelper.toMapInteger(parameter.getData());
-		// Check minimal value
+		// Check maximal value
 		Optional.ofNullable(minMax.get("max")).ifPresent(m -> checkMax(vo.getInteger(), m, parameter));
 
-		// Check maximal value
+		// Check minimal value
 		Optional.ofNullable(minMax.get("min")).ifPresent(m -> checkMin(vo.getInteger(), m, parameter));
 	}
 

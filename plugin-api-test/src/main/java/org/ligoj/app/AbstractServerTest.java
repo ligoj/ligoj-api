@@ -14,6 +14,10 @@ import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
  */
 public abstract class AbstractServerTest extends AbstractAppTest {
 
+	/**
+	 * The mocked HTTP server, created (not started) before each test on <code>MOCK_PORT</code> and stopped after each
+	 * test.
+	 */
 	protected WireMockServer httpServer;
 
 	/**

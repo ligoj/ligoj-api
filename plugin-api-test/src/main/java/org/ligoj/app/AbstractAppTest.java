@@ -17,11 +17,20 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTest {
 
+	/**
+	 * All available IAM providers.
+	 */
 	@Autowired
 	protected IamProvider[] iamProviders;
 
+	/**
+	 * The primary IAM provider: the first of {@link #iamProviders}. Set before each test.
+	 */
 	protected IamProvider iamProvider;
 
+	/**
+	 * Copy the first available IAM provider to {@link #iamProvider}, or <code>null</code> when there is none.
+	 */
 	@BeforeEach
 	protected void copyIamProvider() {
 		iamProvider = iamProviders == null ? null : iamProviders[0];
@@ -88,10 +97,10 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	}
 
 	/**
-	 * Return a new mocked {@link UriInfo} instance with descending order on given property.
+	 * Return a new mocked {@link UriInfo} instance with the given order on given property.
 	 *
 	 * @param orderedProperty The property to order.
-	 * @param order           The order string: <code>desc</code>, <code>asc</code>.
+	 * @param order          The order string: <code>desc</code>, <code>asc</code>.
 	 * @return a new mocked {@link UriInfo} instance.
 	 */
 	protected UriInfo newUriInfo(final String orderedProperty, final String order) {
@@ -104,7 +113,8 @@ public abstract class AbstractAppTest extends org.ligoj.bootstrap.AbstractAppTes
 	}
 
 	/**
-	 * Return the subscription identifier of MDA. Assumes there is only one subscription for a service.
+	 * Return the subscription identifier of the given project and service. Assumes there is only one subscription for
+	 * a service, otherwise the first one is returned.
 	 *
 	 * @param project The project name of the subscription to return.
 	 * @param service The subscribed service of the project. Can be a service or a tool or an instance.

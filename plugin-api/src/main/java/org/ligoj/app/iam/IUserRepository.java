@@ -92,19 +92,21 @@ public interface IUserRepository {
 
 	/**
 	 * Return the {@link UserOrg} corresponding to the given identifier using the user cache and the relevant security
-	 * to check the current user has the rights to perform this request.
+	 * to check the current user has the rights to perform this request. The default implementation requires a non
+	 * <code>null</code> {@link #getCompanyRepository()}, while the default {@link #getCompanyRepository()} returns
+	 * <code>null</code>.
 	 *
 	 * @param principal The user requesting this data.
 	 * @param id        the user to find.
 	 * @return the {@link UserOrg} corresponding to the given identifier. Never <code>null</code>.
-	 * @throws ValidationJsonException If no user is found.
+	 * @throws ValidationJsonException If no user is found, or when the principal cannot see the company of this user.
 	 */
 	default UserOrg findByIdExpected(final String principal, final String id) {
 		// Check the user exists
 		final var rawUser = findByIdExpected(id);
 		if (getCompanyRepository().findById(principal, rawUser.getCompany()) == null) {
 			// No available delegation -> no result
-			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOWN_ID, "0", "user", "1", principal);
+			throw new ValidationJsonException("id", BusinessException.KEY_UNKNOWN_ID, "0", "user", "1", id);
 		}
 		return rawUser;
 	}
@@ -124,7 +126,8 @@ public interface IUserRepository {
 	/**
 	 * Return the {@link ICompanyRepository} to use to resolve the company of the managed users.
 	 *
-	 * @return the {@link ICompanyRepository} to use to resolve the company of the managed users.
+	 * @return the {@link ICompanyRepository} to use to resolve the company of the managed users. <code>null</code> by
+	 *         default, and must be overridden when {@link #findByIdExpected(String, String)} is used.
 	 */
 	default ICompanyRepository getCompanyRepository() {
 		return null;
@@ -133,7 +136,10 @@ public interface IUserRepository {
 	/**
 	 * Return the {@link IGroupRepository} to use to resolve the group of the managed users.
 	 *
-	 * @return the {@link IGroupRepository} to use to resolve the group of the managed users.
+	 * @return the {@link IGroupRepository} to use to resolve the group of the managed users. <code>null</code> by
+	 *         default, and must be overridden when the default {@link #addUserToGroups(UserOrg, Collection)},
+	 *         {@link #removeUserFromGroups(UserOrg, Collection)} or {@link #updateMembership(Collection, UserOrg)} are
+	 *         used.
 	 */
 	default IGroupRepository getGroupRepository() {
 		return null;
@@ -181,8 +187,9 @@ public interface IUserRepository {
 	 * Return a safe {@link UserOrg} instance from one of the user's primary attributes, even if the user is not in LDAP directory.
 	 * This method is similar to {@link #findById(String)}, but proceed to a lookup of a matching user from its identifier and other login attributes such as mail or any plugin level configuration.
 	 *
-	 * @param login The user identifier. Must not be <code>null</code>.
-	 * @return a not <code>null</code> {@link UserOrg} instance with at least identifier attribute.
+	 * @param login The user identifier. May be <code>null</code>.
+	 * @return a {@link UserOrg} instance with at least identifier attribute. <code>null</code> only when the given
+	 *         login is <code>null</code>.
 	 */
 	default UserOrg toUser(final String login) {
 		if (login == null) {
@@ -217,7 +224,7 @@ public interface IUserRepository {
 	 * Move a user from his/her location to the target company. Cache is also updated, and the company of given user is
 	 * replaced by the given company.
 	 *
-	 * @param user    The LDAP user to disable.
+	 * @param user    The user to move.
 	 * @param company The target company.
 	 */
 	void move(UserOrg user, CompanyOrg company);
@@ -225,7 +232,7 @@ public interface IUserRepository {
 	/**
 	 * Restore a user from the isolated to the previous company of this user and unlock this user.
 	 *
-	 * @param user The LDAP user to disable.
+	 * @param user The user to restore.
 	 */
 	void restore(UserOrg user);
 
@@ -240,7 +247,7 @@ public interface IUserRepository {
 	 * Depending on the final implementation, other attributes or changes may be added. Such as PPolicy for LDAP when
 	 * supported.
 	 *
-	 * @param user The LDAP user to disable.
+	 * @param user The user to unlock.
 	 * @see #lock(String, UserOrg)
 	 */
 	void unlock(UserOrg user);
@@ -282,11 +289,15 @@ public interface IUserRepository {
 	void delete(UserOrg user);
 
 	/**
-	 * Update membership of given user.
+	 * Update membership of given user. The default implementation requires a non <code>null</code>
+	 * {@link #getGroupRepository()}.
 	 *
-	 * @param groups the target groups CN, not normalized.
+	 * @param groups the target groups identifiers, normalized. They are compared as is to the current groups of the
+	 *               user and passed as is to {@link #addUserToGroups(UserOrg, Collection)} and
+	 *               {@link #removeUserFromGroups(UserOrg, Collection)}.
 	 * @param user   the target user.
-	 * @return the updated attributes and related changes. Currently only `groups` attributes is supported and contains only the
+	 * @return the updated attributes and related changes. Currently only the groups are supported and contain only the
+	 *         added and removed groups.
 	 */
 	default UserUpdateResult updateMembership(Collection<String> groups, UserOrg user) {
 		final var result = new UserUpdateResult();
@@ -303,7 +314,8 @@ public interface IUserRepository {
 	}
 
 	/**
-	 * Add the user from the given groups. Cache is also updated.
+	 * Add the user to the given groups. Cache is also updated. The default implementation requires a non
+	 * <code>null</code> {@link #getGroupRepository()}.
 	 *
 	 * @param user   The user to add to the given groups.
 	 * @param groups the groups to add, normalized.
@@ -314,7 +326,8 @@ public interface IUserRepository {
 	}
 
 	/**
-	 * Remove the user from the given groups.Cache is also updated.
+	 * Remove the user from the given groups. Cache is also updated. The default implementation requires a non
+	 * <code>null</code> {@link #getGroupRepository()}.
 	 *
 	 * @param user   The user to remove from the given groups.
 	 * @param groups the groups to remove, normalized.

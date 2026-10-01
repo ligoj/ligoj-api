@@ -15,7 +15,7 @@ public interface IGroupRepository extends IContainerRepository<GroupOrg> {
 	/**
 	 * Return the first group having a matching department.
 	 *
-	 * @param department The {@link GroupOrg} linked to the given department.
+	 * @param department The department to match.
 	 * @return The {@link GroupOrg} linked to the given department or <code>null</code>.
 	 */
 	GroupOrg findByDepartment(String department);

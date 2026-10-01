@@ -12,8 +12,8 @@
 	<artifactId>plugin-parent</artifactId>
 	<packaging>pom</packaging>
 	<name>Ligoj - Plugin Parent</name>
-	<description>Plugin parent pom the plugins should have.</description>
-	<url>https://github.com/ligoj/ligoj-api/plugin-parent</url>
+	<description>Parent POM of every Ligoj plugin</description>
+	<url>https://github.com/ligoj/ligoj-api/tree/master/plugin-parent</url>
 	
 	<properties>
 		<sonar.sources>src/main/java,src/main/resources/META-INF/resources/webjars</sonar.sources>

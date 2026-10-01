@@ -21,7 +21,7 @@ import org.springframework.data.domain.Pageable;
 @SuppressWarnings("unused")
 public interface IContainerRepository<T extends ContainerOrg> {
 	/**
-	 * Return the container corresponding to the given identifier using the user cache.
+	 * Return the container corresponding to the given identifier using the container cache.
 	 *
 	 * @param id The container's identifier. Case is sensitive. Corresponds to the normalized container's name.
 	 * @return The container corresponding to the given identifier. May be <code>null</code>
@@ -34,9 +34,11 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * Find a container from its identifier. Security is applied regarding the given user.
 	 *
 	 * @param principal The user requesting this container.
-	 * @param id        The container's identifier. Will be normalized.
+	 * @param id        The container's identifier. Case is sensitive and is not normalized by the default
+	 *                  implementation: corresponds to the normalized container's name.
 	 * @return The container from its identifier. <code>null</code> if the container is not found or cannot be seen by
-	 *         the given principal user.
+	 *         the given principal user. The default implementation applies no security and delegates to
+	 *         {@link #findById(String)}.
 	 */
 	default T findById(String principal, String id) {
 		return findById(id);
@@ -46,7 +48,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * Find a container from its identifier. Security is applied regarding the given user.
 	 *
 	 * @param principal The user requesting this container.
-	 * @param id        The container's identifier. Will be normalized.
+	 * @param id        The container's identifier, as expected by {@link #findById(String, String)}.
 	 * @return The container from its identifier. Never <code>null</code>.
 	 * @throws ValidationJsonException If the container is not found or cannot be seen by the given user.
 	 */
@@ -73,7 +75,7 @@ public interface IContainerRepository<T extends ContainerOrg> {
 	 * @param pageable          the ordering and page data.
 	 * @param customComparators The custom comparators used to order the result. The key is the ordered property name.
 	 *                          When no comparator is found within this map, natural order is used.
-	 * @return the UID of users matching all above criteria.
+	 * @return the page of containers matching all above criteria.
 	 */
 	Page<T> findAll(Set<T> containers, String criteria, Pageable pageable,
 			Map<String, Comparator<T>> customComparators);

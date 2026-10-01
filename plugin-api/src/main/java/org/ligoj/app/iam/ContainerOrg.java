@@ -16,7 +16,7 @@ import lombok.Setter;
  * A basic organizational container.<br>
  * "id" corresponds to the normalized name.<br>
  * "name" corresponds to the real name, not normalized.<br>
- * "description" corresponds to the normalized "Distinguished Name".
+ * "description" corresponds to the "Distinguished Name", as provided, not normalized.
  */
 @Getter
 @Setter

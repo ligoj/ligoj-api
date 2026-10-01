@@ -12,8 +12,9 @@ import java.util.Set;
 
 /**
  * Organizational Group.<br>
- * "id" corresponds to the normalized "Distinguished Name".<br>
- * "name" corresponds to the real "Common Name", not normalized.
+ * "id" corresponds to the normalized "Common Name".<br>
+ * "name" corresponds to the real "Common Name", not normalized.<br>
+ * "description" corresponds to the "Distinguished Name".
  */
 @Getter
 @Setter
@@ -39,7 +40,7 @@ public class GroupOrg extends ContainerOrg {
 	/**
 	 * All arguments constructor.
 	 *
-	 * @param dn      "id" corresponds to the "Distinguished Name".
+	 * @param dn      The "Distinguished Name". Will be saved in "description".
 	 * @param name    "name" corresponds to the "Common Name". Will be saved in "name", and in "id" in is normalized
 	 *                form.
 	 * @param members unique members. UID is used.

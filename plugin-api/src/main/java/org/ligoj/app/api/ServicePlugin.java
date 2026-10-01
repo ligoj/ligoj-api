@@ -9,9 +9,11 @@ package org.ligoj.app.api;
  * the namespace for web assets. For sample the key <code>service:s:t</code> means :
  * <ul>
  * <li>"service" is a constant part, and required. And will be published inside the "/service" REST namespace.</li>
- * <li>"s" is the first level of service. Lower case part, following the pattern [a-z\\d]+</li>
- * <li>"t" is the first level of service. Lower case part, following the pattern [a-z\\d]+</li>
+ * <li>"s" is the service, the first level. Lower case part, following the pattern [a-z\\d]+</li>
+ * <li>"t" is the tool implementing this service, the second level. Lower case part, following the pattern
+ * [a-z\\d]+</li>
  * </ul>
+ * The node instances of a tool are attached below this second level.
  */
 public interface ServicePlugin extends org.ligoj.bootstrap.core.plugin.FeaturePlugin {
 

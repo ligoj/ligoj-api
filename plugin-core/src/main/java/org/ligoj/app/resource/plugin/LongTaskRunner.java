@@ -23,11 +23,11 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * A resource running some long task. Implementing this interface causes the subscription management checks there is no
- * running task when a deletion is requested. The contract :
+ * A resource running some long task. Implementing this interface causes the locked entity management checks there is
+ * no running task when a deletion is requested. The contract :
  * <ul>
- * <li>At most one task can run per node</li>
- * <li>A subscription cannot be deleted while there is a running attached task</li>
+ * <li>At most one task can run per locked entity, such as a node or a subscription</li>
+ * <li>A locked entity cannot be deleted while there is a running attached task</li>
  * <li>A running task is task without "end" date.
  * <li>When a task is started, it will always end.
  * <li>When a task ends, the status (boolean) is always updated.
@@ -64,9 +64,10 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	A getLockedRepository();
 
 	/**
-	 * Check there is no running task for a given subscription before the deletion.
+	 * Check there is no running task for a given locked entity, then delete its tasks.
 	 *
 	 * @param lockedId The locked entity's identifier.
+	 * @throws BusinessException When there is a running task for this locked entity.
 	 */
 	default void deleteTask(final I lockedId) {
 		// Check there is no running import
@@ -123,6 +124,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @param failed    The task status as resolution of this task.
 	 * @param finalizer The function to call while finalizing the task.
 	 * @return The ended task if present.
+	 * @throws BusinessException When the task is already finished.
 	 */
 	default T endTaskInternal(final I lockedId, final boolean failed, final Consumer<T> finalizer) {
 		return Optional.ofNullable(getTaskInternal(lockedId)).map(task -> {
@@ -135,10 +137,10 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Return status of import.
+	 * Return the last task of the given locked entity.
 	 *
 	 * @param lockedId The locked entity's identifier.
-	 * @return status of import. May <code>null</code> when there is no previous task.
+	 * @return the last task. May be <code>null</code> when there is no previous task.
 	 */
 	default T getTaskInternal(final I lockedId) {
 		return getTaskRepository().findBy("locked.id", lockedId);
@@ -166,11 +168,12 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @param lockedId    The locked entity's identifier.
 	 * @param initializer The function to call while initializing the task.
 	 * @return the locked task with status.
+	 * @throws BusinessException When there is already a running task for this locked entity.
 	 */
 	default T startTaskInternal(final I lockedId, final Consumer<T> initializer) {
 		synchronized (getLockedRepository()) {
 
-			// Check there is no running task on the same node
+			// Check there is no running task on the same locked entity
 			Optional.ofNullable(getTaskRepository().findNotFinishedByLocked(lockedId)).ifPresent(t -> {
 				throw new BusinessException("concurrent-task", t.getAuthor(), t.getStart(), lockedId);
 			});
@@ -198,10 +201,11 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Get or create a new task associated with given subscription.
+	 * Get or create a new task associated with given locked entity.
 	 *
 	 * @param lockedId The locked entity's identifier. The related entity will be locked.
 	 * @return The task, never <code>null</code>.
+	 * @throws BusinessException When the previous task is not finished.
 	 */
 	default T createAsNeeded(final I lockedId) {
 		final var task = Optional.ofNullable(getTaskInternal(lockedId)).map(t -> {
@@ -260,6 +264,7 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * Check the given task is not finished.
 	 *
 	 * @param task The task to check.
+	 * @throws BusinessException When the task is already finished.
 	 */
 	default void checkNotFinished(final T task) {
 		if (isFinished(task)) {

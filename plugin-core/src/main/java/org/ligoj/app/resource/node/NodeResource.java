@@ -87,7 +87,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Daily, Check status of each node instance.
+	 * Periodically, according to the <code>health.node</code> cron, check status of each node instance.
 	 */
 	@Scheduled(cron = "${health.node}")
 	public void checkNodesStatusScheduler() {
@@ -304,7 +304,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Daily, check status of each subscription.
+	 * Periodically, according to the <code>health.subscription</code> cron, check status of each subscription.
 	 */
 	@Scheduled(cron = "${health.subscription}")
 	public void checkSubscriptionsStatusScheduler() {
@@ -468,7 +468,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Retrieve node statistics.
 	 *
-	 * @return Last known status of all nodes.
+	 * @return For each visible node, the total amount of subscriptions and the amount of subscriptions per last known
+	 *         status.
 	 */
 	@GET
 	@Path("status/subscription")
@@ -524,13 +525,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 *
 	 * @param uriInfo  Pagination data.
 	 * @param criteria The optional criteria to match.
-	 * @param refined  The optional parent identifier to be like. Special attention for 'service' value corresponding to
-	 *                 the root.
+	 * @param refined  The optional exact parent identifier. Special attention for 'service' value corresponding to the
+	 *                 root, so matching the nodes without parent.
 	 * @param mode     Expected subscription mode. When <code>null</code>, the node's mode is not checked.
-	 * @param depth    The maximal depth. When <code>0</code> means no refined, so basically services only.
-	 *                 <code>1</code> means refined is a service, so nodes are basically tool only. <code>2</code> means
-	 *                 refined is a tool, so nodes are basically instances only. For the other cases, there is no limit,
-	 *                 and corresponds to the default behavior.
+	 * @param depth    The maximal depth. <code>0</code> means no refined, so services only. <code>1</code> means at
+	 *                 most one refined level, so services and tools. For the other cases, there is no limit, and
+	 *                 corresponds to the default behavior.
 	 * @param status   When true, the node status are retrieved too.
 	 * @return All visible nodes with the hierarchy but without UI data.
 	 */
@@ -611,10 +611,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Check the parameters that are being attached to this node : overrides, mandatory and ownerships.
+	 * Check the parameters that are being attached to this node do not override a parameter already valued by the
+	 * parent nodes. Mandatory parameters and ownerships are not checked there.
 	 *
-	 * @param vo The parameterized object.
-	 * @return The corresponding and also validated {@link Parameter} entities.
+	 * @param vo The parameterized object. A <code>null</code> parameter list is replaced by an empty one.
+	 * @return The accepted {@link Parameter} entities: the ones of the node's hierarchy not yet valued, for the given
+	 *         mode.
 	 */
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public List<Parameter> checkInputParameters(final AbstractParameterizedVo vo) {

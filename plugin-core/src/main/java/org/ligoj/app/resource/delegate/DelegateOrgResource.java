@@ -121,7 +121,11 @@ public class DelegateOrgResource {
 
 	/**
 	 * Indicate this delegate is managed : so can be updated by the current user. <br>
-	 * Is managed when 'canAdmin' flag is set, or this delegate is directly involving the principal user.
+	 * Is managed when 'canAdmin' flag is set, or when this delegate is not directly targeting the principal user: its
+	 * receiver is not a user, or is another user.
+	 *
+	 * @param entity The delegate to check.
+	 * @return <code>true</code> when this delegate is managed.
 	 */
 	private boolean isManagedDelegate(final DelegateOrg entity) {
 		return entity.isCanAdmin() || entity.getReceiverType() != ReceiverType.USER
@@ -167,8 +171,10 @@ public class DelegateOrgResource {
 	 * <ul>
 	 * <li>Related company, group or tree must be managed by the current user, directly or via another parent
 	 * delegate.</li>
-	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
+	 * <li>Whatever the requested flags, including 'admin', the current user must own an applicable delegate with the
+	 * 'admin' flag on the related DN, or be a system administrator.</li>
+	 * <li>'write' flag cannot be <code>true</code> without also owning an applicable delegate with the 'write' flag on
+	 * the related DN, or being a system administrator.</li>
 	 * </ul>
 	 *
 	 * @param vo the object to create.
@@ -189,11 +195,15 @@ public class DelegateOrgResource {
 	 * <li>Related group must be managed by the current user, directly or via another parent delegate group/tree, or
 	 * act as if the group does not exist.</li>
 	 * <li>Related tree must be managed by the current user, directly or via another parent delegate tree.</li>
-	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
+	 * <li>Whatever the requested flags, including 'admin', the current user must own an applicable delegate with the
+	 * 'admin' flag on the related DN, or be a system administrator.</li>
+	 * <li>'write' flag cannot be <code>true</code> without also owning an applicable delegate with the 'write' flag on
+	 * the related DN, or being a system administrator.</li>
 	 * </ul>
+	 * When the delegate is updated, the replaced delegate must also be administrable by the current user.<br>
 	 * Attention, DN is case-sensitive.
 	 *
+	 * @param importEntry The delegate to create or update.
 	 * @return the created/update {@link DelegateOrg}
 	 */
 	private DelegateOrg validateSaveOrUpdate(final DelegateOrgEditionVo importEntry) {

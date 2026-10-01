@@ -26,9 +26,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 public abstract class AbstractConfiguredServicePlugin<C extends PluginConfiguration> extends AbstractServicePlugin
 		implements ConfigurablePlugin {
 
+	/**
+	 * Project repository, used to check the visibility and the management of the related projects.
+	 */
 	@Autowired
 	protected ProjectRepository projectRepository;
 
+	/**
+	 * Security helper, used to resolve the current user.
+	 */
 	@Autowired
 	protected SecurityHelper securityHelper;
 
@@ -108,12 +114,12 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 
 	/**
 	 * Check the node scoped object is related to the given node. Will fail with a {@link EntityNotFoundException} if
-	 * the related node if not a sub node of the required node.
+	 * the related node is not a sub node of the required node.
 	 *
 	 * @param nodeScoped   The object related to a node.
 	 * @param requiredNode The widest accepted node relationship.
-	 * @param <T>          The {@link Configurable} type.
-	 * @return the formal node coped object when the visibility has been checked.
+	 * @param <T>          The {@link NodeScoped} type.
+	 * @return the formal node scoped object when the visibility has been checked.
 	 */
 	public <T extends NodeScoped<?>> T checkVisibility(final T nodeScoped, final String requiredNode) {
 		// Compare the node against the scoped entity

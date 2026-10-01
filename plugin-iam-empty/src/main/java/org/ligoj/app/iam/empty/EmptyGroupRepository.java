@@ -17,7 +17,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 /**
- * A mocked group repository. Details of a specific group always succeed but the search of groups return an empty list.
+ * A mocked group repository holding no group: the search of groups returns an empty list and a lookup by identifier
+ * returns <code>null</code>. Modifications are not supported.
  */
 public class EmptyGroupRepository implements IGroupRepository {
 

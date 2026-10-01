@@ -15,8 +15,8 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 
 /**
- * A mocked company repository. Details of a specific company always succeed but the search of companies return an empty
- * list.
+ * A mocked company repository holding no company: the search of companies returns an empty list and a lookup by
+ * identifier returns <code>null</code>. Modifications are not supported.
  */
 public class EmptyCompanyRepository implements ICompanyRepository {
 

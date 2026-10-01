@@ -124,12 +124,11 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *
 	 * @param user     The user requesting the nodes.
 	 * @param criteria The optional criteria to match in the name.
-	 * @param parent   The optional parent identifier to be like. Special attention for 'service' value corresponding to
-	 *                 the root.
+	 * @param parent   The optional exact parent identifier. Special attention for 'service' value corresponding to the
+	 *                 root, so matching the nodes without parent.
 	 * @param mode     Expected subscription mode. When <code>null</code>, the node's mode is not checked.
-	 * @param depth    The maximal depth. When <code>0</code> means no refined, so basically services only.
-	 *                 <code>1</code> means refined is a service, so nodes are basically tool only. <code>2</code> means
-	 *                 refined is a tool, so nodes are basically instances only. For the other cases, there is no limit.
+	 * @param depth    The maximal depth. <code>0</code> means no refined, so services only. <code>1</code> means at
+	 *                 most one refined level, so services and tools. For the other cases, there is no limit.
 	 * @param page     The pagination.
 	 * @return The visible nodes. Ordered by their identifier.
 	 */

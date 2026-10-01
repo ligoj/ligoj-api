@@ -23,10 +23,10 @@ public interface LongTaskRepository<T extends AbstractLongTask<L, I>, L extends 
 		extends RestRepository<T, Integer> {
 
 	/**
-	 * Return an active task status for the same service as the given one. .
+	 * Return the running task, not yet finished, locking the given entity.
 	 *
 	 * @param locked The locked entity's identifier.
-	 * @return the import status of a given subscription.
+	 * @return the running task locking the given entity, or <code>null</code> when there is none.
 	 */
 	@SuppressWarnings("unused")
 	T findNotFinishedByLocked(I locked);

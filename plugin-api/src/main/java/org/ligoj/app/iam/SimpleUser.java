@@ -17,7 +17,7 @@ import org.ligoj.bootstrap.core.validation.LowerCase;
 import java.util.Map;
 
 /**
- * Abstract LDAP entry
+ * Simple user entry, independent of the identity provider.
  */
 @Getter
 @Setter

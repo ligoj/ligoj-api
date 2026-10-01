@@ -29,15 +29,27 @@ import java.util.Objects;
  */
 public abstract class AbstractToolPluginResource implements ToolPlugin {
 
+	/**
+	 * Subscription resource, used to resolve the subscription parameters.
+	 */
 	@Autowired
 	protected SubscriptionResource subscriptionResource;
 
+	/**
+	 * Parameter value resource.
+	 */
 	@Autowired
 	protected ParameterValueResource pvResource;
 
+	/**
+	 * Subscription repository.
+	 */
 	@Autowired
 	protected SubscriptionRepository subscriptionRepository;
 
+	/**
+	 * Configuration resource, used to read the application configuration values.
+	 */
 	@Autowired
 	protected ConfigurationResource configuration;
 
@@ -55,6 +67,13 @@ public abstract class AbstractToolPluginResource implements ToolPlugin {
 		return getVersion(subscriptionResource.getParameters(subscription));
 	}
 
+	/**
+	 * Not supported by default: unlike the no-op default of {@link org.ligoj.app.api.ServicePlugin}, a tool must
+	 * override this method to support the 'CREATE' subscription mode.
+	 *
+	 * @param subscription the subscription identifier is being created.
+	 * @throws Exception Always a {@link NotImplementedException} when not overridden.
+	 */
 	@Override
 	public void create(final int subscription) throws Exception {
 		throw new NotImplementedException("");

@@ -12,8 +12,8 @@
 	<artifactId>plugin-api-test</artifactId>
 	<packaging>jar</packaging>
 	<name>Ligoj - API Test</name>
-	<description>API test configuration</description>
-	<url>https://github.com/ligoj/ligoj-api/plugin-api-test</url>
+	<description>Test support of the plugins: Spring test context, CSV fixtures and base test classes</description>
+	<url>https://github.com/ligoj/ligoj-api/tree/master/plugin-api-test</url>
 
 	<dependencyManagement>
 		<dependencies>

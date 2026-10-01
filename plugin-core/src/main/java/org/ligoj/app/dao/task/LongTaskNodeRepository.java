@@ -26,10 +26,10 @@ public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>
 	T findNotFinishedByLocked(String node);
 
 	/**
-	 * Return all visible catalogs.
+	 * Return all tasks whose locked node is visible by the given user.
 	 *
 	 * @param user The current principal user.
-	 * @return The visible catalogs for the current principal user.
+	 * @return The tasks of the nodes visible for the current principal user.
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT i FROM #{#entityName} i INNER JOIN i.locked AS n WHERE " + NodeRepository.VISIBLE_NODES)

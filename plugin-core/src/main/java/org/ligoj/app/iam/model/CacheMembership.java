@@ -24,12 +24,21 @@ import lombok.Setter;
 		"group" }))
 public class CacheMembership extends AbstractPersistable<Integer> {
 
+	/**
+	 * The member user. <code>null</code> when this membership is a group to subgroup link.
+	 */
 	@ManyToOne
 	private CacheUser user;
 
+	/**
+	 * The member subgroup. <code>null</code> when this membership is a user to group link.
+	 */
 	@ManyToOne
 	private CacheGroup subGroup;
 
+	/**
+	 * The parent group.
+	 */
 	@ManyToOne
 	@NotNull
 	private CacheGroup group;

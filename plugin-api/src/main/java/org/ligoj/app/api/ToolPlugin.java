@@ -61,7 +61,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 * Check the status of given subscription configuration. In these case, the subscription's node is anonymous.
 	 *
 	 * @param parameters The parameter values of the subscription.
-	 * @return <code>true</code> when the status is UP. By default, return <code>true</code> when not implemented.
+	 * @return The subscription status with optional data. By default, when not implemented, an {@link NodeStatus#UP}
+	 *         status without data.
 	 * @throws Exception Status cannot be retrieved. This error is caught at higher level.
 	 */
 	default SubscriptionStatusWithData checkSubscriptionStatus(final Map<String, String> parameters) throws Exception { // NOSONAR
@@ -74,7 +75,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 *
 	 * @param node       The related node identifier.
 	 * @param parameters The parameter values of the subscription.
-	 * @return <code>true</code> when the status is UP.
+	 * @return The subscription status with optional data. By default, delegates to
+	 *         {@link #checkSubscriptionStatus(Map)}.
 	 * @see #checkSubscriptionStatus(Map)
 	 * @throws Exception Status cannot be retrieved. This error is caught at higher level.
 	 */
@@ -90,7 +92,8 @@ public interface ToolPlugin extends ServicePlugin {
 	 * @param subscription Current subscription.
 	 * @param node         The related node identifier.
 	 * @param parameters   The parameter values of the subscription.
-	 * @return <code>true</code> when the status is UP.
+	 * @return The subscription status with optional data. By default, delegates to
+	 *         {@link #checkSubscriptionStatus(String, Map)}.
 	 * @see #checkSubscriptionStatus(String, Map)
 	 * @throws Exception Status cannot be retrieved. This error is caught at higher level.
 	 */
