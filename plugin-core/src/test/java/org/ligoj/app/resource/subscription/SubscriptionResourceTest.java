@@ -856,6 +856,30 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
+	void refreshStatusesPost() throws IOException {
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
+		final var statuses = resource.refreshStatusesPost(Collections.singleton(subscription));
+		Assertions.assertEquals(1, statuses.size());
+		Assertions.assertEquals(NodeStatus.UP, statuses.get(subscription).getStatus());
+		Assertions.assertEquals(NodeStatus.UP, resource.refreshStatusPost(subscription).getStatus());
+	}
+
+	@Test
+	void refreshStatusMappings() throws NoSuchMethodException {
+		// Same paths for the GET (deprecated) and POST methods
+		final var type = SubscriptionResource.class;
+		for (final var names : List.of(List.of("refreshStatus", "refreshStatusPost", int.class),
+				List.of("refreshStatuses", "refreshStatusesPost", Set.class))) {
+			final var get = type.getMethod((String) names.get(0), (Class<?>) names.get(2));
+			final var post = type.getMethod((String) names.get(1), (Class<?>) names.get(2));
+			Assertions.assertNotNull(get.getAnnotation(jakarta.ws.rs.GET.class));
+			Assertions.assertNotNull(post.getAnnotation(jakarta.ws.rs.POST.class));
+			Assertions.assertEquals(get.getAnnotation(jakarta.ws.rs.Path.class).value(),
+					post.getAnnotation(jakarta.ws.rs.Path.class).value());
+		}
+	}
+
+	@Test
 	void getStatusByProject() throws IOException {
 		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
 		final var projectId = projectRepository.findByName("Jupiter").getId();

@@ -492,7 +492,10 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 *
 	 * @param id Subscription identifier
 	 * @return Fresh status of the given subscription.
+	 * @deprecated This call stores an event and calls the tool: use {@link #refreshStatusPost(int)}, the same path with
+	 *             <code>POST</code>. Kept until the clients are migrated.
 	 */
+	@Deprecated
 	@Path("status/{id:\\d+}/refresh")
 	@GET
 	public SubscriptionStatusWithData refreshStatus(@PathParam("id") final int id) {
@@ -500,19 +503,51 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	}
 
 	/**
-	 * Get fresh status of a set of subscriptions. This a loop shortcut of the per-subscription call.
+	 * Get fresh status of given subscription. This fresh status is also stored in the database. The project must be
+	 * visible to current user.
 	 *
-	 * @param ids Subscription identifiers
-	 * @return Fresh status of each given subscription. Key is the subscription identifier. Order is not guaranteed.
-	 * @see #refreshStatus(int)
+	 * @param id Subscription identifier
+	 * @return Fresh status of the given subscription.
 	 */
+	@Path("status/{id:\\d+}/refresh")
+	@POST
+	public SubscriptionStatusWithData refreshStatusPost(@PathParam("id") final int id) {
+		return refreshSubscription(checkVisible(id));
+	}
+
+	/**
+	 * Get fresh status of a set of subscriptions. This is a loop shortcut of the per-subscription call.
+	 *
+	 * @param ids Subscription identifiers, at most {@value #MAX_REFRESH}.
+	 * @return Fresh status of each given subscription. Key is the subscription identifier. Order is not guaranteed.
+	 * @throws ValidationJsonException When there are more than {@value #MAX_REFRESH} identifiers.
+	 * @see #refreshStatus(int)
+	 * @deprecated This call stores events and calls the tools: use {@link #refreshStatusesPost(Set)}, the same path
+	 *             and query parameters with <code>POST</code>. Kept until the clients are migrated.
+	 */
+	@Deprecated
 	@Path("status/refresh")
 	@GET
 	public Map<Integer, SubscriptionStatusWithData> refreshStatuses(@QueryParam("id") final Set<Integer> ids) {
+		return refreshStatusesPost(ids);
+	}
+
+	/**
+	 * Get fresh status of a set of subscriptions. This is a loop shortcut of the per-subscription call.
+	 *
+	 * @param ids Subscription identifiers, at most {@value #MAX_REFRESH}.
+	 * @return Fresh status of each given subscription. Key is the subscription identifier. Order is not guaranteed.
+	 * @throws ValidationJsonException When there are more than {@value #MAX_REFRESH} identifiers.
+	 * @see #refreshStatusPost(int)
+	 */
+	@Path("status/refresh")
+	@POST
+	public Map<Integer, SubscriptionStatusWithData> refreshStatusesPost(@QueryParam("id") final Set<Integer> ids) {
 		if (ids.size() > MAX_REFRESH) {
 			throw new ValidationJsonException("id", "Size", "max", MAX_REFRESH);
 		}
-		return ids.stream().map(this::refreshStatus).collect(Collectors.toMap(SubscriptionStatusWithData::getId, Function.identity()));
+		return ids.stream().map(this::refreshStatusPost)
+				.collect(Collectors.toMap(SubscriptionStatusWithData::getId, Function.identity()));
 	}
 
 	/**
