@@ -20,6 +20,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 /**
  * {@link UserLogResource} test cases.
@@ -121,6 +122,20 @@ class UserLogResourceTest extends AbstractAppTest {
 
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals("old", result.getData().getFirst().getMessage());
+	}
+
+	@Test
+	void purge() {
+		final var now = Instant.now();
+		newLog("user1", now.minus(31, ChronoUnit.DAYS), "expired");
+		newLog("user1", now.minus(29, ChronoUnit.DAYS), "kept");
+		newLog("user1", now, "recent");
+
+		// Default retention: 30 days
+		Assertions.assertEquals(1, resource.purge());
+		em.clear();
+		Assertions.assertEquals(List.of("kept", "recent"),
+				repository.findAll().stream().map(UserLog::getMessage).sorted().toList());
 	}
 
 	private void newLog(final String user, final Instant date, final String message) {

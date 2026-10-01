@@ -8,6 +8,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.ligoj.app.dao.UserLogRepository;
 import org.ligoj.app.model.UserLog;
@@ -15,11 +16,14 @@ import org.ligoj.bootstrap.core.json.PaginationJson;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +33,7 @@ import java.util.Set;
  */
 @Path("/user-log")
 @Service
+@Slf4j
 @Produces(MediaType.APPLICATION_JSON)
 @Transactional
 public class UserLogResource {
@@ -41,6 +46,12 @@ public class UserLogResource {
 
 	@Autowired
 	private PaginationJson paginationJson;
+
+	/**
+	 * Retention of the user logs, in days. Older logs are deleted by {@link #purge()}.
+	 */
+	@Value("${user-log.retention:30}")
+	private int retention = 30;
 
 	/**
 	 * Ordered columns.
@@ -78,6 +89,20 @@ public class UserLogResource {
 		entity.setMessage(StringUtils.truncate(vo.getMessage(), 2000));
 		entity.setUrl(vo.getUrl());
 		repository.saveAndFlush(entity);
+	}
+
+	/**
+	 * Delete the user logs older than the retention period (<code>user-log.retention</code> days, 30 by default).
+	 * Scheduled daily (<code>user-log.purge</code> cron, 3 AM by default): the logs are posted by any authenticated user
+	 * and would otherwise grow without limit.
+	 *
+	 * @return The amount of deleted logs.
+	 */
+	@Scheduled(cron = "${user-log.purge:0 0 3 * * ?}")
+	public int purge() {
+		final var count = repository.deleteAllBefore(Instant.now().minus(retention, ChronoUnit.DAYS));
+		log.info("Purged {} user logs older than {} days", count, retention);
+		return count;
 	}
 
 	/**

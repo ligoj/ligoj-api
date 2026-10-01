@@ -7,6 +7,7 @@ import org.ligoj.app.model.UserLog;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -30,4 +31,14 @@ public interface UserLogRepository extends RestRepository<UserLog, Integer> {
 	 */
 	@Query("FROM UserLog u WHERE u.date >= :from AND u.date <= :to")
 	Page<UserLog> findAllByDate(@Param("from") Instant from, @Param("to") Instant to, Pageable page);
+
+	/**
+	 * Delete the user logs older than the given date.
+	 *
+	 * @param before Exclusive upper bound of the deleted logs.
+	 * @return The amount of deleted logs.
+	 */
+	@Modifying
+	@Query("DELETE FROM UserLog u WHERE u.date < :before")
+	int deleteAllBefore(@Param("before") Instant before);
 }
