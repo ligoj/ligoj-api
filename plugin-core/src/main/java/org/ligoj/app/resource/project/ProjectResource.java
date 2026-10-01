@@ -118,14 +118,17 @@ public class ProjectResource {
 	}
 
 	/**
-	 * Create a project. Should be protected with RBAC.
+	 * Create a project. Should be protected with RBAC. The identifier of the given object is ignored.
 	 *
 	 * @param vo the object to create.
 	 * @return the entity's identifier.
 	 */
 	@POST
 	public int create(final ProjectEditionVo vo) {
-		return repository.saveAndFlush(ProjectHelper.toEntity(vo)).getId();
+		final var entity = ProjectHelper.toEntity(vo);
+		// Never overwrite an existing project
+		entity.setId(null);
+		return repository.saveAndFlush(entity).getId();
 	}
 
 	/**

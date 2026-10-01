@@ -397,6 +397,25 @@ class ProjectResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
+	void createIgnoresIdentifier() {
+		// A creation never overwrites an existing project
+		final var existing = repository.findByName("MDA");
+		final var vo = new ProjectEditionVo();
+		vo.setId(existing.getId());
+		vo.setName("Name");
+		vo.setPkey("artifact-id");
+		vo.setTeamLeader("user1");
+		final var id = resource.create(vo);
+		Assertions.assertNotEquals(existing.getId(), id);
+		em.flush();
+		em.clear();
+		final var unchanged = repository.findOneExpected(existing.getId());
+		Assertions.assertEquals("MDA", unchanged.getName());
+		Assertions.assertEquals(existing.getPkey(), unchanged.getPkey());
+		Assertions.assertEquals(existing.getTeamLeader(), unchanged.getTeamLeader());
+	}
+
+	@Test
 	void updateNotVisible() {
 		// An invisible project cannot be updated, whatever the RBAC rules
 		initSpringSecurityContext("any");
