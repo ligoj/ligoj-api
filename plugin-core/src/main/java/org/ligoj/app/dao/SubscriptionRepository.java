@@ -21,7 +21,10 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * Return all subscriptions with only little information.
 	 *
 	 * @return the subscription's data :project identifier and node identifier.
+	 * @deprecated All subscriptions are returned, whatever their visibility: use
+	 *             {@link #findAllVisibleLight(String)}.
 	 */
+	@Deprecated
 	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p")
 	List<Object[]> findAllLight();
 

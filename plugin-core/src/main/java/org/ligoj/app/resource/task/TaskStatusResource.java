@@ -181,6 +181,11 @@ public class TaskStatusResource {
 
 	/**
 	 * Build the runner descriptor and compute its statistics over the visible tasks.
+	 *
+	 * @param key    The runner bean name.
+	 * @param runner The task runner.
+	 * @param user   The current principal user.
+	 * @return The runner descriptor with its statistics.
 	 */
 	@SuppressWarnings("rawtypes")
 	protected LongTaskRunnerVo toRunnerVo(final String key, final LongTaskRunner runner, final String user) {
@@ -195,6 +200,9 @@ public class TaskStatusResource {
 
 	/**
 	 * Map a task entity to its VO, without the locked entity reference: only the task's own attributes are read.
+	 *
+	 * @param task The task entity.
+	 * @return The task VO, without locked entity reference.
 	 */
 	protected TaskVo toTaskVoLight(final AbstractLongTask<?, ?> task) {
 		final var vo = new TaskVo();
@@ -208,6 +216,9 @@ public class TaskStatusResource {
 
 	/**
 	 * Build the locked entity reference for a task.
+	 *
+	 * @param task The task entity.
+	 * @return The reference of the node or the subscription locked by this task.
 	 */
 	protected LockedRefVo lockedRef(final AbstractLongTask<?, ?> task) {
 		if (task instanceof AbstractLongTaskNode node) {
@@ -223,6 +234,9 @@ public class TaskStatusResource {
 
 	/**
 	 * Derive the status of a task: running ({@code end} null), failed (ended with the failed flag) or succeeded.
+	 *
+	 * @param task The task entity.
+	 * @return The task status.
 	 */
 	protected TaskStatus status(final AbstractLongTask<?, ?> task) {
 		if (task.getEnd() == null) {
@@ -233,6 +247,9 @@ public class TaskStatusResource {
 
 	/**
 	 * Classify a runner by {@code instanceof}.
+	 *
+	 * @param runner The task runner.
+	 * @return The runner type: node, subscription or other.
 	 */
 	@SuppressWarnings("rawtypes")
 	protected TaskStatusType type(final LongTaskRunner runner) {

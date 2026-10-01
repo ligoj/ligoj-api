@@ -102,7 +102,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Periodically, according to the <code>health.node</code> cron, check status of each node instance.
+	 * Periodically, according to the <code>health.node</code> cron, check status of each node instance. In a cluster, only one
+	 * member runs it: the run is skipped while another member holds the lock, see {@link #HEALTH_LOCK_CACHE}.
 	 */
 	@Scheduled(cron = "${health.node}")
 	public void checkNodesStatusScheduler() {
@@ -110,8 +111,10 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Run the given scheduled task when no other cluster member is running it. The lock expires after one hour,
-	 * should the member holding it stop during the task.
+	 * Run the given scheduled task when no other cluster member is running it. The lock is an entry of the
+	 * {@link #HEALTH_LOCK_CACHE} cache, released at the end of the task. It also expires with the cache entry, after one
+	 * hour by default (<code>cache.node-health-lock.ttl</code>): should the member holding it stop during the task, but
+	 * also when the task runs longer, and then another member may start the same task while the first one still runs.
 	 *
 	 * @param name The task name, the lock key.
 	 * @param task The task to run.
@@ -353,7 +356,8 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Periodically, according to the <code>health.subscription</code> cron, check status of each subscription.
+	 * Periodically, according to the <code>health.subscription</code> cron, check status of each subscription. In a cluster, only one
+	 * member runs it: the run is skipped while another member holds the lock, see {@link #HEALTH_LOCK_CACHE}.
 	 */
 	@Scheduled(cron = "${health.subscription}")
 	public void checkSubscriptionsStatusScheduler() {

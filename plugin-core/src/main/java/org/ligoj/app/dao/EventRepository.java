@@ -94,7 +94,10 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 *
 	 * @param user The user requesting the nodes.
 	 * @return subscriptions events count
+	 * @deprecated Visibility checked per subscription row: use {@link #countSubscriptionsEvents()} filtered with
+	 *             {@link NodeRepository#findAllVisibleIds(String)}, as {@code NodeResource#getNodeStatistics()} does.
 	 */
+	@Deprecated
 	@SuppressWarnings("unused")
 	@Query("SELECT n.id, event.value, count(event) FROM Event event INNER JOIN event.subscription sub LEFT JOIN sub.node n"
 			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub) AND "
@@ -107,7 +110,6 @@ public interface EventRepository extends RestRepository<Event, String> {
 	 *
 	 * @return subscriptions events count: node identifier, event value, count.
 	 */
-	@SuppressWarnings("unused")
 	@Query("SELECT sub.node.id, event.value, count(event) FROM Subscription sub, Event event"
 			+ " WHERE event.id = (SELECT MAX(lastEvent.id) FROM Event lastEvent WHERE lastEvent.subscription = sub)"
 			+ " GROUP BY event.value, sub.node.id")

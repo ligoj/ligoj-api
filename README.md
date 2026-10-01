@@ -46,6 +46,23 @@ The base classes plugins usually extend, in plugin-core:
 - [org.ligoj.app.iam.IUserRepository](plugin-api/src/main/java/org/ligoj/app/iam/IUserRepository.java)
 - [org.ligoj.app.iam.IPasswordGenerator](plugin-api/src/main/java/org/ligoj/app/iam/IPasswordGenerator.java)
 
+# Configuration
+
+The keys read by plugin-core, as `${...}` placeholders of the application properties (see the configuration reference of the Ligoj application for the other keys):
+
+| Key                   | Default        | Description                                                                                                                     |
+| --------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `health.node`         | *none*         | Mandatory. CRON expression of the health check of the nodes. Without it, the application does not start.                        |
+| `health.subscription` | *none*         | Mandatory. CRON expression of the health check of the subscriptions. Without it, the application does not start.                |
+| `event.retention`     | `365`          | Retention in days of the status events. The last event of each node and subscription, holding its current status, is kept.     |
+| `event.purge`         | `0 0 4 * * ?`  | CRON expression of the purge of the expired events.                                                                             |
+| `user-log.retention`  | `30`           | Retention in days of the user logs (browser side errors posted to `/user-log`).                                                 |
+| `user-log.purge`      | `0 0 3 * * ?`  | CRON expression of the purge of the expired user logs.                                                                          |
+
+Caches declared by plugin-core with a lifetime, adjustable with the bootstrap `cache.<name>.ttl` key:
+- `node-parameters` and `subscription-parameters`: 1 hour. The parameter values of the nodes and the subscriptions, cleared on any node parameter change.
+- `node-health-lock`: 1 hour. The cluster-wide lock of the scheduled health checks: a member skips its run while another member holds it. A run longer than this lifetime loses the lock, and may then overlap with the run of another member.
+
 # Maven structure
 
 Minimal Maven structure for a plugin:
@@ -97,7 +114,7 @@ mvn verify -Pjavadoc,jacoco,sources,it
 ```
 
 `plugin-parent` also provides these auto-activated profiles:
-- `code-sign`: signs the plugin jar with `jarsigner`, when `~/.ligoj/code-signing.p12` exists. The keystore password comes from the `LIGOJ_SIGN_STOREPASS` environment variable or the `ligoj.sign.storepass` property; `-Djarsigner.skip=true` skips the signature. The signature is verified at startup by the application against the `ligoj.plugin.signature.truststore` truststore, see the comments of [plugin-parent/pom.xml](plugin-parent/pom.xml) to create the keystore and the truststore.
+- `code-sign`: signs the plugin jar with `jarsigner`, when `~/.ligoj/code-signing.p12` exists. The keystore password comes from the `LIGOJ_SIGN_STOREPASS` environment variable or the `ligoj.sign.storepass` property; `-Djarsigner.skip=true` skips the signature. The signature is verified at startup by the application against the truststore set by the `ligoj.plugin.signature.truststore` system property, by default `plugin-vendors.p12` in the Ligoj home directory, opened with the `ligoj.plugin.signature.truststore.password` system property (default `changeit`). A truststore created with another password is not loaded. See the comments of [plugin-parent/pom.xml](plugin-parent/pom.xml) to create the keystore and the truststore.
 - `ui-build`: builds the Vue.js front-end of the plugin when `ui/package.json` exists, with a Node version downloaded under `target/` (`ui.node.version`); `-Dskip.ui.build=true` skips it.
 
 # Build this repository

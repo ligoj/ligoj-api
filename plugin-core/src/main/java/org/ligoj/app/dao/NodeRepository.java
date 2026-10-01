@@ -84,7 +84,10 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *
 	 * @param user The user requesting the nodes.
 	 * @return node subscriptions count
+	 * @deprecated Visibility checked per subscription row: use {@link #countNodeSubscriptions()} filtered with
+	 *             {@link #findAllVisibleIds(String)}.
 	 */
+	@Deprecated
 	@Query("SELECT n.id, count(sub) FROM Subscription sub INNER JOIN sub.node n WHERE " + VISIBLE_NODES
 			+ " GROUP BY n.id")
 	List<Object[]> countNodeSubscriptions(String user);

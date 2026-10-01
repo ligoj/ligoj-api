@@ -91,9 +91,11 @@
 			    -keyalg RSA -keysize 3072 -validity 3650 -dname "CN=Ligoj, O=Ligoj"
 			Truststore for the runtime verification (certificates only, never the signing key), read from
 			the 'ligoj.plugin.signature.truststore' system property, defaulting to the 'plugin-vendors.p12'
-			file inside the LIGOJ_HOME directory of the installation:
+			file inside the LIGOJ_HOME directory of the installation. It is opened with the
+			'ligoj.plugin.signature.truststore.password' system property, defaulting to 'changeit': a
+			truststore created with another password is not loaded unless this property is set.
 			  keytool -exportcert -keystore ~/.ligoj/code-signing.p12 -alias ligoj -file ligoj-vendor.cer
-			  keytool -importcert -keystore plugin-vendors.p12 -storetype PKCS12 -alias ligoj -file ligoj-vendor.cer -noprompt
+			  keytool -importcert -keystore plugin-vendors.p12 -storetype PKCS12 -storepass changeit -alias ligoj -file ligoj-vendor.cer -noprompt
 
 			The keystore password comes from the LIGOJ_SIGN_STOREPASS environment variable or the
 			'ligoj.sign.storepass' property.

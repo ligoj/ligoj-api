@@ -166,6 +166,9 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * Check there no running task within the same scope of the locked object's identifier and starts a new task. The
 	 * check is protected by a database lock on the locked entity's row ({@link LongTaskRepository#lockLocked}) held
 	 * until the commit, or by a JVM lock when the task repository does not support it.
+	 * <p>
+	 * Must run inside a transaction, as {@link #startTask(Serializable, Consumer)} does: without one, the database lock
+	 * is released as soon as it is acquired and concurrent starts are no longer prevented.
 	 *
 	 * @param lockedId    The locked entity's identifier.
 	 * @param initializer The function to call while initializing the task.

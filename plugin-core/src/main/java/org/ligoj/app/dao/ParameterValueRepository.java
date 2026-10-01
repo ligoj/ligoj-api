@@ -78,11 +78,13 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	String findNodeBySubscription(int subscription);
 
 	/**
-	 * Return a parameter raw value (secured or not) related to the subscription to the given service for a project.
+	 * Return a parameter raw value (secured or not) of a subscription: the value of the subscription itself, or the
+	 * value inherited from the subscribed node or one of its parents.
 	 *
 	 * @param subscription the subscription identifier.
 	 * @param parameter    The parameter identifier.
-	 * @return the associated parameter raw value as {@link String}
+	 * @return the associated parameter raw value as {@link String}, <code>null</code> when the subscription does not
+	 *         exist or when there is no value.
 	 */
 	default String getSubscriptionParameterValue(final int subscription, final String parameter) {
 		final var node = findNodeBySubscription(subscription);
@@ -102,10 +104,11 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	String getSubscriptionParameterValue(int subscription, String parameter, Collection<String> nodes);
 
 	/**
-	 * Return all parameters (name and raw value) associated to a subscription. Sensitive parameters are returned.
+	 * Return all parameters (name and raw value) associated to a subscription, including the values inherited from the
+	 * subscribed node and its parents. Sensitive parameters are returned.
 	 *
 	 * @param subscription the subscription identifier.
-	 * @return all parameters associated to a subscription.
+	 * @return all parameters associated to a subscription. Empty when the subscription does not exist.
 	 */
 	default List<ParameterValue> findAllBySubscription(final int subscription) {
 		final var node = findNodeBySubscription(subscription);
@@ -125,11 +128,11 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	List<ParameterValue> findAllBySubscription(int subscription, Collection<String> nodes);
 
 	/**
-	 * Return all unsecured parameters (name and raw value) associated to a subscription. Sensitive parameters are not
-	 * returned.
+	 * Return all unsecured parameters (name and raw value) associated to a subscription, including the values
+	 * inherited from the subscribed node and its parents. Sensitive parameters are not returned.
 	 *
 	 * @param subscription the subscription identifier.
-	 * @return all parameters associated to a subscription.
+	 * @return all parameters associated to a subscription. Empty when the subscription does not exist.
 	 */
 	default List<ParameterValue> findAllSecureBySubscription(final int subscription) {
 		final var node = findNodeBySubscription(subscription);
@@ -182,13 +185,15 @@ public interface ParameterValueRepository extends RestRepository<ParameterValue,
 	ParameterValue findOneVisible(int id, String user);
 
 	/**
-	 * Return the {@link ParameterValue} related to given parameter name and associated ot given project and given node.
+	 * Return the non-secured values of a parameter, used by the subscriptions of a project to a node or one of its
+	 * sub-nodes: the values of the subscriptions themselves, and the values inherited from a parent node of the
+	 * subscribed node.
 	 *
 	 * @param node      The subscribed node. Directly or not.
 	 * @param parameter The id of the parameter.
 	 * @param project   project's identifier.
 	 * @param criteria  the optional criteria used to check name (CN).
-	 * @return A list of table of [Subscription, ParameterValue]
+	 * @return The matching parameter values, ordered by data then identifier.
 	 */
 	@SuppressWarnings("unused")
 	@Query("""

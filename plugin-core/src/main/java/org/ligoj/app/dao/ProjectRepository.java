@@ -26,7 +26,15 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	String MY_PROJECTS = "inproject(:user,p.teamLeader)=true";
 
 	/**
-	 * Visible projects condition, using ID subscription and team leader attribute.
+	 * Visible projects condition, for the project aliased <code>p</code> joined to its groups aliased
+	 * <code>cg</code>. A project is visible when the user:
+	 * <ul>
+	 * <li>is a system administrator,</li>
+	 * <li>or is the team leader,</li>
+	 * <li>or is member of one of the groups of the project, or of one of their parent groups,</li>
+	 * <li>or receives a delegate (as user, or through a group or company) on one of these groups or one of their
+	 * parents.</li>
+	 * </ul>
 	 */
 	String VISIBLE_PROJECTS = "(" + SystemUser.IS_ADMIN
 			+ " OR visibleProject(p.teamLeader, cg.description, :user) = true)";
@@ -47,18 +55,20 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 			+ " OR UPPER(p.pkey) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))";
 
 	/**
-	 * Return all {@link Project} objects with visible by <code>user</code> and also filtered by a criteria. The
+	 * Return all {@link Project} objects visible by <code>user</code> and also filtered by a criteria. The
 	 * constraints are:
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> is the team leader</li>
-	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
+	 * <li>Either <code>user</code> is member of a group of this project or of a parent group, or receives a delegate on
+	 * such group: see {@link #VISIBLE_PROJECTS}</li>
 	 * </ul>
 	 *
 	 * @param user     The principal username
 	 * @param criteria the optional criteria to match: name, description or pkey. Case is insensitive.
 	 * @param page     the pagination.
-	 * @return all {@link Project} objects with the given name. Insensitive case search is used.
+	 * @return The page of rows <code>[Project, Long]</code>: the visible project matching the criteria and its
+	 *         subscription count.
 	 */
 	@Query(value = "SELECT p, COUNT(s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s"
 			+ " WHERE " + VISIBLE_PROJECTS_EXISTS + " AND " + MATCH_CRITERIA + " GROUP BY p",
@@ -71,12 +81,16 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> is the team leader</li>
-	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
+	 * <li>Either <code>user</code> is member of a group of this project or of a parent group, or receives a delegate on
+	 * such group: see {@link #VISIBLE_PROJECTS}</li>
 	 * </ul>
 	 *
 	 * @param user The principal username
-	 * @return all visible {@link Project} objects for <code>user</code>.
+	 * @return The rows <code>[id, name, pkey]</code> of the visible projects having at least one subscription.
+	 * @deprecated No longer used: {@link SubscriptionRepository#findAllVisibleLight(String)} returns the visible
+	 *             subscriptions with their project.
 	 */
+	@Deprecated
 	@Query("SELECT p.id, p.name, p.pkey FROM Project AS p WHERE " + VISIBLE_PROJECTS_EXISTS
 			+ " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project.id=p.id)")
 	List<Object[]> findAllHavingSubscription(String user);
@@ -86,7 +100,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> is the team leader</li>
-	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
+	 * <li>Either <code>user</code> is member of a group of this project or of a parent group, or receives a delegate on
+	 * such group: see {@link #VISIBLE_PROJECTS}</li>
 	 * </ul>
 	 *
 	 * @param id   The project's identifier to match.
@@ -114,7 +129,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> is the team leader</li>
-	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
+	 * <li>Either <code>user</code> is member of a group of this project or of a parent group, or receives a delegate on
+	 * such group: see {@link #VISIBLE_PROJECTS}</li>
 	 * </ul>
 	 *
 	 * @param pkey The project primary key to match.
@@ -130,7 +146,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * <ul>
 	 * <li>Either <code>user</code> is a system administrator</li>
 	 * <li>Either <code>user</code> is the team leader</li>
-	 * <li>Either <code>user</code> is member of the group associated to this project via the CacheGroup</li>
+	 * <li>Either <code>user</code> is member of a group of this project or of a parent group, or receives a delegate on
+	 * such group: see {@link #VISIBLE_PROJECTS}</li>
 	 * </ul>
 	 *
 	 * @param pkey The primary key to match.
