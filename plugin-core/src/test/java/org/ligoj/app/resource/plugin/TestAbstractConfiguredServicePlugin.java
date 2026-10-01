@@ -71,7 +71,7 @@ class TestAbstractConfiguredServicePlugin {
 		when(configurable.getName()).thenReturn("my-name");
 		when(configuration.getSubscription()).thenReturn(subscription);
 		when(resource.subscriptionRepository.findOneExpected(33)).thenReturn(subscription);
-		when(resource.projectRepository.findOneVisible(44, "junit")).thenReturn(project);
+		when(resource.projectRepository.isVisible(44, "junit")).thenReturn(true);
 		when(resource.projectRepository.isManageSubscription(44, "junit")).thenReturn(true);
 		when(repository.findOneExpected(1)).thenReturn(configurable);
 		when(repository.findAllBy("configuration.subscription.id", subscription.getId(),

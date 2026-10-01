@@ -10,6 +10,8 @@
 			<property name="hibernate.validator.autoregister_listeners" value="true" />
 			<property name="hibernate.check_nullability" value="true" />
 			<property name="hibernate.format_sql" value="false" />
+			<!-- Eager associations of result lists are loaded by batches: no N+1 queries -->
+			<property name="hibernate.default_batch_fetch_size" value="50" />
 			<property name="hibernate.cache.use_second_level_cache" value="false" />
 			<property name="hibernate.cache.use_structured_cache" value="false" />
 			<property name="hibernate.cache.use_structured_entries" value="false" />

@@ -32,6 +32,21 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 			+ " OR visibleProject(p.teamLeader, cg.description, :user) = true)";
 
 	/**
+	 * Same as {@link #VISIBLE_PROJECTS}, without joining the groups of the project: the visibility is evaluated once
+	 * per project instead of once per joined group row. A project without group is visible by its team leader.
+	 */
+	String VISIBLE_PROJECTS_EXISTS = "(" + SystemUser.IS_ADMIN + " OR p.teamLeader = :user"
+			+ " OR EXISTS(SELECT 1 FROM CacheProjectGroup AS cpg INNER JOIN cpg.group AS cg WHERE cpg.project = p"
+			+ "   AND visibleProject(p.teamLeader, cg.description, :user) = true))";
+
+	/**
+	 * Criteria matching the project name, description or key. Case is insensitive.
+	 */
+	String MATCH_CRITERIA = "(UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ " OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ " OR UPPER(p.pkey) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%')))";
+
+	/**
 	 * Return all {@link Project} objects with visible by <code>user</code> and also filtered by a criteria. The
 	 * constraints are:
 	 * <ul>
@@ -45,14 +60,9 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @param page     the pagination.
 	 * @return all {@link Project} objects with the given name. Insensitive case search is used.
 	 */
-	@Query(value = "SELECT p, COUNT(DISTINCT s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
-			+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p                ",
-			countQuery = "SELECT COUNT(DISTINCT p) FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg"
-					+ " WHERE " + VISIBLE_PROJECTS + " AND (UPPER(p.name) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-					+ "       OR UPPER(p.description) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-					+ "       OR UPPER(p.pkey)        LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))) GROUP BY p")
+	@Query(value = "SELECT p, COUNT(s.id) FROM Project AS p LEFT JOIN p.subscriptions AS s"
+			+ " WHERE " + VISIBLE_PROJECTS_EXISTS + " AND " + MATCH_CRITERIA + " GROUP BY p",
+			countQuery = "SELECT COUNT(p) FROM Project AS p WHERE " + VISIBLE_PROJECTS_EXISTS + " AND " + MATCH_CRITERIA)
 	Page<Object[]> findAllLight(String user, String criteria, Pageable page);
 
 	/**
@@ -86,6 +96,18 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	@Query("SELECT DISTINCT p FROM Project AS p LEFT JOIN FETCH p.subscriptions AS s LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :id AND "
 			+ VISIBLE_PROJECTS)
 	Project findOneVisible(int id, String user);
+
+	/**
+	 * Indicate the given project is visible by the given user, without loading it: to use when only the visibility
+	 * is needed.
+	 *
+	 * @param id   The project's identifier to match.
+	 * @param user The current username.
+	 * @return <code>true</code> when the project exists and is visible.
+	 */
+	@Query("SELECT COUNT(p.id) > 0 FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE p.id = :id AND "
+			+ VISIBLE_PROJECTS)
+	boolean isVisible(int id, String user);
 
 	/**
 	 * Return a project by its primary key. The constraints are:

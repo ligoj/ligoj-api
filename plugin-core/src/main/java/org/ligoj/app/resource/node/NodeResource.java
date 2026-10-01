@@ -4,6 +4,8 @@
 package org.ligoj.app.resource.node;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -32,11 +34,13 @@ import org.ligoj.bootstrap.core.resource.OnNullReturn404;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
+import java.time.Instant;
 import java.util.*;
 import java.util.function.BiFunction;
 
@@ -78,6 +82,17 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	protected NodeResource self;
 
 	/**
+	 * Cache of the locks of the scheduled health checks, shared by the cluster.
+	 */
+	public static final String HEALTH_LOCK_CACHE = "node-health-lock";
+
+	@Autowired
+	private CacheManager cacheManager;
+
+	@PersistenceContext
+	private EntityManager em;
+
+	/**
 	 * Mapped columns.
 	 */
 	private static final Map<String, String> ORM_MAPPING = new HashMap<>();
@@ -91,7 +106,38 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	@Scheduled(cron = "${health.node}")
 	public void checkNodesStatusScheduler() {
-		checkNodesStatus(repository.findAllInstance());
+		runLocked("health.node", () -> checkNodesStatus(repository.findAllInstance()));
+	}
+
+	/**
+	 * Run the given scheduled task when no other cluster member is running it. The lock expires after one hour,
+	 * should the member holding it stop during the task.
+	 *
+	 * @param name The task name, the lock key.
+	 * @param task The task to run.
+	 */
+	@SuppressWarnings("unchecked")
+	private void runLocked(final String name, final Runnable task) {
+		final var lock = (javax.cache.Cache<Object, Object>) Objects.requireNonNull(cacheManager.getCache(HEALTH_LOCK_CACHE))
+				.getNativeCache();
+		if (!lock.putIfAbsent(name, Instant.now().toString())) {
+			log.info("Scheduled task {} is already running on another cluster member, skipped", name);
+			return;
+		}
+		try {
+			task.run();
+		} finally {
+			lock.remove(name);
+		}
+	}
+
+	/**
+	 * Release the managed entities after the check of a node: the persistence context does not grow with the number
+	 * of nodes, so the dirty checking of each flush stays bounded.
+	 */
+	private void releaseEntities() {
+		em.flush();
+		em.clear();
 	}
 
 	/**
@@ -250,7 +296,10 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * @param nodes The nodes to check.
 	 */
 	private void checkNodesStatus(final List<Node> nodes) {
-		nodes.forEach(this::checkNodeStatus);
+		nodes.forEach(node -> {
+			checkNodeStatus(node);
+			releaseEntities();
+		});
 	}
 
 	/**
@@ -308,7 +357,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 */
 	@Scheduled(cron = "${health.subscription}")
 	public void checkSubscriptionsStatusScheduler() {
-		checkSubscriptionsStatus(repository.findAllInstance());
+		runLocked("health.subscription", () -> checkSubscriptionsStatus(repository.findAllInstance()));
 	}
 
 	/**
@@ -330,6 +379,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		log.info("Check all subscriptions of {} nodes : Started", instances.size());
 		for (final var node : instances) {
 			checkSubscriptionStatus(node, null);
+			releaseEntities();
 			counter++;
 			log.info("Check all subscriptions {}/{} processed nodes", counter, instances.size());
 		}
@@ -475,20 +525,25 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@Path("status/subscription")
 	public List<NodeStatisticsVo> getNodeStatistics() {
 		final var results = new HashMap<String, NodeStatisticsVo>();
-		final var subscriptionsSpecificEvents = eventRepository.countSubscriptionsEvents(securityHelper.getLogin());
-		final var totalSubscriptions = repository.countNodeSubscriptions(securityHelper.getLogin());
+
+		// Aggregate first, then keep the visible nodes: the visibility is checked once per node, not per subscription
+		final var visible = new HashSet<>(repository.findAllVisibleIds(securityHelper.getLogin()));
 
 		// Map node and amount of subscriptions
-		for (final var totalSubscription : totalSubscriptions) {
-			final var result = new NodeStatisticsVo((String) totalSubscription[0]);
-			result.getValues().put("total", (Long) totalSubscription[1]);
-			results.put(result.getNode(), result);
+		for (final var totalSubscription : repository.countNodeSubscriptions()) {
+			if (visible.contains(totalSubscription[0])) {
+				final var result = new NodeStatisticsVo((String) totalSubscription[0]);
+				result.getValues().put("total", (Long) totalSubscription[1]);
+				results.put(result.getNode(), result);
+			}
 		}
 
 		// Map status of each subscription
-		for (final var subscriptionsSpecificEvent : subscriptionsSpecificEvents) {
-			final var result = results.computeIfAbsent((String) subscriptionsSpecificEvent[0], NodeStatisticsVo::new);
-			result.getValues().put((String) subscriptionsSpecificEvent[1], (Long) subscriptionsSpecificEvent[2]);
+		for (final var subscriptionsSpecificEvent : eventRepository.countSubscriptionsEvents()) {
+			if (visible.contains(subscriptionsSpecificEvent[0])) {
+				final var result = results.computeIfAbsent((String) subscriptionsSpecificEvent[0], NodeStatisticsVo::new);
+				result.getValues().put((String) subscriptionsSpecificEvent[1], (Long) subscriptionsSpecificEvent[2]);
+			}
 		}
 
 		return new ArrayList<>(results.values());

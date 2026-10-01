@@ -101,6 +101,18 @@ public interface EventRepository extends RestRepository<Event, String> {
 	List<Object[]> countSubscriptionsEvents(String user);
 
 	/**
+	 * Count subscriptions events grouped by node and value, without visibility check: to be filtered with
+	 * {@link NodeRepository#findAllVisibleIds(String)}.
+	 *
+	 * @return subscriptions events count: node identifier, event value, count.
+	 */
+	@SuppressWarnings("unused")
+	@Query("SELECT sub.node.id, event.value, count(event) FROM Event event INNER JOIN event.subscription sub"
+			+ " WHERE event.id = (SELECT MAX(cast(lastEvent.id as Integer)) FROM Event lastEvent WHERE lastEvent.subscription = sub)"
+			+ " GROUP BY event.value, sub.node.id")
+	List<Object[]> countSubscriptionsEvents();
+
+	/**
 	 * Delete all events related to the given node.
 	 *
 	 * @param node The node identifier.

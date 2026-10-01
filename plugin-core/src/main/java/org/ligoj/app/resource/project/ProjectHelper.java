@@ -137,10 +137,24 @@ public class ProjectHelper {
 	}
 
 	/**
-	 * Check the associated project is visible for current user.
+	 * Check the project is visible, without loading it.
 	 *
-	 * @param id Project's identifier.
-	 * @return the loaded project.
+	 * @param id The project identifier.
+	 * @throws EntityNotFoundException When the project is not visible.
+	 */
+	public void checkVisible(final int id) {
+		if (!repository.isVisible(id, securityHelper.getLogin())) {
+			// Associated project is not visible
+			throw new EntityNotFoundException(String.valueOf(id));
+		}
+	}
+
+	/**
+	 * Return the visible project, loaded with its subscriptions.
+	 *
+	 * @param id The project identifier.
+	 * @return The visible project.
+	 * @throws EntityNotFoundException When the project is not visible.
 	 */
 	public Project checkVisibleProject(final int id) {
 		final var project = repository.findOneVisible(id, securityHelper.getLogin());

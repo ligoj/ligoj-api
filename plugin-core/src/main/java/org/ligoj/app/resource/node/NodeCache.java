@@ -25,13 +25,17 @@ public class NodeCache implements CacheManagerAware {
 	@Override
 	public void onCreate(final HazelcastCacheManager cacheManager, final CacheConfigurer configurer) {
 		cacheManager.createCache("nodes", configurer.newCacheConfig("nodes"));
-		cacheManager.createCache("node-parameters", configurer.newCacheConfig("node-parameters"));
+		// Parameters, including decrypted values for the subscriptions: bounded staleness
+		cacheManager.createCache("node-parameters", configurer.newCacheConfig("node-parameters", new Duration(HOURS, 1)));
 		cacheManager.createCache("services", configurer.newCacheConfig("services"));
 		cacheManager.createCache("node-enablement", configurer.newCacheConfig("node-enablement"));
 		final var tokens = configurer.newCacheConfig("curl-tokens",new Duration(HOURS, 10));
 		tokens.setEvictionConfig(new EvictionConfig());
 		cacheManager.createCache("curl-tokens", tokens);
-		cacheManager.createCache("subscription-parameters", configurer.newCacheConfig("subscription-parameters"));
+		cacheManager.createCache("subscription-parameters", configurer.newCacheConfig("subscription-parameters", new Duration(HOURS, 1)));
+
+		// Lock of the scheduled health checks: a single cluster member runs each of them
+		cacheManager.createCache(NodeResource.HEALTH_LOCK_CACHE, configurer.newCacheConfig(NodeResource.HEALTH_LOCK_CACHE, new Duration(HOURS, 1)));
 		cacheManager.createCache("plugin-data", configurer.newCacheConfig("plugin-data"));
 	}
 

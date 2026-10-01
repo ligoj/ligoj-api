@@ -28,6 +28,7 @@ import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.data.domain.Persistable;
 import org.springframework.security.access.AccessDeniedException;
@@ -215,7 +216,10 @@ public class ParameterValueResource {
 
 		// Delete the existing but not provided values
 		CollectionUtils.removeAll(oldMap.keySet(), newParam).stream().map(oldMap::get).forEach(repository::delete);
-		evict("node-parameters", node);
+
+		// The values of this node are inherited by the child nodes and their subscriptions: rare change, full eviction
+		Optional.ofNullable(cacheManager.getCache("node-parameters")).ifPresent(Cache::clear);
+		Optional.ofNullable(cacheManager.getCache("subscription-parameters")).ifPresent(Cache::clear);
 	}
 
 	/**
@@ -569,7 +573,7 @@ public class ParameterValueResource {
 	public Collection<ParameterValueVo> findAll(@PathParam("project") final int project,
 			@PathParam("parameter") final String parameter, @PathParam("node") final String node,
 			@PathParam("criteria") final String criteria) {
-		projectHelper.checkVisibleProject(project);
+		projectHelper.checkVisible(project);
 		return repository.findAll(node, parameter, project, criteria).stream().map(this::toVo).toList();
 	}
 

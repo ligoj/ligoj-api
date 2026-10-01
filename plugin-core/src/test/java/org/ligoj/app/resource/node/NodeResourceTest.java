@@ -31,7 +31,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import static org.mockito.Mockito.*;
 
@@ -278,10 +281,44 @@ class NodeResourceTest extends AbstractAppTest {
 		 */
 		Assertions.assertEquals(eventsCount + nbNodes * 2 - 1, eventRepository.count());
 		final var jiraEvent = eventRepository.findFirstByNodeAndTypeOrderByIdDesc(jiraNode, EventType.STATUS);
-		Assertions.assertEquals(jiraNode, jiraEvent.getNode());
+		// The managed entities are released after each node: compare the identifiers
+		Assertions.assertEquals(jiraNode.getId(), jiraEvent.getNode().getId());
 		Assertions.assertEquals(EventType.STATUS, jiraEvent.getType());
 		Assertions.assertEquals(NodeStatus.DOWN.name(), jiraEvent.getValue());
 		Assertions.assertNull(jiraEvent.getSubscription());
+	}
+
+	@Test
+	void checkSubscriptionsStatusSchedulerLocked() throws Exception {
+		// Another cluster member is running the same scheduled check: this member skips it
+		mockApplicationContext();
+		final var eventsCount = prepareSubscriptionsEvent();
+		final var lock = cacheManager.getCache(NodeResource.HEALTH_LOCK_CACHE);
+		lock.put("health.subscription", "other-member");
+		resource.checkSubscriptionsStatusScheduler();
+		Assertions.assertEquals(eventsCount, eventRepository.count());
+		Assertions.assertEquals("other-member", lock.get("health.subscription").get());
+	}
+
+	@Test
+	void checkNodesStatusSchedulerReleasesLock() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		resourceMock.checkNodesStatusScheduler();
+		Assertions.assertNull(cacheManager.getCache(NodeResource.HEALTH_LOCK_CACHE).get("health.node"));
+	}
+
+	@Test
+	void parameterCachesExpire() {
+		// The parameter caches, holding decrypted values for the subscriptions, are not eternal
+		for (final var name : List.of("node-parameters", "subscription-parameters")) {
+			@SuppressWarnings("unchecked")
+			final var cache = (javax.cache.Cache<Object, Object>) cacheManager.getCache(name).getNativeCache();
+			final var expiry = ((javax.cache.expiry.ExpiryPolicy) cache
+					.getConfiguration(javax.cache.configuration.CompleteConfiguration.class).getExpiryPolicyFactory().create())
+					.getExpiryForCreation();
+			Assertions.assertFalse(expiry.isEternal(), name);
+		}
 	}
 
 	@Test
@@ -990,6 +1027,31 @@ class NodeResourceTest extends AbstractAppTest {
 		// +2 Since there are 2 nodes for JIRA and 2 for the source
 		Assertions.assertEquals(resource.findAll(newUriInfo(), null, "service", null, 0).getData().size() + 2,
 				nodes.size());
+	}
+
+	@Test
+	void getNodeStatisticsVisibility() {
+		// A user seeing only the JIRA nodes
+		final var delegate = new DelegateNode();
+		delegate.setNode("service:bt:jira");
+		delegate.setReceiver("user-jira");
+		em.persist(delegate);
+		em.flush();
+
+		var partial = false;
+		for (final var user : List.of(DEFAULT_USER, "user-jira", "any")) {
+			initSpringSecurityContext(user);
+			final var expected = new HashMap<String, Map<String, Long>>();
+			repository.countNodeSubscriptions(user).forEach(r -> expected
+					.computeIfAbsent((String) r[0], _ -> new HashMap<>()).put("total", (Long) r[1]));
+			eventRepository.countSubscriptionsEvents(user).forEach(r -> expected
+					.computeIfAbsent((String) r[0], _ -> new HashMap<>()).put((String) r[1], (Long) r[2]));
+			final var actual = resource.getNodeStatistics().stream()
+					.collect(Collectors.toMap(NodeStatisticsVo::getNode, NodeStatisticsVo::getValues));
+			Assertions.assertEquals(expected, actual, user);
+			partial |= !actual.isEmpty() && actual.keySet().stream().allMatch(n -> n.startsWith("service:bt:jira"));
+		}
+		Assertions.assertTrue(partial);
 	}
 
 	@Test

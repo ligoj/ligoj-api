@@ -90,6 +90,23 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	List<Object[]> countNodeSubscriptions(String user);
 
 	/**
+	 * Count subscriptions by node, without visibility check: to be filtered with {@link #findAllVisibleIds(String)}.
+	 *
+	 * @return node subscriptions count
+	 */
+	@Query("SELECT sub.node.id, count(sub) FROM Subscription sub GROUP BY sub.node.id")
+	List<Object[]> countNodeSubscriptions();
+
+	/**
+	 * Return the identifiers of the nodes visible for a given user.
+	 *
+	 * @param user The user requesting the nodes.
+	 * @return The visible node identifiers.
+	 */
+	@Query("SELECT n.id FROM Node n WHERE " + VISIBLE_NODES)
+	List<String> findAllVisibleIds(String user);
+
+	/**
 	 * Return a {@link Node} by its identifier if it is visible for the current user.
 	 *
 	 * @param id   The identifier to find.

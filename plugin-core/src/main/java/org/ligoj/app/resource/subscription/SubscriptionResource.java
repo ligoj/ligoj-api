@@ -44,6 +44,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class SubscriptionResource extends AbstractLockedResource<Subscription, Integer> {
 
+	/**
+	 * Maximal subscriptions refreshed by a single request: each one implies a remote call.
+	 */
+	public static final int MAX_REFRESH = 500;
+
+
 	@Autowired
 	private SubscriptionRepository repository;
 
@@ -120,7 +126,8 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		final var entity = checkVisible(id);
 		final var vo = new ConfigurationVo();
 		vo.setNode(NodeHelper.toVo(entity.getNode(), locator));
-		vo.setParameters(this.getNonSecuredParameters(id));
+		// Visibility already checked
+		vo.setParameters(parameterValueResource.getNonSecuredSubscriptionParameters(id));
 		vo.setSubscription(id);
 		vo.setProject(DescribedBean.clone(entity.getProject()));
 
@@ -362,7 +369,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 			log.warn("Visibility of subscription {} checked without any authenticated user", id);
 			throw new EntityNotFoundException(String.valueOf(id));
 		}
-		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
+		if (!projectRepository.isVisible(entity.getProject().getId(), securityHelper.getLogin())) {
 			// Associated project is not visible, reject the subscription access
 			throw new EntityNotFoundException(String.valueOf(id));
 		}
@@ -381,18 +388,13 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	public SubscriptionListVo findAll() {
 		final var result = new SubscriptionListVo();
 
-		// First, list visible projects having at least one subscription
-		final var projects = projectRepository.findAllHavingSubscription(securityHelper.getLogin());
+		// The subscriptions of the visible projects: id, project.id, project.name, project.pkey, node.id
+		final var subscriptions = repository.findAllVisibleLight(securityHelper.getLogin());
 
-		// Fill the projects
-		final var projectsMap = toProjects(projects);
+		// Fill the projects having at least one subscription
+		final var projectsMap = toProjects(subscriptions);
 		result.setProjects(projectsMap.values());
-
-		/*
-		 * List visible projects having at least one subscription, return involved subscriptions relating these
-		 * projects. SQL "IN" is not used, because of size limitations. Structure : id, project.id, service.id
-		 */
-		result.setSubscriptions(toSubscriptions(repository.findAllLight(), projectsMap));
+		result.setSubscriptions(toSubscriptions(subscriptions, projectsMap));
 
 		/*
 		 * Then, fetch all nodes. SQL "IN" is not used, because of size limitations. They will be filtered against
@@ -417,30 +419,30 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 */
 	private Collection<SubscriptionLightVo> toSubscriptions(final List<Object[]> subscriptions, final Map<Integer, SubscribingProjectVo> projects) {
 		// Prepare the subscriptions container with project name ordering
-		return subscriptions.stream().filter(rs -> projects.containsKey(rs[1])).map(rs -> {
+		return subscriptions.stream().map(rs -> {
 			// Build the subscription data
 			final var vo = new SubscriptionLightVo();
 			vo.setId((Integer) rs[0]);
 			vo.setProject((Integer) rs[1]);
-			vo.setNode((String) rs[2]);
+			vo.setNode((String) rs[4]);
 			return vo;
 		}).collect(() -> new TreeSet<>((o1, o2) -> (projects.get(o1.getProject()).getName() + "," + o1.getId()).compareToIgnoreCase(projects.get(o2.getProject()).getName() + "," + o2.getId())), TreeSet::add, TreeSet::addAll);
 	}
 
 	/**
-	 * Convert the project result set to {@link SubscribingProjectVo}
+	 * Extract the distinct projects from the visible subscriptions result set, as {@link SubscribingProjectVo}
 	 */
-	private Map<Integer, SubscribingProjectVo> toProjects(final List<Object[]> projects) {
-		return projects.stream().map(rs -> {
+	private Map<Integer, SubscribingProjectVo> toProjects(final List<Object[]> subscriptions) {
+		return subscriptions.stream().map(rs -> {
 			// Build the project
 			final var project = new SubscribingProjectVo();
-			project.setId((Integer) rs[0]);
-			project.setName((String) rs[1]);
-			project.setPkey((String) rs[2]);
+			project.setId((Integer) rs[1]);
+			project.setName((String) rs[2]);
+			project.setPkey((String) rs[3]);
 
 			// Also save it for indexed search
 			return project;
-		}).collect(Collectors.toMap(SubscribingProjectVo::getId, Function.identity()));
+		}).collect(Collectors.toMap(SubscribingProjectVo::getId, Function.identity(), (a, b) -> a));
 	}
 
 	/**
@@ -480,7 +482,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@GET
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public Map<Integer, EventVo> getStatusByProject(@PathParam("project") final int project) {
-		projectHelper.checkVisibleProject(project);
+		projectHelper.checkVisible(project);
 		return projectHelper.getStatusByProject(project);
 	}
 
@@ -507,6 +509,9 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	@Path("status/refresh")
 	@GET
 	public Map<Integer, SubscriptionStatusWithData> refreshStatuses(@QueryParam("id") final Set<Integer> ids) {
+		if (ids.size() > MAX_REFRESH) {
+			throw new ValidationJsonException("id", "Size", "max", MAX_REFRESH);
+		}
 		return ids.stream().map(this::refreshStatus).collect(Collectors.toMap(SubscriptionStatusWithData::getId, Function.identity()));
 	}
 

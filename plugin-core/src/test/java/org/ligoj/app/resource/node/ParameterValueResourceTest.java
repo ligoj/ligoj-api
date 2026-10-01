@@ -823,6 +823,16 @@ class ParameterValueResourceTest extends AbstractAppTest {
 	}
 
 	@Test
+	void updateNodeEvictsInheritedValues() {
+		// The cached parameters of the child nodes and of the subscriptions include the values of this node
+		cacheManager.getCache("node-parameters").put("service:bt:jira:6", "stale");
+		cacheManager.getCache("subscription-parameters").put(1, "stale");
+		resource.update(new ArrayList<>(), em.find(Node.class, "service:bt:jira"));
+		Assertions.assertNull(cacheManager.getCache("node-parameters").get("service:bt:jira:6"));
+		Assertions.assertNull(cacheManager.getCache("subscription-parameters").get(1));
+	}
+
+	@Test
 	void updateNodeKeepsParentValues() {
 		// A value of the parent node, inherited by all its instances
 		final var parent = em.find(Node.class, "service:bt:jira");

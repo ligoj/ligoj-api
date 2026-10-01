@@ -520,6 +520,15 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
+	void refreshStatusesTooMany() {
+		// A bounded number of subscriptions per request: each one implies a remote call
+		final var ids = java.util.stream.IntStream.rangeClosed(1, SubscriptionResource.MAX_REFRESH + 1).boxed()
+				.collect(java.util.stream.Collectors.toSet());
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.refreshStatuses(ids)),
+				"id", "Size");
+	}
+
+	@Test
 	void getStatusByProjectNotVisible() {
 		final var project = em.createQuery("SELECT id FROM Project WHERE name='Jupiter'", Integer.class).getSingleResult();
 		initSpringSecurityContext("any");
@@ -742,6 +751,29 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		vo.setProject(project.getId());
 		vo.setMode(SubscriptionMode.CREATE);
 		return vo;
+	}
+
+	@Test
+	void findAllVisibility() {
+		// Only the subscriptions of the visible projects, for each user
+		var total = 0;
+		for (final var user : List.of(DEFAULT_USER, "fdaugan", "admin-test", "user1", "any")) {
+			initSpringSecurityContext(user);
+			final var expected = repository.findAllLight().stream()
+					.filter(rs -> projectRepository.isVisible((Integer) rs[1], user)).map(rs -> (Integer) rs[0])
+					.collect(java.util.stream.Collectors.toSet());
+			final var result = resource.findAll();
+			final var actual = result.getSubscriptions().stream().map(SubscriptionLightVo::getId)
+					.collect(java.util.stream.Collectors.toSet());
+			Assertions.assertEquals(expected, actual, user);
+			Assertions.assertEquals(actual.size(), result.getSubscriptions().size(), user);
+			final var projects = result.getSubscriptions().stream().map(SubscriptionLightVo::getProject)
+					.collect(java.util.stream.Collectors.toSet());
+			Assertions.assertEquals(projects, result.getProjects().stream().map(SubscribingProjectVo::getId)
+					.collect(java.util.stream.Collectors.toSet()), user);
+			total += actual.size();
+		}
+		Assertions.assertTrue(total > 0);
 	}
 
 	@Test

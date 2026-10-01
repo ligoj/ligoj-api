@@ -49,7 +49,7 @@ public abstract class AbstractConfiguredServicePlugin<C extends PluginConfigurat
 	protected <K extends Serializable, T extends Configurable<C, K>> T checkConfiguredVisibility(final T configured) {
 		final var entity = subscriptionRepository
 				.findOneExpected(configured.getConfiguration().getSubscription().getId());
-		if (projectRepository.findOneVisible(entity.getProject().getId(), securityHelper.getLogin()) == null) {
+		if (!projectRepository.isVisible(entity.getProject().getId(), securityHelper.getLogin())) {
 			// Associated project is not visible, reject the configuration access
 			throw new EntityNotFoundException(configured.getId().toString());
 		}

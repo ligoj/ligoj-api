@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.ligoj.app.model.Subscription;
@@ -22,6 +23,18 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 */
 	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p")
 	List<Object[]> findAllLight();
+
+	/**
+	 * Return the subscriptions of the projects visible by the given user, with only little information. The
+	 * visibility is checked once per project, by the database.
+	 *
+	 * @param user The principal username.
+	 * @return The subscription's data: subscription identifier, project identifier, project name, project key and node
+	 *         identifier.
+	 */
+	@Query("SELECT s.id, p.id, p.name, p.pkey, s.node.id FROM Subscription s INNER JOIN s.project AS p WHERE "
+			+ ProjectRepository.VISIBLE_PROJECTS_EXISTS)
+	List<Object[]> findAllVisibleLight(String user);
 
 	/**
 	 * Return the subscriptions of given project.
@@ -81,10 +94,35 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 * @param project the subscribing project
 	 * @return the subscriptions of given project.
 	 */
-	@Query("SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
-			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.project.id = :project AND (subscription.id = s.id OR  n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id) AND param.secured != TRUE")
-	List<Object[]> findAllWithValuesSecureByProject(int project);
+	default List<Object[]> findAllWithValuesSecureByProject(final int project) {
+		// A value belongs either to a subscription, or to a node: two disjoint, indexed, queries
+		final var result = new ArrayList<>(findAllWithSubscriptionValuesSecureByProject(project));
+		result.addAll(findAllWithNodeValuesSecureByProject(project));
+		return result;
+	}
+
+	/**
+	 * Return the subscriptions of given project with their own unsecured parameter values.
+	 *
+	 * @param project the subscribing project
+	 * @return the subscriptions of given project and their own values.
+	 */
+	@Query("SELECT s, p FROM ParameterValue p INNER JOIN p.subscription s INNER JOIN FETCH s.node INNER JOIN FETCH p.parameter param"
+			+ " WHERE s.project.id = :project AND param.secured != TRUE")
+	List<Object[]> findAllWithSubscriptionValuesSecureByProject(int project);
+
+	/**
+	 * Return the subscriptions of given project with the unsecured parameter values of their node, or of the nodes
+	 * refining their node at second and third level.
+	 *
+	 * @param project the subscribing project
+	 * @return the subscriptions of given project and the related node values.
+	 */
+	@Query("SELECT s, p FROM Subscription s INNER JOIN FETCH s.node service, ParameterValue p INNER JOIN p.node n0"
+			+ " INNER JOIN FETCH p.parameter param LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
+			+ " WHERE s.project.id = :project AND (n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id)"
+			+ " AND param.secured != TRUE")
+	List<Object[]> findAllWithNodeValuesSecureByProject(int project);
 
 	/**
 	 * Return all subscriptions and associated parameters on the given node.
