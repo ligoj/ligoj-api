@@ -102,11 +102,17 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@POST
 	@CacheRemoveAll(cacheName = "nodes")
 	public void create(final NodeEditionVo vo) {
+		// A creation never overwrites an existing node
+		if (repository.existsById(vo.getId())) {
+			throw new ValidationJsonException("id", "already-exist", "0", "id", "1", vo.getId());
+		}
 		final var entity = new Node();
 
-		// Also check the parent is writable
+		// Check the parent is writable, or the principal is an administrator for a root node
 		if (vo.isRefining()) {
 			checkWritableNode(vo.getRefined());
+		} else if (!securityHelper.isAdmin()) {
+			throw new BusinessException("read-only-node", "node", vo.getId());
 		}
 
 		saveOrUpdate(vo, entity);

@@ -16,6 +16,7 @@ import org.ligoj.app.dao.*;
 import org.ligoj.app.model.*;
 import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.app.resource.node.sample.*;
+import org.ligoj.bootstrap.MatcherUtil;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
@@ -714,6 +715,49 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
+	void findAllNoSecuredValue() {
+		// The cached nodes are shared with any user: the secured values are never part of them
+		final var nodes = resource.findAll();
+		Assertions.assertFalse(nodes.get("service:bt:jira:4").getParameters().containsKey("service:bt:jira:jdbc-password"));
+		final var jira6 = nodes.get("service:bt:jira:6").getParameters();
+		Assertions.assertFalse(jira6.containsKey("service:bt:jira:password"));
+		Assertions.assertTrue(jira6.containsKey("service:bt:jira:url"));
+	}
+
+	@Test
+	void createRootNotAdmin() {
+		// Only an administrator can create a root node: there is no parent to check the delegation against
+		initSpringSecurityContext("user1");
+		final var node = new NodeEditionVo();
+		node.setId("service:other");
+		node.setName("Other");
+		node.setMode(SubscriptionMode.ALL);
+		Assertions.assertThrows(BusinessException.class, () -> resource.create(node));
+		Assertions.assertFalse(repository.existsById("service:other"));
+	}
+
+	@Test
+	void createExisting() {
+		// A creation never overwrites an existing node, root or not
+		final var name = repository.findOneExpected("service:bt").getName();
+		final var root = new NodeEditionVo();
+		root.setId("service:bt");
+		root.setName("Overwritten");
+		root.setMode(SubscriptionMode.NONE);
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(root)), "id",
+				"already-exist");
+		final var instance = new NodeEditionVo();
+		instance.setId("service:bt:jira:6");
+		instance.setName("Overwritten");
+		instance.setNode("service:bt:jira");
+		instance.setMode(SubscriptionMode.NONE);
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.create(instance)), "id",
+				"already-exist");
+		em.clear();
+		Assertions.assertEquals(name, repository.findOneExpected("service:bt").getName());
+	}
+
+	@Test
 	void createRootAllMode() {
 		newNode(SubscriptionMode.ALL);
 	}
@@ -968,7 +1012,8 @@ class NodeResourceTest extends AbstractAppTest {
 		// Check JIRA
 		Assertions.assertEquals("service:bt:jira:6", result.get("service:bt:jira:6").getId());
 		Assertions.assertEquals("JIRA 6", result.get("service:bt:jira:6").getName());
-		Assertions.assertEquals(7, result.get("service:bt:jira:6").getParameters().size());
+		// Only the unsecured parameter value, the 6 others are secured
+		Assertions.assertEquals(1, result.get("service:bt:jira:6").getParameters().size());
 		Assertions.assertEquals("service:bt:jira", result.get("service:bt:jira:6").getRefined().getId());
 		Assertions.assertEquals("JIRA", result.get("service:bt:jira:6").getRefined().getName());
 		Assertions.assertEquals("service:bt", result.get("service:bt:jira:6").getRefined().getRefined().getId());
