@@ -184,15 +184,15 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void inGroup2() {
-		final var assertFunction = assertFunction("inGroup2", 3, "cm.\"user\"=?user__ AND cg.id=?dn__", Q_USER, Q_ARG);
-		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
+		final var assertFunction = assertFunction("inGroup2", 3, "cm.\"user\"=?user__ AND (cg.id=?dn__ OR", Q_USER, Q_ARG);
+		Assertions.assertTrue(assertFunction.contains("cg2.id=?dn__ AND RIGHT(cg.description, CHAR_LENGTH(cg2.description)+1)"));
 	}
 
 	@Test
 	void inCompany2() {
 		final var assertFunction = assertFunction("inCompany2", 3, "cu.id=?user__", Q_USER, Q_ARG);
-		Assertions.assertTrue(assertFunction.contains("cc.id=?dn__"));
-		Assertions.assertTrue(assertFunction.contains("id=?dn__"));
+		Assertions.assertTrue(assertFunction.contains("AND (cc.id=?dn__ OR"));
+		Assertions.assertTrue(assertFunction.contains("cc2.id=?dn__ AND RIGHT(cc.description, CHAR_LENGTH(cc2.description)+1)"));
 	}
 
 }
