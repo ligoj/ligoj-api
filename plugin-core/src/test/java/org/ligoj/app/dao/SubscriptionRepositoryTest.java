@@ -30,15 +30,11 @@ import java.util.stream.Collectors;
 @Transactional
 class SubscriptionRepositoryTest extends AbstractAppTest {
 
-	/**
-	 * The former single query: a cross join of the subscriptions and all the parameter values.
-	 */
-	private static final String CROSS_JOIN = "SELECT s, p FROM Subscription s, ParameterValue p INNER JOIN FETCH s.node service LEFT JOIN p.subscription subscription INNER JOIN FETCH p.parameter param "
-			+ " LEFT JOIN p.node n0 LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.project.id = :project AND (subscription.id = s.id OR  n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id) AND param.secured != TRUE";
-
 	@Autowired
 	private SubscriptionRepository repository;
+
+	@Autowired
+	private ParameterValueRepository parameterValueRepository;
 
 	@BeforeEach
 	void prepare() throws IOException {
@@ -51,36 +47,64 @@ class SubscriptionRepositoryTest extends AbstractAppTest {
 				.collect(Collectors.toSet());
 	}
 
+	/**
+	 * The expected subscription/value pairs of a project: the non-secured values of each subscription, of its node and
+	 * of the parents of its node.
+	 */
+	private Set<String> expected(final int project) {
+		return repository.findAllByProject(project).stream()
+				.flatMap(s -> parameterValueRepository.findAllSecureBySubscription(s.getId()).stream()
+						.map(v -> s.getId() + "/" + v.getId()))
+				.collect(Collectors.toSet());
+	}
+
+	private ParameterValue newValue(final String node, final Parameter parameter, final String data) {
+		final var value = new ParameterValue();
+		value.setNode(em.find(Node.class, node));
+		value.setParameter(parameter);
+		value.setData(data);
+		em.persist(value);
+		return value;
+	}
+
 	@Test
 	void findAllWithValuesSecureByProject() {
-		// Same subscription/value pairs as the former cross join, for each project
+		// Same subscription/value pairs as the subscription lookups, for each project
 		var total = 0;
 		for (final var project : em.createQuery("SELECT id FROM Project", Integer.class).getResultList()) {
-			@SuppressWarnings("unchecked")
-			final List<Object[]> expected = em.createQuery(CROSS_JOIN).setParameter("project", project).getResultList();
 			final var actual = repository.findAllWithValuesSecureByProject(project);
-			Assertions.assertEquals(toPairs(expected), toPairs(actual), "project " + project);
-			Assertions.assertEquals(expected.size(), actual.size());
+			Assertions.assertEquals(expected(project), toPairs(actual), "project " + project);
 			total += actual.size();
 		}
 		Assertions.assertTrue(total > 0);
 	}
 
 	@Test
-	void findAllWithValuesSecureByProjectParentValue() {
-		// A value of the subscribed node
-		final var subscription = em.createQuery("FROM Subscription", Subscription.class).setMaxResults(1).getSingleResult();
-		final var value = new ParameterValue();
-		value.setNode(subscription.getNode());
-		value.setParameter(em.createQuery("FROM Parameter WHERE secured = false", Parameter.class).setMaxResults(1)
-				.getSingleResult());
-		value.setData("node-value");
-		em.persist(value);
+	void findAllWithValuesSecureByProjectInheritedValues() {
+		final var subscription = em
+				.createQuery("FROM Subscription s WHERE s.node.id = 'service:bt:jira:6'", Subscription.class)
+				.setMaxResults(1).getSingleResult();
+		final var parameter = em.createQuery("FROM Parameter WHERE secured = false", Parameter.class).setMaxResults(1)
+				.getSingleResult();
+		final var secured = em.createQuery("FROM Parameter WHERE secured = true", Parameter.class).setMaxResults(1)
+				.getSingleResult();
+
+		// Values of the subscribed node and its parents: inherited
+		final var onInstance = newValue("service:bt:jira:6", parameter, "instance");
+		final var onTool = newValue("service:bt:jira", parameter, "tool");
+		final var onService = newValue("service:bt", parameter, "service");
+
+		// Not inherited: a sibling node, a secured value
+		final var onSibling = newValue("service:bt:jira:4", parameter, "sibling");
+		final var onToolSecured = newValue("service:bt:jira", secured, "secret");
 		em.flush();
-		final var project = subscription.getProject().getId();
-		@SuppressWarnings("unchecked")
-		final List<Object[]> expected = em.createQuery(CROSS_JOIN).setParameter("project", project).getResultList();
-		Assertions.assertTrue(toPairs(expected).contains(subscription.getId() + "/" + value.getId()));
-		Assertions.assertEquals(toPairs(expected), toPairs(repository.findAllWithValuesSecureByProject(project)));
+
+		final var pairs = toPairs(repository.findAllWithValuesSecureByProject(subscription.getProject().getId()));
+		Assertions.assertTrue(pairs.contains(subscription.getId() + "/" + onInstance.getId()));
+		Assertions.assertTrue(pairs.contains(subscription.getId() + "/" + onTool.getId()));
+		Assertions.assertTrue(pairs.contains(subscription.getId() + "/" + onService.getId()));
+		Assertions.assertFalse(pairs.contains(subscription.getId() + "/" + onSibling.getId()));
+		Assertions.assertFalse(pairs.contains(subscription.getId() + "/" + onToolSecured.getId()));
+		Assertions.assertEquals(expected(subscription.getProject().getId()), pairs);
 	}
 }

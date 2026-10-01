@@ -105,10 +105,11 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	int countByParameterValue(int parameterValue);
 
 	/**
-	 * Return the subscriptions of given project with all unsecured parameters.
+	 * Return the subscriptions of given project with all unsecured parameters: the values of each subscription, and
+	 * the values inherited from its node and the parents of its node.
 	 *
 	 * @param project the subscribing project
-	 * @return the subscriptions of given project.
+	 * @return the rows <code>[Subscription, ParameterValue]</code> of given project.
 	 */
 	default List<Object[]> findAllWithValuesSecureByProject(final int project) {
 		// A value belongs either to a subscription, or to a node: two disjoint, indexed, queries
@@ -128,15 +129,17 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	List<Object[]> findAllWithSubscriptionValuesSecureByProject(int project);
 
 	/**
-	 * Return the subscriptions of given project with the unsecured parameter values of their node, or of the nodes
-	 * refining their node at second and third level.
+	 * Return the subscriptions of given project with the unsecured parameter values inherited from their node: the
+	 * values of the subscribed node, of its parent and of its grandparent (for sample the instance, the tool and the
+	 * service).
 	 *
 	 * @param project the subscribing project
 	 * @return the subscriptions of given project and the related node values.
 	 */
-	@Query("SELECT s, p FROM Subscription s INNER JOIN FETCH s.node service, ParameterValue p INNER JOIN p.node n0"
-			+ " INNER JOIN FETCH p.parameter param LEFT JOIN n0.refined n1 LEFT JOIN n1.refined n2"
-			+ " WHERE s.project.id = :project AND (n0.id = service.id OR n1.refined.id = service.id OR n2.refined.id = service.id)"
+	@Query("SELECT s, p FROM Subscription s INNER JOIN FETCH s.node service LEFT JOIN service.refined parent"
+			+ " LEFT JOIN parent.refined grandParent, ParameterValue p INNER JOIN FETCH p.parameter param"
+			+ " WHERE s.project.id = :project"
+			+ " AND (p.node.id = service.id OR p.node.id = parent.id OR p.node.id = grandParent.id)"
 			+ " AND param.secured != TRUE")
 	List<Object[]> findAllWithNodeValuesSecureByProject(int project);
 
