@@ -228,6 +228,12 @@ public class DelegateOrgResource {
 			throw new ForbiddenException();
 		}
 
+		// The 'write' flag cannot be granted without already owning an applicable delegate with this flag
+		if (importEntry.isCanWrite()
+				&& repository.findByMatchingDnForWrite(securityHelper.getLogin(), dn, importEntry.getType()).isEmpty()) {
+			throw new ForbiddenException();
+		}
+
 		if (importEntry.getId() != null) {
 			// Check there is at least one delegate for this user allowing to write FROM the corresponding DN
 			validateWriteAccess(importEntry.getId());

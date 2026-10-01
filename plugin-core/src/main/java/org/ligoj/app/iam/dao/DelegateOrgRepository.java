@@ -29,11 +29,11 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 			  OR (d.receiverType=org.ligoj.app.iam.model.ReceiverType.GROUP
 			     AND EXISTS(SELECT 1 FROM CacheGroup cg   WHERE d.receiver = cg.id
 			     AND EXISTS(SELECT 1 FROM CacheMembership cm INNER JOIN cm.group g WHERE cm.user.id = :user
-			          AND (g.description = cg.description OR g.description LIKE CONCAT('%,',cg.description)))))
+			          AND (g.description = cg.description OR RIGHT(g.description, LENGTH(cg.description)+1)=CONCAT(',',cg.description)))))
 			  OR (d.receiverType=org.ligoj.app.iam.model.ReceiverType.COMPANY
 			     AND EXISTS(SELECT 1 FROM CacheCompany cc WHERE d.receiver = cc.id
 			     AND EXISTS(SELECT 1 FROM CacheUser cu INNER JOIN cu.company c   WHERE cu.id = :user
-			          AND (c.description = cc.description OR c.description LIKE CONCAT('%,',cc.description))))))
+			          AND (c.description = cc.description OR RIGHT(c.description, LENGTH(cc.description)+1)=CONCAT(',',cc.description))))))
 			""";
 	/**
 	 * Identical to #ASSIGNED_DELEGATE_D but a different bootstrap alias
@@ -43,11 +43,11 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 			  OR (dz.receiverType=org.ligoj.app.iam.model.ReceiverType.GROUP
 			     AND EXISTS(SELECT 1 FROM CacheGroup cg   WHERE dz.receiver = cg.id
 			     AND EXISTS(SELECT 1 FROM CacheMembership cm INNER JOIN cm.group g WHERE cm.user.id = :user
-			          AND (g.description = cg.description OR g.description LIKE CONCAT('%,',cg.description)))))
+			          AND (g.description = cg.description OR RIGHT(g.description, LENGTH(cg.description)+1)=CONCAT(',',cg.description)))))
 			  OR (dz.receiverType=org.ligoj.app.iam.model.ReceiverType.COMPANY
 			     AND EXISTS(SELECT 1 FROM CacheCompany cc WHERE dz.receiver = cc.id
 			     AND EXISTS(SELECT 1 FROM CacheUser cu INNER JOIN cu.company c   WHERE cu.id = :user
-			          AND (c.description = cc.description OR c.description LIKE CONCAT('%,',cc.description))))))
+			          AND (c.description = cc.description OR RIGHT(c.description, LENGTH(cc.description)+1)=CONCAT(',',cc.description))))))
 			""";
 
 	/**
@@ -59,7 +59,7 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	String VISIBLE_DELEGATE = "(" + SystemUser.IS_ADMIN + " OR (" + ASSIGNED_DELEGATE_D + ")"
 			+ "  OR EXISTS (SELECT dz.id FROM DelegateOrg dz WHERE " + ASSIGNED_DELEGATE_DZ
 			+ "    AND (dz.type=d.type OR dz.type=org.ligoj.app.iam.model.DelegateType.TREE)                         "
-			+ "    AND (dz.canAdmin=true AND (d.dn LIKE CONCAT('%,',dz.dn) OR dz.dn=d.dn))))                         ";
+			+ "    AND (dz.canAdmin=true AND (RIGHT(d.dn, LENGTH(dz.dn)+1)=CONCAT(',',dz.dn) OR dz.dn=d.dn))))                         ";
 	/**
 	 * ":type" : Type of resource <br>
 	 * <br>
@@ -80,14 +80,14 @@ public interface DelegateOrgRepository extends RestRepository<DelegateOrg, Integ
 	 * Match DN
 	 */
 	@SuppressWarnings("unused")
-	String MATCH_RESOURCE_DN = "(l.description LIKE CONCAT('%,',dn) OR l.description=dn)";
+	String MATCH_RESOURCE_DN = "(RIGHT(l.description, LENGTH(dn)+1)=CONCAT(',',dn) OR l.description=dn)";
 
 	/**
 	 * ":dn" : Current DN<br>
 	 * <br>
 	 * Match DN
 	 */
-	String MATCH_DN = "(:dn LIKE CONCAT('%,',d.dn) OR d.dn=:dn)";
+	String MATCH_DN = "(RIGHT(:dn, LENGTH(d.dn)+1)=CONCAT(',',d.dn) OR d.dn=:dn)";
 
 	/**
 	 * ":dn" : Current DN<br>
