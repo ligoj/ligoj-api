@@ -86,4 +86,22 @@ class ProjectRepositoryTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, page.getContent().size());
 		Assertions.assertEquals(all.size(), page.getTotalElements());
 	}
+
+	@Test
+	void findAllHavingSubscription() {
+		// The visible projects having at least one subscription
+		final var subscribed = em.createQuery("SELECT DISTINCT s.project.id FROM Subscription s", Integer.class)
+				.getResultList();
+		var total = 0;
+		for (final var user : List.of(DEFAULT_USER, "fdaugan", "admin-test", "user1", "any")) {
+			initSpringSecurityContext(user);
+			final var expected = subscribed.stream().filter(p -> repository.isVisible(p, user))
+					.collect(Collectors.toSet());
+			final var actual = repository.findAllHavingSubscription(user).stream().map(r -> (Integer) r[0]).toList();
+			Assertions.assertEquals(expected, new java.util.HashSet<>(actual), user);
+			Assertions.assertEquals(expected.size(), actual.size(), user);
+			total += actual.size();
+		}
+		Assertions.assertTrue(total > 0);
+	}
 }

@@ -77,8 +77,8 @@ public interface ProjectRepository extends RestRepository<Project, Integer> {
 	 * @param user The principal username
 	 * @return all visible {@link Project} objects for <code>user</code>.
 	 */
-	@Query("SELECT DISTINCT p.id, p.name, p.pkey FROM Project AS p LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE "
-			+ VISIBLE_PROJECTS + " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project.id=p.id)")
+	@Query("SELECT p.id, p.name, p.pkey FROM Project AS p WHERE " + VISIBLE_PROJECTS_EXISTS
+			+ " AND EXISTS(SELECT 1 FROM Subscription AS s WHERE s.project.id=p.id)")
 	List<Object[]> findAllHavingSubscription(String user);
 
 	/**
