@@ -24,6 +24,7 @@ import org.ligoj.bootstrap.core.resource.TechnicalException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.ligoj.bootstrap.model.system.SystemRole;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -811,6 +812,34 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		final var node = new Node();
 		node.setId("service:id:ldap");
 		Assertions.assertThrows(BusinessException.class, () -> resource.update(values, node));
+	}
+
+	@Test
+	void getNodeParametersSecuredNotAdmin() {
+		// The decrypted values are only for administrators, checked in code too
+		initSpringSecurityContext("any");
+		Assertions.assertThrows(AccessDeniedException.class,
+				() -> resource.getNodeParametersSecured("service:bt:jira:6", SubscriptionMode.LINK));
+	}
+
+	@Test
+	void updateNodeKeepsParentValues() {
+		// A value of the parent node, inherited by all its instances
+		final var parent = em.find(Node.class, "service:bt:jira");
+		final var inherited = new ParameterValue();
+		inherited.setNode(parent);
+		inherited.setParameter(em.find(Parameter.class, "service:bt:jira:jdbc-driver"));
+		inherited.setData("shared-driver");
+		em.persist(inherited);
+		em.flush();
+
+		// Updating an instance without any value only deletes the values of this instance
+		resource.update(new ArrayList<>(), em.find(Node.class, "service:bt:jira:6"));
+		em.flush();
+		em.clear();
+		final var kept = em.find(ParameterValue.class, inherited.getId());
+		Assertions.assertNotNull(kept);
+		Assertions.assertEquals("service:bt:jira", kept.getNode().getId());
 	}
 
 	@Test

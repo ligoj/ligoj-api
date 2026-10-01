@@ -57,8 +57,8 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 *
 	 * @return the nodes.
 	 */
-	@Query("SELECT n, p FROM ParameterValue p RIGHT JOIN p.node n"
-			+ " LEFT JOIN p.parameter param ON (param.id=p.parameter.id AND param.secured != TRUE) ORDER BY UPPER(n.name)")
+	@Query("SELECT n, p FROM Node n LEFT JOIN ParameterValue p ON (p.node = n"
+			+ " AND p.parameter IN (SELECT param FROM Parameter param WHERE param.secured != TRUE)) ORDER BY UPPER(n.name)")
 	List<Object[]> findAllWithValuesSecure();
 
 	/**
