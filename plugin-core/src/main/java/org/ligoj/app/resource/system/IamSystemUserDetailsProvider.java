@@ -69,8 +69,9 @@ public class IamSystemUserDetailsProvider implements ISystemUserDetailsProvider 
 
 		// Federated roles: the system roles named after a group of the user, as granted at login by the identity
 		// provider (see UserOrgResource#getGrantedAuthorities: the group identifier, upper-cased or lower-cased)
+		// Role names are unique (database constraint)
 		final var rolesByName = roleRepository.findAll().stream()
-				.collect(Collectors.toMap(SystemRole::getName, Function.identity(), (a, _) -> a));
+				.collect(Collectors.toMap(SystemRole::getName, Function.identity()));
 		final var groupsByUser = new HashMap<String, Set<String>>();
 		membershipRepository.findAllGroupsByUsers(byLogin.keySet()).forEach(pair -> groupsByUser
 				.computeIfAbsent((String) pair[0], _ -> new TreeSet<>()).add((String) pair[1]));
