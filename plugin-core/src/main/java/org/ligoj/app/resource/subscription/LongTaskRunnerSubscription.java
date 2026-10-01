@@ -78,7 +78,8 @@ public interface LongTaskRunnerSubscription<T extends AbstractLongTaskSubscripti
 	@Path("{subscription:\\d+}/task")
 	@OnNullReturn404
 	default T cancel(@PathParam("subscription") final int subscription) {
-		checkVisible(subscription);
+		// Cancelling changes the subscription: managed subscription is required, not only visible
+		getSubscriptionResource().checkManaged(subscription);
 		return endTask(subscription, true);
 	}
 
