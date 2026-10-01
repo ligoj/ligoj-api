@@ -4,15 +4,19 @@
 package org.ligoj.app.resource.node;
 
 import jakarta.transaction.Transactional;
+import lombok.extern.slf4j.Slf4j;
 import org.ligoj.app.dao.EventRepository;
 import org.ligoj.app.model.Event;
 import org.ligoj.app.model.EventType;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.model.Subscription;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 /**
@@ -20,10 +24,59 @@ import java.util.*;
  */
 @Service
 @Transactional
+@Slf4j
 public class EventResource {
+
+	/**
+	 * Maximal amount of identifiers in a single statement.
+	 */
+	private static final int MAX_IDS = 1000;
 
 	@Autowired
 	private EventRepository repository;
+
+	/**
+	 * Retention of the replaced events, in days. Older events are deleted by {@link #purge()}, except the last one of
+	 * each node and subscription.
+	 */
+	@Value("${event.retention:365}")
+	private int retention = 365;
+
+	/**
+	 * Return the value of the last event of a type for each given subscription. The lookup is chunked to keep the
+	 * statements small.
+	 *
+	 * @param subscriptions The subscription identifiers.
+	 * @param eventType     The event type.
+	 * @return The last event value by subscription identifier. Subscriptions without event are absent.
+	 */
+	public Map<Integer, String> findLastValues(final Collection<Integer> subscriptions, final EventType eventType) {
+		final var ids = new ArrayList<>(subscriptions);
+		final var result = new HashMap<Integer, String>();
+		for (var from = 0; from < ids.size(); from += MAX_IDS) {
+			repository.findLastValues(ids.subList(from, Math.min(from + MAX_IDS, ids.size())), eventType)
+					.forEach(r -> result.put((Integer) r[0], (String) r[1]));
+		}
+		return result;
+	}
+
+	/**
+	 * Delete the events older than the retention period (<code>event.retention</code> days, 365 by default), except the
+	 * last event of each node and subscription, holding its current status. Scheduled daily (<code>event.purge</code>
+	 * cron, 4 AM by default). The deletion is chunked to keep the statements small.
+	 *
+	 * @return The amount of deleted events.
+	 */
+	@Scheduled(cron = "${event.purge:0 0 4 * * ?}")
+	public int purge() {
+		final var ids = repository.findAllReplacedBefore(Instant.now().minus(retention, ChronoUnit.DAYS));
+		var count = 0;
+		for (var from = 0; from < ids.size(); from += MAX_IDS) {
+			count += repository.deleteAllByIds(ids.subList(from, Math.min(from + MAX_IDS, ids.size())));
+		}
+		log.info("Purged {} events older than {} days", count, retention);
+		return count;
+	}
 
 	/**
 	 * Register an event on a node. The event will be registered only if the value is new.
@@ -58,7 +111,22 @@ public class EventResource {
 	 */
 	public boolean registerEvent(final Subscription subscription, final EventType eventType, final String value) {
 		final var lastEvent = repository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, eventType);
-		if (lastEvent == null || !value.equals(lastEvent.getValue())) {
+		return registerEvent(subscription, eventType, value, lastEvent == null ? null : lastEvent.getValue());
+	}
+
+	/**
+	 * Register an event on a subscription when the value differs from the already known last value: to use with
+	 * {@link #findLastValues(Collection, EventType)} when many subscriptions are checked.
+	 *
+	 * @param subscription The related subscription.
+	 * @param eventType    The new event type.
+	 * @param value        The new event value.
+	 * @param lastValue    The value of the last event of this type, <code>null</code> when there is none.
+	 * @return <code>true</code> if an event has been saved in database.
+	 */
+	public boolean registerEvent(final Subscription subscription, final EventType eventType, final String value,
+			final String lastValue) {
+		if (!value.equals(lastValue)) {
 			final var newEvent = new Event();
 			newEvent.setSubscription(subscription);
 			saveEvent(newEvent, eventType, value);
