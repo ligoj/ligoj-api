@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Positive;
 
 import org.ligoj.app.resource.node.AbstractParameterizedVo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,8 +26,9 @@ public class SubscriptionEditionVo extends AbstractParameterizedVo {
 	private int project;
 
 	/**
-	 * Subscription identifier (only for update).
+	 * Subscription identifier, never read from the input: a creation cannot target an existing subscription.
 	 */
 	@Positive
+	@JsonProperty(access = JsonProperty.Access.READ_ONLY)
 	private Integer id;
 }
