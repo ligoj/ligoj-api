@@ -162,7 +162,11 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		org.mockito.Mockito.when(failed.getStart()).thenReturn(new Date(3000));
 		org.mockito.Mockito.when(failed.getEnd()).thenReturn(new Date(3500));
 		org.mockito.Mockito.when(failed.isFailed()).thenReturn(true);
-		org.mockito.Mockito.when(repository.findAll()).thenReturn(List.of(running, succeeded, failed));
+		org.mockito.Mockito.when(repository.countByStatus()).thenReturn(List.<Object[]>of(new Object[] { 3L, 1L, 1L }));
+		org.mockito.Mockito.when(repository.findAllByStatus(org.mockito.ArgumentMatchers.eq(true),
+				org.mockito.ArgumentMatchers.eq(true), org.mockito.ArgumentMatchers.eq(true),
+				org.mockito.ArgumentMatchers.any()))
+				.thenReturn(new org.springframework.data.domain.PageImpl<>(List.of(running, succeeded, failed)));
 		org.mockito.Mockito.when(runner.getTaskRepository()).thenReturn(repository);
 		org.mockito.Mockito.when(runner.newTask()).thenReturn(TaskSampleNode::new);
 		beanFactory().registerSingleton("otherRunner", runner);
@@ -181,38 +185,6 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		} finally {
 			destroyRunner("otherRunner");
 		}
-	}
-
-	@Test
-	void comparators() {
-		final var t1 = taskVo(1, "bob", 1000L, 4000L, TaskStatus.SUCCEEDED);
-		final var t2 = taskVo(2, "Alice", 2000L, null, TaskStatus.RUNNING);
-
-		// Single property comparators, unknown falls back to start date
-		Assertions.assertTrue(resource.comparatorFor("id").compare(t1, t2) < 0);
-		Assertions.assertTrue(resource.comparatorFor("author").compare(t1, t2) > 0);
-		Assertions.assertTrue(resource.comparatorFor("end").compare(t1, t2) < 0);
-		Assertions.assertTrue(resource.comparatorFor("status").compare(t1, t2) > 0);
-		Assertions.assertTrue(resource.comparatorFor("unknown-property").compare(t1, t2) < 0);
-
-		// Composed sort: ascending then descending secondary
-		final var composed = resource.comparator(
-				org.springframework.data.domain.Sort.by(org.springframework.data.domain.Sort.Order.asc("author"),
-						org.springframework.data.domain.Sort.Order.desc("id")));
-		Assertions.assertTrue(composed.compare(t2, t1) < 0);
-
-		// No sort: default is start date descending
-		Assertions.assertTrue(resource.comparator(org.springframework.data.domain.Sort.unsorted()).compare(t2, t1) < 0);
-	}
-
-	private TaskVo taskVo(final int id, final String author, final Long start, final Long end, final TaskStatus status) {
-		final var vo = new TaskVo();
-		vo.setId(id);
-		vo.setAuthor(author);
-		vo.setStart(start == null ? null : new Date(start));
-		vo.setEnd(end == null ? null : new Date(end));
-		vo.setStatus(status);
-		return vo;
 	}
 
 	@Test
@@ -296,6 +268,48 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, result.getData().size());
 		Assertions.assertEquals("service:bt:jira:4", result.getData().getFirst().getLocked().getNode());
 		Assertions.assertEquals(1, calls.get());
+	}
+
+	@Test
+	void findTasksFilteredBySucceeded() {
+		nodeTask("service:bt:jira", 1000, null, false);
+		nodeTask("service:bt:jira:4", 2000, new Date(), true);
+		nodeTask("service:bt:jira:6", 3000, new Date(), false);
+		final var result = resource.findTasks(NODE_RUNNER, newUriInfo(), "succeeded");
+		Assertions.assertEquals(1, result.getRecordsTotal());
+		Assertions.assertEquals(TaskStatus.SUCCEEDED, result.getData().getFirst().getStatus());
+	}
+
+	@Test
+	void findTasksPagedByDatabase() {
+		nodeTask("service:bt:jira", 1000, null, false); // running
+		nodeTask("service:bt:jira:4", 2000, new Date(), true); // failed
+		nodeTask("service:bt:jira:6", 3000, new Date(), false); // succeeded
+		em.clear();
+
+		final var statistics = em.getEntityManagerFactory().unwrap(org.hibernate.SessionFactory.class).getStatistics();
+		statistics.clear();
+		statistics.setStatisticsEnabled(true);
+		try {
+			// Statistics: one aggregate query, no task loaded
+			final var stats = runner(resource.findAll(), NODE_RUNNER).getStats();
+			Assertions.assertEquals(List.of(3, 1, 1, 1),
+					List.of(stats.total(), stats.running(), stats.succeeded(), stats.failed()));
+			Assertions.assertEquals(0, statistics.getEntityStatistics(TaskSampleNode.class.getName()).getLoadCount());
+
+			// Sorted by status, only the page is loaded
+			final var uriInfo = newUriInfo();
+			uriInfo.getQueryParameters().putSingle("rows", "1");
+			uriInfo.getQueryParameters().putSingle("page", "1");
+			uriInfo.getQueryParameters().putSingle("sidx", "status");
+			uriInfo.getQueryParameters().putSingle("sord", "asc");
+			final var result = resource.findTasks(NODE_RUNNER, uriInfo, null);
+			Assertions.assertEquals(3, result.getRecordsTotal());
+			Assertions.assertEquals(TaskStatus.FAILED, result.getData().getFirst().getStatus());
+			Assertions.assertEquals(1, statistics.getEntityStatistics(TaskSampleNode.class.getName()).getLoadCount());
+		} finally {
+			statistics.setStatisticsEnabled(false);
+		}
 	}
 
 	@Test

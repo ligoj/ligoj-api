@@ -17,8 +17,10 @@ import jakarta.ws.rs.core.UriInfo;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.ligoj.app.dao.task.LongTaskNodeRepository;
+import org.ligoj.app.dao.task.LongTaskRepository;
 import org.ligoj.app.dao.task.LongTaskSubscriptionRepository;
 import org.ligoj.app.model.AbstractLongTask;
 import org.ligoj.app.model.AbstractLongTaskNode;
@@ -31,7 +33,9 @@ import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
@@ -53,7 +57,12 @@ public class TaskStatusResource {
 	 * DataTables column to ORM/VO property mapping for the task list sort.
 	 */
 	private static final Map<String, String> ORM_MAPPING = Map.of("id", "id", AUTHOR, AUTHOR, "start", "start",
-			"end", "end", STATUS, STATUS);
+			"end", "end", STATUS, LongTaskRepository.STATUS_ORDER);
+
+	/**
+	 * Non-string ordered columns: no case-insensitive ordering.
+	 */
+	private static final Set<String> CASE_SENSITIVE_COLUMNS = Set.of("id", "start", "end", STATUS);
 
 	@Autowired
 	protected ApplicationContext applicationContext;
@@ -88,8 +97,8 @@ public class TaskStatusResource {
 
 	/**
 	 * List the visible tasks of a single runner, paginated, optionally filtered by status, sorted by start date
-	 * descending by default. Filtering / sorting / pagination are applied in memory (at most one task per locked
-	 * entity), the locked entity reference is resolved only for the returned page.
+	 * descending by default. Filtering, sorting and pagination are applied by the database, the locked entity
+	 * reference is resolved only for the returned page.
 	 *
 	 * @param key          The runner bean name.
 	 * @param uriInfo      DataTables pagination parameters.
@@ -106,38 +115,68 @@ public class TaskStatusResource {
 		}
 		final var status = TaskStatus.parse(statusFilter);
 		final var user = securityHelper.getLogin();
-		final var filtered = visibleTasks(runner, user).stream()
-				.<Map.Entry<TaskVo, AbstractLongTask<?, ?>>>map(t -> Map.entry(toTaskVoLight(t), t))
-				.filter(e -> status == null || e.getKey().getStatus() == status).toList();
 
-		// In-memory sort + pagination using the DataTables page request.
-		final var pageRequest = paginationJson.getPageRequest(uriInfo, ORM_MAPPING);
-		final var sorted = filtered.stream().sorted(Map.Entry.<TaskVo, AbstractLongTask<?, ?>>comparingByKey(comparator(pageRequest.getSort())))
-				.toList();
-		final var from = (int) Math.min(pageRequest.getOffset(), sorted.size());
-		final var to = Math.min(from + pageRequest.getPageSize(), sorted.size());
-		final var page = new PageImpl<>(sorted.subList(from, to), pageRequest, sorted.size());
+		// Filtering, sorting and pagination by the database, start date descending by default
+		final var request = paginationJson.getPageRequest(uriInfo, ORM_MAPPING, CASE_SENSITIVE_COLUMNS);
+		final var pageRequest = request.getSort().isSorted() ? request
+				: PageRequest.of(request.getPageNumber(), request.getPageSize(), Sort.by(Sort.Direction.DESC, "start"));
+		final var page = visibleTasks(runner, user, status == null || status == TaskStatus.RUNNING,
+				status == null || status == TaskStatus.SUCCEEDED, status == null || status == TaskStatus.FAILED,
+				pageRequest);
 
 		// The locked entity reference may load lazy associations: only for the returned page
-		return paginationJson.applyPagination(uriInfo, page, e -> {
-			e.getKey().setLocked(lockedRef(e.getValue()));
-			return e.getKey();
+		return paginationJson.applyPagination(uriInfo, page, t -> {
+			final var vo = toTaskVoLight(t);
+			vo.setLocked(lockedRef(t));
+			return vo;
 		});
 	}
 
 	/**
-	 * Resolve the visible tasks of a runner: node and subscription runners are user-scoped via their
-	 * {@code findAllVisible}; any other runner falls back to all its tasks (justified by the admin-only access).
+	 * Return a page of the visible tasks of a runner having one of the enabled statuses: node and subscription runners
+	 * are user-scoped; any other runner falls back to all its tasks (justified by the admin-only access).
+	 *
+	 * @param runner    The task runner.
+	 * @param user      The current principal user.
+	 * @param running   When <code>true</code>, the running tasks are included.
+	 * @param succeeded When <code>true</code>, the succeeded tasks are included.
+	 * @param failed    When <code>true</code>, the failed tasks are included.
+	 * @param page      The pagination and the sort.
+	 * @return The page of visible tasks.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected List<AbstractLongTask<?, ?>> visibleTasks(final LongTaskRunner runner, final String user) {
+	protected Page<AbstractLongTask<?, ?>> visibleTasks(final LongTaskRunner runner, final String user,
+			final boolean running, final boolean succeeded, final boolean failed, final Pageable page) {
 		if (runner instanceof LongTaskRunnerNode) {
-			return ((LongTaskNodeRepository) runner.getTaskRepository()).findAllVisible(user);
+			return ((LongTaskNodeRepository) runner.getTaskRepository()).findAllVisible(user, running, succeeded, failed,
+					page);
 		}
 		if (runner instanceof LongTaskRunnerSubscription) {
-			return ((LongTaskSubscriptionRepository) runner.getTaskRepository()).findAllVisible(user);
+			return ((LongTaskSubscriptionRepository) runner.getTaskRepository()).findAllVisible(user, running, succeeded,
+					failed, page);
 		}
-		return runner.getTaskRepository().findAll();
+		return runner.getTaskRepository().findAllByStatus(running, succeeded, failed, page);
+	}
+
+	/**
+	 * Return the status counters of the visible tasks of a runner, see
+	 * {@link #visibleTasks(LongTaskRunner, String, boolean, boolean, boolean, Pageable)}.
+	 *
+	 * @param runner The task runner.
+	 * @param user   The current principal user.
+	 * @return A single row: total, running and failed task counts.
+	 */
+	@SuppressWarnings("rawtypes")
+	protected Object[] countVisibleTasks(final LongTaskRunner runner, final String user) {
+		final List<Object[]> result;
+		if (runner instanceof LongTaskRunnerNode) {
+			result = ((LongTaskNodeRepository) runner.getTaskRepository()).countVisibleByStatus(user);
+		} else if (runner instanceof LongTaskRunnerSubscription) {
+			result = ((LongTaskSubscriptionRepository) runner.getTaskRepository()).countVisibleByStatus(user);
+		} else {
+			result = runner.getTaskRepository().countByStatus();
+		}
+		return result.getFirst();
 	}
 
 	/**
@@ -145,18 +184,13 @@ public class TaskStatusResource {
 	 */
 	@SuppressWarnings("rawtypes")
 	protected LongTaskRunnerVo toRunnerVo(final String key, final LongTaskRunner runner, final String user) {
-		var running = 0;
-		var succeeded = 0;
-		var failed = 0;
-		final var tasks = visibleTasks(runner, user);
-		for (final var task : tasks) {
-			final var status = status(task);
-			running += status == TaskStatus.RUNNING ? 1 : 0;
-			succeeded += status == TaskStatus.SUCCEEDED ? 1 : 0;
-			failed += status == TaskStatus.FAILED ? 1 : 0;
-		}
+		final var counts = countVisibleTasks(runner, user);
+		final var total = ((Number) counts[0]).intValue();
+		final var running = ((Number) counts[1]).intValue();
+		final var failed = ((Number) counts[2]).intValue();
 		final var label = runner.newTask().get().getClass().getSimpleName();
-		return new LongTaskRunnerVo(key, label, type(runner), new TaskStatsVo(tasks.size(), running, succeeded, failed));
+		return new LongTaskRunnerVo(key, label, type(runner),
+				new TaskStatsVo(total, running, total - running - failed, failed));
 	}
 
 	/**
@@ -209,33 +243,5 @@ public class TaskStatusResource {
 			return TaskStatusType.SUBSCRIPTION;
 		}
 		return TaskStatusType.OTHER;
-	}
-
-	/**
-	 * Build a comparator from the requested sort, defaulting to start date descending.
-	 */
-	protected Comparator<TaskVo> comparator(final Sort sort) {
-		Comparator<TaskVo> result = null;
-		for (final var order : sort) {
-			final var base = comparatorFor(order.getProperty());
-			final var directed = order.isDescending() ? base.reversed() : base;
-			result = result == null ? directed : result.thenComparing(directed);
-		}
-		return result == null
-				? Comparator.comparing(TaskVo::getStart, Comparator.nullsLast(Comparator.naturalOrder())).reversed()
-				: result;
-	}
-
-	/**
-	 * Ascending comparator for a single sortable property. Unknown properties fall back to the start date.
-	 */
-	protected Comparator<TaskVo> comparatorFor(final String property) {
-		return switch (property) {
-		case "id" -> Comparator.comparing(TaskVo::getId, Comparator.nullsLast(Comparator.naturalOrder()));
-		case AUTHOR -> Comparator.comparing(TaskVo::getAuthor, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
-		case "end" -> Comparator.comparing(TaskVo::getEnd, Comparator.nullsLast(Comparator.naturalOrder()));
-		case STATUS -> Comparator.comparing(t -> t.getStatus().name());
-		default -> Comparator.comparing(TaskVo::getStart, Comparator.nullsLast(Comparator.naturalOrder()));
-		};
 	}
 }

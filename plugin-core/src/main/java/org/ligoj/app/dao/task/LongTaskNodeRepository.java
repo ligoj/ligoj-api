@@ -10,6 +10,8 @@ import java.util.List;
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.model.AbstractLongTask;
 import org.ligoj.app.model.Node;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
@@ -37,6 +39,30 @@ public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>
 	@SuppressWarnings("unused")
 	@Query("SELECT i FROM #{#entityName} i INNER JOIN i.locked AS n WHERE " + NodeRepository.VISIBLE_NODES)
 	List<T> findAllVisible(String user);
+
+	/**
+	 * Return the status counters of the tasks whose locked node is visible by the given user.
+	 *
+	 * @param user The current principal user.
+	 * @return A single row: total, running and failed task counts.
+	 */
+	@Query(STATUS_COUNTS + " INNER JOIN i.locked AS n WHERE " + NodeRepository.VISIBLE_NODES)
+	List<Object[]> countVisibleByStatus(String user);
+
+	/**
+	 * Return a page of the tasks whose locked node is visible by the given user and having one of the enabled
+	 * statuses.
+	 *
+	 * @param user      The current principal user.
+	 * @param running   When <code>true</code>, the running tasks are included.
+	 * @param succeeded When <code>true</code>, the succeeded tasks are included.
+	 * @param failed    When <code>true</code>, the failed tasks are included.
+	 * @param page      The pagination and the sort. The status sort uses {@link #STATUS_ORDER}.
+	 * @return The page of visible tasks.
+	 */
+	@Query("SELECT i FROM #{#entityName} i INNER JOIN i.locked AS n WHERE " + NodeRepository.VISIBLE_NODES + " AND "
+			+ STATUS_FILTER)
+	Page<T> findAllVisible(String user, boolean running, boolean succeeded, boolean failed, Pageable page);
 
 	@Override
 	@Lock(LockModeType.PESSIMISTIC_WRITE)
