@@ -48,7 +48,7 @@ jobs:
           -Dsonar.javascript.exclusions="node_modules,dist"
           -Dsonar.host.url="https://sonarcloud.io"
           -Dsonar.organization=ligoj-github
-          -Dsonar.projectVersion=${{ steps.version.outputs.version }}
+          -Dsonar.projectVersion=${{ env.RELEASE_VERSION }}
           -Dmaven.javadoc.skip=true
           -Dmaven.ut.reuseForks=true -Dmaven.it.reuseForks=false
           -Djava.awt.headless=true
