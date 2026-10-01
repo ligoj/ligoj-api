@@ -312,6 +312,42 @@ class DelegateOrgResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
+	void matchingDnNotPattern() {
+		// A delegate on "ou=dept_a" matches its own tree, but not the tree "ou=deptXa": '_' is not a wildcard
+		final var delegate = new DelegateOrg();
+		delegate.setReceiver("dn-user");
+		delegate.setReceiverType(ReceiverType.USER);
+		delegate.setType(DelegateType.TREE);
+		delegate.setName("-");
+		delegate.setDn("ou=dept_a,dc=sample,dc=com");
+		delegate.setCanAdmin(true);
+		repository.saveAndFlush(delegate);
+
+		// Not an administrator: only the delegates apply
+		initSpringSecurityContext("dn-user");
+		Assertions.assertFalse(repository.findByMatchingDnForAdmin("dn-user", "cn=x,ou=dept_a,dc=sample,dc=com", DelegateType.TREE).isEmpty());
+		Assertions.assertFalse(repository.findByMatchingDnForAdmin("dn-user", "ou=dept_a,dc=sample,dc=com", DelegateType.TREE).isEmpty());
+		Assertions.assertTrue(repository.findByMatchingDnForAdmin("dn-user", "cn=x,ou=deptXa,dc=sample,dc=com", DelegateType.TREE).isEmpty());
+	}
+
+	@Test
+	void createWriteWithoutWriteDelegate() {
+		// "mtuyer" administers the company "ing" without the 'write' flag: it cannot grant this flag
+		initSpringSecurityContext("mtuyer");
+		final var vo = new DelegateOrgEditionVo();
+		vo.setName("ing");
+		vo.setType(DelegateType.COMPANY);
+		vo.setReceiver("ing");
+		vo.setReceiverType(ReceiverType.COMPANY);
+		vo.setCanWrite(true);
+		Assertions.assertThrows(ForbiddenException.class, () -> resource.create(vo));
+
+		// Without the 'write' flag, the delegate can be created
+		vo.setCanWrite(false);
+		Assertions.assertTrue(resource.create(vo) > 0);
+	}
+
+	@Test
 	void createDelegateCompany() {
 		final var vo = new DelegateOrgEditionVo();
 		vo.setName("socygan");

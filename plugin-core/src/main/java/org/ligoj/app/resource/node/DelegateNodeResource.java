@@ -87,6 +87,8 @@ public class DelegateNodeResource {
 	 */
 	@POST
 	public int create(final DelegateNode vo) {
+		// A creation never overwrites an existing delegate
+		vo.setId(null);
 		return validateSaveOrUpdate(vo).getId();
 	}
 
@@ -115,19 +117,34 @@ public class DelegateNodeResource {
 	}
 
 	/**
-	 * Create a delegate. Rules are :
+	 * Update a delegate. Rules are :
 	 * <ul>
+	 * <li>The replaced delegate, when identified, must be visible and managed by the current user.</li>
 	 * <li>Related node must be managed by the current user, directly or via another parent delegate.</li>
 	 * <li>'write' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
-	 * <li>'admin' flag cannot be <code>true</code> without already owning an applicable delegate with this flag.</li>
 	 * </ul>
 	 * Target user is not checked.
 	 *
-	 * @param vo the object to create.
+	 * @param vo the object to update.
 	 */
 	@PUT
 	public void update(final DelegateNode vo) {
+		if (vo.getId() != null) {
+			// The replaced delegate must be managed too, not only the new one
+			final var existing = repository.findOneVisible(vo.getId(), securityHelper.getLogin());
+			if (existing == null || !canManage(existing)) {
+				throw new NotFoundException();
+			}
+		}
 		validateSaveOrUpdate(vo);
+	}
+
+	/**
+	 * Indicate the given delegate can be managed by the current user: a delegate with the 'admin' flag on its node or
+	 * a parent, and with the 'write' flag when the delegate has it.
+	 */
+	private boolean canManage(final DelegateNode delegate) {
+		return repository.manageNode(securityHelper.getLogin(), delegate.getName(), delegate.isCanWrite()) > 0;
 	}
 
 	/**
@@ -139,7 +156,11 @@ public class DelegateNodeResource {
 	@GET
 	@Path("{id:\\d+}")
 	public DelegateNode findById(@PathParam("id") final int id) {
-		return repository.findOneExpected(id);
+		final var entity = repository.findOneVisible(id, securityHelper.getLogin());
+		if (entity == null) {
+			throw new NotFoundException();
+		}
+		return entity;
 	}
 
 	/**
@@ -157,7 +178,7 @@ public class DelegateNodeResource {
 	public void delete(@PathParam("id") final int id) {
 		// Perform the deletion and check the result
 		var entity = repository.findById(id, securityHelper.getLogin());
-		if (entity == null) {
+		if (entity == null || !canManage(entity)) {
 			throw new NotFoundException();
 		}
 		repository.delete(entity);
