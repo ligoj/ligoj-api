@@ -33,6 +33,7 @@ import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -862,6 +863,51 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, statuses.size());
 		Assertions.assertEquals(NodeStatus.UP, statuses.get(subscription).getStatus());
 		Assertions.assertEquals(NodeStatus.UP, resource.refreshStatusPost(subscription).getStatus());
+	}
+
+	@Test
+	void refreshStatusesPostNotVisible() {
+		// One invisible subscription rejects the whole request, before any tool call
+		final var other = repository.findAllLight().stream().map(r -> (Integer) r[0]).filter(i -> i != subscription)
+				.findFirst().orElseThrow();
+		initSpringSecurityContext("any");
+		final var ids = Set.of(subscription, other);
+		Assertions.assertEquals(String.valueOf(Math.min(subscription, other)), Assertions
+				.assertThrows(EntityNotFoundException.class, () -> resource.refreshStatusesPost(ids)).getMessage());
+	}
+
+	@Test
+	void refreshStatusesPostPartiallyMissing() throws IOException {
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
+		final var ids = Set.of(subscription, -1);
+		Assertions.assertEquals("-1",
+				Assertions.assertThrows(EntityNotFoundException.class, () -> resource.refreshStatusesPost(ids)).getMessage());
+	}
+
+	@Test
+	void refreshStatusGet() throws IOException {
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
+		Assertions.assertEquals(NodeStatus.UP, resource.refreshStatus(subscription).getStatus());
+	}
+
+	@Test
+	void refreshStatusesPostEmpty() {
+		Assertions.assertEquals(0, resource.refreshStatusesPost(Set.of()).size());
+	}
+
+	@Test
+	void refreshStatusesPostNoUser() {
+		SecurityContextHolder.clearContext();
+		final var ids = Set.of(subscription);
+		Assertions.assertThrows(EntityNotFoundException.class, () -> resource.refreshStatusesPost(ids));
+	}
+
+	@Test
+	void findAllVisibleByIds() {
+		final var all = repository.findAllLight().stream().map(r -> (Integer) r[0]).toList();
+		Assertions.assertEquals(all.size(), repository.findAllVisible(all, DEFAULT_USER).size());
+		initSpringSecurityContext("any");
+		Assertions.assertEquals(0, repository.findAllVisible(all, "any").size());
 	}
 
 	@Test

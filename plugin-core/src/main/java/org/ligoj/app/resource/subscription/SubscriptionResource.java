@@ -546,7 +546,26 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 		if (ids.size() > MAX_REFRESH) {
 			throw new ValidationJsonException("id", "Size", "max", MAX_REFRESH);
 		}
-		return ids.stream().map(this::refreshStatusPost)
+		if (ids.isEmpty()) {
+			return new HashMap<>();
+		}
+		final var user = securityHelper.getLogin();
+		if (user == null) {
+			// No authenticated user: nothing is visible, see checkVisible
+			throw new EntityNotFoundException(String.valueOf(Collections.min(ids)));
+		}
+
+		// Check the visibility of all the subscriptions at once, before any tool call
+		final var subscriptions = repository.findAllVisible(ids, user);
+		if (subscriptions.size() < ids.size()) {
+			final var visible = subscriptions.stream().map(Subscription::getId).collect(Collectors.toSet());
+			throw new EntityNotFoundException(
+					String.valueOf(Collections.min(ids.stream().filter(i -> !visible.contains(i)).toList())));
+		}
+
+		// Last statuses of all the subscriptions at once
+		final var lastValues = eventResource.findLastValues(ids, EventType.STATUS);
+		return subscriptions.stream().map(s -> refreshSubscription(s, lastValues.get(s.getId())))
 				.collect(Collectors.toMap(SubscriptionStatusWithData::getId, Function.identity()));
 	}
 
@@ -554,14 +573,27 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 	 * Refresh given subscriptions and return their status.
 	 */
 	private SubscriptionStatusWithData refreshSubscription(final Subscription subscription) {
-		final var parameters = this.getParameters(subscription.getId());
+		return refreshSubscription(subscription, Optional
+				.ofNullable(eventRepository.findFirstBySubscriptionAndTypeOrderByIdDesc(subscription, EventType.STATUS))
+				.map(Event::getValue).orElse(null));
+	}
+
+	/**
+	 * Refresh given subscription and return its status. The visibility is already checked.
+	 *
+	 * @param subscription The subscription to refresh.
+	 * @param lastValue    The last known status, <code>null</code> when there is none.
+	 * @return The fresh status.
+	 */
+	private SubscriptionStatusWithData refreshSubscription(final Subscription subscription, final String lastValue) {
+		final var parameters = getParametersNoCheck(subscription.getId());
 		final var statusWithData = nodeResource.checkSubscriptionStatus(subscription, parameters);
 		statusWithData.setId(subscription.getId());
 		statusWithData.setProject(subscription.getProject().getId());
 		statusWithData.setParameters(parameterValueResource.getNonSecuredSubscriptionParameters(subscription.getId()));
 
 		// Update the last event with fresh data
-		eventResource.registerEvent(subscription, EventType.STATUS, statusWithData.getStatus().name());
+		eventResource.registerEvent(subscription, EventType.STATUS, statusWithData.getStatus().name(), lastValue);
 
 		// Return the fresh statuses
 		return statusWithData;

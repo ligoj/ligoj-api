@@ -431,7 +431,9 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		} else {
 			// All subscription of this are marked as DOWN
 			log.info("Node {} is DOWN, as well for {} related subscriptions", node.getId(), subscriptions.size());
-			subscriptions.forEach((s, ignored) -> eventResource.registerEvent(s, EventType.STATUS, NodeStatus.DOWN.name()));
+			final var lastValues = findLastValues(subscriptions.keySet());
+			subscriptions.forEach((s, ignored) -> eventResource.registerEvent(s, EventType.STATUS,
+					NodeStatus.DOWN.name(), lastValues.get(s.getId())));
 		}
 	}
 
@@ -478,15 +480,24 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	private void checkNodeSubscriptions(final Node node, final Map<String, String> nodeParameters,
 			final Map<Subscription, Map<String, String>> subscriptions) {
 		var counter = 0;
+		final var lastValues = findLastValues(subscriptions.keySet());
 		for (final var subscription : subscriptions.entrySet()) {
 			// For each subscription, check status
 			log.info("Check all subscriptions of node {} : {}/{} ...", node.getId(), counter + 1, subscriptions.size());
 			final var parameters = new HashMap<>(nodeParameters);
 			parameters.putAll(subscription.getValue());
 			final var subscriptionStatus = self.checkSubscriptionStatus(subscription.getKey(), parameters).getStatus();
-			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name());
+			eventResource.registerEvent(subscription.getKey(), EventType.STATUS, subscriptionStatus.name(),
+					lastValues.get(subscription.getKey().getId()));
 			counter++;
 		}
+	}
+
+	/**
+	 * Return the last status of the given subscriptions, in a single lookup instead of one per subscription.
+	 */
+	private Map<Integer, String> findLastValues(final Collection<Subscription> subscriptions) {
+		return eventResource.findLastValues(subscriptions.stream().map(Subscription::getId).toList(), EventType.STATUS);
 	}
 
 	/**

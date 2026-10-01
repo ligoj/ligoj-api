@@ -4,6 +4,7 @@
 package org.ligoj.app.dao;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.ligoj.app.model.Subscription;
@@ -23,6 +24,18 @@ public interface SubscriptionRepository extends RestRepository<Subscription, Int
 	 */
 	@Query("SELECT s.id, p.id, se.id FROM Subscription s INNER JOIN s.node AS se INNER JOIN s.project AS p")
 	List<Object[]> findAllLight();
+
+	/**
+	 * Return the given subscriptions attached to a project visible by the given user, in a single query. The node and
+	 * the project are fetched.
+	 *
+	 * @param ids  The subscription identifiers.
+	 * @param user The principal username.
+	 * @return The visible subscriptions among the given ones.
+	 */
+	@Query("SELECT s FROM Subscription s INNER JOIN FETCH s.node INNER JOIN FETCH s.project AS p WHERE s.id IN :ids AND "
+			+ ProjectRepository.VISIBLE_PROJECTS_EXISTS)
+	List<Subscription> findAllVisible(Collection<Integer> ids, String user);
 
 	/**
 	 * Return the subscriptions of the projects visible by the given user, with only little information. The
