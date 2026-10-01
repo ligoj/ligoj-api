@@ -12,6 +12,7 @@ import org.ligoj.app.dao.UserLogRepository;
 import org.ligoj.app.model.UserLog;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
@@ -34,6 +35,13 @@ class UserLogResourceTest extends AbstractAppTest {
 
 	@Autowired
 	private UserLogRepository repository;
+
+	@Test
+	void findAllNotAdmin() {
+		// Checked in code: the method security may not be enabled by the application
+		initSpringSecurityContext("alice");
+		Assertions.assertThrows(AccessDeniedException.class, () -> resource.findAll(newUriInfo(), null, null));
+	}
 
 	@Test
 	void log() {

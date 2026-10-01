@@ -15,6 +15,7 @@ import org.ligoj.bootstrap.core.json.PaginationJson;
 import org.ligoj.bootstrap.core.json.TableItem;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -88,9 +89,13 @@ public class UserLogResource {
 	 * @return All matching logs with pagination.
 	 */
 	@GET
-	@PreAuthorize("hasAuthority('ADMIN')")
+	@PreAuthorize("hasAuthority('" + SecurityHelper.ADMIN + "')")
 	public TableItem<UserLogVo> findAll(@Context final UriInfo uriInfo, @QueryParam("from") final Long from,
 			@QueryParam("to") final Long to) {
+		// Also checked here: the method security may not be enabled by the application
+		if (!securityHelper.isAdmin()) {
+			throw new AccessDeniedException("Administrator only");
+		}
 		final var page = paginationJson.getPageRequest(uriInfo, ORDERED_COLUMNS, CASE_SENSITIVE_COLUMNS);
 		final var result = repository.findAllByDate(from == null ? MIN_DATE : Instant.ofEpochMilli(from),
 				to == null ? MAX_DATE : Instant.ofEpochMilli(to), page);
