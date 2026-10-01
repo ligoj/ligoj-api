@@ -15,5 +15,5 @@
 	<packaging>jar</packaging>
 	<name>Ligoj - Plugin API</name>
 	<description>Plugin API definition and compatibility following semver</description>
-	<url>https://github.com/ligoj/ligoj-api/plugin-api</url>
+	<url>https://github.com/ligoj/ligoj-api/tree/master/plugin-api</url>
 </project>

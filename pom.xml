@@ -13,7 +13,7 @@
 	<version>5.0.4-SNAPSHOT</version> <!-- Required by versions plugin -->
 	<packaging>pom</packaging>
 	<name>Ligoj - API</name>
-	<description>Ligoj - API components to test and build</description>
+	<description>Ligoj plugin API: extension points, core components, test support and parent POM of the plugins</description>
 	<url>https://github.com/ligoj/ligoj-api</url>
 
 	<modules>

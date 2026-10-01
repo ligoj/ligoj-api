@@ -16,8 +16,8 @@
     <version>5.0.4-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Ligoj - API Parent</name>
-    <description>API Parent pom for all plug-in</description>
-    <url>https://github.com/ligoj/ligoj-api/parent</url>
+    <description>Parent POM of the Ligoj API modules</description>
+    <url>https://github.com/ligoj/ligoj-api/tree/master/parent</url>
 
     <scm>
         <connection>scm:git:https://github.com/ligoj/ligoj-api</connection>
