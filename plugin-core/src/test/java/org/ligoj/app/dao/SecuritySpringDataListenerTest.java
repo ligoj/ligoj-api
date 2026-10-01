@@ -19,6 +19,8 @@ import org.hibernate.type.descriptor.jdbc.VarcharJdbcType;
 import org.hibernate.type.internal.NamedBasicTypeImpl;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -29,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 import static org.mockito.Mockito.*;
 
@@ -93,6 +96,37 @@ class SecuritySpringDataListenerTest {
 		return query;
 	}
 
+	@ParameterizedTest
+	@ValueSource(strings = { "visibleGroup", "visibleCompany", "writeDN", "adminDN" })
+	void dnSuffixNotPattern(final String function) {
+		// A DN is never a LIKE pattern: '_' and '%' are valid DN characters, not wildcards
+		final var query = renderedOnce(function, ALIAS, Q_USER);
+		Assertions.assertFalse(query.contains("LIKE"), query);
+	}
+
+	@ParameterizedTest
+	@ValueSource(strings = { "inGroup", "inCompany", "inGroup2", "inCompany2" })
+	void dnSuffixNotPatternIn(final String function) {
+		final var query = renderedOnce(function, Q_USER, Q_ARG);
+		Assertions.assertFalse(query.contains("LIKE"), query);
+	}
+
+	private String renderedOnce(final String name, final String... args) {
+		var sb = new StringBuilder();
+		var appender = new StringBuilderSqlAppender(sb);
+		var translator = mock(SqlAstTranslator.class);
+		doAnswer(invocation -> {
+			appender.append(((Literal) invocation.getArgument(0)).getLiteralValue().toString());
+			return null;
+		}).when(translator).render(any(SqlAstNode.class), any(SqlAstNodeRenderingMode.class));
+		final var astParams = Stream.of(args).map(a -> new QueryLiteral<>(a,
+				new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).toList();
+		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
+		((StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name))
+				.render(appender, astParams, null, translator);
+		return sb.toString();
+	}
+
 	@Test
 	void visibleProject() {
 		assertFunction("visibleProject", 5, "_p__.team_leader=?user__", "_p__.team_leader", ALIAS, Q_USER);
@@ -115,7 +149,7 @@ class SecuritySpringDataListenerTest {
 
 	@Test
 	void adminDN() {
-		assertFunction("adminDN", 3, "_arg__=s_d5.dn OR _arg__ LIKE", ALIAS, Q_USER);
+		assertFunction("adminDN", 3, "_arg__=s_d5.dn OR RIGHT(_arg__, CHAR_LENGTH(s_d5.dn)+1)", ALIAS, Q_USER);
 	}
 
 

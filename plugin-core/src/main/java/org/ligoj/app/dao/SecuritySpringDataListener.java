@@ -41,10 +41,10 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 			+ " OR $exists ($select_do(s_d2,GROUP)   AND $exists $member(s_d2,s_cg1,$cm,$cg,$q(group),$q(user)) $end) AS s_d3 WHERE $parent_dn(s_d3.dn,$arg) $end"
 			+ " OR $exists ($select_do(s_d4,COMPANY) AND $exists $member(s_d4,s_cc1,$cu,$cc,company,id) $end)         AS s_d5 WHERE $parent_dn(s_d5.dn,$arg) $end";
 
-	private static final String IN_GROUP = "   $exists (SELECT cg.description AS dn, cg.id FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user) AS s_cg6 WHERE s_cg6.id=$arg OR $exists $cg WHERE id=$arg AND s_cg6.dn LIKE CONCAT('%,',description) $end $end";
-	private static final String IN_COMPANY = " $exists (SELECT cc.description AS dn, cc.id FROM $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user)       AS s_cc7 WHERE s_cc7.id=$arg OR $exists $cc WHERE id=$arg AND s_cc7.dn LIKE CONCAT('%,',description) $end $end";
-	private static final String IN_GROUP2 = "  $exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user AND cg.id=$arg OR $exists $cg AS cg WHERE id=$arg AND cg.description LIKE CONCAT('%,',description) $end $end";
-	private static final String IN_COMPANY2 = "$exists $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user       AND cc.id=$arg OR $exists $cc AS cc WHERE id=$arg AND cc.description LIKE CONCAT('%,',description) $end $end";
+	private static final String IN_GROUP = "   $exists (SELECT cg.description AS dn, cg.id FROM $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user) AS s_cg6 WHERE s_cg6.id=$arg OR $exists $cg WHERE id=$arg AND RIGHT(s_cg6.dn, CHAR_LENGTH(description)+1)=CONCAT(',',description) $end $end";
+	private static final String IN_COMPANY = " $exists (SELECT cc.description AS dn, cc.id FROM $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user)       AS s_cc7 WHERE s_cc7.id=$arg OR $exists $cc WHERE id=$arg AND RIGHT(s_cc7.dn, CHAR_LENGTH(description)+1)=CONCAT(',',description) $end $end";
+	private static final String IN_GROUP2 = "  $exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) WHERE cm.$q(user)=$user AND cg.id=$arg OR $exists $cg AS cg WHERE id=$arg AND RIGHT(cg.description, CHAR_LENGTH(description)+1)=CONCAT(',',description) $end $end";
+	private static final String IN_COMPANY2 = "$exists $cu AS cu LEFT JOIN $cc AS cc ON (cc.id=cu.company)   WHERE cu.id=$user       AND cc.id=$arg OR $exists $cc AS cc WHERE id=$arg AND RIGHT(cc.description, CHAR_LENGTH(description)+1)=CONCAT(',',description) $end $end";
 	private static final String IN_PKEY = "   $exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) LEFT JOIN $pj AS pj ON (pj.id=cpg.project) WHERE cm.$q(user)=$user AND pj.pkey=$pkey $end";
 	private static final String IN_PROJECT = "$exists $cm AS cm LEFT JOIN $cg AS cg ON (cg.id=cm.$q(group)) LEFT JOIN $cpg AS cpg ON (cg.id=cpg.$q(group)) WHERE cm.$q(user)=$user AND cpg.project=$project $end";
 	private static final String IS_TEAM_LEADER_ID = "$exists $pj WHERE team_leader=$user AND id=$project $end OR ";
@@ -200,7 +200,7 @@ public class SecuritySpringDataListener implements AfterJpaBeforeSpringDataListe
 
 					.replaceAll(func("member", 6), member("$1.receiver_dn", "$2.dn"))
 					.replaceAll(func("memberR", 6), member("$2.dn", "$1"))
-					.replaceAll(func("parent_dn", 2), "$2=$1 OR $2 LIKE CONCAT('%,',$1)")
+					.replaceAll(func("parent_dn", 2), "$2=$1 OR RIGHT($2, CHAR_LENGTH($1)+1)=CONCAT(',',$1)")
 					.replaceAll(func("select_do", 2),
 							"SELECT $1.dn, $1.receiver_dn FROM \\$do AS $1 WHERE $1.receiver_type='$2'"
 									+ (access == null ? "" : (" AND $1." + access + " IS true")))
