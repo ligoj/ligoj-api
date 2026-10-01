@@ -163,7 +163,9 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	}
 
 	/**
-	 * Check there no running task within the same scope of the locked object's identifier and starts a new task.
+	 * Check there no running task within the same scope of the locked object's identifier and starts a new task. The
+	 * check is protected by a database lock on the locked entity's row ({@link LongTaskRepository#lockLocked}) held
+	 * until the commit, or by a JVM lock when the task repository does not support it.
 	 *
 	 * @param lockedId    The locked entity's identifier.
 	 * @param initializer The function to call while initializing the task.
@@ -171,22 +173,40 @@ public interface LongTaskRunner<T extends AbstractLongTask<L, I>, R extends Long
 	 * @throws BusinessException When there is already a running task for this locked entity.
 	 */
 	default T startTaskInternal(final I lockedId, final Consumer<T> initializer) {
-		synchronized (getLockedRepository()) {
-
-			// Check there is no running task on the same locked entity
-			Optional.ofNullable(getTaskRepository().findNotFinishedByLocked(lockedId)).ifPresent(t -> {
-				throw new BusinessException("concurrent-task", t.getAuthor(), t.getStart(), lockedId);
-			});
-
-			// Build a new task as needed
-			final var task = createAsNeeded(lockedId);
-
-			// Reset the specific fields
-			initializer.accept(task);
-
-			// Save this entity inside this transaction
-			return getTaskRepository().saveAndFlush(task);
+		if (getTaskRepository().lockLocked(lockedId) != null) {
+			// The locked entity's row is locked until the commit: per entity and cluster-wide
+			return startTaskLocked(lockedId, initializer);
 		}
+
+		// No database lock available: serialize the starts in this JVM
+		synchronized (getLockedRepository()) {
+			return startTaskLocked(lockedId, initializer);
+		}
+	}
+
+	/**
+	 * Check there no running task for the locked object's identifier and starts a new task. The caller holds the lock
+	 * on the locked entity.
+	 *
+	 * @param lockedId    The locked entity's identifier.
+	 * @param initializer The function to call while initializing the task.
+	 * @return the locked task with status.
+	 * @throws BusinessException When there is already a running task for this locked entity.
+	 */
+	private T startTaskLocked(final I lockedId, final Consumer<T> initializer) {
+		// Check there is no running task on the same locked entity
+		Optional.ofNullable(getTaskRepository().findNotFinishedByLocked(lockedId)).ifPresent(t -> {
+			throw new BusinessException("concurrent-task", t.getAuthor(), t.getStart(), lockedId);
+		});
+
+		// Build a new task as needed
+		final var task = createAsNeeded(lockedId);
+
+		// Reset the specific fields
+		initializer.accept(task);
+
+		// Save this entity inside this transaction
+		return getTaskRepository().saveAndFlush(task);
 	}
 
 	/**

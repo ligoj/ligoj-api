@@ -46,6 +46,12 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 	private TaskStatusResource resource;
 
 	@Autowired
+	private org.ligoj.bootstrap.core.security.SecurityHelper taskSecurityHelper;
+
+	@Autowired
+	private org.ligoj.bootstrap.core.json.PaginationJson taskPaginationJson;
+
+	@Autowired
 	private TaskSampleNodeRepository nodeRepository;
 
 	@Autowired
@@ -262,6 +268,34 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		final var result = resource.findTasks(NODE_RUNNER, uriInfo, null);
 		Assertions.assertEquals(3, result.getRecordsTotal());
 		Assertions.assertEquals(2, result.getData().size());
+	}
+
+	@Test
+	void findTasksPaginatedLockedRefOnPageOnly() {
+		nodeTask("service:bt:jira", 1000, new Date(), false);
+		nodeTask("service:bt:jira:4", 2000, new Date(), false);
+		nodeTask("service:bt:jira:6", 3000, new Date(), false);
+
+		// The locked entity reference may load associations: only for the returned page
+		final var calls = new java.util.concurrent.atomic.AtomicInteger();
+		final var counting = new TaskStatusResource() {
+			@Override
+			protected LockedRefVo lockedRef(final org.ligoj.app.model.AbstractLongTask<?, ?> task) {
+				calls.incrementAndGet();
+				return super.lockedRef(task);
+			}
+		};
+		counting.applicationContext = applicationContext;
+		counting.securityHelper = taskSecurityHelper;
+		counting.paginationJson = taskPaginationJson;
+		final var uriInfo = newUriInfo();
+		uriInfo.getQueryParameters().putSingle("rows", "1");
+		uriInfo.getQueryParameters().putSingle("page", "2");
+		final var result = counting.findTasks(NODE_RUNNER, uriInfo, null);
+		Assertions.assertEquals(3, result.getRecordsTotal());
+		Assertions.assertEquals(1, result.getData().size());
+		Assertions.assertEquals("service:bt:jira:4", result.getData().getFirst().getLocked().getNode());
+		Assertions.assertEquals(1, calls.get());
 	}
 
 	@Test

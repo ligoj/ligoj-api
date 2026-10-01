@@ -3,11 +3,14 @@
  */
 package org.ligoj.app.dao.task;
 
+import jakarta.persistence.LockModeType;
+
 import java.util.List;
 
 import org.ligoj.app.dao.ProjectRepository;
 import org.ligoj.app.model.AbstractLongTask;
 import org.ligoj.app.model.Subscription;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -37,4 +40,8 @@ public interface LongTaskSubscriptionRepository<T extends AbstractLongTask<Subsc
 			+ " LEFT JOIN p.cacheGroups AS cpg LEFT JOIN cpg.group AS cg WHERE " + ProjectRepository.VISIBLE_PROJECTS)
 	List<T> findAllVisible(String user);
 
+	@Override
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT s FROM Subscription s WHERE s.id = :locked")
+	Subscription lockLocked(Integer locked);
 }

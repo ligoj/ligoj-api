@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.dao.SubscriptionRepository;
 import org.ligoj.app.dao.TaskSampleNodeRepository;
 import org.ligoj.app.dao.TaskSampleSubscriptionRepository;
@@ -29,6 +31,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Test class of {@link LongTaskRunner}
@@ -251,6 +254,38 @@ class LongTaskRunnerTest extends AbstractOrgTest {
 		final var task = resourceNode.getTask("service:bt:jira");
 		Assertions.assertFalse(task.isFailed());
 		Assertions.assertNull(task.getEnd());
+	}
+
+	@Test
+	void startTaskDatabaseLock() {
+		// Node and subscription tasks lock the row of the locked entity until the commit, without JVM monitor
+		final var holds = new java.util.ArrayList<Boolean>();
+		resourceNode.startTask("service:bt:jira", t -> holds.add(Thread.holdsLock(resourceNode.getLockedRepository())));
+		resource.startTask(subscription, t -> holds.add(Thread.holdsLock(resource.getLockedRepository())));
+		Assertions.assertEquals(List.of(false, false), holds);
+		Assertions.assertEquals("service:bt:jira", repositoryNode.lockLocked("service:bt:jira").getId());
+		Assertions.assertEquals(subscription, repository.lockLocked(subscription).getId());
+		Assertions.assertNull(repositoryNode.lockLocked("service:any"));
+	}
+
+	@Test
+	@SuppressWarnings("unchecked")
+	void startTaskJvmLock() {
+		// Without database lock support, the starts are serialized by the JVM
+		final org.ligoj.app.dao.task.LongTaskRepository<TaskSampleNode, Node, String> taskRepository = Mockito
+				.mock(org.ligoj.app.dao.task.LongTaskRepository.class, Mockito.CALLS_REAL_METHODS);
+		Assertions.assertNull(taskRepository.lockLocked("service:bt:jira"));
+
+		final var holds = new java.util.ArrayList<Boolean>();
+		final var runner = Mockito.mock(LongTaskRunner.class, Mockito.CALLS_REAL_METHODS);
+		final var lockedRepository = Mockito.mock(NodeRepository.class);
+		final var mockTaskRepository = Mockito.mock(TaskSampleNodeRepository.class);
+		Mockito.doReturn(mockTaskRepository).when(runner).getTaskRepository();
+		Mockito.doReturn(lockedRepository).when(runner).getLockedRepository();
+		Mockito.doReturn(new TaskSampleNode()).when(runner).createAsNeeded("service:bt:jira");
+		runner.startTaskInternal("service:bt:jira",
+				t -> holds.add(Thread.holdsLock(lockedRepository)));
+		Assertions.assertEquals(List.of(true), holds);
 	}
 
 	@Test

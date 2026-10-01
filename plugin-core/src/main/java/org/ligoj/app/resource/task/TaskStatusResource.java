@@ -17,7 +17,6 @@ import jakarta.ws.rs.core.UriInfo;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.ligoj.app.dao.task.LongTaskNodeRepository;
 import org.ligoj.app.dao.task.LongTaskSubscriptionRepository;
@@ -90,7 +89,7 @@ public class TaskStatusResource {
 	/**
 	 * List the visible tasks of a single runner, paginated, optionally filtered by status, sorted by start date
 	 * descending by default. Filtering / sorting / pagination are applied in memory (at most one task per locked
-	 * entity).
+	 * entity), the locked entity reference is resolved only for the returned page.
 	 *
 	 * @param key          The runner bean name.
 	 * @param uriInfo      DataTables pagination parameters.
@@ -107,16 +106,23 @@ public class TaskStatusResource {
 		}
 		final var status = TaskStatus.parse(statusFilter);
 		final var user = securityHelper.getLogin();
-		final var filtered = visibleTasks(runner, user).stream().map(this::toTaskVo)
-				.filter(v -> status == null || v.getStatus() == status).toList();
+		final var filtered = visibleTasks(runner, user).stream()
+				.<Map.Entry<TaskVo, AbstractLongTask<?, ?>>>map(t -> Map.entry(toTaskVoLight(t), t))
+				.filter(e -> status == null || e.getKey().getStatus() == status).toList();
 
 		// In-memory sort + pagination using the DataTables page request.
 		final var pageRequest = paginationJson.getPageRequest(uriInfo, ORM_MAPPING);
-		final var sorted = filtered.stream().sorted(comparator(pageRequest.getSort())).toList();
+		final var sorted = filtered.stream().sorted(Map.Entry.<TaskVo, AbstractLongTask<?, ?>>comparingByKey(comparator(pageRequest.getSort())))
+				.toList();
 		final var from = (int) Math.min(pageRequest.getOffset(), sorted.size());
 		final var to = Math.min(from + pageRequest.getPageSize(), sorted.size());
 		final var page = new PageImpl<>(sorted.subList(from, to), pageRequest, sorted.size());
-		return paginationJson.applyPagination(uriInfo, page, Function.identity());
+
+		// The locked entity reference may load lazy associations: only for the returned page
+		return paginationJson.applyPagination(uriInfo, page, e -> {
+			e.getKey().setLocked(lockedRef(e.getValue()));
+			return e.getKey();
+		});
 	}
 
 	/**
@@ -154,16 +160,15 @@ public class TaskStatusResource {
 	}
 
 	/**
-	 * Map a task entity to its VO.
+	 * Map a task entity to its VO, without the locked entity reference: only the task's own attributes are read.
 	 */
-	protected TaskVo toTaskVo(final AbstractLongTask<?, ?> task) {
+	protected TaskVo toTaskVoLight(final AbstractLongTask<?, ?> task) {
 		final var vo = new TaskVo();
 		vo.setId(task.getId());
 		vo.setAuthor(task.getAuthor());
 		vo.setStart(task.getStart());
 		vo.setEnd(task.getEnd());
 		vo.setStatus(status(task));
-		vo.setLocked(lockedRef(task));
 		return vo;
 	}
 

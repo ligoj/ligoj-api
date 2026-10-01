@@ -31,4 +31,17 @@ public interface LongTaskRepository<T extends AbstractLongTask<L, I>, L extends 
 	@SuppressWarnings("unused")
 	T findNotFinishedByLocked(I locked);
 
+	/**
+	 * Lock the row of the locked entity until the end of the current transaction, so concurrent task starts on the
+	 * same entity are serialized by the database, across all the cluster members. The default implementation does not
+	 * lock and returns <code>null</code>: the caller falls back to a JVM lock.
+	 *
+	 * @param locked The locked entity's identifier.
+	 * @return The locked entity, or <code>null</code> when it does not exist or when database locking is not
+	 *         supported.
+	 */
+	default L lockLocked(final I locked) {
+		return null;
+	}
+
 }

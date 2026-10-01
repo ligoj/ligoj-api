@@ -3,11 +3,14 @@
  */
 package org.ligoj.app.dao.task;
 
+import jakarta.persistence.LockModeType;
+
 import java.util.List;
 
 import org.ligoj.app.dao.NodeRepository;
 import org.ligoj.app.model.AbstractLongTask;
 import org.ligoj.app.model.Node;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.NoRepositoryBean;
 
@@ -34,4 +37,9 @@ public interface LongTaskNodeRepository<T extends AbstractLongTask<Node, String>
 	@SuppressWarnings("unused")
 	@Query("SELECT i FROM #{#entityName} i INNER JOIN i.locked AS n WHERE " + NodeRepository.VISIBLE_NODES)
 	List<T> findAllVisible(String user);
+
+	@Override
+	@Lock(LockModeType.PESSIMISTIC_WRITE)
+	@Query("SELECT n FROM Node n WHERE n.id = :locked")
+	Node lockLocked(String locked);
 }
