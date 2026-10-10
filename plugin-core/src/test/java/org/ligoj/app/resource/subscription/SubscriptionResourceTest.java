@@ -525,7 +525,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		// A bounded number of subscriptions per request: each one implies a remote call
 		final var ids = java.util.stream.IntStream.rangeClosed(1, SubscriptionResource.MAX_REFRESH + 1).boxed()
 				.collect(java.util.stream.Collectors.toSet());
-		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.refreshStatuses(ids)),
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> resource.refreshStatusesPost(ids)),
 				"id", "Size");
 	}
 
@@ -760,8 +760,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		var total = 0;
 		for (final var user : List.of(DEFAULT_USER, "fdaugan", "admin-test", "user1", "any")) {
 			initSpringSecurityContext(user);
-			final var expected = repository.findAllLight().stream()
-					.filter(rs -> projectRepository.isVisible((Integer) rs[1], user)).map(rs -> (Integer) rs[0])
+			final var expected = repository.findAll().stream()
+					.filter(s -> projectRepository.isVisible(s.getProject().getId(), user)).map(Subscription::getId)
 					.collect(java.util.stream.Collectors.toSet());
 			final var result = resource.findAll();
 			final var actual = result.getSubscriptions().stream().map(SubscriptionLightVo::getId)
@@ -836,6 +836,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	}
 
+	@SuppressWarnings("deprecation") // The deprecated GET endpoint keeps working until its removal
 	@Test
 	void refreshStatuses() throws IOException {
 		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
@@ -868,7 +869,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	@Test
 	void refreshStatusesPostNotVisible() {
 		// One invisible subscription rejects the whole request, before any tool call
-		final var other = repository.findAllLight().stream().map(r -> (Integer) r[0]).filter(i -> i != subscription)
+		final var other = repository.findAll().stream().map(Subscription::getId).filter(i -> i != subscription)
 				.findFirst().orElseThrow();
 		initSpringSecurityContext("any");
 		final var ids = Set.of(subscription, other);
@@ -884,6 +885,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 				Assertions.assertThrows(EntityNotFoundException.class, () -> resource.refreshStatusesPost(ids)).getMessage());
 	}
 
+	@SuppressWarnings("deprecation") // The deprecated GET endpoint keeps working until its removal
 	@Test
 	void refreshStatusGet() throws IOException {
 		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
@@ -904,7 +906,7 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	@Test
 	void findAllVisibleByIds() {
-		final var all = repository.findAllLight().stream().map(r -> (Integer) r[0]).toList();
+		final var all = repository.findAll().stream().map(Subscription::getId).toList();
 		Assertions.assertEquals(all.size(), repository.findAllVisible(all, DEFAULT_USER).size());
 		initSpringSecurityContext("any");
 		Assertions.assertEquals(0, repository.findAllVisible(all, "any").size());

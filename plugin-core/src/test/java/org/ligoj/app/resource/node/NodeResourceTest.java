@@ -308,11 +308,11 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertNull(cacheManager.getCache(NodeResource.HEALTH_LOCK_CACHE).get("health.node"));
 	}
 
+	@SuppressWarnings("unchecked") // JCache reads a configuration through its raw class
 	@Test
 	void parameterCachesExpire() {
 		// The parameter caches, holding decrypted values for the subscriptions, are not eternal
 		for (final var name : List.of("node-parameters", "subscription-parameters")) {
-			@SuppressWarnings("unchecked")
 			final var cache = (javax.cache.Cache<Object, Object>) cacheManager.getCache(name).getNativeCache();
 			final var expiry = ((javax.cache.expiry.ExpiryPolicy) cache
 					.getConfiguration(javax.cache.configuration.CompleteConfiguration.class).getExpiryPolicyFactory().create())
@@ -1029,6 +1029,7 @@ class NodeResourceTest extends AbstractAppTest {
 				nodes.size());
 	}
 
+	@SuppressWarnings("deprecation") // The deprecated user-scoped queries are the reference of the visibility filtering
 	@Test
 	void getNodeStatisticsVisibility() {
 		// A user seeing only the JIRA nodes

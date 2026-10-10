@@ -87,6 +87,7 @@ class ProjectRepositoryTest extends AbstractOrgTest {
 		Assertions.assertEquals(all.size(), page.getTotalElements());
 	}
 
+	@SuppressWarnings("deprecation") // The deprecated query keeps working until its removal
 	@Test
 	void findAllHavingSubscription() {
 		// The visible projects having at least one subscription

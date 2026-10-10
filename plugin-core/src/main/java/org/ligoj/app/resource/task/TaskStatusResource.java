@@ -15,6 +15,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
 
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,9 +79,10 @@ public class TaskStatusResource {
 	 *
 	 * @return the runner beans.
 	 */
-	@SuppressWarnings("rawtypes")
-	protected Map<String, LongTaskRunner> getRunners() {
-		return applicationContext.getBeansOfType(LongTaskRunner.class);
+	protected Map<String, LongTaskRunner<?, ?, ?, ?, ?, ?>> getRunners() {
+		final var runners = new LinkedHashMap<String, LongTaskRunner<?, ?, ?, ?, ?, ?>>();
+		applicationContext.getBeansOfType(LongTaskRunner.class).forEach(runners::put);
+		return runners;
 	}
 
 	/**
@@ -144,15 +146,14 @@ public class TaskStatusResource {
 	 * @param page      The pagination and the sort.
 	 * @return The page of visible tasks.
 	 */
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	protected Page<AbstractLongTask<?, ?>> visibleTasks(final LongTaskRunner runner, final String user,
+	protected Page<? extends AbstractLongTask<?, ?>> visibleTasks(final LongTaskRunner<?, ?, ?, ?, ?, ?> runner, final String user,
 			final boolean running, final boolean succeeded, final boolean failed, final Pageable page) {
 		if (runner instanceof LongTaskRunnerNode) {
-			return ((LongTaskNodeRepository) runner.getTaskRepository()).findAllVisible(user, running, succeeded, failed,
+			return ((LongTaskNodeRepository<?>) runner.getTaskRepository()).findAllVisible(user, running, succeeded, failed,
 					page);
 		}
 		if (runner instanceof LongTaskRunnerSubscription) {
-			return ((LongTaskSubscriptionRepository) runner.getTaskRepository()).findAllVisible(user, running, succeeded,
+			return ((LongTaskSubscriptionRepository<?>) runner.getTaskRepository()).findAllVisible(user, running, succeeded,
 					failed, page);
 		}
 		return runner.getTaskRepository().findAllByStatus(running, succeeded, failed, page);
@@ -166,13 +167,12 @@ public class TaskStatusResource {
 	 * @param user   The current principal user.
 	 * @return A single row: total, running and failed task counts.
 	 */
-	@SuppressWarnings("rawtypes")
-	protected Object[] countVisibleTasks(final LongTaskRunner runner, final String user) {
+	protected Object[] countVisibleTasks(final LongTaskRunner<?, ?, ?, ?, ?, ?> runner, final String user) {
 		final List<Object[]> result;
 		if (runner instanceof LongTaskRunnerNode) {
-			result = ((LongTaskNodeRepository) runner.getTaskRepository()).countVisibleByStatus(user);
+			result = ((LongTaskNodeRepository<?>) runner.getTaskRepository()).countVisibleByStatus(user);
 		} else if (runner instanceof LongTaskRunnerSubscription) {
-			result = ((LongTaskSubscriptionRepository) runner.getTaskRepository()).countVisibleByStatus(user);
+			result = ((LongTaskSubscriptionRepository<?>) runner.getTaskRepository()).countVisibleByStatus(user);
 		} else {
 			result = runner.getTaskRepository().countByStatus();
 		}
@@ -187,8 +187,7 @@ public class TaskStatusResource {
 	 * @param user   The current principal user.
 	 * @return The runner descriptor with its statistics.
 	 */
-	@SuppressWarnings("rawtypes")
-	protected LongTaskRunnerVo toRunnerVo(final String key, final LongTaskRunner runner, final String user) {
+	protected LongTaskRunnerVo toRunnerVo(final String key, final LongTaskRunner<?, ?, ?, ?, ?, ?> runner, final String user) {
 		final var counts = countVisibleTasks(runner, user);
 		final var total = ((Number) counts[0]).intValue();
 		final var running = ((Number) counts[1]).intValue();
@@ -251,8 +250,7 @@ public class TaskStatusResource {
 	 * @param runner The task runner.
 	 * @return The runner type: node, subscription or other.
 	 */
-	@SuppressWarnings("rawtypes")
-	protected TaskStatusType type(final LongTaskRunner runner) {
+	protected TaskStatusType type(final LongTaskRunner<?, ?, ?, ?, ?, ?> runner) {
 		if (runner instanceof LongTaskRunnerNode) {
 			return TaskStatusType.NODE;
 		}
