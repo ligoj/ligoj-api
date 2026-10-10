@@ -5,9 +5,11 @@ package org.ligoj.app.resource.node;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.ligoj.app.model.CredentialExpirySource;
 import org.ligoj.app.model.Node;
 import org.ligoj.app.resource.ServicePluginLocator;
 
+import java.time.Instant;
 import java.util.ArrayList;
 
 import static org.mockito.Mockito.mock;
@@ -109,5 +111,17 @@ class NodeHelperTest {
 
 		Assertions.assertNull(vo.getUiColor());
 		Assertions.assertEquals("#0052CC", vo.getRefined().getUiColor());
+	}
+
+	@Test
+	void toVoLightCredentialExpiry() {
+		final var entity = new Node();
+		entity.setId("service:s1:t2:i3");
+		entity.setName("I3");
+		entity.setCredentialExpiry(Instant.parse("2026-11-30T00:00:00Z"));
+		entity.setCredentialExpirySource(CredentialExpirySource.MANUAL);
+		final var vo = NodeHelper.toVoLight(entity);
+		Assertions.assertEquals(entity.getCredentialExpiry(), vo.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, vo.getCredentialExpirySource());
 	}
 }

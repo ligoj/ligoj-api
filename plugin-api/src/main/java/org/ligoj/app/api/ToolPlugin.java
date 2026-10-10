@@ -3,6 +3,7 @@
  */
 package org.ligoj.app.api;
 
+import java.time.Instant;
 import java.util.Map;
 
 /**
@@ -30,6 +31,25 @@ public interface ToolPlugin extends ServicePlugin {
 	 */
 	default String getLastVersion() throws Exception { // NOSONAR
 		// Not implemented, offline, or private tool
+		return null;
+	}
+
+	/**
+	 * Return the expiry of the credentials given in the node parameters, when the tool exposes it. Called by the node
+	 * status check once the node is UP, so with working credentials.
+	 * <p>
+	 * The signature uses only JDK types: a plug-in may declare this method without <code>@Override</code> and still
+	 * build against an older API, where the method is never called, and override it on this one.
+	 *
+	 * @param node       The node identifier.
+	 * @param parameters The actual parameter values of the node, secured values decrypted.
+	 * @return The instant the credentials stop working, {@link Instant#MAX} when they never expire, or
+	 *         <code>null</code> when the tool does not tell: the stored expiry is then kept. By default,
+	 *         <code>null</code>.
+	 * @throws Exception Expiry cannot be retrieved. This error is caught at higher level, as an unknown expiry.
+	 */
+	default Instant getCredentialExpiry(final String node, final Map<String, String> parameters) throws Exception { // NOSONAR
+		// Not implemented: the tool does not expose the expiry of its credentials
 		return null;
 	}
 

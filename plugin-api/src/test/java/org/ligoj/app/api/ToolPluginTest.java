@@ -41,4 +41,12 @@ class ToolPluginTest {
 	void getVersion() throws Exception {
 		Assertions.assertNull(plugin.getVersion(null));
 	}
+
+	@Test
+	void getCredentialExpiry() throws Exception {
+		// Not implemented: an unknown expiry, the stored one is kept. Only JDK types, so a plug-in implementing it links
+		// on an API without this method.
+		final java.time.Instant expiry = plugin.getCredentialExpiry("service:s1:t2:i3", java.util.Map.of());
+		Assertions.assertNull(expiry);
+	}
 }

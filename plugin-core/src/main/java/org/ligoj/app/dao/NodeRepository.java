@@ -3,15 +3,18 @@
  */
 package org.ligoj.app.dao;
 
+import java.time.Instant;
 import java.util.List;
 
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
+import org.ligoj.app.model.CredentialExpirySource;
 import org.ligoj.app.model.Node;
 import org.ligoj.bootstrap.core.dao.RestRepository;
 import org.ligoj.bootstrap.model.system.SystemUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 /**
@@ -181,4 +184,24 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	@Query("SELECT count(id) FROM Node WHERE refined.refined.id = :node OR refined.id = :node")
 	int countByRefined(String node);
 
+	/**
+	 * Store the credential expiry of a node. An update query: the status check of several nodes clears the persistence
+	 * context between two nodes, so the node entity may be detached.
+	 *
+	 * @param node   The node identifier.
+	 * @param expiry The expiry, <code>null</code> when the credentials never expire.
+	 * @param source The origin of the expiry.
+	 */
+	@Modifying
+	@Query("UPDATE Node SET credentialExpiry = :expiry, credentialExpirySource = :source WHERE id = :node")
+	void updateCredentialExpiry(String node, Instant expiry, CredentialExpirySource source);
+
+	/**
+	 * Return the nodes whose credentials expire at the latest at the given instant, the earliest first.
+	 *
+	 * @param limit The latest expiry to return.
+	 * @return The nodes, possibly with an already passed expiry.
+	 */
+	@Query("SELECT n FROM Node n WHERE n.credentialExpiry IS NOT NULL AND n.credentialExpiry <= :limit ORDER BY n.credentialExpiry")
+	List<Node> findAllCredentialExpiringBefore(Instant limit);
 }

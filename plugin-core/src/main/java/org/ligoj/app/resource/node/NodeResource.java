@@ -89,6 +89,9 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@Autowired
 	private CacheManager cacheManager;
 
+	@Autowired
+	private CredentialExpiryPolicy credentialExpiryPolicy;
+
 	@PersistenceContext
 	private EntityManager em;
 
@@ -191,11 +194,24 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		NamedBean.copy(vo, entity);
 		entity.setRefined(checkRefined(vo));
 		entity.setMode(checkMode(vo, entity));
+		applyManualCredentialExpiry(vo, entity);
 
 		// Check the parameters : data and structure
 		checkInputParameters(vo).forEach(p -> pvResource.checkOwnership(p, entity));
 		repository.saveAndFlush(entity);
 		return entity;
+	}
+
+	/**
+	 * Apply the credential expiry entered by an administrator. A detected expiry wins: the tool plug-in reads the
+	 * expiry of the credentials really in use.
+	 */
+	private void applyManualCredentialExpiry(final NodeEditionVo vo, final Node entity) {
+		// A client without this feature does not send it: the stored expiry is kept
+		if (vo.isCredentialExpirySet() && entity.getCredentialExpirySource() != CredentialExpirySource.DETECTED) {
+			entity.setCredentialExpiry(vo.getCredentialExpiry());
+			entity.setCredentialExpirySource(vo.getCredentialExpiry() == null ? null : CredentialExpirySource.MANUAL);
+		}
 	}
 
 	/**
@@ -328,10 +344,47 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	private NodeStatus checkNodeStatus(final Node node) {
 		final var parameters = pvResource.getNodeParameters(node.getId());
 		final var status = self.checkNodeStatus(node.getId(), parameters);
+		if (status.isUp()) {
+			checkCredentialExpiry(node, parameters);
+		}
 		if (eventResource.registerEvent(node, EventType.STATUS, status.name())) {
 			checkSubscriptionStatus(node, status);
 		}
 		return status;
+	}
+
+	/**
+	 * Store the credential expiry of an UP node, so with working credentials, as its tool plug-in reads it.
+	 * {@link Instant#MAX} means the credentials never expire. When the tool does not tell, the stored expiry is kept;
+	 * a detected one becomes manual, so an administrator can fix it once the tool no longer exposes it.
+	 */
+	private void checkCredentialExpiry(final Node node, final Map<String, String> parameters) {
+		final var expiry = self.checkCredentialExpiry(node.getId(), parameters);
+		if (expiry != null) {
+			repository.updateCredentialExpiry(node.getId(), Instant.MAX.equals(expiry) ? null : expiry,
+					CredentialExpirySource.DETECTED);
+		} else if (node.getCredentialExpirySource() == CredentialExpirySource.DETECTED) {
+			final var stored = node.getCredentialExpiry();
+			repository.updateCredentialExpiry(node.getId(), stored, stored == null ? null : CredentialExpirySource.MANUAL);
+		}
+	}
+
+	/**
+	 * Read the credential expiry of a node from its tool plug-in. This method need to be public for the CGLIB proxying.
+	 *
+	 * @param node       The node identifier.
+	 * @param parameters Node parameters used to call the tool.
+	 * @return The expiry, {@link Instant#MAX} when the credentials never expire, or <code>null</code> when unknown,
+	 *         including on failure.
+	 */
+	public Instant checkCredentialExpiry(final String node, final Map<String, String> parameters) {
+		try {
+			return locator.getResourceExpected(node, ToolPlugin.class).getCredentialExpiry(node, parameters);
+		} catch (final Exception e) { // NOSONAR
+			// Do not pollute logs with this failures, the expiry stays as is
+			log.warn("Credential expiry of node {} failed with {}: {}", node, e.getClass(), e.getMessage());
+			return null;
+		}
 	}
 
 	/**
@@ -575,7 +628,12 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@org.springframework.transaction.annotation.Transactional(readOnly = true)
 	public NodeVo findById(@PathParam("id") final String id) {
 		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin()))
-				.map(n -> NodeHelper.toVoLight(n, locator)).orElseThrow(() -> new ValidationJsonException("id",
+				.map(n -> {
+					final var vo = NodeHelper.toVoLight(n, locator);
+					vo.setCredentialExpiryLevel(CredentialExpiryPolicy.getLevel(n.getCredentialExpiry(), Instant.now(),
+							credentialExpiryPolicy.getWarningDays()));
+					return vo;
+				}).orElseThrow(() -> new ValidationJsonException("id",
 						BusinessException.KEY_UNKNOWN_ID, "0", "node", "1", id));
 	}
 
@@ -618,9 +676,14 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		// fetched in a SINGLE bulk query for the whole page (avoids an N+1).
 		final var statuses = status ? toLastStatuses(login, findAll.getContent()) : Map.<String, NodeStatus>of();
 
+		// The urgency of the credential expiry, with one threshold for the whole page
+		final var now = Instant.now();
+		final var warningDays = credentialExpiryPolicy.getWarningDays();
+
 		// apply pagination and prevent lazy initialization issue
 		return paginationJson.applyPagination(uriInfo, findAll, n -> {
 			final var vo = NodeHelper.toVo(n, locator);
+			vo.setCredentialExpiryLevel(CredentialExpiryPolicy.getLevel(n.getCredentialExpiry(), now, warningDays));
 			if (status) {
 				vo.setStatus(statuses.get(n.getId()));
 			}

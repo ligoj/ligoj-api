@@ -29,6 +29,8 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -1256,5 +1258,198 @@ class NodeResourceTest extends AbstractAppTest {
 		em.flush();
 		final var data = resource.findAll(newUriInfo(), null, null, null, -1, true).getData();
 		Assertions.assertNull(findStatus(data, "service:bt:jira:6"));
+	}
+
+	private static final String SONAR = "service:kpi:sonar:bpr";
+
+	private static final String JENKINS = "service:build:jenkins:bpr";
+
+	private static final Instant EXPIRY = Instant.parse("2026-11-30T00:00:00Z");
+
+	private ToolPlugin toolMock(final String node) {
+		return resourceMock.locator.getResourceExpected(node, ToolPlugin.class);
+	}
+
+	private void setManualExpiry(final String node, final Instant expiry) {
+		final var entity = repository.findOneExpected(node);
+		entity.setCredentialExpiry(expiry);
+		entity.setCredentialExpirySource(CredentialExpirySource.MANUAL);
+		repository.saveAndFlush(entity);
+	}
+
+	private Node reload(final String node) {
+		em.flush();
+		em.clear();
+		return repository.findOneExpected(node);
+	}
+
+	@Test
+	void checkNodeStatusCredentialExpiryDetected() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		when(toolMock(SONAR).getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenReturn(EXPIRY);
+
+		Assertions.assertEquals(NodeStatus.UP, resourceMock.checkNodeStatus(SONAR));
+		final var node = reload(SONAR);
+		Assertions.assertEquals(EXPIRY, node.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.DETECTED, node.getCredentialExpirySource());
+	}
+
+	@Test
+	void checkNodeStatusCredentialNeverExpires() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		setManualExpiry(SONAR, EXPIRY);
+		when(toolMock(SONAR).getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenReturn(Instant.MAX);
+
+		resourceMock.checkNodeStatus(SONAR);
+		final var node = reload(SONAR);
+		Assertions.assertNull(node.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.DETECTED, node.getCredentialExpirySource());
+	}
+
+	@Test
+	void checkNodeStatusCredentialExpiryUnknownKeepsManual() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		setManualExpiry(SONAR, EXPIRY);
+		// The default mock answer of getCredentialExpiry is null: unknown
+
+		resourceMock.checkNodeStatus(SONAR);
+		final var node = reload(SONAR);
+		Assertions.assertEquals(EXPIRY, node.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, node.getCredentialExpirySource());
+	}
+
+	@Test
+	void checkNodeStatusCredentialExpiryNoLongerDetected() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		// Detected earlier, but the tool no longer tells, such as a rotated token unable to read itself: the date is
+		// kept and becomes editable, so an administrator can fix a stale one
+		repository.updateCredentialExpiry(SONAR, EXPIRY, CredentialExpirySource.DETECTED);
+		reload(SONAR);
+
+		Assertions.assertEquals(NodeStatus.UP, resourceMock.checkNodeStatus(SONAR));
+		var node = reload(SONAR);
+		Assertions.assertEquals(EXPIRY, node.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, node.getCredentialExpirySource());
+
+		// "Never expires" detected earlier: nothing known anymore
+		repository.updateCredentialExpiry(SONAR, null, CredentialExpirySource.DETECTED);
+		reload(SONAR);
+		resourceMock.checkNodeStatus(SONAR);
+		node = reload(SONAR);
+		Assertions.assertNull(node.getCredentialExpiry());
+		Assertions.assertNull(node.getCredentialExpirySource());
+	}
+
+	@Test
+	void checkNodeStatusCredentialExpiryFailureKeepsManual() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		setManualExpiry(SONAR, EXPIRY);
+		when(toolMock(SONAR).getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenThrow(new TechnicalException("junit"));
+
+		// The status stays UP, the manual expiry is kept
+		Assertions.assertEquals(NodeStatus.UP, resourceMock.checkNodeStatus(SONAR));
+		final var node = reload(SONAR);
+		Assertions.assertEquals(EXPIRY, node.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, node.getCredentialExpirySource());
+	}
+
+	@Test
+	void checkNodeStatusDownSkipsExpiry() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+
+		Assertions.assertEquals(NodeStatus.DOWN, resourceMock.checkNodeStatus(JENKINS));
+		org.mockito.Mockito.verify(toolMock(JENKINS), org.mockito.Mockito.never())
+				.getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap());
+	}
+
+	@Test
+	void checkNodesStatusStoresEveryExpiry() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		// Both tools UP with a detected expiry: the persistence context is cleared between the two nodes.
+		// prepareEvent() stubbed the Jenkins status to throw: re-stub without calling it. The mock is read first, a
+		// call to the locator mock inside doReturn().when() would interrupt the stubbing.
+		final var jenkins = toolMock(JENKINS);
+		org.mockito.Mockito.doReturn(true).when(jenkins).checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap());
+		when(jenkins.getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenReturn(EXPIRY.plus(1, ChronoUnit.DAYS));
+		when(toolMock(SONAR).getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap()))
+				.thenReturn(EXPIRY);
+
+		resourceMock.checkNodesStatus();
+		Assertions.assertEquals(EXPIRY, reload(SONAR).getCredentialExpiry());
+		Assertions.assertEquals(EXPIRY.plus(1, ChronoUnit.DAYS), reload(JENKINS).getCredentialExpiry());
+	}
+
+	@Test
+	void updateCredentialExpiryManual() {
+		final var node = new NodeEditionVo();
+		node.setId("service:bt:jira:6");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		node.setCredentialExpiry(EXPIRY);
+		resource.update(node);
+		var entity = reload("service:bt:jira:6");
+		Assertions.assertEquals(EXPIRY, entity.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, entity.getCredentialExpirySource());
+
+		// Cleared
+		node.setCredentialExpiry(null);
+		resource.update(node);
+		entity = reload("service:bt:jira:6");
+		Assertions.assertNull(entity.getCredentialExpiry());
+		Assertions.assertNull(entity.getCredentialExpirySource());
+	}
+
+	@Test
+	void updateCredentialExpiryAbsentKept() {
+		// A client without this feature, such as an older UI or ligoj-cli, does not send the expiry: it is kept
+		setManualExpiry("service:bt:jira:6", EXPIRY);
+		final var node = new NodeEditionVo();
+		node.setId("service:bt:jira:6");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		resource.update(node);
+		final var entity = reload("service:bt:jira:6");
+		Assertions.assertEquals(EXPIRY, entity.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, entity.getCredentialExpirySource());
+	}
+
+	@Test
+	void updateCredentialExpiryDetectedKept() {
+		repository.updateCredentialExpiry("service:bt:jira:6", EXPIRY, CredentialExpirySource.DETECTED);
+		final var node = new NodeEditionVo();
+		node.setId("service:bt:jira:6");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		// The form sends no date: the detected one is kept
+		resource.update(node);
+		final var entity = reload("service:bt:jira:6");
+		Assertions.assertEquals(EXPIRY, entity.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.DETECTED, entity.getCredentialExpirySource());
+	}
+
+	@Test
+	void findAllCredentialExpiryLevel() {
+		final var expiry = Instant.now().plus(3, ChronoUnit.DAYS);
+		setManualExpiry(SONAR, expiry);
+		final var vo = resource.findAll(newUriInfo(), null, "service:kpi:sonar", null, -1).getData().stream()
+				.filter(n -> SONAR.equals(n.getId())).findFirst().orElseThrow();
+		Assertions.assertEquals(expiry, vo.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.MANUAL, vo.getCredentialExpirySource());
+		Assertions.assertEquals(CredentialExpiryLevel.WARNING, vo.getCredentialExpiryLevel());
+		Assertions.assertEquals(CredentialExpiryLevel.WARNING, resource.findById(SONAR).getCredentialExpiryLevel());
 	}
 }

@@ -15,6 +15,8 @@ import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.bootstrap.core.INamableBean;
 import org.ligoj.bootstrap.core.model.AbstractStringKeyEntity;
 
+import java.time.Instant;
+
 /**
  * Node definition. Node#key is used as additional business key.
  */
@@ -67,6 +69,20 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	 * Optional CSS classes used to render the tag.
 	 */
 	private String tagUiClasses;
+
+	/**
+	 * Optional expiry of the credentials this node uses to call its tool: entered by an administrator, or detected by
+	 * the tool plug-in during the status check, see {@link #credentialExpirySource}. <code>null</code> when unknown or
+	 * when the detected credentials never expire.
+	 */
+	private Instant credentialExpiry;
+
+	/**
+	 * Origin of {@link #credentialExpiry}. <code>null</code> when nothing is known.
+	 */
+	@Enumerated(EnumType.STRING)
+	@Column(length = 10)
+	private CredentialExpirySource credentialExpirySource;
 
 	@Override
 	@Transient

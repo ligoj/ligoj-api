@@ -4,8 +4,10 @@
 package org.ligoj.app.api;
 
 import java.io.Serializable;
+import java.time.Instant;
 import java.util.Map;
 
+import org.ligoj.app.model.CredentialExpirySource;
 import org.ligoj.app.model.Refining;
 
 import lombok.Getter;
@@ -67,4 +69,21 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	 * {@code NodeResource#findAll} with the {@code status} flag); <code>null</code> when not requested or unknown.
 	 */
 	private NodeStatus status;
+
+	/**
+	 * Optional expiry of the credentials this node uses to call its tool. <code>null</code> when unknown or when the
+	 * detected credentials never expire.
+	 */
+	private Instant credentialExpiry;
+
+	/**
+	 * Origin of {@link #credentialExpiry}. <code>null</code> when nothing is known.
+	 */
+	private CredentialExpirySource credentialExpirySource;
+
+	/**
+	 * Urgency of {@link #credentialExpiry}, computed with the warning threshold. <code>null</code> when there is nothing
+	 * to signal, or when not computed by the called service.
+	 */
+	private CredentialExpiryLevel credentialExpiryLevel;
 }
