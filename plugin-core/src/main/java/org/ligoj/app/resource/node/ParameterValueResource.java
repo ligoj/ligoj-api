@@ -482,6 +482,41 @@ public class ParameterValueResource {
 	}
 
 	/**
+	 * Return the parameter values a node would have once saved with the given form values, without persisting anything:
+	 * the values inherited from the parent nodes, then the given values. An untouched value keeps the value stored for
+	 * this node; a stored value no longer given is dropped, as a save would delete it. The values are checked as a save
+	 * would. The secured values are decrypted: the result must never reach a response or a log.
+	 *
+	 * @param node   The node identifier, saved or not yet.
+	 * @param values The form values of this node.
+	 * @return The parameter values keyed by parameter identifier. Never <code>null</code>.
+	 */
+	public Map<String, String> toCheckParameters(final String node, final List<ParameterValueCreateVo> values) {
+		checkAvailability(values.stream().filter(v -> !v.isUntouched()).toList(), false);
+		final var all = repository.getParameterValues(node);
+		final var result = toMapValues(all.stream().filter(v -> !node.equals(v.getNode().getId())).toList());
+		final var stored = toMapValues(all.stream().filter(v -> node.equals(v.getNode().getId())).toList());
+		for (final var value : values) {
+			final String data;
+			if (value.isUntouched()) {
+				// Untouched value, keep the stored value but must exist, as a save would
+				data = Optional.ofNullable(stored.get(value.getParameter())).orElseThrow(
+						() -> new BusinessException(BusinessException.KEY_UNKNOWN_ID, "parameter", value.getParameter()));
+			} else {
+				final var parameter = parameterRepository.findOneExpected(value.getParameter());
+				checkConstraints(value, parameter);
+				checkCompleteness(value, parameter);
+				data = toData(value);
+			}
+			// A blank value is deleted by a save
+			if (StringUtils.isNotBlank(data)) {
+				result.put(value.getParameter(), data);
+			}
+		}
+		return result;
+	}
+
+	/**
 	 * Return all node parameter definitions where a value is expected to be provided to the final subscription. When
 	 * defined, the current value is specified. The secured values are returned with value <code>-secured-</code>.
 	 *

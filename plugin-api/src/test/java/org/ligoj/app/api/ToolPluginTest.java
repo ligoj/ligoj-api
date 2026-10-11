@@ -3,6 +3,9 @@
  */
 package org.ligoj.app.api;
 
+import java.util.List;
+import java.util.Map;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -48,5 +51,26 @@ class ToolPluginTest {
 		// on an API without this method.
 		final java.time.Instant expiry = plugin.getCredentialExpiry("service:s1:t2:i3", java.util.Map.of());
 		Assertions.assertNull(expiry);
+	}
+
+	@Test
+	void checkConnection() throws Exception {
+		// By default, the anonymous status check of the given parameters, whatever the node
+		final var parameters = Map.of("service:s1:t2:url", "http://localhost");
+		final var checked = new java.util.ArrayList<Map<String, String>>();
+		final ToolPlugin tool = new ToolPlugin() {
+			@Override
+			public String getKey() {
+				return "service:s1:t2";
+			}
+
+			@Override
+			public boolean checkStatus(final Map<String, String> given) {
+				checked.add(given);
+				return false;
+			}
+		};
+		Assertions.assertFalse(tool.checkConnection("service:s1:t2:new", parameters));
+		Assertions.assertEquals(List.of(parameters), checked);
 	}
 }

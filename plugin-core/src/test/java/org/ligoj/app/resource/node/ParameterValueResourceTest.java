@@ -874,4 +874,65 @@ class ParameterValueResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("MDA", pValue.getText());
 
 	}
+
+	private ParameterValueCreateVo value(final String parameter, final String text) {
+		final var value = new ParameterValueCreateVo();
+		value.setParameter(parameter);
+		value.setText(text);
+		return value;
+	}
+
+	private ParameterValueCreateVo untouched(final String parameter) {
+		final var value = new ParameterValueCreateVo();
+		value.setParameter(parameter);
+		value.setUntouched(true);
+		return value;
+	}
+
+	@Test
+	void toCheckParametersEdit() {
+		// The stored secured user is kept, the URL is the new one, the stored values no longer sent are dropped
+		final var parameters = resource.toCheckParameters("service:bt:jira:6",
+				List.of(untouched("service:bt:jira:user"), value("service:bt:jira:url", "http://remote")));
+		Assertions.assertEquals(Map.of("service:bt:jira:user", "junit", "service:bt:jira:url", "http://remote"), parameters);
+	}
+
+	@Test
+	void toCheckParametersInherited() {
+		// The values of the parent nodes apply to a new node, like on a saved node
+		final var inherited = new ParameterValue();
+		inherited.setNode(em.find(Node.class, "service:bt:jira"));
+		inherited.setParameter(em.find(Parameter.class, "service:bt:jira:pkey"));
+		inherited.setData("INHERITED");
+		em.persist(inherited);
+		em.flush();
+		final var count = repository.count();
+
+		final var parameters = resource.toCheckParameters("service:bt:jira:new",
+				List.of(value("service:bt:jira:url", "http://new")));
+		Assertions.assertEquals(Map.of("service:bt:jira:pkey", "INHERITED", "service:bt:jira:url", "http://new"), parameters);
+		Assertions.assertEquals(count, repository.count());
+	}
+
+	@Test
+	void toCheckParametersBlank() {
+		// A blank value is not stored by a save: it is not part of the checked parameters
+		Assertions.assertEquals(Map.of(), resource.toCheckParameters("service:bt:jira:new",
+				List.of(value("service:bt:jira:url", "  "))));
+	}
+
+	@Test
+	void toCheckParametersUntouchedWithoutValue() {
+		// The project key has no stored value on this node
+		final var values = List.of(untouched("service:bt:jira:pkey"));
+		Assertions.assertThrows(BusinessException.class, () -> resource.toCheckParameters("service:bt:jira:6", values));
+	}
+
+	@Test
+	void toCheckParametersPattern() {
+		final var values = List.of(value("c_17", "A"));
+		final var e = Assertions.assertThrows(ValidationJsonException.class,
+				() -> resource.toCheckParameters("service:bt:jira:6", values));
+		Assertions.assertEquals("Pattern", e.getErrors().get("c_17").getFirst().get("rule"));
+	}
 }

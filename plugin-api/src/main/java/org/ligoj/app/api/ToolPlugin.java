@@ -78,6 +78,24 @@ public interface ToolPlugin extends ServicePlugin {
 	}
 
 	/**
+	 * Check the connection of a node configuration before it is saved: the node may not exist yet, and the given
+	 * parameters may differ from the stored ones. An implementation must use only the given parameters, never a stored
+	 * or cached state of this node. By default, the anonymous {@link #checkStatus(Map)}: a plug-in whose
+	 * {@link #checkStatus(String, Map)} reads the stored state of the node overrides it.
+	 * <p>
+	 * The signature uses only JDK types: a plug-in may declare this method without <code>@Override</code> and still
+	 * build against an older API, where the method is never called, and override it on this one.
+	 *
+	 * @param node       The identifier of the node being created or edited. It may not exist yet.
+	 * @param parameters The parameter values the node would have once saved, secured values decrypted.
+	 * @return <code>true</code> when the connection is up.
+	 * @throws Exception The connection failed. A {@code ValidationJsonException} names the faulty parameter.
+	 */
+	default boolean checkConnection(final String node, final Map<String, String> parameters) throws Exception { // NOSONAR
+		return checkStatus(parameters);
+	}
+
+	/**
 	 * Check the status of given subscription configuration. In these case, the subscription's node is anonymous.
 	 *
 	 * @param parameters The parameter values of the subscription.

@@ -33,6 +33,7 @@ import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.resource.OnNullReturn404;
 import org.ligoj.bootstrap.core.security.SecurityHelper;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -307,6 +308,72 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@Path("status/refresh")
 	public void checkNodesStatus() {
 		checkNodesStatus(repository.findAllInstance(securityHelper.getLogin()));
+	}
+
+	/**
+	 * Check the connection of a node instance configuration before it is saved: the given values replace the stored
+	 * ones, an untouched value keeps the stored one. Nothing is persisted and no status event is registered. The
+	 * principal must be allowed to save this configuration: write access to the node, or to its parent for a new node.
+	 *
+	 * @param vo The node being created or edited, the payload of the save.
+	 * @return The check result, holding no parameter value.
+	 */
+	@POST
+	@Path("status/check")
+	@org.springframework.transaction.annotation.Transactional(readOnly = true)
+	public NodeCheckVo checkConnection(final NodeEditionVo vo) {
+		// The checks of a save: write access, parent of the identifier, accepted parameters
+		if (repository.existsById(vo.getId())) {
+			checkWritableNode(vo.getId());
+		} else if (vo.isRefining()) {
+			checkWritableNode(vo.getRefined());
+		} else if (!securityHelper.isAdmin()) {
+			throw new BusinessException("read-only-node", "node", vo.getId());
+		}
+		final var node = new Node();
+		node.setId(vo.getId());
+		node.setRefined(checkRefined(vo));
+		checkInputParameters(vo).forEach(p -> pvResource.checkOwnership(p, node));
+
+		final var result = new NodeCheckVo();
+		final var plugin = locator.getResourceExpected(vo.getRefined(), ToolPlugin.class);
+		if (!checksGivenValues(plugin)) {
+			// Its status reads the stored configuration of the node, or there is none: "not checked", never "succeeded"
+			result.setMessage("node-check-unsupported");
+			return result;
+		}
+		try {
+			final var parameters = pvResource.toCheckParameters(vo.getId(), vo.getParameters());
+			result.setUp(plugin.checkConnection(vo.getId(), parameters));
+		} catch (final ValidationJsonException e) {
+			result.setErrors(e.getErrors());
+		} catch (final BusinessException e) {
+			result.setMessage(e.getMessage());
+		} catch (final Exception e) { // NOSONAR: any failure of the tool is a failed check
+			// Only the type: a message may hold a secret, such as an URL with credentials
+			log.info("Connection check of node {} failed with {}", vo.getId(), e.getClass().getName());
+			result.setMessage("node-check-failed");
+		}
+		return result;
+	}
+
+	/**
+	 * Whether a tool plug-in checks a connection on the given values: it implements
+	 * {@link ToolPlugin#checkConnection(String, Map)}, or the anonymous {@link ToolPlugin#checkStatus(Map)} the default
+	 * one calls. Otherwise its check would be the default <code>true</code> without any connection.
+	 *
+	 * @param plugin The tool plug-in, possibly proxied.
+	 * @return <code>true</code> when the plug-in checks the given values.
+	 */
+	static boolean checksGivenValues(final ToolPlugin plugin) {
+		final var type = AopUtils.getTargetClass(plugin);
+		try {
+			return type.getMethod("checkConnection", String.class, Map.class).getDeclaringClass() != ToolPlugin.class
+					|| type.getMethod("checkStatus", Map.class).getDeclaringClass() != ToolPlugin.class;
+		} catch (final NoSuchMethodException e) {
+			// Not a tool plug-in of this API
+			return false;
+		}
 	}
 
 	/**
