@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.api.*;
 import org.ligoj.app.dao.*;
@@ -850,6 +852,88 @@ class NodeResourceTest extends AbstractAppTest {
 	void createOnParentNoneMode() {
 		newNode(SubscriptionMode.NONE);
 		newSubNode(SubscriptionMode.NONE);
+	}
+
+	/**
+	 * A LINK node widened to ALL keeps serving its LINK subscriptions.
+	 */
+	@Test
+	void updateModeLinkToAll() {
+		newNode(SubscriptionMode.ALL);
+		newSubNode(SubscriptionMode.LINK);
+		Assertions.assertEquals(SubscriptionMode.ALL, updateSubNode(SubscriptionMode.ALL));
+	}
+
+	@Test
+	void updateModeCreateToAll() {
+		newNode(SubscriptionMode.ALL);
+		newSubNode(SubscriptionMode.CREATE);
+		Assertions.assertEquals(SubscriptionMode.ALL, updateSubNode(SubscriptionMode.ALL));
+	}
+
+	@Test
+	void updateModeUnchanged() {
+		newNode(SubscriptionMode.ALL);
+		newSubNode(SubscriptionMode.NONE);
+		Assertions.assertEquals(SubscriptionMode.NONE, updateSubNode(SubscriptionMode.NONE));
+	}
+
+	/**
+	 * Any other mode change would break the subscriptions created on the node.
+	 */
+	@ParameterizedTest
+	@CsvSource({ "ALL,LINK", "ALL,CREATE", "ALL,NONE", "LINK,CREATE", "LINK,NONE", "CREATE,LINK", "CREATE,NONE", "NONE,ALL",
+			"NONE,LINK" })
+	void updateModeRefused(final SubscriptionMode from, final SubscriptionMode to) {
+		newNode(SubscriptionMode.ALL);
+		newSubNode(from);
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> updateSubNode(to)), "mode",
+				"invalid-mode-transition");
+		Assertions.assertEquals(from, repository.findOneExpected("service:some:tool").getMode());
+	}
+
+	/**
+	 * The mode of the parent still bounds the widened node.
+	 */
+	@Test
+	void updateModeToAllOverflowParent() {
+		newNode(SubscriptionMode.LINK);
+		newSubNode(SubscriptionMode.LINK);
+		MatcherUtil.assertThrows(Assertions.assertThrows(ValidationJsonException.class, () -> updateSubNode(SubscriptionMode.ALL)),
+				"mode", "invalid-mode");
+	}
+
+	/**
+	 * A CREATE node widened to ALL keeps its values of the CREATE parameters, inherited by its CREATE subscriptions.
+	 */
+	@Test
+	void updateModeCreateToAllKeepsValues() {
+		repository.findOneExpected("service:id:ldap").setMode(SubscriptionMode.ALL);
+		final var node = new NodeEditionVo();
+		node.setId("service:id:ldap:other");
+		node.setMode(SubscriptionMode.CREATE);
+		node.setName("Other LDAP");
+		node.setNode("service:id:ldap");
+		final var ou = new ParameterValueCreateVo();
+		ou.setParameter("service:id:ou");
+		ou.setText("ou-value");
+		node.setParameters(List.of(ou));
+		resource.create(node);
+
+		node.setMode(SubscriptionMode.ALL);
+		resource.update(node);
+		Assertions.assertEquals(SubscriptionMode.ALL, repository.findOneExpected("service:id:ldap:other").getMode());
+		Assertions.assertEquals("ou-value", parameterValueResource.getNodeParameters("service:id:ldap:other").get("service:id:ou"));
+	}
+
+	private SubscriptionMode updateSubNode(final SubscriptionMode mode) {
+		final var node = new NodeEditionVo();
+		node.setId("service:some:tool");
+		node.setMode(mode);
+		node.setName("New Tool");
+		node.setNode("service:some");
+		resource.update(node);
+		return repository.findOneExpected("service:some:tool").getMode();
 	}
 
 	private void newNode(final SubscriptionMode mode) {

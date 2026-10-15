@@ -8,6 +8,7 @@ import java.util.List;
 import jakarta.validation.constraints.NotNull;
 
 import org.ligoj.app.api.NodeVo;
+import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.model.ParameterType;
 import org.ligoj.bootstrap.core.model.AbstractBusinessEntity;
 
@@ -75,5 +76,11 @@ public class ParameterVo extends AbstractBusinessEntity<String> {
 	 * <code>true</code> when this parameter is deprecated: superseded by another one, still readable and editable.
 	 */
 	private boolean deprecated;
+
+	/**
+	 * The subscription mode this parameter belongs to: {@link SubscriptionMode#ALL} for every mode, otherwise the only
+	 * mode asking it. A node in {@link SubscriptionMode#ALL} mode lists the parameters of every mode.
+	 */
+	private SubscriptionMode mode;
 
 }

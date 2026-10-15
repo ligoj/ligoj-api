@@ -175,14 +175,17 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Update an existing {@link Node}.
+	 * Update an existing {@link Node}. Its mode is kept, or widened from LINK or CREATE to ALL: the subscriptions
+	 * created on the node keep being served.
 	 *
 	 * @param vo The new node definition to replace.
 	 */
 	@PUT
 	@CacheRemoveAll(cacheName = "nodes")
 	public void update(final NodeEditionVo vo) {
-		final var entity = saveOrUpdate(vo, checkWritableNode(vo.getId()));
+		final var entity = checkWritableNode(vo.getId());
+		checkModeTransition(entity.getMode(), vo.getMode());
+		saveOrUpdate(vo, entity);
 
 		// Update parameters as needed
 		if (!vo.isUntouchedParameters()) {
@@ -212,6 +215,20 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		if (vo.isCredentialExpirySet() && entity.getCredentialExpirySource() != CredentialExpirySource.DETECTED) {
 			entity.setCredentialExpiry(vo.getCredentialExpiry());
 			entity.setCredentialExpirySource(vo.getCredentialExpiry() == null ? null : CredentialExpirySource.MANUAL);
+		}
+	}
+
+	/**
+	 * Check the mode change of an existing node keeps serving the subscriptions created on it: the mode is unchanged,
+	 * or a LINK or CREATE node is widened to ALL.
+	 *
+	 * @param current The current mode of the node.
+	 * @param mode    The requested mode.
+	 */
+	private void checkModeTransition(final SubscriptionMode current, final SubscriptionMode mode) {
+		if (current != mode && !(mode == SubscriptionMode.ALL
+				&& (current == SubscriptionMode.LINK || current == SubscriptionMode.CREATE))) {
+			throw new ValidationJsonException("mode", "invalid-mode-transition", "from", current, "to", mode);
 		}
 	}
 

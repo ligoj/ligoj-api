@@ -292,6 +292,7 @@ public class NodeHelper {
 		vo.setAvailableForNode(!BooleanUtils.isFalse(entity.getAvailableForNode()));
 		// Deprecation flag: null (legacy rows, plugins not declaring it) means not deprecated
 		vo.setDeprecated(BooleanUtils.isTrue(entity.getDeprecated()));
+		vo.setMode(entity.getMode());
 
 		// Map constraint data
 		if (entity.getType().isArray()) {

@@ -22,14 +22,16 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * parameters are filtered by the requested mode. Also check the node is visible for the given user.
 	 *
 	 * @param node The parent node identifier.
-	 * @param mode Expected mode.
+	 * @param mode Expected mode. A parameter of mode {@link org.ligoj.app.api.SubscriptionMode#ALL} matches any mode,
+	 *             and the {@link org.ligoj.app.api.SubscriptionMode#ALL} mode of a node matches the parameters of every
+	 *             mode.
 	 * @param user The user requesting the nodes.
 	 * @return all parameters associated to a node but without a value.
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT DISTINCT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2"
 			+ " WHERE n.id = :node AND (o.id=n.id OR o.id=n1.id OR o.id=n2.id)"
-			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
+			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode OR :mode = org.ligoj.app.api.SubscriptionMode.ALL) AND "
 			+ NodeRepository.VISIBLE_NODES
 			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND (node.id=n.id OR node.id=n1.id OR node.id=n2.id))")
 	List<Parameter> getOrphanParameters(String node, SubscriptionMode mode, String user);
@@ -41,13 +43,15 @@ public interface ParameterRepository extends RestRepository<Parameter, String> {
 	 * {@link #getOrphanParameters(String, SubscriptionMode, String)}
 	 *
 	 * @param node The parent node identifier.
-	 * @param mode Expected mode.
+	 * @param mode Expected mode. A parameter of mode {@link org.ligoj.app.api.SubscriptionMode#ALL} matches any mode,
+	 *             and the {@link org.ligoj.app.api.SubscriptionMode#ALL} mode of a node matches the parameters of every
+	 *             mode.
 	 * @param user The user requesting the nodes.
 	 * @return all parameters associated to a node but without a value.
 	 */
 	@SuppressWarnings("unused")
 	@Query("SELECT p FROM Parameter p, Node n INNER JOIN p.owner o LEFT JOIN n.refined n1 LEFT JOIN n1.refined n2 WHERE n.id = :node AND (o.id=n.id OR o.id=n1.id OR o.id=n2.id)"
-			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode) AND "
+			+ " AND (p.mode = org.ligoj.app.api.SubscriptionMode.ALL OR p.mode = :mode OR :mode = org.ligoj.app.api.SubscriptionMode.ALL) AND "
 			+ NodeRepository.VISIBLE_NODES
 			+ " AND NOT EXISTS (SELECT 1 FROM ParameterValue WHERE parameter = p AND node.id != :node AND (node.id=n.id OR node.id=n1.id OR node.id=n2.id)) ORDER BY UPPER(cast(p.id as String))")
 	List<Parameter> getOrphanParametersExt(String node, SubscriptionMode mode, String user);

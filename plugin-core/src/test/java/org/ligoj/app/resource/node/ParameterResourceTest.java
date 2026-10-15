@@ -167,4 +167,38 @@ class ParameterResourceTest extends AbstractAppTest {
 		Assertions.assertEquals("service:id:group", parameters.getFirst().getId());
 	}
 
+	@Test
+	void getNotProvidedParametersAllMode() {
+		// A parameter of the LINK mode only, along the ones of the CREATE mode only
+		final var linkOnly = new Parameter();
+		linkOnly.setId("service:id:link-only");
+		linkOnly.setOwner(em.find(Node.class, "service:id"));
+		linkOnly.setMode(SubscriptionMode.LINK);
+		em.persist(linkOnly);
+
+		// A node in ALL mode serves both modes: it accepts the parameters of every mode
+		final var parameters = resource.getNotProvidedParameters("service:id:ldap:dig", SubscriptionMode.ALL);
+		Assertions.assertEquals(List.of("service:id:group", "service:id:link-only", "service:id:ou", "service:id:parent-group"),
+				parameters.stream().map(ParameterVo::getId).toList());
+		// The mode of each parameter is exposed
+		Assertions.assertEquals(List.of(SubscriptionMode.ALL, SubscriptionMode.LINK, SubscriptionMode.CREATE, SubscriptionMode.CREATE),
+				parameters.stream().map(ParameterVo::getMode).toList());
+
+		// A subscription gets the parameters of its own mode only
+		Assertions.assertEquals(List.of("service:id:group", "service:id:link-only"),
+				resource.getNotProvidedParameters("service:id:ldap:dig", SubscriptionMode.LINK).stream().map(ParameterVo::getId).toList());
+		Assertions.assertEquals(List.of("service:id:group", "service:id:ou", "service:id:parent-group"),
+				resource.getNotProvidedParameters("service:id:ldap:dig", SubscriptionMode.CREATE).stream().map(ParameterVo::getId).toList());
+	}
+
+	@Test
+	void getNotProvidedAndAssociatedParametersAllMode() {
+		// The edition of a node in ALL mode lists the parameters of every mode, valued or not
+		final var parameters = resource.getNotProvidedAndAssociatedParameters("service:id:ldap:dig", SubscriptionMode.ALL)
+				.stream().map(ParameterVo::getId).toList();
+		Assertions.assertTrue(parameters.contains("service:id:ldap:url"));
+		Assertions.assertTrue(parameters.contains("service:id:ou"));
+		Assertions.assertTrue(parameters.contains("service:id:parent-group"));
+	}
+
 }
