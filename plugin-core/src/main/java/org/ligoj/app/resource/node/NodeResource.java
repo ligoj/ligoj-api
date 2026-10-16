@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.cache.annotation.CacheRemoveAll;
 import javax.cache.annotation.CacheResult;
@@ -139,12 +140,16 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	}
 
 	/**
-	 * Release the managed entities after the check of a node: the persistence context does not grow with the number
-	 * of nodes, so the dirty checking of each flush stays bounded.
+	 * Release the managed entities after the check of a node, when a transaction spans all the checks, as for a refresh
+	 * request: the persistence context does not grow with the number of nodes, so the dirty checking of each flush stays
+	 * bounded. The scheduled checks run without such a transaction, the scheduler invoking this bean itself, not its
+	 * transactional proxy: each call then manages and releases its own entities, and a flush would be refused.
 	 */
 	private void releaseEntities() {
-		em.flush();
-		em.clear();
+		if (TransactionSynchronizationManager.isActualTransactionActive()) {
+			em.flush();
+			em.clear();
+		}
 	}
 
 	/**

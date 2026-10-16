@@ -28,6 +28,11 @@ import org.springframework.orm.jpa.JpaObjectRetrievalFailureException;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
+import org.springframework.transaction.support.TransactionTemplate;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -290,6 +295,44 @@ class NodeResourceTest extends AbstractAppTest {
 		Assertions.assertEquals(EventType.STATUS, jiraEvent.getType());
 		Assertions.assertEquals(NodeStatus.DOWN.name(), jiraEvent.getValue());
 		Assertions.assertNull(jiraEvent.getSubscription());
+	}
+
+	@Autowired
+	private PlatformTransactionManager transactionManager;
+
+	/**
+	 * Run a scheduled check as the scheduler thread does: on the bean itself, without any transaction around the
+	 * loop. The test transaction is suspended, so its data is invisible: the instances are given, and the events
+	 * mocked.
+	 */
+	private EventResource runWithoutTransaction(final java.util.function.Consumer<NodeResource> scheduler) {
+		mockApplicationContext();
+		final var instances = repository.findAllInstance();
+		final var nodes = mock(NodeRepository.class);
+		when(nodes.findAllInstance()).thenReturn(instances);
+		resourceMock.repository = nodes;
+		final var events = mock(EventResource.class);
+		ReflectionTestUtils.setField(resourceMock, "eventResource", events);
+		new TransactionTemplate(transactionManager, new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
+				.executeWithoutResult(s -> scheduler.accept(resourceMock));
+		return events;
+	}
+
+	/**
+	 * Every node is checked by the scheduler: a release of the managed entities needing a transaction stopped the
+	 * scheduled check after the first node.
+	 */
+	@Test
+	void checkNodesStatusSchedulerWithoutTransaction() {
+		final var nbNodes = repository.findAllInstance().size();
+		final var events = runWithoutTransaction(NodeResource::checkNodesStatusScheduler);
+		verify(events, times(nbNodes)).registerEvent(any(Node.class), eq(EventType.STATUS), any(String.class));
+	}
+
+	@Test
+	void checkSubscriptionsStatusSchedulerWithoutTransaction() {
+		Assertions.assertDoesNotThrow(() -> runWithoutTransaction(NodeResource::checkSubscriptionsStatusScheduler));
+		Assertions.assertNull(cacheManager.getCache(NodeResource.HEALTH_LOCK_CACHE).get("health.subscription"));
 	}
 
 	@Test
