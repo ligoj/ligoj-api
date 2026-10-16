@@ -3,8 +3,6 @@ API framework for Ligoj plugins
 
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=org.ligoj.api%3Aroot&metric=coverage)](https://sonarcloud.io/component_measures/metric/coverage/list?id=org.ligoj.api%3Aroot)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?metric=alert_status&project=org.ligoj.api%3Aroot)](https://sonarcloud.io/dashboard/index/org.ligoj.api:root)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/abf810c094e44c0691f71174c707d6ed)](https://www.codacy.com/gh/ligoj/ligoj-api?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=ligoj/ligoj-api&amp;utm_campaign=Badge_Grade)
-[![CodeFactor](https://www.codefactor.io/repository/github/ligoj/ligoj-api/badge)](https://www.codefactor.io/repository/github/ligoj/ligoj-api)
 [![License](https://img.shields.io/:license-mit-blue.svg)](LICENSE)
 
 Requirements: Java 25, Maven 3.9.16+. Built on [Ligoj Bootstrap](https://github.com/ligoj/bootstrap) (`org.ligoj.bootstrap:bootstrap-business-parent`).
