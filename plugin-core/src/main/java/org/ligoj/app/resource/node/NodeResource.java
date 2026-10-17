@@ -382,7 +382,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	/**
 	 * Whether a tool plug-in checks a connection on the given values: it implements
 	 * {@link ToolPlugin#checkConnection(String, Map)}, or the anonymous {@link ToolPlugin#checkStatus(Map)} the default
-	 * one calls. Otherwise its check would be the default <code>true</code> without any connection.
+	 * one calls. Otherwise, its check would be the default <code>true</code> without any connection.
 	 *
 	 * @param plugin The tool plug-in, possibly proxied.
 	 * @return <code>true</code> when the plug-in checks the given values.

@@ -64,7 +64,7 @@ public class ServicePluginLocator implements ApplicationContextAware {
 		// Search the resource
 		final var name = self.getResourceName(service);
 		if (name == null) {
-			// Bean does not exists
+			// Bean does not exist
 			return null;
 		}
 

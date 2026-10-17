@@ -87,8 +87,8 @@ class UserLogResourceTest extends AbstractAppTest {
 
 		Assertions.assertEquals(2, result.getData().size());
 		// Sorted by date descending: most recent first
-		Assertions.assertEquals("recent", result.getData().get(0).getMessage());
-		Assertions.assertEquals("bob", result.getData().get(0).getUser());
+		Assertions.assertEquals("recent", result.getData().getFirst().getMessage());
+		Assertions.assertEquals("bob", result.getData().getFirst().getUser());
 		Assertions.assertEquals("/page", result.getData().get(0).getUrl());
 		Assertions.assertNotNull(result.getData().get(0).getId());
 		Assertions.assertEquals("old", result.getData().get(1).getMessage());

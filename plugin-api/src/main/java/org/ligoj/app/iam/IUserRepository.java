@@ -196,7 +196,7 @@ public interface IUserRepository {
 			return null;
 		}
 
-		// Non null user name
+		// Non-null username
 		var result = findById(login);
 		if (result == null) {
 			result = new UserOrg();
@@ -253,7 +253,7 @@ public interface IUserRepository {
 	void unlock(UserOrg user);
 
 	/**
-	 * Isolate an user to the quarantine zone :
+	 * Isolate a user to the quarantine zone :
 	 * <ul>
 	 * <li>Clear the password to prevent new authentication</li>
 	 * <li>Set the disabled flag.</li>

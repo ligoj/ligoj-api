@@ -228,7 +228,7 @@ public class DelegateOrgResource {
 		}
 
 		if (dn == null) {
-			// Related resource does not exists
+			// Related resource does not exist
 			throw new ForbiddenException();
 		}
 

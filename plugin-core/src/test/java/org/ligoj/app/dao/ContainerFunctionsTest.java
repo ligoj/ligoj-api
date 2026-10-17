@@ -58,7 +58,7 @@ class ContainerFunctionsTest extends AbstractOrgTest {
 			}
 		}
 
-		// Some users are only members of a sub-group of the targeted group
+		// Some users are only members of a subgroup of the targeted group
 		Assertions.assertTrue(expected.size() > direct.size());
 		Assertions.assertEquals(expected, actual("inGroup2", "CacheGroup"));
 	}

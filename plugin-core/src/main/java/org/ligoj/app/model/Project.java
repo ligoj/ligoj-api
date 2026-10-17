@@ -59,7 +59,7 @@ public class Project extends AbstractNamedAuditedEntity<Integer> implements IDes
 	private List<Subscription> subscriptions;
 
 	/**
-	 * Human readable description.
+	 * Human-readable description.
 	 */
 	@Length(max = 1024)
 	@Column(length = 1024)

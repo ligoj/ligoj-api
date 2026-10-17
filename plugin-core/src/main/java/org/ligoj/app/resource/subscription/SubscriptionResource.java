@@ -207,7 +207,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 	/**
 	 * Delegates the creation to the hierarchy of the related plug-in, and starting from the related plug-in. <br>
-	 * Exception appearing there causes to roll-back the previous persists.
+	 * Exception appearing there causes to rollback the previous persists.
 	 *
 	 * @throws Exception When the link/create fails. Managed at upper level.
 	 */
@@ -442,7 +442,7 @@ public class SubscriptionResource extends AbstractLockedResource<Subscription, I
 
 			// Also save it for indexed search
 			return project;
-		}).collect(Collectors.toMap(SubscribingProjectVo::getId, Function.identity(), (a, b) -> a));
+		}).collect(Collectors.toMap(SubscribingProjectVo::getId, Function.identity(), (a, _) -> a));
 	}
 
 	/**

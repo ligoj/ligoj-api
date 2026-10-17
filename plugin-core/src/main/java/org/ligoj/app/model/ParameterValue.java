@@ -35,7 +35,7 @@ public class ParameterValue extends AbstractAudited<Integer> implements NodeScop
 	private Parameter parameter;
 
 	/**
-	 * JSon data can be read from different manners depending on the {@link #parameter} type value :
+	 * JSON data can be read from different manners depending on the {@link #parameter} type value :
 	 * <ul>
 	 * <li>Case of 'text' : data is plain text.</li>
 	 * <li>Case of 'tags' : data is the array of entered tags.</li>

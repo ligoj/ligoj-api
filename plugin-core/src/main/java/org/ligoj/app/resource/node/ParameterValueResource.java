@@ -152,7 +152,7 @@ public class ParameterValueResource {
 	private void checkCompleteness(final BasicParameterValueVo vo, final Parameter parameter) {
 		Arrays.stream(new Supplier<?>[]{vo::getText, vo::getBool, vo::getDate, vo::getIndex, vo::getInteger,
 						vo::getTags, vo::getSelections}).map(Supplier::get).filter(Objects::nonNull).skip(1).findFirst()
-				.ifPresent(e -> {
+				.ifPresent(_ -> {
 					final var exception = new ValidationJsonException();
 					exception.addError(parameter.getId(), "Too many values");
 					throw exception;
@@ -382,7 +382,7 @@ public class ParameterValueResource {
 	 * Return non secured parameters values related to the subscription. Secured parameters are not returned.
 	 *
 	 * @param subscription The subscription identifier.
-	 * @return non secured associated parameters values. Key of returned map is the identifier of
+	 * @return non-secured associated parameters values. Key of returned map is the identifier of
 	 * {@link org.ligoj.app.model.Parameter}
 	 */
 	public Map<String, String> getNonSecuredSubscriptionParameters(final int subscription) {
@@ -594,7 +594,7 @@ public class ParameterValueResource {
 	}
 
 	/**
-	 * Returns the non secured values of the given parameter used by the subscriptions of the given project to the given
+	 * Returns the non-secured values of the given parameter used by the subscriptions of the given project to the given
 	 * node or one of its children.
 	 *
 	 * @param node      The node identifier subscribed, or one of its parents.

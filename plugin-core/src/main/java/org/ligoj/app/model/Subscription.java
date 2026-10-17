@@ -50,7 +50,7 @@ public class Subscription extends AbstractAudited<Integer> implements NodeScoped
 	private Project project;
 
 	/**
-	 * Subscription mode. By default is the node's mode
+	 * Subscription mode. By default, is the node's mode
 	 */
 	private SubscriptionMode mode;
 

@@ -286,7 +286,7 @@ public class NodeHelper {
 		vo.setOwner(NodeHelper.toVo(entity.getOwner()));
 		vo.setDefaultValue(entity.getDefaultValue());
 		// Availability flags. A null entity value means "available" — the
-		// migration default for legacy rows. Normalise here so every consumer
+		// migration default for legacy rows. Normalize here so every consumer
 		// (wizard filter, value-create checks) reads a definitive Boolean.
 		vo.setAvailableForSubscription(!BooleanUtils.isFalse(entity.getAvailableForSubscription()));
 		vo.setAvailableForNode(!BooleanUtils.isFalse(entity.getAvailableForNode()));

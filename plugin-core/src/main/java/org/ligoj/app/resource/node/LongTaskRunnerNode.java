@@ -22,7 +22,7 @@ import org.ligoj.bootstrap.core.resource.OnNullReturn404;
  * <li>At most one task can run per node</li>
  * <li>A subscription cannot be deleted while there is a running attached task</li>
  * <li>A running task is task without "end" date.
- * <li>When a task is started, is will always ends.
+ * <li>When a task is started, is will always end.
  * <li>When a task ends, the status (boolean) is always updated.
  * </ul>
  *

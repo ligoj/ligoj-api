@@ -21,7 +21,7 @@ public interface UserLogRepository extends RestRepository<UserLog, Integer> {
 	/**
 	 * Return all user logs within the given date range. The caller is expected to widen the range to cover the
 	 * "no bound" cases (see {@link org.ligoj.app.resource.log.UserLogResource}): both bounds are always provided, which
-	 * keeps the generated statement portable (some databases cannot resolve the type of a bare {@code NULL} bind
+	 * keeps the generated statement portable (some databases cannot resolve the SQL type of a bare {@code NULL} bind
 	 * parameter).
 	 *
 	 * @param from Lower bound (inclusive).
