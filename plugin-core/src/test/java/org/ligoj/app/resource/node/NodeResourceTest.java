@@ -1158,7 +1158,6 @@ class NodeResourceTest extends AbstractAppTest {
 				nodes.size());
 	}
 
-	@SuppressWarnings("deprecation") // The deprecated user-scoped queries are the reference of the visibility filtering
 	@Test
 	void getNodeStatisticsVisibility() {
 		// A user seeing only the JIRA nodes
@@ -1168,14 +1167,28 @@ class NodeResourceTest extends AbstractAppTest {
 		em.persist(delegate);
 		em.flush();
 
+		// The last event of each subscription
+		final var lastEvents = eventRepository.findAll().stream().filter(e -> e.getSubscription() != null)
+				.collect(Collectors.toMap(e -> e.getSubscription().getId(), e -> e,
+						(a, b) -> a.getId() > b.getId() ? a : b));
+
 		var partial = false;
 		for (final var user : List.of(DEFAULT_USER, "user-jira", "any")) {
 			initSpringSecurityContext(user);
+
+			// The reference: the visibility checked per subscription row, then counted
 			final var expected = new HashMap<String, Map<String, Long>>();
-			repository.countNodeSubscriptions(user).forEach(r -> expected
-					.computeIfAbsent((String) r[0], _ -> new HashMap<>()).put("total", (Long) r[1]));
-			eventRepository.countSubscriptionsEvents(user).forEach(r -> expected
-					.computeIfAbsent((String) r[0], _ -> new HashMap<>()).put((String) r[1], (Long) r[2]));
+			for (final var subscription : subscriptionRepository.findAll()) {
+				final var node = subscription.getNode().getId();
+				if (repository.findOneVisible(node, user) != null) {
+					final var values = expected.computeIfAbsent(node, _ -> new HashMap<>());
+					values.merge("total", 1L, Long::sum);
+					final var last = lastEvents.get(subscription.getId());
+					if (last != null) {
+						values.merge(last.getValue(), 1L, Long::sum);
+					}
+				}
+			}
 			final var actual = resource.getNodeStatistics().stream()
 					.collect(Collectors.toMap(NodeStatisticsVo::getNode, NodeStatisticsVo::getValues));
 			Assertions.assertEquals(expected, actual, user);
@@ -1562,6 +1575,22 @@ class NodeResourceTest extends AbstractAppTest {
 		node.setName("Jira 7");
 		node.setNode("service:bt:jira");
 		// The form sends no date: the detected one is kept
+		resource.update(node);
+		final var entity = reload("service:bt:jira:6");
+		Assertions.assertEquals(EXPIRY, entity.getCredentialExpiry());
+		Assertions.assertEquals(CredentialExpirySource.DETECTED, entity.getCredentialExpirySource());
+	}
+
+	@Test
+	void updateCredentialExpiryDetectedWins() {
+		repository.updateCredentialExpiry("service:bt:jira:6", EXPIRY, CredentialExpirySource.DETECTED);
+		final var node = new NodeEditionVo();
+		node.setId("service:bt:jira:6");
+		node.setMode(SubscriptionMode.LINK);
+		node.setName("Jira 7");
+		node.setNode("service:bt:jira");
+		// The form sends another date: the detected one is the expiry of the credentials really in use
+		node.setCredentialExpiry(EXPIRY.plus(5, ChronoUnit.DAYS));
 		resource.update(node);
 		final var entity = reload("service:bt:jira:6");
 		Assertions.assertEquals(EXPIRY, entity.getCredentialExpiry());

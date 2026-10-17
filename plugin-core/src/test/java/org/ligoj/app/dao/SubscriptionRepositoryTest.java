@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
 import org.ligoj.app.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -43,7 +44,7 @@ class SubscriptionRepositoryTest extends AbstractAppTest {
 	}
 
 	private Set<String> toPairs(final List<Object[]> rows) {
-		return rows.stream().map(r -> ((Subscription) r[0]).getId() + "/" + ((ParameterValue) r[1]).getId())
+		return rows.stream().map(r -> ((AbstractPersistable<Integer>) r[0]).getId() + "/" + ((AbstractPersistable<Integer>) r[1]).getId())
 				.collect(Collectors.toSet());
 	}
 

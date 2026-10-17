@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.hibernate.QueryException;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.internal.SessionFactoryImpl;
+import org.hibernate.query.sqm.function.FunctionRenderer;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.sql.ast.SqlAstTranslator;
 import org.hibernate.sql.ast.spi.StringBuilderSqlAppender;
@@ -122,7 +123,7 @@ class SecuritySpringDataListenerTest {
 		final var astParams = Stream.of(args).map(a -> new QueryLiteral<>(a,
 				new NamedBasicTypeImpl<>(new StringJavaType(), new VarcharJdbcType(), a))).toList();
 		final var sessionFactory = (SessionFactoryImpl) emf.getNativeEntityManagerFactory();
-		((StandardSQLFunction) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name))
+		((FunctionRenderer) sessionFactory.getQueryEngine().getSqmFunctionRegistry().findFunctionDescriptor(name))
 				.render(appender, astParams, null, translator);
 		return sb.toString();
 	}

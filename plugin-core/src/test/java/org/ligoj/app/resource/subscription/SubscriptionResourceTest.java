@@ -16,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.api.NodeStatus;
 import org.ligoj.app.api.ServicePlugin;
 import org.ligoj.app.api.SubscriptionMode;
+import org.ligoj.app.api.SubscriptionStatusWithData;
 import org.ligoj.app.dao.*;
 import org.ligoj.app.iam.dao.DelegateOrgRepository;
 import org.ligoj.app.iam.model.*;
@@ -836,14 +837,13 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 
 	}
 
-	@SuppressWarnings("deprecation") // The deprecated GET endpoint keeps working until its removal
 	@Test
-	void refreshStatuses() throws IOException {
+	void refreshStatusesPost() throws IOException {
 		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
 		final var projectId = projectRepository.findByName("MDA").getId();
 		final var subscriptionStatus = resource.getStatusByProject(projectId);
 		Assertions.assertEquals(1, subscriptionStatus.size());
-		final var statuses = resource.refreshStatuses(Collections.singleton(subscription));
+		final var statuses = resource.refreshStatusesPost(Collections.singleton(subscription));
 		Assertions.assertEquals(1, statuses.size());
 		final var status = statuses.get(subscription);
 		Assertions.assertEquals(subscription, status.getId().intValue());
@@ -858,11 +858,8 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 	}
 
 	@Test
-	void refreshStatusesPost() throws IOException {
+	void refreshStatusPost() throws IOException {
 		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
-		final var statuses = resource.refreshStatusesPost(Collections.singleton(subscription));
-		Assertions.assertEquals(1, statuses.size());
-		Assertions.assertEquals(NodeStatus.UP, statuses.get(subscription).getStatus());
 		Assertions.assertEquals(NodeStatus.UP, resource.refreshStatusPost(subscription).getStatus());
 	}
 
@@ -885,13 +882,6 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 				Assertions.assertThrows(EntityNotFoundException.class, () -> resource.refreshStatusesPost(ids)).getMessage());
 	}
 
-	@SuppressWarnings("deprecation") // The deprecated GET endpoint keeps working until its removal
-	@Test
-	void refreshStatusGet() throws IOException {
-		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
-		Assertions.assertEquals(NodeStatus.UP, resource.refreshStatus(subscription).getStatus());
-	}
-
 	@Test
 	void refreshStatusesPostEmpty() {
 		Assertions.assertEquals(0, resource.refreshStatusesPost(Set.of()).size());
@@ -912,18 +902,33 @@ class SubscriptionResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(0, repository.findAllVisible(all, "any").size());
 	}
 
+	/**
+	 * The statuses of a refresh result: a single status, or the status of each subscription.
+	 */
+	private Object toStatuses(final Object result) {
+		if (result instanceof Map<?, ?> statuses) {
+			return statuses.entrySet().stream().collect(java.util.stream.Collectors.toMap(Map.Entry::getKey,
+					e -> ((SubscriptionStatusWithData) e.getValue()).getStatus()));
+		}
+		return ((SubscriptionStatusWithData) result).getStatus();
+	}
+
 	@Test
-	void refreshStatusMappings() throws NoSuchMethodException {
-		// Same paths for the GET (deprecated) and POST methods
+	void refreshStatusMappings() throws ReflectiveOperationException, IOException {
+		// Same paths and same statuses for the GET (deprecated) and POST methods, invoked by name as JAX-RS does
+		persistEntities("csv", new Class<?>[]{Event.class}, StandardCharsets.UTF_8);
 		final var type = SubscriptionResource.class;
-		for (final var names : List.of(List.of("refreshStatus", "refreshStatusPost", int.class),
-				List.of("refreshStatuses", "refreshStatusesPost", Set.class))) {
+		for (final var names : List.of(List.of("refreshStatus", "refreshStatusPost", int.class, subscription),
+				List.of("refreshStatuses", "refreshStatusesPost", Set.class, Set.of(subscription)))) {
 			final var get = type.getMethod((String) names.get(0), (Class<?>) names.get(2));
 			final var post = type.getMethod((String) names.get(1), (Class<?>) names.get(2));
 			Assertions.assertNotNull(get.getAnnotation(jakarta.ws.rs.GET.class));
 			Assertions.assertNotNull(post.getAnnotation(jakarta.ws.rs.POST.class));
 			Assertions.assertEquals(get.getAnnotation(jakarta.ws.rs.Path.class).value(),
 					post.getAnnotation(jakarta.ws.rs.Path.class).value());
+			final var expected = toStatuses(post.invoke(resource, names.get(3)));
+			Assertions.assertNotNull(expected);
+			Assertions.assertEquals(expected, toStatuses(get.invoke(resource, names.get(3))));
 		}
 	}
 

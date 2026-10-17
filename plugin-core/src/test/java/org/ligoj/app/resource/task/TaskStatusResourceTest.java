@@ -146,7 +146,6 @@ class TaskStatusResourceTest extends AbstractOrgTest {
 		Assertions.assertEquals(1, stats.failed());
 	}
 
-	@SuppressWarnings({ "rawtypes" })
 	@Test
 	void findAllOtherRunner() {
 		// A runner that is neither node nor subscription scoped: classified OTHER,

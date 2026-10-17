@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -120,7 +121,7 @@ public class CredentialExpiryPolicy implements ISessionSettingsProvider {
 
 	@SuppressWarnings("unchecked")
 	private void addWarning(final SessionSettings settings, final String code, final Map<String, String> parameters) {
-		((List<Object>) settings.getUserSettings().computeIfAbsent(WARNINGS, _ -> new ArrayList<>()))
+		((Collection<Object>) settings.getUserSettings().computeIfAbsent(WARNINGS, _ -> new ArrayList<>()))
 				.add(Map.of("code", code, "parameters", parameters, "link", LINK));
 	}
 }
