@@ -9,6 +9,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.AbstractAppTest;
+import org.ligoj.app.api.PluginNotFoundException;
 import org.ligoj.app.api.SubscriptionMode;
 import org.ligoj.app.api.ToolPlugin;
 import org.ligoj.app.dao.EventRepository;
@@ -19,13 +20,13 @@ import org.ligoj.app.resource.ServicePluginLocator;
 import org.ligoj.bootstrap.core.json.ObjectMapperTrim;
 import org.ligoj.bootstrap.core.resource.BusinessException;
 import org.ligoj.bootstrap.core.validation.ValidationJsonException;
+import org.springframework.aop.TargetClassAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.CacheManager;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,7 +66,7 @@ class NodeConnectionCheckTest extends AbstractAppTest {
 	 */
 	abstract static class CheckingPlugin implements ToolPlugin {
 		@Override
-		public abstract boolean checkConnection(String node, Map<String, String> parameters) throws Exception;
+		public abstract boolean checkConnection(String node, Map<String, String> parameters);
 	}
 
 	private final List<Map<String, String>> checked = new ArrayList<>();
@@ -128,7 +129,7 @@ class NodeConnectionCheckTest extends AbstractAppTest {
 	}
 
 	@Test
-	void checkConnectionCreatePersistsNothing() throws Exception {
+	void checkConnectionCreatePersistsNothing() {
 		final var nodes = repository.count();
 		final var values = parameterValueRepository.count();
 		final var events = eventRepository.count();
@@ -161,7 +162,7 @@ class NodeConnectionCheckTest extends AbstractAppTest {
 	}
 
 	@Test
-	void checkConnectionInvalidValue() throws Exception {
+	void checkConnectionInvalidValue() {
 		// A value refused by its parameter definition is a failed check naming the parameter, not a 400
 		final var result = resource.checkConnection(node("service:bt:jira:6", value("c_17", "A")));
 		Assertions.assertFalse(result.isUp());
@@ -186,7 +187,7 @@ class NodeConnectionCheckTest extends AbstractAppTest {
 	}
 
 	@Test
-	void checkConnectionNotWritable() throws Exception {
+	void checkConnectionNotWritable() {
 		// This user sees only the Jenkins nodes
 		initSpringSecurityContext("user1");
 		final var vo = node("service:bt:jira:6", value("service:bt:jira:url", "http://remote"));
@@ -195,7 +196,36 @@ class NodeConnectionCheckTest extends AbstractAppTest {
 	}
 
 	@Test
-	void checkConnectionOtherParent() throws Exception {
+	void checkConnectionRootNotAdmin() {
+		// Only an administrator can create a root node, so only one can check it
+		initSpringSecurityContext("user1");
+		final var vo = node("service:other");
+		vo.setNode(null);
+		Assertions.assertEquals("read-only-node",
+				Assertions.assertThrows(BusinessException.class, () -> resource.checkConnection(vo)).getMessage());
+		verifyNoInteractions(plugin);
+	}
+
+	@Test
+	void checkConnectionRootNoTool() {
+		// A root node is a service, not a tool: there is no tool plug-in to check its connection
+		resource.locator = applicationContext.getBean(ServicePluginLocator.class);
+		final var vo = node("service:other");
+		vo.setNode(null);
+		Assertions.assertThrows(PluginNotFoundException.class, () -> resource.checkConnection(vo));
+		verifyNoInteractions(plugin);
+	}
+
+	@Test
+	void checksGivenValuesOtherApi() {
+		// A proxied plug-in whose target is not a tool plug-in of this API: no connection check to find
+		final var proxy = mock(ToolPlugin.class, withSettings().extraInterfaces(TargetClassAware.class));
+		doReturn(Object.class).when((TargetClassAware) proxy).getTargetClass();
+		Assertions.assertFalse(NodeResource.checksGivenValues(proxy));
+	}
+
+	@Test
+	void checkConnectionOtherParent() {
 		// The stored secrets of a node are never sent to the plug-in of another tool
 		final var vo = node("service:bt:jira:6", untouched("service:bt:jira:user"));
 		vo.setNode("service:build:jenkins");
