@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.ligoj.app.resource.AbstractOrgTest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.AbstractPersistable;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -33,6 +34,9 @@ class ProjectRepositoryTest extends AbstractOrgTest {
 
 	@Autowired
 	private ProjectRepository repository;
+
+	@Autowired
+	private SubscriptionRepository subscriptionRepository;
 
 	@Test
 	void isVisible() {
@@ -65,7 +69,7 @@ class ProjectRepositoryTest extends AbstractOrgTest {
 			final var page = repository.findAllLight(user, "", PageRequest.of(0, 1000));
 			Assertions.assertEquals(expected.size(), page.getTotalElements(), user);
 			final var actual = page.getContent().stream()
-					.collect(Collectors.toMap(r -> ((Project) r[0]).getId(), r -> (Long) r[1]));
+					.collect(Collectors.toMap(r -> ((AbstractPersistable<Integer>) r[0]).getId(), r -> (Long) r[1]));
 			Assertions.assertEquals(expected, actual.keySet(), user);
 			actual.forEach((p, c) -> Assertions.assertEquals(counts.get(p), c, user + "/" + p));
 			total += actual.size();
@@ -87,20 +91,21 @@ class ProjectRepositoryTest extends AbstractOrgTest {
 		Assertions.assertEquals(all.size(), page.getTotalElements());
 	}
 
-	@SuppressWarnings("deprecation") // The deprecated query keeps working until its removal
 	@Test
-	void findAllHavingSubscription() {
-		// The visible projects having at least one subscription
-		final var subscribed = em.createQuery("SELECT DISTINCT s.project.id FROM Subscription s", Integer.class)
-				.getResultList();
+	void findAllVisibleLightProjects() {
+		// The visible projects having at least one subscription, from the visible subscriptions, each one listed
+		final Map<Integer, Long> counts = em
+				.createQuery("SELECT s.project.id, COUNT(s.id) FROM Subscription s GROUP BY s.project.id", Object[].class)
+				.getResultList().stream().collect(Collectors.toMap(r -> (Integer) r[0], r -> (Long) r[1]));
 		var total = 0;
 		for (final var user : List.of(DEFAULT_USER, "fdaugan", "admin-test", "user1", "any")) {
 			initSpringSecurityContext(user);
-			final var expected = subscribed.stream().filter(p -> repository.isVisible(p, user))
+			final var expected = counts.keySet().stream().filter(p -> repository.isVisible(p, user))
 					.collect(Collectors.toSet());
-			final var actual = repository.findAllHavingSubscription(user).stream().map(r -> (Integer) r[0]).toList();
-			Assertions.assertEquals(expected, new java.util.HashSet<>(actual), user);
-			Assertions.assertEquals(expected.size(), actual.size(), user);
+			final var actual = subscriptionRepository.findAllVisibleLight(user).stream()
+					.collect(Collectors.groupingBy(r -> (Integer) r[1], Collectors.counting()));
+			Assertions.assertEquals(expected, actual.keySet(), user);
+			actual.forEach((p, c) -> Assertions.assertEquals(counts.get(p), c, user + "/" + p));
 			total += actual.size();
 		}
 		Assertions.assertTrue(total > 0);
