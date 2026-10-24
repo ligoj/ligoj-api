@@ -166,6 +166,7 @@ public class NodeHelper {
 		vo.setCredentialExpiry(entity.getCredentialExpiry());
 		vo.setCredentialExpirySource(entity.getCredentialExpirySource());
 		vo.setVersion(entity.getVersion());
+		vo.setLastVersion(entity.getLastVersion());
 		return vo;
 	}
 

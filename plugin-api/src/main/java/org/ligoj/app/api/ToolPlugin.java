@@ -25,7 +25,8 @@ public interface ToolPlugin extends ServicePlugin {
 	}
 
 	/**
-	 * Return the last available version of this tool.
+	 * Return the last available version of this tool. Called by the node status check, once per tool for its instances
+	 * or for the tool itself, which stores it on the tool node: the UI flags the instances running an older version.
 	 *
 	 * @return The String value of the last available version of the tool or <code>null</code> if not found.
 	 * @throws Exception When the version failed to be read, will also be considered as a <code>null</code> version.

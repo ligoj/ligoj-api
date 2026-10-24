@@ -92,4 +92,10 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	 * <code>null</code> when never detected.
 	 */
 	private String version;
+
+	/**
+	 * Optional latest released version of a tool, set on a tool node. An instance compares its {@link #version} with
+	 * the one of its {@link #refined} tool. <code>null</code> when never read.
+	 */
+	private String lastVersion;
 }

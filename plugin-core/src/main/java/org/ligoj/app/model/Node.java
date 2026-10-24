@@ -96,6 +96,14 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	@Column(length = VERSION_LENGTH)
 	private String version;
 
+	/**
+	 * Optional latest released version of a tool, stored on the tool node: its plug-in reads it during the status check
+	 * of its instances, or of the tool itself. <code>null</code> when never read. The last read one is kept when the
+	 * plug-in no longer tells.
+	 */
+	@Column(length = VERSION_LENGTH)
+	private String lastVersion;
+
 	@Override
 	@Transient
 	@JsonIgnore

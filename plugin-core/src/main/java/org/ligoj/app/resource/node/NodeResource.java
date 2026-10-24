@@ -408,10 +408,15 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 			checkNodeStatus(node);
 			releaseEntities();
 		});
+
+		// The latest version of each tool of these instances, read once per tool
+		final var tools = new HashSet<String>();
+		nodes.stream().map(Node::getTool).filter(t -> tools.add(t.getId())).forEach(this::checkLastVersion);
 	}
 
 	/**
-	 * Check status of a specific node instance. Only visible node from the current user is checked.
+	 * Check status of a specific node instance. Only visible node from the current user is checked. The latest version
+	 * of its tool is read too.
 	 *
 	 * @param id The node identifier to check.
 	 * @return the new status or <code>null</code> if undefined of not visible.
@@ -420,8 +425,11 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	@Path("status/refresh/{id:.+:.*}")
 	@OnNullReturn404
 	public NodeStatus checkNodeStatus(@PathParam("id") final String id) {
-		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(this::checkNodeStatus)
-				.orElse(null);
+		return Optional.ofNullable(repository.findOneVisible(id, securityHelper.getLogin())).map(node -> {
+			final var status = checkNodeStatus(node);
+			Optional.ofNullable(node.getTool()).ifPresent(this::checkLastVersion);
+			return status;
+		}).orElse(null);
 	}
 
 	/**
@@ -483,10 +491,44 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 	 * truncated.
 	 */
 	private void checkVersion(final Node node, final Map<String, String> parameters) {
-		final var version = StringUtils.truncate(StringUtils.trimToNull(self.checkVersion(node.getId(), parameters)),
-				Node.VERSION_LENGTH);
+		final var version = toVersion(self.checkVersion(node.getId(), parameters));
 		if (version != null && !version.equals(node.getVersion())) {
 			repository.updateVersion(node.getId(), version);
+		}
+	}
+
+	/**
+	 * Return the version to store from a version read from a tool: <code>null</code> when blank, truncated to the column
+	 * length.
+	 */
+	private static String toVersion(final String version) {
+		return StringUtils.truncate(StringUtils.trimToNull(version), Node.VERSION_LENGTH);
+	}
+
+	/**
+	 * Store the latest released version of a tool, as its plug-in reads it. When the plug-in does not tell, the last
+	 * read version is kept.
+	 */
+	private void checkLastVersion(final Node tool) {
+		final var version = toVersion(self.checkLastVersion(tool.getId()));
+		if (version != null && !version.equals(tool.getLastVersion())) {
+			repository.updateLastVersion(tool.getId(), version);
+		}
+	}
+
+	/**
+	 * Read the latest released version of a tool from its plug-in. This method need to be public for the CGLIB proxying.
+	 *
+	 * @param tool The tool node identifier.
+	 * @return The latest version, or <code>null</code> when unknown, including on failure.
+	 */
+	public String checkLastVersion(final String tool) {
+		try {
+			return locator.getResourceExpected(tool, ToolPlugin.class).getLastVersion();
+		} catch (final Exception e) { // NOSONAR
+			// Do not pollute logs with this failures, the latest version stays as is
+			log.warn("Latest version of tool {} failed with {}: {}", tool, e.getClass(), e.getMessage());
+			return null;
 		}
 	}
 

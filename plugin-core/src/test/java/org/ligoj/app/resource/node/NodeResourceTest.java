@@ -329,6 +329,34 @@ class NodeResourceTest extends AbstractAppTest {
 		verify(events, times(nbNodes)).registerEvent(any(Node.class), eq(EventType.STATUS), any(String.class));
 	}
 
+	/**
+	 * The scheduler stores what an UP node detects without a transaction around the loop: an update query needing the
+	 * caller's transaction would stop the scheduled check at the first UP node.
+	 */
+	@Test
+	void checkNodesStatusSchedulerWithoutTransactionStores() throws Exception {
+		final var instances = repository.findAllInstance();
+		mockApplicationContext();
+		final var tool = mock(ToolPlugin.class);
+		when(tool.checkStatus(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(true);
+		when(tool.getVersion(ArgumentMatchers.anyMap())).thenReturn("1.0");
+		when(tool.getLastVersion()).thenReturn("2.0");
+		when(tool.getCredentialExpiry(ArgumentMatchers.anyString(), ArgumentMatchers.anyMap())).thenReturn(EXPIRY);
+		when(resourceMock.locator.getResourceExpected(ArgumentMatchers.anyString(), eq(ToolPlugin.class))).thenReturn(tool);
+		// The real repository, except the instances invisible outside the test transaction
+		final var nodes = mock(NodeRepository.class, org.mockito.AdditionalAnswers.delegatesTo(repository));
+		doReturn(instances).when(nodes).findAllInstance();
+		resourceMock.repository = nodes;
+		ReflectionTestUtils.setField(resourceMock, "eventResource", mock(EventResource.class));
+
+		new TransactionTemplate(transactionManager, new DefaultTransactionDefinition(TransactionDefinition.PROPAGATION_NOT_SUPPORTED))
+				.executeWithoutResult(s -> resourceMock.checkNodesStatusScheduler());
+		verify(nodes, times(instances.size())).updateVersion(ArgumentMatchers.anyString(), eq("1.0"));
+		verify(nodes, times(instances.size())).updateCredentialExpiry(ArgumentMatchers.anyString(), eq(EXPIRY), eq(CredentialExpirySource.DETECTED));
+		final var tools = instances.stream().map(n -> n.getRefined().getId()).distinct().count();
+		verify(nodes, times((int) tools)).updateLastVersion(ArgumentMatchers.anyString(), eq("2.0"));
+	}
+
 	@Test
 	void checkSubscriptionsStatusSchedulerWithoutTransaction() {
 		Assertions.assertDoesNotThrow(() -> runWithoutTransaction(NodeResource::checkSubscriptionsStatusScheduler));
@@ -1593,12 +1621,74 @@ class NodeResourceTest extends AbstractAppTest {
 	@Test
 	void findAllVersion() {
 		repository.updateVersion("service:bt:jira:6", "9.12.0");
+		repository.updateLastVersion("service:bt:jira", "10.3.1");
 		reload("service:bt:jira:6");
 		initSpringSecurityContext(DEFAULT_USER);
 
 		Assertions.assertEquals("9.12.0", resource.findById("service:bt:jira:6").getVersion());
-		Assertions.assertEquals("9.12.0", resource.findAll(newUriInfo(), "jira", null, null, -1).getData().stream()
-				.filter(n -> n.getId().equals("service:bt:jira:6")).findFirst().orElseThrow().getVersion());
+		final var instance = resource.findAll(newUriInfo(), "jira", null, null, -1).getData().stream()
+				.filter(n -> n.getId().equals("service:bt:jira:6")).findFirst().orElseThrow();
+		Assertions.assertEquals("9.12.0", instance.getVersion());
+		// The latest version of its tool, to compare with
+		Assertions.assertEquals("10.3.1", instance.getRefined().getLastVersion());
+	}
+
+	private static final String SONAR_TOOL = "service:kpi:sonar";
+
+	@Test
+	void checkNodesStatusLastVersion() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		when(toolMock(SONAR_TOOL).getLastVersion()).thenReturn(" 10.5 ");
+		when(toolMock("service:bt:jira").getLastVersion()).thenReturn("10.3.1");
+
+		resourceMock.checkNodesStatus();
+		Assertions.assertEquals("10.5", reload(SONAR_TOOL).getLastVersion());
+		// Whatever the status of its instances, once for a tool having several instances
+		Assertions.assertEquals("10.3.1", reload("service:bt:jira").getLastVersion());
+		verify(toolMock("service:bt:jira")).getLastVersion();
+		// An instance has no latest version of its own
+		Assertions.assertNull(reload(SONAR).getLastVersion());
+	}
+
+	@Test
+	void checkNodesStatusLastVersionUnknownKept() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		repository.updateLastVersion(SONAR_TOOL, "10.4");
+		repository.updateLastVersion("service:bt:jira", "10.3.1");
+		reload(SONAR_TOOL);
+		// Unknown, like the default mock answer, or failed: the last known one is kept
+		when(toolMock("service:bt:jira").getLastVersion()).thenThrow(new TechnicalException("junit"));
+
+		resourceMock.checkNodesStatus();
+		Assertions.assertEquals("10.4", reload(SONAR_TOOL).getLastVersion());
+		Assertions.assertEquals("10.3.1", reload("service:bt:jira").getLastVersion());
+
+		// The same version again: nothing new to store
+		when(toolMock(SONAR_TOOL).getLastVersion()).thenReturn("10.4");
+		resourceMock.checkNodesStatus();
+		Assertions.assertEquals("10.4", reload(SONAR_TOOL).getLastVersion());
+	}
+
+	@Test
+	void checkNodeStatusLastVersion() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		final var sonar = toolMock(SONAR_TOOL);
+		when(sonar.getLastVersion()).thenReturn("10.5", "10.6");
+
+		// The refresh of an instance reads the latest version of its tool
+		resourceMock.checkNodeStatus(SONAR);
+		Assertions.assertEquals("10.5", reload(SONAR_TOOL).getLastVersion());
+
+		// The refresh of a tool reads its own
+		resourceMock.checkNodeStatus(SONAR_TOOL);
+		Assertions.assertEquals("10.6", reload(SONAR_TOOL).getLastVersion());
+
+		// A service has none
+		resourceMock.checkNodeStatus("service:kpi");
+		verify(sonar, times(2)).getLastVersion();
 	}
 
 	@Test

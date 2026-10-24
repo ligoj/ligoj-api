@@ -131,6 +131,9 @@ class NodeHelperTest {
 		entity.setId("service:s1:t2:i3");
 		entity.setName("I3");
 		entity.setVersion("10.4.1");
-		Assertions.assertEquals("10.4.1", NodeHelper.toVoLight(entity).getVersion());
+		entity.setLastVersion("10.5");
+		final var vo = NodeHelper.toVoLight(entity);
+		Assertions.assertEquals("10.4.1", vo.getVersion());
+		Assertions.assertEquals("10.5", vo.getLastVersion());
 	}
 }

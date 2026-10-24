@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * {@link Node} repository
@@ -186,13 +187,15 @@ public interface NodeRepository extends RestRepository<Node, String> {
 
 	/**
 	 * Store the credential expiry of a node. An update query: the status check of several nodes clears the persistence
-	 * context between two nodes, so the node entity may be detached.
+	 * context between two nodes, so the node entity may be detached. It joins the caller's transaction, or runs in its
+	 * own one: the scheduled status check runs without any.
 	 *
 	 * @param node   The node identifier.
 	 * @param expiry The expiry, <code>null</code> when the credentials never expire.
 	 * @param source The origin of the expiry.
 	 */
 	@Modifying
+	@Transactional
 	@Query("UPDATE Node SET credentialExpiry = :expiry, credentialExpirySource = :source WHERE id = :node")
 	void updateCredentialExpiry(String node, Instant expiry, CredentialExpirySource source);
 
@@ -204,8 +207,21 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	 * @param version The detected version.
 	 */
 	@Modifying
+	@Transactional
 	@Query("UPDATE Node SET version = :version WHERE id = :node")
 	void updateVersion(String node, String version);
+
+	/**
+	 * Store the latest released version of a tool on its node. An update query, for the same reason as
+	 * {@link #updateCredentialExpiry(String, Instant, CredentialExpirySource)}.
+	 *
+	 * @param tool    The tool node identifier.
+	 * @param version The latest version.
+	 */
+	@Modifying
+	@Transactional
+	@Query("UPDATE Node SET lastVersion = :version WHERE id = :tool")
+	void updateLastVersion(String tool, String version);
 
 	/**
 	 * Return the nodes whose credentials expire at the latest at the given instant, the earliest first.
