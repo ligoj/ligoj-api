@@ -435,6 +435,7 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		final var status = self.checkNodeStatus(node.getId(), parameters);
 		if (status.isUp()) {
 			checkCredentialExpiry(node, parameters);
+			checkVersion(node, parameters);
 		}
 		if (eventResource.registerEvent(node, EventType.STATUS, status.name())) {
 			checkSubscriptionStatus(node, status);
@@ -472,6 +473,37 @@ public class NodeResource extends AbstractLockedResource<Node, String> {
 		} catch (final Exception e) { // NOSONAR
 			// Do not pollute logs with this failures, the expiry stays as is
 			log.warn("Credential expiry of node {} failed with {}: {}", node, e.getClass(), e.getMessage());
+			return null;
+		}
+	}
+
+	/**
+	 * Store the version of the tool an UP node calls, as its tool plug-in reads it. When the tool does not tell, the
+	 * last detected version is kept. A version longer than the column, such as a page returned by a proxy, is
+	 * truncated.
+	 */
+	private void checkVersion(final Node node, final Map<String, String> parameters) {
+		final var version = StringUtils.truncate(StringUtils.trimToNull(self.checkVersion(node.getId(), parameters)),
+				Node.VERSION_LENGTH);
+		if (version != null && !version.equals(node.getVersion())) {
+			repository.updateVersion(node.getId(), version);
+		}
+	}
+
+	/**
+	 * Read the version of the tool a node calls from its tool plug-in. This method need to be public for the CGLIB
+	 * proxying.
+	 *
+	 * @param node       The node identifier.
+	 * @param parameters Node parameters used to call the tool.
+	 * @return The version, or <code>null</code> when unknown, including on failure.
+	 */
+	public String checkVersion(final String node, final Map<String, String> parameters) {
+		try {
+			return locator.getResourceExpected(node, ToolPlugin.class).getVersion(parameters);
+		} catch (final Exception e) { // NOSONAR
+			// Do not pollute logs with this failures, the version stays as is
+			log.warn("Version of node {} failed with {}: {}", node, e.getClass(), e.getMessage());
 			return null;
 		}
 	}

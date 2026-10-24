@@ -165,6 +165,7 @@ public class NodeHelper {
 		vo.setUiColor(entity.getUiColor());
 		vo.setCredentialExpiry(entity.getCredentialExpiry());
 		vo.setCredentialExpirySource(entity.getCredentialExpirySource());
+		vo.setVersion(entity.getVersion());
 		return vo;
 	}
 

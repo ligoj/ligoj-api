@@ -12,7 +12,8 @@ import java.util.Map;
 public interface ToolPlugin extends ServicePlugin {
 
 	/**
-	 * Return the detected version of the tool given some parameters.
+	 * Return the detected version of the tool given some parameters. Also called by the node status check once the
+	 * node is UP, which stores the version on the node.
 	 *
 	 * @param parameters The associated parameter values
 	 * @return the String value of the detected version of the tool or <code>null</code> if not available/found.

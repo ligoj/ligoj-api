@@ -124,4 +124,13 @@ class NodeHelperTest {
 		Assertions.assertEquals(entity.getCredentialExpiry(), vo.getCredentialExpiry());
 		Assertions.assertEquals(CredentialExpirySource.MANUAL, vo.getCredentialExpirySource());
 	}
+
+	@Test
+	void toVoLightVersion() {
+		final var entity = new Node();
+		entity.setId("service:s1:t2:i3");
+		entity.setName("I3");
+		entity.setVersion("10.4.1");
+		Assertions.assertEquals("10.4.1", NodeHelper.toVoLight(entity).getVersion());
+	}
 }

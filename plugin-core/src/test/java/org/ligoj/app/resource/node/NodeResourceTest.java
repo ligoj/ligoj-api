@@ -1531,6 +1531,77 @@ class NodeResourceTest extends AbstractAppTest {
 	}
 
 	@Test
+	void checkNodeStatusVersionDetected() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		when(toolMock(SONAR).getVersion(ArgumentMatchers.anyMap())).thenReturn(" 10.4.1 ");
+
+		Assertions.assertEquals(NodeStatus.UP, resourceMock.checkNodeStatus(SONAR));
+		Assertions.assertEquals("10.4.1", reload(SONAR).getVersion());
+
+		// The same version again: nothing new to store
+		resourceMock.checkNodeStatus(SONAR);
+		Assertions.assertEquals("10.4.1", reload(SONAR).getVersion());
+	}
+
+	@Test
+	void checkNodeStatusVersionUnknownKept() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		repository.updateVersion(SONAR, "10.4.1");
+		reload(SONAR);
+		// A blank version is unknown, like the default mock answer
+		when(toolMock(SONAR).getVersion(ArgumentMatchers.anyMap())).thenReturn(" ");
+
+		resourceMock.checkNodeStatus(SONAR);
+		Assertions.assertEquals("10.4.1", reload(SONAR).getVersion());
+	}
+
+	@Test
+	void checkNodeStatusVersionFailureKept() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		repository.updateVersion(SONAR, "10.4.1");
+		reload(SONAR);
+		when(toolMock(SONAR).getVersion(ArgumentMatchers.anyMap())).thenThrow(new TechnicalException("junit"));
+
+		// The status stays UP, the last known version is kept
+		Assertions.assertEquals(NodeStatus.UP, resourceMock.checkNodeStatus(SONAR));
+		Assertions.assertEquals("10.4.1", reload(SONAR).getVersion());
+	}
+
+	@Test
+	void checkNodeStatusVersionTruncated() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+		// Such as an HTML page returned by a proxy
+		when(toolMock(SONAR).getVersion(ArgumentMatchers.anyMap())).thenReturn("1".repeat(Node.VERSION_LENGTH + 10));
+
+		resourceMock.checkNodeStatus(SONAR);
+		Assertions.assertEquals("1".repeat(Node.VERSION_LENGTH), reload(SONAR).getVersion());
+	}
+
+	@Test
+	void checkNodeStatusDownSkipsVersion() throws Exception {
+		mockApplicationContext();
+		prepareEvent();
+
+		Assertions.assertEquals(NodeStatus.DOWN, resourceMock.checkNodeStatus(JENKINS));
+		org.mockito.Mockito.verify(toolMock(JENKINS), org.mockito.Mockito.never()).getVersion(ArgumentMatchers.anyMap());
+	}
+
+	@Test
+	void findAllVersion() {
+		repository.updateVersion("service:bt:jira:6", "9.12.0");
+		reload("service:bt:jira:6");
+		initSpringSecurityContext(DEFAULT_USER);
+
+		Assertions.assertEquals("9.12.0", resource.findById("service:bt:jira:6").getVersion());
+		Assertions.assertEquals("9.12.0", resource.findAll(newUriInfo(), "jira", null, null, -1).getData().stream()
+				.filter(n -> n.getId().equals("service:bt:jira:6")).findFirst().orElseThrow().getVersion());
+	}
+
+	@Test
 	void updateCredentialExpiryManual() {
 		final var node = new NodeEditionVo();
 		node.setId("service:bt:jira:6");

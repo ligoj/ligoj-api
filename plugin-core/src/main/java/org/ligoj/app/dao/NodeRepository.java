@@ -197,6 +197,17 @@ public interface NodeRepository extends RestRepository<Node, String> {
 	void updateCredentialExpiry(String node, Instant expiry, CredentialExpirySource source);
 
 	/**
+	 * Store the detected version of the tool a node calls. An update query, for the same reason as
+	 * {@link #updateCredentialExpiry(String, Instant, CredentialExpirySource)}.
+	 *
+	 * @param node    The node identifier.
+	 * @param version The detected version.
+	 */
+	@Modifying
+	@Query("UPDATE Node SET version = :version WHERE id = :node")
+	void updateVersion(String node, String version);
+
+	/**
 	 * Return the nodes whose credentials expire at the latest at the given instant, the earliest first.
 	 *
 	 * @param limit The latest expiry to return.

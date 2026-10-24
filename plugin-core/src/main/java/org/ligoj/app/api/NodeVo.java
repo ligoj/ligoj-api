@@ -86,4 +86,10 @@ public class NodeVo extends AbstractNodeVo implements Refining<NodeVo> {
 	 * to signal, or when not computed by the called service.
 	 */
 	private CredentialExpiryLevel credentialExpiryLevel;
+
+	/**
+	 * Optional version of the tool this node calls, as detected by the last status check of an UP node.
+	 * <code>null</code> when never detected.
+	 */
+	private String version;
 }

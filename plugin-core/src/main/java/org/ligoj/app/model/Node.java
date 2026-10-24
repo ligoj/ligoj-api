@@ -32,6 +32,11 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Maximal length of {@link #version}.
+	 */
+	public static final int VERSION_LENGTH = 255;
+
 	@NotBlank
 	private String name;
 
@@ -83,6 +88,13 @@ public class Node extends AbstractStringKeyEntity implements Refining<Node>, Nod
 	@Enumerated(EnumType.STRING)
 	@Column(length = 10)
 	private CredentialExpirySource credentialExpirySource;
+
+	/**
+	 * Optional version of the tool this node calls, detected by the tool plug-in during the status check of an UP
+	 * node. <code>null</code> when never detected. The last detected one is kept when the tool no longer tells.
+	 */
+	@Column(length = VERSION_LENGTH)
+	private String version;
 
 	@Override
 	@Transient
