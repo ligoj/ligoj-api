@@ -143,6 +143,37 @@ class IamSystemUserDetailsProviderTest extends AbstractOrgTest {
 		assertFindAllBy("login", "juni", "junit");
 	}
 
+	/**
+	 * Set an attribute of the IAM entry of "fdaugan", then look it up.
+	 */
+	private void assertFindAllByAttribute(final java.util.function.Consumer<CacheUser> setter, final String criteria) {
+		final var cacheUser = em.find(CacheUser.class, "fdaugan");
+		setter.accept(cacheUser);
+		em.flush();
+		em.clear();
+		assertFindAllBy("login", criteria, "fdaugan");
+	}
+
+	@Test
+	void findAllByCustomAttribute() {
+		assertFindAllByAttribute(u -> u.setCustomAttributes("{\"employeeId\":\"E-42\"}"), "e-42");
+	}
+
+	@Test
+	void findAllBySecondMail() {
+		assertFindAllByAttribute(u -> u.setMailList("[\"fabrice.daugan@sample.com\",\"fd@other.org\"]"), "fd@other");
+	}
+
+	@Test
+	void findAllByDepartment() {
+		assertFindAllByAttribute(u -> u.setDepartment("DEP-3890"), "dep-3890");
+	}
+
+	@Test
+	void findAllByLocalId() {
+		assertFindAllByAttribute(u -> u.setLocalId("LID-8234"), "lid-8234");
+	}
+
 	@Test
 	void findAllNoMatch() {
 		final var result = resource.findAllWithRoles(newUriInfoAsc("login"), "no-match-zzz");

@@ -18,7 +18,8 @@ public interface CacheUserRepository extends RestRepository<CacheUser, String> {
 
 	/**
 	 * Lookup criteria of the system user search extended to the IAM attributes: empty criteria matches all,
-	 * otherwise the login or any IAM detail (first name, last name, mails) of the same identifier is matched.
+	 * otherwise the login or any IAM detail (first name, last name, mails, department, local identifier, custom
+	 * attribute values) of the same identifier is matched.
 	 * There is no JPA association between these entities — the correlated EXISTS on the common primary key
 	 * bridges them; a system user without IAM entry is still returned, only matchable by its login.
 	 * An EXISTS (not a root-level entity join) on purpose: since Hibernate 7.4, paginating a
@@ -30,7 +31,11 @@ public interface CacheUserRepository extends RestRepository<CacheUser, String> {
 			+ "    OR EXISTS(SELECT 1 FROM CacheUser cu WHERE cu.id = u.login"
 			+ "       AND (UPPER(cu.firstName) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
 			+ "         OR UPPER(cu.lastName)  LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
-			+ "         OR UPPER(cu.mails)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))";
+			+ "         OR UPPER(cu.mails)     LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "         OR UPPER(cu.mailList)  LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "         OR UPPER(cu.department) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "         OR UPPER(cu.localId)   LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))"
+			+ "         OR UPPER(cu.customAttributes) LIKE UPPER(CONCAT(CONCAT('%',:criteria),'%'))))";
 
 	/**
 	 * Full criteria including the FROM clause, shared with the count query.
