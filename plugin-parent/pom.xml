@@ -167,6 +167,7 @@
 			<properties>
 				<skip.ui.build>false</skip.ui.build>
 				<ui.node.version>v26.8.1</ui.node.version>
+				<ui.npm.version>12.2.3</ui.npm.version>
 			</properties>
 			<build>
 				<plugins>
@@ -179,6 +180,10 @@
 							<!-- Node/npm extracted under target/ so `mvn clean` removes them -->
 							<installDirectory>${project.build.directory}</installDirectory>
 							<skip>${skip.ui.build}</skip>
+							<environmentVariables>
+								<!-- No "new version of npm available" notice, logged as [ERROR] by this plugin -->
+								<NPM_CONFIG_UPDATE_NOTIFIER>false</NPM_CONFIG_UPDATE_NOTIFIER>
+							</environmentVariables>
 						</configuration>
 						<executions>
 							<execution>
@@ -189,8 +194,8 @@
 								</goals>
 								<configuration>
 									<nodeVersion>${ui.node.version}</nodeVersion>
-									<!-- use the npm bundled with the installed Node -->
-									<npmVersion>provided</npmVersion>
+									<!-- pinned npm, independent of the one bundled with the installed Node -->
+									<npmVersion>${ui.npm.version}</npmVersion>
 								</configuration>
 							</execution>
 							<execution>
