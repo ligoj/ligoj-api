@@ -22,10 +22,13 @@ import org.ligoj.app.model.Event;
 import org.ligoj.app.model.Project;
 import org.ligoj.app.model.Subscription;
 import org.ligoj.app.resource.AbstractOrgTest;
+import org.ligoj.app.resource.subscription.SubscriptionResource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -528,5 +531,23 @@ class ProjectResourceTest extends AbstractOrgTest {
 		em.flush();
 		em.clear();
 		Assertions.assertEquals(initCount - 1, repository.count());
+	}
+
+	/**
+	 * The deletion option of the remote data is forwarded to each cascaded subscription deletion.
+	 */
+	@Test
+	void deleteForwardsRemoteDataOption() throws Exception {
+		final var subscriptions = subscriptionRepository.findAllBy("project.id", testProject.getId()).stream()
+				.map(Subscription::getId).toList();
+		Assertions.assertFalse(subscriptions.isEmpty());
+		final var subscriptionResource = Mockito.mock(SubscriptionResource.class);
+		ReflectionTestUtils.setField(resource, "subscriptionResource", subscriptionResource);
+		em.clear();
+		resource.delete(testProject.getId(), true);
+		for (final var subscription : subscriptions) {
+			Mockito.verify(subscriptionResource).delete(subscription, true);
+		}
+		Mockito.verifyNoMoreInteractions(subscriptionResource);
 	}
 }
